@@ -18,6 +18,7 @@ use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Services\NotificacaoService as notify;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Enums\RecordActionsPosition;
 
 class ViagemsTable
@@ -36,20 +37,25 @@ class ViagemsTable
                     ->label('Nº Viagem')
                     ->width('1%')
                     ->sortable()
+                    ->weight(FontWeight::Bold)
                     ->copyable(),
                 TextColumn::make('cargas.integrado.codigo')
                     ->label('Cód. Integrado')
                     ->width('1%')
+                    ->default('Sem Integrado')
                     ->listWithLineBreaks()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('cargas.integrado.nome')
                     ->label('Integrado')
                     ->width('1%')
                     ->tooltip(fn(Models\Viagem $record) => $record->carga->integrado?->codigo ?? 'N/A')
-                    ->listWithLineBreaks(),
+                    ->listWithLineBreaks()
+                    ->disabledClick(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transp.')
                     ->width('1%')
+                    ->disabledClick()
+                    ->default('Sem Doc. Transp.')
                     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [
                     TextColumn::make('km_rodado')
@@ -141,10 +147,10 @@ class ViagemsTable
                         '1' => 'blue',
                         default => 'red',
                     }),
-                TextColumn::make('complementos_count')
+                TextColumn::make('complementos_exists')
                     ->label('Complementos')
                     ->width('1%')
-                    ->counts('complementos')
+                    ->exists('complementos')
                     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('Users', [
                     TextColumn::make('creator.name')
@@ -233,6 +239,13 @@ class ViagemsTable
                     ->multiple()
                     ->columnSpanFull(),
             ])
+            ->reorderableColumns()
+            ->defaultGroup('data_competencia')
+            ->defaultSort('numero_viagem')
+            ->persistSortInSession()
+            ->searchOnBlur()
+            ->deferFilters()
+            ->persistFiltersInSession()
             ->deselectAllRecordsWhenFiltered(false)
             ->recordActions([
                 ActionGroup::make([

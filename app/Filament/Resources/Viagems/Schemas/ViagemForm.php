@@ -24,7 +24,7 @@ class ViagemForm
                 TextInput::make('numero_custo_frete'),
                 TextInput::make('documento_transporte'),
                 Section::make('Quilometragens')
-                    ->columns(4)
+                    ->columnStart(1)
                     ->schema([
                         TextInput::make('km_rodado')
                             ->numeric()
@@ -46,7 +46,6 @@ class ViagemForm
                             ->default(Enum\MotivoDivergenciaViagem::DESLOCAMENTO_OUTROS->value),
                     ]),
                 Section::make('Datas')
-                    ->columns(4)
                     ->schema([
                         DatePicker::make('data_competencia')
                             ->required(),

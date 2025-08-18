@@ -114,6 +114,7 @@ class ViagemsTable
                         ->toggleable(isToggledHiddenByDefault: true),
                     SelectColumn::make('motivo_divergencia')
                         ->label('Motivo Divergência')
+                        ->native(false)
                         ->wrapHeader()
                         ->width('2%')
                         ->options(Enum\MotivoDivergenciaViagem::toSelectArray())

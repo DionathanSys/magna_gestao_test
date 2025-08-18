@@ -283,7 +283,9 @@ class ViagemsTable
                             notify::success('Viagem atualizada com sucesso!', 'A data da próxima viagem foi atualizada.');
                         }),
                     DeleteAction::make(),
-                ])->link(),
+                ])->button()
+                ->dropdownPlacement('top-start'),
+
                 Action::make('nova-carga')
                     ->label('Carga')
                     ->icon('heroicon-o-plus')

@@ -18,6 +18,7 @@ use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Services\NotificacaoService as notify;
+use Filament\Tables\Enums\RecordActionsPosition;
 
 class ViagemsTable
 {
@@ -310,7 +311,7 @@ class ViagemsTable
                             'checked_by' => null,
                         ]);
                     }),
-            ])
+                ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

@@ -117,7 +117,6 @@ class ViagemsTable
                         ->native(false)
                         ->wrapHeader()
                         ->grow()
-                        ->limit(8)
                         // ->width('2%')
                         ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                         ->default(Enum\MotivoDivergenciaViagem::SEM_OBS->value)

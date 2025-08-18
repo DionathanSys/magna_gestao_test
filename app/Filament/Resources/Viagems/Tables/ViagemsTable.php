@@ -116,7 +116,7 @@ class ViagemsTable
                         ->label('Motivo Divergência')
                         ->native(false)
                         ->wrapHeader()
-                        ->width('2%')
+                        // ->width('2%')
                         ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                         ->default(Enum\MotivoDivergenciaViagem::SEM_OBS->value)
                         ->disabled(fn(Models\Viagem $record) => ($record->conferido && !Auth::user()->is_admin))

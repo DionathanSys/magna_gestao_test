@@ -18,7 +18,6 @@ class ViagemForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(6)
             ->components([
                 TextInput::make('numero_viagem')
                     ->required(),

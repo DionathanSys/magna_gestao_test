@@ -14,9 +14,10 @@ class ViagemConferida
         $this->validate($viagem);
 
         $viagem->update([
-            'conferido' => true,
-            'updated_by' => Auth::user()->id,
-            'checked_by' => Auth::user()->id
+            'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS,
+            'conferido'             => true,
+            'updated_by'            => Auth::user()->id,
+            'checked_by'            => Auth::user()->id
         ]);
 
         return $viagem;
@@ -24,8 +25,8 @@ class ViagemConferida
 
     private function validate(Models\Viagem $viagem): void
     {
-        dd($viagem);
-        if ($viagem->motivo_divergencia == Enum\MotivoDivergenciaViagem::SEM_OBS) {
+
+        if ($viagem->motivo_divergencia == Enum\MotivoDivergenciaViagem::SEM_OBS || $viagem->motivo_divergencia == null) {
 
             if (! $viagem->documento_transporte) {
                 throw new \InvalidArgumentException('Viagem não possui documento de transporte.');

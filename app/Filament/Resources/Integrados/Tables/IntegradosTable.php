@@ -16,14 +16,18 @@ class IntegradosTable
             ->columns([
                 TextColumn::make('codigo')
                     ->label('Código')
+                    ->width('1%')
                     ->searchable(isIndividual: true),
                 TextColumn::make('nome')
+                    ->width('1%')
                     ->searchable(isIndividual: true),
                 TextColumn::make('km_rota')
                     ->label('KM Rota')
+                    ->width('1%')
                     ->numeric(2, ',', '.'),
                 TextColumn::make('municipio')
                     ->label('Município')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('estado')
                     ->searchable(),

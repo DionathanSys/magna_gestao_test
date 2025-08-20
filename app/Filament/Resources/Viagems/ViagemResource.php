@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Viagems;
 use App\Filament\Resources\Viagems\Pages\CreateViagem;
 use App\Filament\Resources\Viagems\Pages\EditViagem;
 use App\Filament\Resources\Viagems\Pages\ListViagems;
+use App\Filament\Resources\Viagems\Pages\ViewViagem;
 use App\Filament\Resources\Viagems\Schemas\ViagemForm;
 use App\Filament\Resources\Viagems\Tables\ViagemsTable;
 use App\Models\Viagem;
@@ -50,6 +51,8 @@ class ViagemResource extends Resource
     {
         return [
             'index' => ListViagems::route('/'),
+            'view' => ViewViagem::route('/{record}'),
         ];
     }
+
 }

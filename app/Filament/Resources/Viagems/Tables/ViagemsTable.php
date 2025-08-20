@@ -8,7 +8,9 @@ use Filament\Tables\Table;
 use App\Models;
 use App\Services;
 use App\Enum;
+use App\Filament\Resources\Viagems\Actions\NovaCargaAction;
 use App\Filament\Resources\Viagems\Actions\ViagemConferidaAction;
+use App\Filament\Resources\Viagems\Actions\ViagemNaoConferidaAction;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -264,38 +266,11 @@ class ViagemsTable
                         ->visible(fn(Models\Viagem $record) => ! $record->conferido)
                         ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),
                     DeleteAction::make(),
-                ])->button()
+                ])->link()
                 ->dropdownPlacement('top-start'),
-                Action::make('nova-carga')
-                    ->label('Carga')
-                    ->icon('heroicon-o-plus')
-                    ->modalSubmitAction(fn(Action $action) => $action->label('Adicionar Carga'))
-                    ->schema([
-                        Select::make('integrado_id')
-                            ->label('Integrado')
-                            ->relationship('carga.integrado', 'nome')
-                            ->searchable(['codigo', 'nome'])
-                            ->getOptionLabelFromRecordUsing(fn(Models\Integrado $record) => "{$record->codigo} {$record->nome}")
-                            ->required(),
-                    ])
-                    ->action(fn(Models\Viagem $record, array $data) => Services\CargaService::incluirCargaViagem($data['integrado_id'], $record))
-                    ->after(fn() => notify::success('Carga incluída com sucesso!', 'A carga foi adicionada à viagem.')),
+                NovaCargaAction::make(),
                 ViagemConferidaAction::make(),
-                Action::make('nao-conferido')
-                    ->label('Ñ Conferido')
-                    ->iconButton()
-                    ->icon('heroicon-o-no-symbol')
-                    ->color('red')
-                    ->visible(fn(Models\Viagem $record) => $record->conferido)
-                    ->action(function (Models\Viagem $record) {
-                        $service = new Services\Viagem\ViagemService();
-                        $service->marcarViagemComoNãoConferida($record);
-                        if ($service->hasError()) {
-                            notify::error('Erro ao marcar viagem como não conferida', $service->getMessage());
-                            return;
-                        }
-                        notify::success();
-                    }),
+                ViagemNaoConferidaAction::make(),
                 ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([

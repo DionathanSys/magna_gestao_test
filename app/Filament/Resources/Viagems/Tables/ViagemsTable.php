@@ -285,6 +285,7 @@ class ViagemsTable
                         $service->marcarViagemComoConferida($record);
                         if ($service->hasError()) {
                             notify::error('Erro ao marcar viagem como conferida', $service->getMessage());
+                            return;
                         }
                         notify::success();
                     }),
@@ -299,6 +300,7 @@ class ViagemsTable
                         $service->marcarViagemComoNãoConferida($record);
                         if ($service->hasError()) {
                             notify::error('Erro ao marcar viagem como não conferida', $service->getMessage());
+                            return;
                         }
                         notify::success();
                     }),

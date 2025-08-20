@@ -28,6 +28,7 @@ class ViagemForm
                 TextInput::make('documento_transporte')
                     ->columnSpan(1),
                 Section::make('Quilometragens')
+                    ->columns(2)
                     ->columnStart(1)
                     ->columnSpan(2)
                     ->schema([
@@ -55,6 +56,7 @@ class ViagemForm
                             ->default(Enum\MotivoDivergenciaViagem::DESLOCAMENTO_OUTROS->value),
                     ]),
                 Section::make('Datas')
+                    ->columns(2)
                     ->columnSpan(2)
                     ->schema([
                         DatePicker::make('data_competencia')

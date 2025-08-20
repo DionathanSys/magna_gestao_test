@@ -18,24 +18,32 @@ class ViagemForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(4)
             ->components([
                 TextInput::make('numero_viagem')
-                    ->required(),
-                TextInput::make('numero_custo_frete'),
-                TextInput::make('documento_transporte'),
+                    ->required()
+                    ->columnSpan(1),
+                TextInput::make('numero_custo_frete')
+                    ->columnSpan(1),
+                TextInput::make('documento_transporte')
+                    ->columnSpan(1),
                 Section::make('Quilometragens')
                     ->columnStart(1)
                     ->schema([
                         TextInput::make('km_rodado')
+                            ->columnSpan(1)
                             ->numeric()
                             ->default(0),
                         TextInput::make('km_pago')
+                            ->columnSpan(1)
                             ->numeric()
                             ->default(0),
                         TextInput::make('km_cobrar')
+                            ->columnSpan(1)
                             ->numeric()
                             ->default(0),
                         TextInput::make('km_rota_corrigido')
+                            ->columnSpan(1)
                             ->required()
                             ->numeric()
                             ->default(0),

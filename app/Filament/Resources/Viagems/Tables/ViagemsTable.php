@@ -258,34 +258,9 @@ class ViagemsTable
                     EditAction::make()
                         ->visible(fn(Models\Viagem $record) => ! $record->conferido)
                         ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),
-                    Action::make('importar-viagem')
-                        ->tooltip('Alt. Dt. Próxima Viagem')
-                        ->icon('heroicon-o-arrow-left-end-on-rectangle')
-                        ->action(function (Models\Viagem $record) {
-                            $data = $record->data_competencia;
-                            $veiculo_id = $record->veiculo_id;
-
-                            $viagem = Models\Viagem::query()
-                                ->whereDate('data_competencia', '>', $data)
-                                ->where('veiculo_id', $veiculo_id)
-                                ->orderBy('data_fim', 'asc')
-                                ->first();
-
-                            if (! $viagem) {
-                                notify::error('Nenhuma viagem encontrada', 'Não há viagens futuras para este veículo.');
-                                return;
-                            }
-
-                            $viagem->data_competencia = $data;
-                            $viagem->updated_by = Auth::user()->id;
-                            $viagem->save();
-
-                            notify::success('Viagem atualizada com sucesso!', 'A data da próxima viagem foi atualizada.');
-                        }),
                     DeleteAction::make(),
                 ])->button()
                 ->dropdownPlacement('top-start'),
-
                 Action::make('nova-carga')
                     ->label('Carga')
                     ->icon('heroicon-o-plus')
@@ -306,14 +281,12 @@ class ViagemsTable
                     ->icon('heroicon-o-check-circle')
                     ->visible(fn(Models\Viagem $record) => ! $record->conferido)
                     ->action(function (Models\Viagem $record) {
-                        if (! $record->motivo_divergencia) {
-                            $record->motivo_divergencia = Enum\MotivoDivergenciaViagem::SEM_OBS;
+                        $service = new Services\Viagem\ViagemService();
+                        $service->marcarViagemComoConferida($record);
+                        if ($service->hasError()) {
+                            notify::error('Erro ao marcar viagem como conferida', $service->getMessage());
                         }
-                        $record->conferido = true;
-                        $record->updated_by = Auth::user()->id;
-                        $record->checked_by = Auth::user()->id;
-                        $record->save();
-                        notify::success('Viagem conferida com sucesso!', 'A viagem foi marcada como conferida.');
+                        notify::success();
                     }),
                 Action::make('nao-conferido')
                     ->label('Ñ Conferido')
@@ -322,11 +295,12 @@ class ViagemsTable
                     ->color('red')
                     ->visible(fn(Models\Viagem $record) => $record->conferido)
                     ->action(function (Models\Viagem $record) {
-                        $record->update([
-                            'conferido' => false,
-                            'updated_by' => Auth::user()->id,
-                            'checked_by' => null,
-                        ]);
+                        $service = new Services\Viagem\ViagemService();
+                        $service->marcarViagemComoNãoConferida($record);
+                        if ($service->hasError()) {
+                            notify::error('Erro ao marcar viagem como não conferida', $service->getMessage());
+                        }
+                        notify::success();
                     }),
                 ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([

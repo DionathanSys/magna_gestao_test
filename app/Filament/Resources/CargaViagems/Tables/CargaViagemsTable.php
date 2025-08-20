@@ -27,6 +27,10 @@ class CargaViagemsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->poll(null)
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                    return $query->with(['viagem', 'integrado']);
+                })
             ->columns([
                 TextColumn::make('viagem.veiculo.placa')
                     ->label('Placa')

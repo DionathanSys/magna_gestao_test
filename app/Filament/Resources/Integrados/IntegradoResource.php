@@ -50,7 +50,6 @@ class IntegradoResource extends Resource
     {
         return [
             'index' => ListIntegrados::route('/'),
-            'create' => CreateIntegrado::route('/create'),
             'edit' => EditIntegrado::route('/{record}/edit'),
         ];
     }

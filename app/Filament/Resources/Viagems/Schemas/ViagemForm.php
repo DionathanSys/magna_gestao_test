@@ -51,6 +51,7 @@ class ViagemForm
                             ->default(0),
                         Select::make('motivo_divergencia')
                             ->label('Motivo Divergência')
+                            ->columnSpanFull()
                             ->native(false)
                             ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                             ->default(Enum\MotivoDivergenciaViagem::DESLOCAMENTO_OUTROS->value),

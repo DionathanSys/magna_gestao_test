@@ -22,8 +22,10 @@ class ViagemService
         try {
             $viagem = (new Actions\ViagemConferida())->handle($viagem);
             $this->setSuccess('Viagem conferida com sucesso!');
+            dd($viagem);
             return $viagem;
         } catch (\Exception $e) {
+            dd($e);
             Log::error(__METHOD__, [
                 'error' => $e->getMessage(),
                 'data' => $viagem->toArray(),

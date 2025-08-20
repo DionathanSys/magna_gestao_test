@@ -8,6 +8,7 @@ use Filament\Tables\Table;
 use App\Models;
 use App\Services;
 use App\Enum;
+use App\Filament\Resources\Viagems\Actions\ViagemConferidaAction;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -279,20 +280,7 @@ class ViagemsTable
                     ])
                     ->action(fn(Models\Viagem $record, array $data) => Services\CargaService::incluirCargaViagem($data['integrado_id'], $record))
                     ->after(fn() => notify::success('Carga incluída com sucesso!', 'A carga foi adicionada à viagem.')),
-                Action::make('conferido')
-                    ->label('Conferido')
-                    ->iconButton()
-                    ->icon('heroicon-o-check-circle')
-                    ->visible(fn(Models\Viagem $record) => ! $record->conferido)
-                    ->action(function (Models\Viagem $record) {
-                        $service = new Services\Viagem\ViagemService();
-                        $service->marcarViagemComoConferida($record);
-                        if ($service->hasError()) {
-                            notify::error('Erro ao marcar viagem como conferida', $service->getMessage());
-                            return;
-                        }
-                        notify::success();
-                    }),
+                ViagemConferidaAction::make(),
                 Action::make('nao-conferido')
                     ->label('Ñ Conferido')
                     ->iconButton()

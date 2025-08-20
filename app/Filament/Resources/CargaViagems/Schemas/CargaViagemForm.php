@@ -11,15 +11,19 @@ class CargaViagemForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(3)
             ->components([
                 Select::make('viagem_id')
+                    ->columnSpan(1)
                     ->relationship('viagem', 'numero_viagem')
                     ->searchable()
                     ->required(),
                 Select::make('integrado_id')
+                    ->columnSpan(1)
                     ->relationship('integrado', 'nome')
                     ->required(),
                 TextInput::make('documento_frete_id')
+                    ->columnSpan(1)
                     ->numeric(),
             ]);
     }

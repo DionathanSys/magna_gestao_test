@@ -50,8 +50,6 @@ class CargaViagemResource extends Resource
     {
         return [
             'index' => ListCargaViagems::route('/'),
-            'create' => CreateCargaViagem::route('/create'),
-            'edit' => EditCargaViagem::route('/{record}/edit'),
         ];
     }
 }

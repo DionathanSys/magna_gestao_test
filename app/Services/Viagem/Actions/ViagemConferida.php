@@ -24,6 +24,7 @@ class ViagemConferida
 
     private function validate(Models\Viagem $viagem): void
     {
+        dd($viagem);
         if ($viagem->motivo_divergencia == Enum\MotivoDivergenciaViagem::SEM_OBS) {
 
             if (! $viagem->documento_transporte) {

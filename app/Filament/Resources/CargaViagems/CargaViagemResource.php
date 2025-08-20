@@ -27,7 +27,7 @@ class CargaViagemResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Cargas Viagem';
 
-    protected static ?string $recordTitleAttribute = 'numero_viagem';
+    protected static ?string $recordTitleAttribute = 'documento_transporte';
 
     public static function form(Schema $schema): Schema
     {

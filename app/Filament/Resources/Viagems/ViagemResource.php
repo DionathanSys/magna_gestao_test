@@ -51,7 +51,6 @@ class ViagemResource extends Resource
     {
         return [
             'index' => ListViagems::route('/'),
-            'edit' => EditViagem::route('/{record}/edit'),
             'view' => ViewViagem::route('/{record}'),
         ];
     }

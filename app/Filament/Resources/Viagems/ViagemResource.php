@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ViagemResource extends Resource
 {
@@ -20,7 +21,13 @@ class ViagemResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static string|UnitEnum|null $navigationGroup = 'Viagens';
+
+    protected static ?string $modelLabel = 'Viagem';
+
+    protected static ?string $pluralModelLabel = 'Viagens';
+
+    protected static ?string $recordTitleAttribute = 'documento_transporte';
 
     public static function form(Schema $schema): Schema
     {

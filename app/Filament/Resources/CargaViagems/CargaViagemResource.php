@@ -8,17 +8,24 @@ use App\Filament\Resources\CargaViagems\Pages\ListCargaViagems;
 use App\Filament\Resources\CargaViagems\Schemas\CargaViagemForm;
 use App\Filament\Resources\CargaViagems\Tables\CargaViagemsTable;
 use BackedEnum;
-use CargaViagem;
+use App\Models\CargaViagem;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class CargaViagemResource extends Resource
 {
     protected static ?string $model = CargaViagem::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Viagens';
+
+    protected static ?string $modelLabel = 'Carga Viagem';
+
+    protected static ?string $pluralModelLabel = 'Cargas Viagem';
 
     protected static ?string $recordTitleAttribute = 'numero_viagem';
 

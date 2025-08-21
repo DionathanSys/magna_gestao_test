@@ -4,7 +4,8 @@ namespace App\Filament\Resources\ViagemComplementos\Tables;
 
 use App\Models;
 use Carbon\Carbon;
-use Filament\Actions\{BulkActionGroup, DeleteBulkAction, EditAction};
+use App\Filament\Resources\ViagemComplementos;
+use Filament\Actions\{BulkActionGroup, CreateAction, DeleteBulkAction, EditAction};
 use Filament\Forms\Components\{DatePicker, TextInput};
 use Filament\Tables\Columns\{IconColumn, TextColumn};
 use Filament\Tables\Columns\Summarizers\Sum;
@@ -98,6 +99,7 @@ class ViagemComplementosTable
                         ->collapsible(),
                 ]
             )
+            ->selectCurrentPageOnly()
             ->defaultGroup('numero_viagem')
             ->deferFilters()
             ->searchOnBlur()
@@ -154,6 +156,8 @@ class ViagemComplementosTable
                 EditAction::make(),
             ])
             ->toolbarActions([
+                CreateAction::make(),
+                ViagemComplementos\Actions\ComplementoConferidoAction::make(),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

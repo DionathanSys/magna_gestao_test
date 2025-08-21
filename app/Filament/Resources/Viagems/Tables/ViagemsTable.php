@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Viagems\Tables;
 
-use Filament\Actions\{ActionGroup, BulkActionGroup, DeleteBulkAction, EditAction, };
+use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, };
 use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn, };
 use Filament\Tables\Table;
 use App\Models;
@@ -271,6 +271,7 @@ class ViagemsTable
                 Viagems\Actions\ViagemNaoConferidaAction::make(),
                 ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
+                CreateAction::make(),
                 Viagems\Actions\RegistrarComplementoViagem::make(),
                 DeleteBulkAction::make(),
             ]);

@@ -14,12 +14,17 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Models\OrdemServico;
+use UnitEnum;
 
 class OrdemServicoResource extends Resource
 {
     protected static ?string $model = OrdemServico::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
+
+    protected static ?string $modelLabel = 'Ordem Serviço';
+
+    protected static ?string $pluralModelLabel = 'Ordens Serviço';
 
     protected static ?string $recordTitleAttribute = 'id';
 
@@ -44,7 +49,6 @@ class OrdemServicoResource extends Resource
     {
         return [
             'index' => ListOrdemServicos::route('/'),
-            'teste' => PagesOrdemServico::route('/{record}/teste'),
             'edit' => EditOrdemServico::route('/{record}/edit'),
         ];
     }

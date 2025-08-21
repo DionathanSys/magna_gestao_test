@@ -54,7 +54,7 @@ class ListOrdemServicos extends ListRecords
             'encerrar_ordem' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                                                             ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO))
-                                                            ->badge(OrdemServico::query()
+                                                            ->badge(Models\OrdemServico::query()
                                                                 ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                                                                 ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)->count())
                                                             ->badgeColor('info'),

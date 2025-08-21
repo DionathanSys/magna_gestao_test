@@ -14,7 +14,7 @@ class ViagemConferida
         $this->validate($viagem);
 
         $viagem->update([
-            'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS,
+            'motivo_divergencia'    => $viagem->motivo_divergencia ?? Enum\MotivoDivergenciaViagem::SEM_OBS,
             'conferido'             => true,
             'updated_by'            => Auth::user()->id,
             'checked_by'            => Auth::user()->id

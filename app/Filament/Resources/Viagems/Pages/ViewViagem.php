@@ -21,8 +21,8 @@ class ViewViagem extends ViewRecord
     public static function getGlobalSearchResultDetails(Viagem $record): array
     {
         return [
-            'Placa' => $record->veiculo->placa,
-            'Dispersão' => ($record->km_dispersao ?? '-') . ' km - ' . ($record->dispersao_percentual ?? '-') . '%',
+            'Localização' => $record->municipio . ' - ' . $record->estado,
+            'KM Rota' => $record->km_rota . ' km'
         ];
     }
 }

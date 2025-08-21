@@ -53,4 +53,12 @@ class IntegradoResource extends Resource
             'edit' => EditIntegrado::route('/{record}/edit'),
         ];
     }
+
+    public static function getGlobalSearchResultDetails(Integrado $record): array
+    {
+        return [
+            'Localização' => $record->municipio . ' - ' . $record->estado,
+            'KM Rota' => $record->km_rota . ' km'
+        ];
+    }
 }

@@ -18,11 +18,4 @@ class EditViagem extends EditRecord
         ];
     }
 
-    public static function getGlobalSearchResultDetails(Viagem $record): array
-    {
-        return [
-            'Localização' => $record->municipio . ' - ' . $record->estado,
-            'KM Rota' => $record->km_rota . ' km'
-        ];
-    }
 }

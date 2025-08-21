@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class IntegradoResource extends Resource
@@ -54,5 +55,12 @@ class IntegradoResource extends Resource
         ];
     }
 
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Localização' => $record->municipio . ' - ' . $record->estado,
+            'KM Rota' => $record->km_rota . ' km'
+        ];
+    }
 
 }

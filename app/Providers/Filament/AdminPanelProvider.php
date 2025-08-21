@@ -26,13 +26,13 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->topNavigation()
-            ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
             ->brandName('Magna Gestão')
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
+            ->globalSearchDebounce('750ms')
             ->colors([
                 'primary' => Color::Sky,
             ])

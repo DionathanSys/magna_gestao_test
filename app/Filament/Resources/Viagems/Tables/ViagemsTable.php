@@ -8,9 +8,7 @@ use Filament\Tables\Table;
 use App\Models;
 use App\Services;
 use App\Enum;
-use App\Filament\Resources\Viagems\Actions\NovaCargaAction;
-use App\Filament\Resources\Viagems\Actions\ViagemConferidaAction;
-use App\Filament\Resources\Viagems\Actions\ViagemNaoConferidaAction;
+use App\Filament\Resources\Viagems;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -268,14 +266,13 @@ class ViagemsTable
                     DeleteAction::make(),
                 ])->link()
                 ->dropdownPlacement('top-start'),
-                NovaCargaAction::make(),
-                ViagemConferidaAction::make(),
-                ViagemNaoConferidaAction::make(),
+                Viagems\Actions\NovaCargaAction::make(),
+                Viagems\Actions\ViagemConferidaAction::make(),
+                Viagems\Actions\ViagemNaoConferidaAction::make(),
                 ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                Viagems\Actions\RegistrarComplementoViagem::make(),
+                DeleteBulkAction::make(),
             ]);
     }
 }

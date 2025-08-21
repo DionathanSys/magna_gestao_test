@@ -68,8 +68,7 @@ class IntegradoResource extends Resource
     {
         return [
             Action::make('edit')
-                ->url(static::getUrl('edit', ['record' => $record]))
-                ->openUrlInNewTab(),
+                ->url(static::getUrl('edit', ['record' => $record]), shouldOpenInNewTab: true),
         ];
     }
 

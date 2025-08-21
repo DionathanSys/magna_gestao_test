@@ -47,6 +47,7 @@ class IntegradosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->searchDebounce('750ms')
             ->filters([
                 //
             ])

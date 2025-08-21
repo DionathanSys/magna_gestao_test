@@ -9,6 +9,7 @@ use App\Filament\Resources\Integrados\Schemas\IntegradoForm;
 use App\Filament\Resources\Integrados\Tables\IntegradosTable;
 use App\Models\Integrado;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -60,6 +61,15 @@ class IntegradoResource extends Resource
         return [
             'Localização' => $record->municipio . ' - ' . $record->estado,
             'KM Rota' => $record->km_rota . ' km'
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(Model $record): array
+    {
+        return [
+            Action::make('edit')
+                ->url(static::getUrl('edit', ['record' => $record]))
+                ->openUrlInNewTab(),
         ];
     }
 

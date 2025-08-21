@@ -14,7 +14,7 @@ class ViagemConferidaAction
         return Action::make('conferido')
             ->label('Conferido')
             ->iconButton()
-            ->icon('heroicon-o-check-circle')
+            ->icon('heroicon-s-check-circle')
             ->visible(fn(Models\Viagem $record) => ! $record->conferido)
             ->action(function (Models\Viagem $record) {
                 $service = new Services\Viagem\ViagemService();

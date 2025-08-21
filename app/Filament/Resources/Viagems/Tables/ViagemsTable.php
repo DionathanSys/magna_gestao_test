@@ -151,8 +151,8 @@ class ViagemsTable
                 IconColumn::make('conferido')
                     ->width('1%')
                     ->color(fn(string $state): string => match ($state) {
-                        '1' => 'blue',
-                        default => 'red',
+                        '1' => 'info',
+                        default => 'danger',
                     }),
                 TextColumn::make('complementos_exists')
                     ->label('Complementos')

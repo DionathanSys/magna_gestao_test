@@ -14,8 +14,8 @@ class ViagemNaoConferidaAction
         return Action::make('nao-conferido')
             ->label('Ñ Conferido')
             ->iconButton()
-            ->icon('heroicon-o-no-symbol')
-            ->color('red')
+            ->icon('heroicon-s-x-circle')
+            ->color('danger')
             ->visible(fn(Models\Viagem $record) => $record->conferido)
             ->action(function (Models\Viagem $record) {
                 $service = new Services\Viagem\ViagemService();

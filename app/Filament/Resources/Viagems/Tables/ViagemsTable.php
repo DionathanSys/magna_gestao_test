@@ -2,12 +2,13 @@
 
 namespace App\Filament\Resources\Viagems\Tables;
 
-use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, };
+use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction, };
 use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn, };
 use Filament\Tables\Table;
 use App\Models;
 use App\Services;
 use App\Enum;
+use App\Filament\Imports\ViagemImporter;
 use App\Filament\Resources\Viagems;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -274,6 +275,9 @@ class ViagemsTable
                 CreateAction::make(),
                 Viagems\Actions\RegistrarComplementoViagem::make(),
                 DeleteBulkAction::make(),
+
+
+
             ]);
     }
 }

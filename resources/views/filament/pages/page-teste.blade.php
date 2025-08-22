@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    {{-- Page content --}}
+    @livewire('list-teste')
 </x-filament-panels::page>

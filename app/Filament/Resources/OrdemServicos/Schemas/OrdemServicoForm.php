@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use App\Enum;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Schemas\Components\Utilities\Set;
@@ -86,25 +87,31 @@ class OrdemServicoForm
                                     ->collapsible(),
                             ]),
                         Tabs\Tab::make('Ordens Sankhya')
-                            ->columns(2)
+                            ->columns(3)
                             ->visibleOn('edit')
                             ->schema([
                                 Repeater::make('sankhyaId')
+                                    // ->relationship()
                                     ->table([
-                                        TableColumn::make('Nro. OS'),
-                                        TableColumn::make('Nro. OS Sankhya'),
-                                        TableColumn::make('Data de Criação'),
+                                        TableColumn::make('Nro. OS')->width('100px'),
+                                        TableColumn::make('Nro. OS Sankhya')->width('100px'),
+                                        TableColumn::make('Data de Criação')->width('150px'),
                                     ])
+                                    ->columns(10)
                                     ->schema([
                                         TextInput::make('ordem_servico_id')
                                             ->label('Nro. OS')
+                                            ->columnSpan(1)
                                             ->required(),
                                         TextInput::make('ordem_sankhya_id')
                                             ->label('Nro. OS Sankhya')
+                                            ->columnSpan(1)
                                             ->required(),
-                                        TextInput::make('created_at')
+                                        DatePicker::make('created_at')
                                             ->label('Data de Criação')
-                                            ->required(),
+                                            ->columnSpan(1)
+                                            ->date('d/m/Y')
+                                            ->readOnly(),
                                     ]),
                             ]),
                     ]),

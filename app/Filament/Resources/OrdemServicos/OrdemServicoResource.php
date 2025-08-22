@@ -6,6 +6,8 @@ use App\Filament\Resources\OrdemServicos\Pages\CreateOrdemServico;
 use App\Filament\Resources\OrdemServicos\Pages\EditOrdemServico;
 use App\Filament\Resources\OrdemServicos\Pages\ListOrdemServicos;
 use App\Filament\Resources\OrdemServicos\Pages\OrdemServico as PagesOrdemServico;
+use App\Filament\Resources\OrdemServicos\Pages\OrdemServicoCustom;
+use App\Filament\Resources\OrdemServicos\Pages\OrdemServicoTeste;
 use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
 use App\Filament\Resources\OrdemServicos\Tables\OrdemServicosTable;
 use BackedEnum;
@@ -50,6 +52,7 @@ class OrdemServicoResource extends Resource
         return [
             'index' => ListOrdemServicos::route('/'),
             'edit' => EditOrdemServico::route('/{record}/edit'),
+            'custom' => OrdemServicoTeste::route('/{record}/custom'),
         ];
     }
 }

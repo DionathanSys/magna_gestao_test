@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrdemServicos\Tables;
 
+use App\Models;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -9,6 +10,8 @@ use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Enum;
+use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\{SelectFilter, Filter};
 use Illuminate\Database\Eloquent\Builder;
@@ -21,13 +24,16 @@ class OrdemServicosTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->width('1%'),
+                    ->width('1%')
+                    ->url(fn (Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('sankhyaId.ordem_sankhya_id')
                     ->label('OS Sankhya')
                     ->width('1%'),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
-                    ->width('1%'),
+                    ->width('1%')
+                    ->url(fn (Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
                 TextColumn::make('quilometragem')
                     ->label('Quilometragem')
                     ->width('1%')
@@ -122,6 +128,11 @@ class OrdemServicosTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('custom')
+                    ->label('Custom')
+                    ->icon('heroicon-o-cog')
+                    ->iconButton()
+                    ->url(fn (Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

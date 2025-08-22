@@ -10,6 +10,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
@@ -40,6 +41,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->heading('Serviços')
             ->query(Models\ItemOrdemServico::query()
                 ->where('ordem_servico_id', $this->ordemServico->id)
                 ->with(['servico', 'planoPreventivo']))
@@ -60,13 +62,18 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                     ->width('1%')
                     ->placeholder('N/A')
                     ->visibleFrom('2xl')
+                    ->limit(10, end: ' ...')
+                    ->tooltip(fn(Models\ItemOrdemServico $record): string => $record->planoPreventivo->descricao)
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('comentarios')
+                TextColumn::make('comentarios.conteudo')
                     ->label('Comentários')
+                    ->html()
+                    ->wrap()
+                    ->size(TextSize::ExtraSmall)
                     ->listWithLineBreaks()
                     ->limitList(1)
                     ->expandableLimitedList()
-                    ->width('1%')
+                    ->width('2%')
                     ->visibleFrom('xl'),
                 TextColumn::make('status')
                     ->width('1%')
@@ -95,9 +102,9 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                 // ...
             ])
             ->recordClasses(fn (Models\ItemOrdemServico $record) => match ($record->status) {
-                'draft' => 'draft-post-table-row',
-                'reviewing' => 'reviewing-post-table-row',
-                'published' => 'published-post-table-row',
+                Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE => 'bg-yellow-100',
+                Enum\OrdemServico\StatusOrdemServicoEnum::CANCELADO => 'bg-red-100',
+                Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO => 'bg-green-100',
                 default => null,
         });
     }

@@ -69,7 +69,7 @@ class ViagemResource extends Resource
     {
         return [
             Action::make('edit')
-                ->url(static::getUrl('edit', ['record' => $record]), shouldOpenInNewTab: true),
+                ->url(static::getUrl('view', ['record' => $record]), shouldOpenInNewTab: true),
         ];
     }
 

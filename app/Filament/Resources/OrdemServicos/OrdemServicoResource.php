@@ -61,7 +61,7 @@ class OrdemServicoResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            'Placa' => $record->veiculo->placa . ' - ' . $record->status,
+            'Placa' => $record->veiculo->placa . ' - ' . $record->status->value,
         ];
     }
 

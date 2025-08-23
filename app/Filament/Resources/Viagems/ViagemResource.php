@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class ViagemResource extends Resource
@@ -53,6 +54,22 @@ class ViagemResource extends Resource
         return [
             'index' => ListViagems::route('/'),
             'view' => ViewViagem::route('/{record}'),
+        ];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Placa' => $record->veiculo->placa,
+            'Dispersão' => $record->km_dispersao . ' km - ' . ($record->dispersao_percentual ?? 0) . '%'
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(Model $record): array
+    {
+        return [
+            Action::make('edit')
+                ->url(static::getUrl('edit', ['record' => $record]), shouldOpenInNewTab: true),
         ];
     }
 

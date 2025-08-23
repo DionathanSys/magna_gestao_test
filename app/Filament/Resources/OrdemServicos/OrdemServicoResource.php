@@ -16,6 +16,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Models\OrdemServico;
+use Filament\Actions\Action;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class OrdemServicoResource extends Resource
@@ -53,6 +55,21 @@ class OrdemServicoResource extends Resource
             'index' => ListOrdemServicos::route('/'),
             'edit' => EditOrdemServico::route('/{record}/edit'),
             'custom' => OrdemServicoTeste::route('/{record}/custom'),
+        ];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Placa' => $record->veiculo->placa . ' - ' . $record->status,
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(Model $record): array
+    {
+        return [
+            Action::make('edit')
+                ->url(static::getUrl('edit', ['record' => $record->id]), shouldOpenInNewTab: true),
         ];
     }
 }

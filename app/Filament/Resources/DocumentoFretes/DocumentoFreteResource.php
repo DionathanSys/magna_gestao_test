@@ -31,7 +31,7 @@ class DocumentoFreteResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Documentos Frete';
 
-    protected static ?string $recordTitleAttribute = 'documento_frete';
+    protected static ?string $recordTitleAttribute = 'documento_transporte';
 
     public static function form(Schema $schema): Schema
     {

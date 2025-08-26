@@ -31,6 +31,8 @@ class IntegradosTable
                     ->searchable(),
                 TextColumn::make('estado')
                     ->searchable(),
+                TextColumn::make('latitude'),
+                TextColumn::make('longitude'),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

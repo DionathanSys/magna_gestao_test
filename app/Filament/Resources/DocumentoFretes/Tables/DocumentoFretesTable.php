@@ -62,7 +62,6 @@ class DocumentoFretesTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('parceiro_destino')
                     ->label('Parceiro Destino')
-                    ->width('1%')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')

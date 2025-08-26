@@ -22,7 +22,7 @@ class ProcessarDocumentoFreteJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            
+
             Log::debug(__METHOD__, [
                 'importer' => $this->importer,
                 'fileName' => $this->fileName,
@@ -31,6 +31,9 @@ class ProcessarDocumentoFreteJob implements ShouldQueue
             $importerClass = new $this->importer();
             $service = new Services\DocumentoFrete\DocumentoFreteService();
             $service->importarRelatorioDocumentoFrete($importerClass, $this->fileName);
+
+            Log::debug(__METHOD__ . ' Job Finalizado');
+            
         } catch (\Exception $e) {
             Log::error(__METHOD__, [
                 'error' => $e->getMessage(),

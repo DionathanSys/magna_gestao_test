@@ -55,6 +55,11 @@ class DocumentoFretesTable
                     ->money('BRL')
                     ->sortable()
                     ->summarize(Sum::make()->money('BRL')),
+                TextColumn::make('parceiro')
+                    ->label('Parceiro')
+                    ->width('1%')
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->dateTime('d/m/Y H:i')

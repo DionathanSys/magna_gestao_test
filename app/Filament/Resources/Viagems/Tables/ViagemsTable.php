@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Viagems\Tables;
 
-use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction, };
-use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn, };
+use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction,};
+use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn,};
 use Filament\Tables\Table;
 use App\Models;
 use App\Services;
@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\NotificacaoService as notify;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Symfony\Component\Mailer\Transport\Dsn;
 
 class ViagemsTable
 {
@@ -29,8 +30,8 @@ class ViagemsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                    $query->with('carga.integrado', 'veiculo');
-                })
+                $query->with('carga.integrado', 'veiculo');
+            })
             ->poll(null)
             ->columns([
                 TextColumn::make('veiculo.placa')
@@ -45,22 +46,18 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->copyable(),
-                TextColumn::make('cargas.integrado.codigo')
+                TextColumn::make('integrados_codigos')
                     ->label('Cód. Integrado')
                     ->width('1%')
-                    ->default('Sem Integrado')
-                    ->listWithLineBreaks()
+                    ->html()
+                    ->tooltip(fn(Models\Viagem $record) => $record->integrados_codigos)
+                    ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('cargas.integrado.nome')
+                TextColumn::make('integrados_nomes')
                     ->label('Integrado')
                     ->width('1%')
-                    ->formatStateUsing(function (Models\Viagem $record) {
-                        return $record->carga->integrado->nome ?
-                            $record->carga->integrado->nome . ' - ' . $record->carga->integrado->municipio :
-                            'Sem Integrado';
-                    })
-                    ->tooltip(fn(Models\Viagem $record) => $record->carga->integrado?->codigo ?? 'N/A')
-                    ->listWithLineBreaks()
+                    ->html()
+                    ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
                     ->disabledClick(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transp.')
@@ -283,11 +280,11 @@ class ViagemsTable
                         ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),
                     DeleteAction::make(),
                 ])->link()
-                ->dropdownPlacement('top-start'),
+                    ->dropdownPlacement('top-start'),
                 Viagems\Actions\NovaCargaAction::make(),
                 Viagems\Actions\ViagemConferidaAction::make(),
                 Viagems\Actions\ViagemNaoConferidaAction::make(),
-                ], position: RecordActionsPosition::BeforeColumns)
+            ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 CreateAction::make(),
                 Viagems\Actions\RegistrarComplementoViagem::make(),

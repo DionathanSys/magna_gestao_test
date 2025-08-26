@@ -68,5 +68,25 @@ class Viagem extends Model
         return $this->belongsTo(User::class, 'checked_by');
     }
 
+    public function getIntegradosNomesAttribute(): string
+    {
+        return $this->cargas
+            ->whereNotNull('integrado')
+            ->map(fn($carga) => $carga->integrado->nome . ' - ' . $carga->integrado->municipio)
+            ->unique()
+            ->whenEmpty(fn() => collect(['Sem Integrado']))
+            ->implode('<br>');
+    }
+
+    public function getIntegradosCodigosAttribute(): string
+    {
+        return $this->cargas
+            ->whereNotNull('integrado')
+            ->pluck('integrado.codigo')
+            ->unique()
+            ->whenEmpty(fn() => collect(['N/A']))
+            ->implode(', ');
+    }
+
 
 }

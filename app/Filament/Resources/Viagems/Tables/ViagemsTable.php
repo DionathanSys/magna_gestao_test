@@ -216,6 +216,18 @@ class ViagemsTable
                                 fn(Builder $query, $numeroViagem): Builder => $query->where('numero_viagem', $numeroViagem),
                             );
                     }),
+                Filter::make('documento_transporte')
+                    ->schema([
+                        TextInput::make('documento_transporte')
+                            ->label('Nº Doc. Transporte'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['documento_transporte'],
+                                fn(Builder $query, $documentoTransporte): Builder => $query->where('documento_transporte', $documentoTransporte),
+                            );
+                    }),
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
                     ->relationship('veiculo', 'placa')

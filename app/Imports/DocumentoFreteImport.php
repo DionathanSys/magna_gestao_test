@@ -98,7 +98,7 @@ class DocumentoFreteImport extends BaseXlsxImport
         return parent::processRelationship($valor, $config);
     }
 
-    private function extrairNumeroDocumentoTransporte(string $valor): string
+    private function extrairNumeroDocumentoTransporte(string $valor): int
     {
         return preg_match('/Transporte:\s*(\d+)/', $valor, $matches) ? $matches[1] : null;
     }

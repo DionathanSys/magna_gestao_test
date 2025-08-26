@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Enum\Frete\TipoDocumentoEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DocumentoFrete extends Model
 {
     protected $table = 'documentos_frete';
+
+    protected $casts = [
+        'tipo_documento' => TipoDocumentoEnum::class
+    ];
 
     public function viagem(): BelongsTo
     {

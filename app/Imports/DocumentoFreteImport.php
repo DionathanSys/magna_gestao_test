@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models;
 use App\Services;
 use App\Contracts\XlsxImportInterface;
+use App\Enum\Frete\TipoDocumentoEnum;
 use Illuminate\Support\Facades\Log;
 
 class DocumentoFreteImport extends BaseXlsxImport
@@ -69,6 +70,7 @@ class DocumentoFreteImport extends BaseXlsxImport
         unset($dadosConvertidos['observacao']);
 
         $dadosConvertidos['documento_transporte'] = $this->extrairNumeroDocumentoTransporte($observacao);
+        $dadosConvertidos['tipo_documento'] = TipoDocumentoEnum::CTE;
 
         // Salva no banco de dados
         $service = new Services\DocumentoFrete\DocumentoFreteService();

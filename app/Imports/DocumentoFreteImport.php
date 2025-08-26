@@ -15,6 +15,7 @@ class DocumentoFreteImport extends BaseXlsxImport
         return [
             'Marca [Placa] (Veículos)',
             'Nome Parceiro (Parceiro)',
+            'Nome Parceiro (Parc. Destinatário)',
             'Nro. Nota',
             'Dt. Neg.',
             'Vlr. Nota',
@@ -38,7 +39,11 @@ class DocumentoFreteImport extends BaseXlsxImport
                 'type' => 'string',
             ],
             'Nome Parceiro (Parceiro)' => [
-                'column' => 'parceiro',
+                'column' => 'parceiro_origem',
+                'type' => 'string',
+            ],
+            'Nome Parceiro (Parc. Destinatário)' => [
+                'column' => 'parceiro_destino',
                 'type' => 'string',
             ],
             'Dt. Neg.' => [

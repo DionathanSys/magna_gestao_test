@@ -12,9 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('documentos_frete', function (Blueprint $table) {
-            $table->string('parceiro')
+            $table->string('parceiro_origem')
                 ->nullable()
                 ->after('veiculo_id');
+            $table->string('parceiro_destino')
+                ->nullable()
+                ->after('parceiro_origem');
         });
     }
 
@@ -24,7 +27,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('documentos_frete', function (Blueprint $table) {
-            $table->dropColumn('parceiro');
+            $table->dropColumn('parceiro_origem');
+            $table->dropColumn('parceiro_destino');
         });
     }
 };

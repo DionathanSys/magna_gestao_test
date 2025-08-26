@@ -55,8 +55,13 @@ class DocumentoFretesTable
                     ->money('BRL')
                     ->sortable()
                     ->summarize(Sum::make()->money('BRL')),
-                TextColumn::make('parceiro')
-                    ->label('Parceiro')
+                TextColumn::make('parceiro_origem')
+                    ->label('Parceiro Origem')
+                    ->width('1%')
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('parceiro_destino')
+                    ->label('Parceiro Destino')
                     ->width('1%')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: true),

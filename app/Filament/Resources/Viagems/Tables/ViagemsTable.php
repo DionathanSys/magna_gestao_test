@@ -54,6 +54,11 @@ class ViagemsTable
                 TextColumn::make('cargas.integrado.nome')
                     ->label('Integrado')
                     ->width('1%')
+                    ->formatStateUsing(function (Models\Viagem $record) {
+                        return $record->carga->integrado->nome ?
+                            $record->carga->integrado->nome . ' - ' . $record->carga->integrado->municipio :
+                            'Sem Integrado';
+                    })
                     ->tooltip(fn(Models\Viagem $record) => $record->carga->integrado?->codigo ?? 'N/A')
                     ->listWithLineBreaks()
                     ->disabledClick(),

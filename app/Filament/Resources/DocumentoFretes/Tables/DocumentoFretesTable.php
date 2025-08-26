@@ -8,9 +8,13 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DocumentoFretesTable
 {
@@ -63,7 +67,30 @@ class DocumentoFretesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('veiculo_id')
+                    ->label('Veículo')
+                    ->relationship('veiculo', 'placa')
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
+                Filter::make('data_inicio')
+                    ->schema([
+                        DatePicker::make('data_inicio')
+                            ->label('Dt. Emissão de'),
+                        DatePicker::make('data_fim')
+                            ->label('Dt. Emissão até'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['data_inicio'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('data_emissao', '>=', $date),
+                            )
+                            ->when(
+                                $data['data_fim'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('data_emissao', '<=', $date),
+                            );
+                    }),
             ])
             ->recordActions([
                 ViewAction::make(),

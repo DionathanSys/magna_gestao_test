@@ -237,7 +237,7 @@ abstract class BaseXlsxImport implements XlsxImportInterface
         }
 
         // Data base: 30 de dezembro de 1899 (para compensar o dia 1 = 1/1/1900)
-        $baseDate = new \DateTime('1899-12-30');
+        $baseDate = new \DateTime('1899-12-31');
         $baseDate->add(new \DateInterval('P' . intval($serialNumber) . 'D'));
 
         return $baseDate->format('Y-m-d');

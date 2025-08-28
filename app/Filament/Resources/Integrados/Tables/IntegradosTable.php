@@ -5,8 +5,11 @@ namespace App\Filament\Resources\Integrados\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Enum;
+use Filament\Tables\Filters\SelectFilter;
 
 class IntegradosTable
 {
@@ -33,6 +36,7 @@ class IntegradosTable
                     ->searchable(),
                 TextColumn::make('latitude'),
                 TextColumn::make('longitude'),
+                TextColumn::make('cliente'),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')
@@ -51,7 +55,10 @@ class IntegradosTable
             ])
             ->searchDebounce('750ms')
             ->filters([
-                //
+                SelectFilter::make('cliente')
+                    ->label('Cliente')
+                    ->native(false)
+                    ->options(Enum\ClienteEnum::toSelectArray())
             ])
             ->recordActions([
                 EditAction::make(),

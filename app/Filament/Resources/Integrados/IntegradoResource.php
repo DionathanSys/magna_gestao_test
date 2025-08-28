@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Integrados;
 use App\Filament\Resources\Integrados\Pages\CreateIntegrado;
 use App\Filament\Resources\Integrados\Pages\EditIntegrado;
 use App\Filament\Resources\Integrados\Pages\ListIntegrados;
+use App\Filament\Resources\Integrados\Pages\ViewIntegrado;
 use App\Filament\Resources\Integrados\Schemas\IntegradoForm;
 use App\Filament\Resources\Integrados\Tables\IntegradosTable;
 use App\Models\Integrado;
@@ -52,7 +53,9 @@ class IntegradoResource extends Resource
     {
         return [
             'index' => ListIntegrados::route('/'),
+            'create' => CreateIntegrado::route('/create'),
             'edit' => EditIntegrado::route('/{record}/edit'),
+            'view' => ViewIntegrado::route('/{record}/view'),
         ];
     }
 

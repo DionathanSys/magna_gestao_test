@@ -48,13 +48,13 @@ class DocumentoFretesTable
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()
-                    ->summarize(Sum::make()->money('BRL')),
+                    ->summarize(Sum::make()->money('BRL', 2)),
                 TextColumn::make('valor_icms')
                     ->label('Vlr. ICMS')
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()
-                    ->summarize(Sum::make()->money('BRL')),
+                    ->summarize(Sum::make()->money('BRL', 2)),
                 TextColumn::make('parceiro_origem')
                     ->label('Parceiro Origem')
                     ->width('1%')

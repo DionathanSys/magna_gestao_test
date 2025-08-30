@@ -9,6 +9,7 @@ use App\Filament\Resources\OrdemServicos\Pages\OrdemServico as PagesOrdemServico
 use App\Filament\Resources\OrdemServicos\Pages\OrdemServicoCustom;
 use App\Filament\Resources\OrdemServicos\Pages\OrdemServicoTeste;
 use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
+use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoInfolist;
 use App\Filament\Resources\OrdemServicos\Tables\OrdemServicosTable;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -35,6 +36,11 @@ class OrdemServicoResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return OrdemServicoForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return OrdemServicoInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

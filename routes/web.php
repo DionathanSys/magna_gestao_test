@@ -11,3 +11,7 @@ Route::get('/teste', function () {
     $service->importarRelatorioDocumentoFrete($importer, $file);
 });
 
+Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServico $ordemServico) {
+    $service = new \App\Services\OrdemServico\OrdemServicoPdfService();
+    return $service->visualizarPdfOrdemServico($ordemServico);
+})->name('ordem-servico.pdf.visualizar');

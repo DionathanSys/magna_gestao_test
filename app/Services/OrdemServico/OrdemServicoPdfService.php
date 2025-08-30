@@ -86,7 +86,7 @@ class OrdemServicoPdfService
             'dataGeracao' => now()->format('d/m/Y H:i:s')
         ];
 
-        $pdf = Pdf::loadView('pdf.ordem-servico-tailwind', $data);
+        $pdf = Pdf::loadView('pdf.ordem-servico', $data);
 
         return response()->streamDownload(
             function () use ($pdf) {
@@ -116,7 +116,7 @@ class OrdemServicoPdfService
         ];
 
         // Para visualizar no navegador
-        return view('pdf.ordem-servico-tailwind', $data);
+        return view('pdf.ordem-servico', $data);
     }
 
     /**

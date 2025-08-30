@@ -4,25 +4,22 @@ namespace App\Livewire;
 
 use App\Models;
 use App\Enum;
+use App\Services;
+use Filament\Actions\{Action, ActionGroup, DeleteAction, EditAction};
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Forms\Components\DatePicker;
+use Filament\Actions\CreateAction;
+use Filament\Forms\Components\RichEditor;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
-use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class ListTeste extends Component implements HasActions, HasSchemas, HasTable
@@ -65,16 +62,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                     ->limit(10, end: ' ...')
                     ->tooltip(fn(Models\ItemOrdemServico $record): string => $record->planoPreventivo->descricao)
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('comentarios.conteudo')
-                    ->label('Comentários')
-                    ->html()
-                    ->wrap()
-                    ->size(TextSize::ExtraSmall)
-                    ->listWithLineBreaks()
-                    ->limitList(1)
-                    ->expandableLimitedList()
-                    ->width('2%')
-                    ->visibleFrom('xl'),
+
                 TextColumn::make('status')
                     ->width('1%')
                     ->badge('success'),
@@ -89,17 +77,68 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('creator.name')
                     ->label('Criado por')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('comentarios.conteudo')
+                    ->label('Comentários')
+                    ->html()
+                    ->wrap()
+                    ->size(TextSize::ExtraSmall)
+                    ->listWithLineBreaks()
+                    ->limitList(1)
+                    ->expandableLimitedList()
+                    ->visibleFrom('xl'),
             ])
             ->defaultSort('id', 'desc')
             ->filters([
 
             ])
             ->recordActions([
-                // ...
-            ])
+                ActionGroup::make([
+                    Action::make('visualizar-comentarios')
+                        ->modalHeading('Comentários')
+                        ->slideOver()
+                        ->modalSubmitAction(false)
+                        ->schema([
+                            \Filament\Infolists\Components\RepeatableEntry::make('comentarios')
+                                ->schema([
+                                    \Filament\Infolists\Components\TextEntry::make('conteudo')
+                                        ->label('Comentário')
+                                        ->html(),
+                                    \Filament\Infolists\Components\TextEntry::make('created_at')
+                                        ->label('Criado em')
+                                        ->dateTime('d/m/Y H:i'),
+                                ])
+                        ])->icon('heroicon-o-chat-bubble-left-ellipsis'),
+                    Action::make('comentarios')
+                        ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                        ->schema([
+                            RichEditor::make('conteudo')
+                                ->label('Comentário')
+                                ->required()
+                                ->maxLength(500),
+                        ])
+                        ->action(function (array $data, Models\ItemOrdemServico $item) {
+                            $item->comentarios()->create([
+                                'veiculo_id'    => $item->ordemServico->veiculo_id,
+                                'conteudo'      => $data['conteudo'],
+                            ]);
+                        }),
+                    EditAction::make(),
+                    DeleteAction::make()
+                        ->action(function (Models\ItemOrdemServico $itemOrdemServico) {
+                            Services\OrdemServico\ItemOrdemServicoService::delete($itemOrdemServico);
+                        })
+                        ->requiresConfirmation(),
+                ])->icon('heroicon-o-bars-3-center-left')
+            ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
-                // ...
+                CreateAction::make()
+                    ->label('Serviço')
+                    ->icon('heroicon-o-plus')
+                    ->mutateDataUsing(function (array $data): array {
+                        $data['created_by'] = Auth::user()->id;
+                        return $data;
+                    }),
             ])
             ->recordClasses(fn (Models\ItemOrdemServico $record) => match ($record->status) {
                 Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE => 'bg-yellow-100',

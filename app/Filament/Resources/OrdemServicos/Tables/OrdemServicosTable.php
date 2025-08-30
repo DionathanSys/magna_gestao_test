@@ -10,9 +10,14 @@ use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Enum;
+use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Support\Enums\Width;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\{SelectFilter, Filter};
 use Illuminate\Database\Eloquent\Builder;
 
@@ -25,7 +30,7 @@ class OrdemServicosTable
                 TextColumn::make('id')
                     ->label('ID')
                     ->width('1%')
-                    ->url(fn (Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id]))
+                    ->url(fn(Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id]))
                     ->openUrlInNewTab(),
                 TextColumn::make('sankhyaId.ordem_sankhya_id')
                     ->label('OS Sankhya')
@@ -33,7 +38,7 @@ class OrdemServicosTable
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->width('1%')
-                    ->url(fn (Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
+                    ->url(fn(Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
                 TextColumn::make('quilometragem')
                     ->label('Quilometragem')
                     ->width('1%')
@@ -55,7 +60,7 @@ class OrdemServicosTable
                     ->label('Qtd. Serviços')
                     ->width('1%'),
                 TextColumn::make('pendentes_count')->counts('pendentes')
-                    ->label('Pendencias')
+                    ->label('Pendências')
                     ->width('1%')
                     ->color(fn($state): string => $state == 0 ? 'gray' : 'info')
                     ->badge(fn($state): bool => $state > 0),
@@ -82,10 +87,10 @@ class OrdemServicosTable
                 TextColumn::make('creator.name')
                     ->label('Criado por')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('id', 'desc')
-             ->persistFiltersInSession()
+            ->persistFiltersInSession()
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
@@ -127,13 +132,21 @@ class OrdemServicosTable
                     }),
             ])
             ->recordActions([
-                EditAction::make(),
-                Action::make('custom')
-                    ->label('Custom')
-                    ->icon('heroicon-o-cog')
+                ActionGroup::make([
+                    Actions\EncerrarOrdemServicoAction::make(),
+                    EditAction::make()
+                        ->url(fn(Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
+                    Actions\PdfOrdemServicoAction::make(),
+                    Actions\VincularOrdemSankhyaAction::make(),
+                ])
+                    ->icon('heroicon-o-bars-3-center-left')
+                    ->dropdownPlacement('top-start'),
+                ViewAction::make()
+                    ->label('Visualizar')
+                    ->color('primary')
+                    ->modalWidth(Width::FiveExtraLarge)
                     ->iconButton()
-                    ->url(fn (Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
-            ])
+            ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

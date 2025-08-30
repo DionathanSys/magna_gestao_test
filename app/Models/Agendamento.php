@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
 
 class Agendamento extends Model
 {

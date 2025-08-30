@@ -8,6 +8,9 @@ use Filament\Actions\Concerns\InteractsWithRecord;
 use Livewire\Component;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\FusedGroup;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Contracts\View\View;
@@ -32,50 +35,69 @@ class FormTeste extends Component implements HasSchemas
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->columns([
-                'default' => 2,
-                'xl' => 4,
-                '2xl' => 6,
-            ])
             ->components(
                 [
-                    OrdemServicoForm::getVeiculoIdFormField()
-                        ->columnSpan([
-                            'default' => 2,
-                            'xl' => 2
-                        ]),
-                    OrdemServicoForm::getQuilometragemFormField()
-                        ->columnSpan([
-                            'default' => 2,
-                            'xl' => 2
-                        ]),
-                    OrdemServicoForm::getTipoManutencaoFormField()
-                        ->columnSpan([
-                            'default' => 2,
-                            'xl' => 2
-                        ]),
-                    OrdemServicoForm::getStatusFormField()
-                        ->columnSpan([
-                            'default' => 2,
-                            'xl' => 2
-                        ]),
-                    OrdemServicoForm::getStatusSankhyaFormField()
-                        ->columnSpan([
-                            'default' => 2,
-                            'xl' => 2
-                        ]),
-                    OrdemServicoForm::getDataInicioFormField()
-                        ->columnSpan([
-                            'default' => 2,
-                            'xl' => 2
-                        ]),
-                    OrdemServicoForm::getDataFimFormField()
-                        ->columnSpan([
-                            'default' => 2,
-                            'xl' => 2
-                        ]),
+                    Tabs::make('Tabs')
+                        ->contained(false)
+                        ->columnSpanFull()
+                        ->tabs(
+                            [
+                                Tabs\Tab::make('Veículo')
+                                    ->columns([
+                                        'default' => 2,
+                                        'xl' => 4,
+                                        '2xl' => 6,
+                                    ])
+                                    ->schema([
+                                        OrdemServicoForm::getVeiculoIdFormField()
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
 
+                                        OrdemServicoForm::getQuilometragemFormField()
+                                            ->label('Quilometragem')
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
+                                    ]),
+                                Tabs\Tab::make('Info. OS')
+                                    ->columns([
+                                        'default' => 2,
+                                        'xl' => 4,
+                                        '2xl' => 6,
+                                    ])
+                                    ->schema([
+                                        OrdemServicoForm::getTipoManutencaoFormField()
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
+                                        OrdemServicoForm::getStatusFormField()
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
+                                        OrdemServicoForm::getStatusSankhyaFormField()
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
+                                        OrdemServicoForm::getDataInicioFormField()
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
+                                        OrdemServicoForm::getDataFimFormField()
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
+                                    ]),
 
+                            ]
+                        )
                 ]
             )
             ->statePath('data')

@@ -71,7 +71,7 @@ class VincularServicoOrdemServicoAction
                     'data' => $data,
                     'arguments' => $arguments,
                 ]);
-                dd($this, $var);
+                dd( $var);
                 $service = new Services\ItemOrdemServico\ItemOrdemServicoService();
                 $itemOrdemServico = $service->create($data);
 

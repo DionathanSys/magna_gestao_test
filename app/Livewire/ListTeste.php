@@ -35,7 +35,6 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
 
     public function mount(Models\OrdemServico $ordemServico): void
     {
-        ds($ordemServico);
         $this->ordemServico = $ordemServico;
     }
 

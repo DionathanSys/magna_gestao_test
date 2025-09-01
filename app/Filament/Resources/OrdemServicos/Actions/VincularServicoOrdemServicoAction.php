@@ -14,12 +14,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class VincularServicoOrdemServicoAction
 {
-    public static function make($var): CreateAction
+    public static function make(?int $ordemServicoId = null): CreateAction
     {
         return CreateAction::make()
             ->label('Adicionar Serviço')
@@ -63,32 +64,22 @@ class VincularServicoOrdemServicoAction
                         ]
                     )
             )
-            ->mutateDataUsing(function (array $data): array {
+            ->model(Models\ItemOrdemServico::class) // Definir o model
+            ->mutateDataUsing(function (array $data) use ($ordemServicoId): array {
+                $data['ordem_servico_id'] = $ordemServicoId;
                 return $data;
             })
-            ->action(function ($var, array $data, array $arguments, Schema $form, CreateAction $action) {
-                Log::debug(__METHOD__.'-'.__LINE__, [
-                    'data' => $data,
-                    'arguments' => $arguments,
-                ]);
-                dd( $var);
+            ->using(function (array $data, string $model, CreateAction $action): ?Model {
                 $service = new Services\ItemOrdemServico\ItemOrdemServicoService();
                 $itemOrdemServico = $service->create($data);
 
-                Log::debug(__METHOD__.'-'.__LINE__, [
-                    'itemOrdemServico' => $itemOrdemServico,
-                    'service' => $service,
-                ]);
-
                 if ($service->hasError()) {
                     notify::error(mensagem: $service->getMessage());
-                    return;
-                }
-                if ($arguments['another'] ?? false) {
-                    $form->fill();
                     $action->halt();
+                    return null;
                 }
                 notify::success(mensagem: 'Serviço vinculado com sucesso!');
+                return $itemOrdemServico;
             });
     }
 

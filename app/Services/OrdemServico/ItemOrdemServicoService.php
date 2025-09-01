@@ -52,18 +52,18 @@ class ItemOrdemServicoService
     public static function delete(ItemOrdemServico $itemOrdemServico)
     {
         if ($itemOrdemServico->status != StatusOrdemServicoEnum::PENDENTE) {
-            // notify::error('Não é possível remover um item de ordem de serviço que não esteja pendente.');
+            notify::error('Não é possível remover um item de ordem de serviço que não esteja pendente.');
             return;
         }
 
         if($itemOrdemServico->plano_preventivo_id) {
-            // notify::alert('Não é possível remover um item de ordem de serviço que esteja associado a um plano preventivo.');
+            notify::alert('Não é possível remover um item de ordem de serviço que esteja associado a um plano preventivo.');
             return;
         }
 
         $itemOrdemServico->delete();
 
-        // notify::success('Item de Ordem de Serviço removido com sucesso.');
+        notify::success('Item de Ordem de Serviço removido com sucesso.');
     }
 
 }

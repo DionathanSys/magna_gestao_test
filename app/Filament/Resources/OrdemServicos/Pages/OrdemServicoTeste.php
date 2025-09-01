@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 
@@ -17,5 +18,14 @@ class OrdemServicoTeste extends Page
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make('delete')
+                ->requiresConfirmation()
+                ->action(fn () => $this->record->delete()),
+        ];
     }
 }

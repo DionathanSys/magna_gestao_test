@@ -29,16 +29,13 @@ class OrdemServicosTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->width('1%')
-                    ->url(fn(Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id]))
-                    ->openUrlInNewTab(),
+                    ->width('1%'),
                 TextColumn::make('sankhyaId.ordem_sankhya_id')
                     ->label('OS Sankhya')
                     ->width('1%'),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
-                    ->width('1%')
-                    ->url(fn(Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
+                    ->width('1%'),
                 TextColumn::make('quilometragem')
                     ->label('Quilometragem')
                     ->width('1%')
@@ -70,10 +67,10 @@ class OrdemServicosTable
                 SelectColumn::make('status_sankhya')
                     ->label('Sankhya')
                     ->width('1%')
+                    ->native(false)
                     ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray()),
                 TextColumn::make('parceiro.nome')
                     ->label('Fornecedor')
-                    ->width('1%')
                     ->placeholder('N/A')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')

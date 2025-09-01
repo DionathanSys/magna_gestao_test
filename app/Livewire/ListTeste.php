@@ -35,6 +35,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
 
     public function mount(Models\OrdemServico $ordemServico): void
     {
+        ds($ordemServico);
         $this->ordemServico = $ordemServico;
     }
 
@@ -42,9 +43,11 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
     {
         return $table
             ->heading('Serviços')
-            ->query(Models\ItemOrdemServico::query()
-                ->where('ordem_servico_id', $this->ordemServico->id)
-                ->with(['servico', 'planoPreventivo']))
+            // ->query(Models\ItemOrdemServico::query()
+            //     ->where('ordem_servico_id', $this->ordemServico->id)
+            //     ->with(['servico', 'planoPreventivo']))
+            ->relationship(fn() => $this->ordemServico->itens())
+            ->inverseRelationship('ordemServico')
             ->columns([
                 TextColumn::make('servico.descricao')
                     ->label('Serviço')
@@ -129,6 +132,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                         ->action(function (Models\ItemOrdemServico $itemOrdemServico) {
                             Services\OrdemServico\ItemOrdemServicoService::delete($itemOrdemServico);
                         })
+                        ->successNotificationTitle(null)
                         ->requiresConfirmation(),
                 ])->icon('heroicon-o-bars-3-center-left')
             ], position: RecordActionsPosition::BeforeColumns)

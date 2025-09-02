@@ -32,7 +32,6 @@ class EncerrarOrdemServicoAction
                     return;
                 }
                 notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
-            })
-            ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl());
+            });
     }
 }

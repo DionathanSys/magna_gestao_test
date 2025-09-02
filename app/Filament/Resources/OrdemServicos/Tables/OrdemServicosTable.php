@@ -142,7 +142,8 @@ class OrdemServicosTable
                     ->label('Visualizar')
                     ->color('primary')
                     ->modalWidth(Width::FiveExtraLarge)
-                    ->iconButton()
+                    ->iconButton(),
+                
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([

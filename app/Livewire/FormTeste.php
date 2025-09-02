@@ -99,11 +99,21 @@ class FormTeste extends Component implements HasSchemas
                                             ]),
                                     ]),
                                 Tabs\Tab::make('Agendamentos')
+                                    ->badge(fn (): string => (string) $this->ordemServico->agendamentosPendentes()->count())
+                                    ->badgeColor('danger')
                                     ->columns(['default' => 2,'xl' => 4,'2xl' => 6,])
                                     ->schema([
                                         Components\AgendamentoRepeater::make()
                                             ->columnSpanFull(),
-                                    ])
+                                    ]),
+                                Tabs\Tab::make('Preventivas')
+                                    ->badge(fn (): string => (string) $this->ordemServico->planoPreventivoVinculado()->count())
+                                    ->badgeColor('info')
+                                    ->columns(['default' => 2,'xl' => 4,'2xl' => 6,])
+                                    ->schema([
+                                        Components\PlanosPreventivosVinculadoRepeater::make()
+                                            ->columnSpanFull(),
+                                    ]),
 
                             ]
                         )

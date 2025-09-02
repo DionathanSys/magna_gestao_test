@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Resources\OrdemServicos\Actions;
+namespace App\Filament\Resources\OrdemServicos\Actions;
 
 use App\{Models, Enum, Services};
 use App\Services\NotificacaoService as notify;

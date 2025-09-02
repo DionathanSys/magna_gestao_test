@@ -3,8 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
 
-use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
-use App\Resources\OrdemServicos\Actions;
+use App\Filament\Resources\OrdemServicos\{OrdemServicoResource, Actions};
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;

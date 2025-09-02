@@ -2,8 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
+use App\Filament\Resources\OrdemServicos\Schemas\{OrdemServicoForm, Components};
 use App\Models\OrdemServico;
+use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Concerns\InteractsWithRecord;
 use Livewire\Component;
 use Filament\Forms\Components\MarkdownEditor;
@@ -19,6 +20,7 @@ use Filament\Schemas\Schema;
 
 class FormTeste extends Component implements HasSchemas
 {
+    use InteractsWithActions;
     use InteractsWithSchemas;
     use InteractsWithRecord;
 
@@ -27,7 +29,7 @@ class FormTeste extends Component implements HasSchemas
 
     public function mount(OrdemServico $ordemServico): void
     {
-        $this->ordemServico = $ordemServico;
+        $this->ordemServico = $ordemServico->load('agendamentosPendentes');
         $this->form->fill($ordemServico->attributesToArray());
     }
 
@@ -42,7 +44,7 @@ class FormTeste extends Component implements HasSchemas
                         ->columnSpanFull()
                         ->tabs(
                             [
-                                Tabs\Tab::make('Veículo')
+                                Tabs\Tab::make('Inicio')
                                     ->columns([
                                         'default' => 2,
                                         'xl' => 4,
@@ -54,20 +56,21 @@ class FormTeste extends Component implements HasSchemas
                                                 'default' => 2,
                                                 'xl' => 2
                                             ]),
-
                                         OrdemServicoForm::getQuilometragemFormField()
                                             ->label('Quilometragem')
                                             ->columnSpan([
                                                 'default' => 2,
                                                 'xl' => 2
                                             ]),
+                                        OrdemServicoForm::getParceiroIdFormField()
+                                            ->label('Parceiro Externo')
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
                                     ]),
                                 Tabs\Tab::make('Info. OS')
-                                    ->columns([
-                                        'default' => 2,
-                                        'xl' => 4,
-                                        '2xl' => 6,
-                                    ])
+                                    ->columns(['default' => 2,'xl' => 4,'2xl' => 6,])
                                     ->schema([
                                         OrdemServicoForm::getTipoManutencaoFormField()
                                             ->columnSpan([
@@ -95,6 +98,12 @@ class FormTeste extends Component implements HasSchemas
                                                 'xl' => 2
                                             ]),
                                     ]),
+                                Tabs\Tab::make('Agendamentos')
+                                    ->columns(['default' => 2,'xl' => 4,'2xl' => 6,])
+                                    ->schema([
+                                        Components\AgendamentoRepeater::make()
+                                            ->columnSpanFull(),
+                                    ])
 
                             ]
                         )
@@ -104,9 +113,9 @@ class FormTeste extends Component implements HasSchemas
             ->model($this->ordemServico);
     }
 
-    public function create(): void
+    public function edit(): void
     {
-        dd($this->form->getState());
+        $this->ordemServico->update($this->form->getState());
     }
 
     public function render()

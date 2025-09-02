@@ -54,7 +54,7 @@ class AgendamentoRepeater
                 Action::make('vincularAgendamento')
                     ->icon(Heroicon::Link)
                     ->action(function (array $arguments, Repeater $component, $state,$record): void {
-                        $agendamento = Models\Agendamento::find($state[$arguments['item']]);
+                        $agendamento = Models\Agendamento::find($state[$arguments['item']['id']]);
                         $service = new Services\Agendamento\AgendamentoService();
                         $service->vincularEmOrdemServico($agendamento);
                         if($service->hasError()) {

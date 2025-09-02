@@ -59,6 +59,15 @@ class PlanosPreventivosVinculadoRepeater
 
             ])
             ->extraItemActions([
+                Action::make('removerVinculo')
+                    ->icon(Heroicon::Trash)
+                    ->action(function (array $arguments, Repeater $component, $state, $record): void {
+                        $planoOrdem = Models\PlanoManutencaoOrdemServico::find($state[$arguments['item']]['id']);
+                        Services\OrdemServico\ManutencaoPreventivaService::desassociarPlanoPreventivo($planoOrdem);
+                    })
+                    ->successRedirectUrl(fn(Model $record): string => OrdemServicoResource::getUrl('custom', [
+                        'record' => $record,
+                    ])),
             ]);
     }
 }

@@ -62,7 +62,8 @@ class AgendamentoRepeater
                             return;
                         }
                         notify::success('Agendamento vinculado com sucesso!');
-                    }),
+                    })
+                    ->successNotification(null),
             ]);
     }
 }

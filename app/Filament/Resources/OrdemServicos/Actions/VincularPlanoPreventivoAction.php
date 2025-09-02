@@ -3,11 +3,13 @@
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
 use App\{Models, Enum, Services};
+use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Model;
 
 class VincularPlanoPreventivoAction
 {
@@ -54,6 +56,9 @@ class VincularPlanoPreventivoAction
                 return;
             })
             ->color('primary')
-            ->icon('heroicon-o-wrench');
+            ->icon('heroicon-o-wrench')
+            ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl('custom', [
+                        'record' => $record,
+                    ]));
     }
 }

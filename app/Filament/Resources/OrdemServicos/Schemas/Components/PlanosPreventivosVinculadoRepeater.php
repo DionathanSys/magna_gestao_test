@@ -29,16 +29,33 @@ class PlanosPreventivosVinculadoRepeater
             ->schema([
                 TextEntry::make('id')
                     ->label('ID')
-                    ->columnSpan(2),
+                    ->columnSpan([
+                        'default' => 6,
+                        'md' => 2,
+                        'lg' => 4,
+                        'xl' => 2,
+                    ]),
                 TextEntry::make('planoPreventivo.id')
                     ->label('ID Plano')
-                    ->columnSpan(2),
+                    ->columnSpan([
+                        'default' => 6,
+                        'md' => 2,
+                        'lg' => 4,
+                        'xl' => 2,
+                    ]),
                 TextEntry::make('planoPreventivo.descricao')
                     ->label('Plano Preventivo')
-                    ->columnSpan(12),
-                TextEntry::make('planoPreventivo.periodicidade')
-                    ->label('Periodicidade')
-                    ->columnSpan(12),
+                    ->columnSpan([
+                        'default' => 12,
+                        'lg' => 6,
+                    ])
+                    ->columnStart(1),
+                TextEntry::make('planoPreventivo.intervalo')
+                    ->label('Intervalo')
+                    ->columnSpan([
+                        'default' => 12,
+                        'lg' => 6,
+                    ]),
 
             ])
             ->extraItemActions([

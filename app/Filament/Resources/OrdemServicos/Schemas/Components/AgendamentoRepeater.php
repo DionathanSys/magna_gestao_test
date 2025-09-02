@@ -34,22 +34,22 @@ class AgendamentoRepeater
                     ->label('Descrição do Serviço')
                     ->columnSpan(12),
                 TextEntry::make('data_agendamento')
-                    ->label('Data do Agendamento')
+                    ->label('Dt. do Agendamento')
                     ->columnSpan(6)
-                    ->placeholder('Sem data definida')
+                    ->placeholder('Sem data')
                     ->date('d/m/Y'),
                 TextEntry::make('data_limite')
-                    ->label('Data Limite Realização')
+                    ->label('Dt. Limite')
                     ->columnSpan(6)
-                    ->placeholder('Sem data definida')
+                    ->placeholder('Sem data')
                     ->date('d/m/Y'),
                 TextEntry::make('observacao')
                     ->label('Observação')
-                    ->placeholder('Sem observação')
+                    ->placeholder('N/A')
                     ->columnSpan(6),
                 TextEntry::make('parceiro.nome')
                     ->label('Fornecedor')
-                    ->placeholder('Sem fornecedor externo definido')
+                    ->placeholder('Serv. Interno')
                     ->columnSpan(6),
             ])
             ->extraItemActions([

@@ -18,6 +18,7 @@ class AgendamentoRepeater
     {
         return Repeater::make('agendamentosPendentes')
             ->label('Agendamentos')
+            ->disabled()
             ->relationship()
             ->orderColumn('data_agendamento')
             ->columns(12)

@@ -27,7 +27,9 @@ class OrdemServicoTeste extends Page
             DeleteAction::make('delete')
                 ->requiresConfirmation()
                 ->action(fn () => $this->record->delete()),
+            Actions\EncerrarOrdemServicoAction::make($this->record->id),
             Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id),
+            Actions\PdfOrdemServicoAction::make(),
         ];
     }
 }

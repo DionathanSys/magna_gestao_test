@@ -20,6 +20,7 @@ class EncerrarOrdemServicoAction
         return Action::make('encerrar')
             ->label('Encerrar OS')
             ->icon('heroicon-o-check-circle')
+            ->color('success')
             ->action(function (Models\OrdemServico $record) {
                 $service = new Services\OrdemServico\OrdemServicoService();
                 $service->encerrarOrdemServico($record);

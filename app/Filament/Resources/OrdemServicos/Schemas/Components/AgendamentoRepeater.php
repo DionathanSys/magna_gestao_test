@@ -65,7 +65,7 @@ class AgendamentoRepeater
                         }
                         notify::success('Agendamento vinculado com sucesso!');
                     })
-                    ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl('edit', [
+                    ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl('custom', [
                         'record' => $record,
                     ])),
             ]);

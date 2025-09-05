@@ -84,8 +84,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->searchable()
                             ->columnSpan(['md' => 2, 'xl' => 4])
                             ->preload()
-                            ->fixIndistinctState()
-
+                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                             ->options(\App\Models\Integrado::query()
                                 ->where('cliente', ClienteEnum::BUGIU)
                                 ->pluck('nome', 'id'))

@@ -119,7 +119,7 @@ class VincularServicoOrdemServicoAction
             ->label('Posição')
             ->requiredIf('controla_posicao', true)
             ->minLength(2)
-            ->maxLength(5);
+            ->maxLength(7);
     }
 
     public static function getObservacaoFormField(): Textarea

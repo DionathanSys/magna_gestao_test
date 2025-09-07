@@ -53,6 +53,7 @@ class ConfigBugioSettings extends AbstractPageSettings
             ->components([
                 Section::make('Configurações de Email')
                     ->columnSpanFull()
+                    ->columns(12)
                     ->schema([
                         TextInput::make('email')
                             ->label('Email Emissor CTe')
@@ -104,6 +105,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                                     ->options(Models\Veiculo::query()
                                         ->pluck('placa', 'placa')
                                         ->toArray())
+                                    ->searchable()
                                     ->columnSpan(3)
                                     ->required(),
                             ]),
@@ -117,7 +119,8 @@ class ConfigBugioSettings extends AbstractPageSettings
                                     ->options(Models\Veiculo::query()
                                         ->pluck('placa', 'placa')
                                         ->toArray())
-                                    ->columnSpan(6)
+                                    ->searchable()
+                                    ->columnSpan(3)
                                     ->columnStart(1)
                                     ->required(),
                             ]),

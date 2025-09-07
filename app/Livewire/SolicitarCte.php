@@ -26,10 +26,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     use InteractsWithActions;
     use InteractsWithSchemas;
 
-    protected static ?string $title = 'Solicitar CTe';
-
-    protected static string | BackedEnum | null $navigationIcon = 'document-plus';
-
     public ?array $data = [];
 
     public function mount(): void

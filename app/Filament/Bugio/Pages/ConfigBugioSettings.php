@@ -16,7 +16,7 @@ class ConfigBugioSettings extends AbstractPageSettings
 
     protected static ?string $title = 'Configurações';
 
-    // protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-wrench-screwdriver'; // Uncomment if you want to set a custom navigation icon
+    // protected static string | BackedEnum | null $navigationIcon = 'document-plus'; // Uncomment if you want to set a custom navigation icon
 
     protected ?string $subheading = 'Configurações Painel Bugio'; // Uncomment if you want to set a custom subheading
 

@@ -18,12 +18,17 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Livewire\Component;
 use App\Services\CteService;
+use BackedEnum;
 
 class SolicitarCte extends Component implements HasSchemas, HasActions
 {
 
     use InteractsWithActions;
     use InteractsWithSchemas;
+
+    protected static ?string $title = 'Solicitar CTe';
+
+    protected static string | BackedEnum | null $navigationIcon = 'document-plus';
 
     public ?array $data = [];
 

@@ -115,4 +115,9 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'reply_to' => [
+        'address' => 'dionathansilva2637@gmail.com',
+        'name' => 'App Name',
+    ],
+
 ];

@@ -17,6 +17,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Livewire\Component;
+use App\Services\CteService;
 
 class SolicitarCte extends Component implements HasSchemas, HasActions
 {
@@ -69,8 +70,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->multiple()
                             ->maxFiles(10)
                             ->directory('cte')
-                            ->visibility('private')
+                            ->visibility('public')
                             ->required()
+                            ->downloadable()
                     ]),
                 Repeater::make('data-integrados')
                     ->label('Integrados')
@@ -122,9 +124,18 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             ->statePath('data');
     }
 
-    public function create(): void
+    public function handle(): void
     {
-        dd($this->form->getState());
+
+        $data = $this->form->getState();
+        $data['integrados'] = $data['data-integrados'];
+        unset($data['data-integrados']);
+
+        ds($data)->label(__METHOD__.'-'.__LINE__);
+
+        $service = new CteService\CteService();
+        $service->solicitarCtePorEmail($data);
+
     }
 
     public function render()

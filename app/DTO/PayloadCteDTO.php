@@ -14,7 +14,7 @@ class PayloadCteDTO
         public readonly Collection $integrados,
         public readonly ?int $userId = null,
         public readonly ?string $observacao = null,
-        public readonly array $errors = [],
+        public array $errors = [],
     ) {}
 
     public static function fromArray(array $data): self

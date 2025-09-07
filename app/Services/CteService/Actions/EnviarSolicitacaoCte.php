@@ -15,8 +15,8 @@ class EnviarSolicitacaoCte
     }
     public function handle(): void
     {
-        Mail::send(new \App\Mail\SolicitacaoCteMail());
-        
+        Mail::send(new \App\Mail\SolicitacaoCteMail($this->payloadCteDTO));
+
     }
 
 }

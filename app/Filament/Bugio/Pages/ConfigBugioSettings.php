@@ -2,12 +2,14 @@
 
 namespace App\Filament\Bugio\Pages;
 
-use BackedEnum;
+use App\Models;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Inerba\DbConfig\AbstractPageSettings;
 use Filament\Schemas\Components;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ConfigBugioSettings extends AbstractPageSettings
@@ -49,41 +51,91 @@ class ConfigBugioSettings extends AbstractPageSettings
         return $schema
             ->columns(12)
             ->components([
-                TextInput::make('email')
-                    ->label('Email de Emissor CTe')
-                    ->columnSpan(6)
-                    ->email()
-                    ->autocomplete(false)
-                    ->required(),
-                TextInput::make('email-retorno')
-                    ->label('Email para Retorno')
-                    ->columnSpan(6)
-                    ->columnStart(1)
-                    ->email()
-                    ->autocomplete(false)
-                    ->required(),
-                Repeater::make('emails-copia')
-                    ->label('Emails em Cópia')
-                    ->addActionLabel('Incluir Email em Cópia')
-                    ->defaultItems(1)
-                    ->columnSpan(6)
-                    ->columnStart(1)
-                    ->simple(
+                Section::make('Configurações de Email')
+                    ->columnSpanFull()
+                    ->schema([
                         TextInput::make('email')
-                            ->columnSpanFull()
+                            ->label('Email Emissor CTe')
+                            ->columnSpan(6)
                             ->email()
+                            ->autocomplete(false)
                             ->required(),
+                        TextInput::make('email-retorno')
+                            ->label('Email para Retorno')
+                            ->columnSpan(6)
+                            ->columnStart(1)
+                            ->email()
+                            ->autocomplete(false)
+                            ->required(),
+                        Repeater::make('emails-copia')
 
-                    ),
-                TextInput::make('valor-quilomentro')
-                    ->label('R$/Km')
-                    ->columnStart(1)
-                    ->columnSpan(1)
-                    ->numeric()
-                    ->prefix('R$')
-                    ->default(0.01)
-                    ->minValue(0.01)
-                    ->required(),
+                            ->label('Email\'s em Cópia')
+                            ->addActionLabel('Incluir Email em Cópia')
+                            ->defaultItems(1)
+                            ->columnSpan(6)
+                            ->columnStart(1)
+                            ->simple(
+                                TextInput::make('email')
+                                    ->columnSpanFull()
+                                    ->email()
+                                    ->required(),
+
+                            ),
+                    ]),
+                Section::make('Cadastro Motorista/Veículo')
+                    ->columnSpanFull()
+                    ->schema([
+                        Repeater::make('motoristas')
+                            ->label('Motoristas')
+                            ->addActionLabel('Incluir Motorista')
+                            ->columns(12)
+                            ->schema([
+                                TextInput::make('motorista')
+                                    ->label('Motorista Padrão')
+                                    ->columnSpan(6)
+                                    ->columnStart(1)
+                                    ->required(),
+                                TextInput::make('cpf')
+                                    ->label('Nº CPF')
+                                    ->columnSpan(3)
+                                    ->required(),
+                                Select::make('placa')
+                                    ->label('Placa')
+                                    ->options(Models\Veiculo::query()
+                                        ->pluck('placa', 'placa')
+                                        ->toArray())
+                                    ->columnSpan(3)
+                                    ->required(),
+                            ]),
+                        Repeater::make('veiculos')
+                            ->label('Veículos')
+                            ->addActionLabel('Incluir Veículo')
+                            ->columns(12)
+                            ->schema([
+                                Select::make('placa')
+                                    ->label('Placa')
+                                    ->options(Models\Veiculo::query()
+                                        ->pluck('placa', 'placa')
+                                        ->toArray())
+                                    ->columnSpan(6)
+                                    ->columnStart(1)
+                                    ->required(),
+                            ]),
+                    ]),
+                Section::make('Configurações do Frete')
+                    ->columnSpanFull()
+                    ->columns(12)
+                    ->schema([
+                        TextInput::make('valor-quilomentro')
+                            ->label('R$/Km')
+                            ->columnStart(1)
+                            ->columnSpan(2)
+                            ->numeric()
+                            ->prefix('R$')
+                            ->default(0.01)
+                            ->minValue(0.01)
+                            ->required(),
+                    ])
             ])
             ->statePath('data');
     }

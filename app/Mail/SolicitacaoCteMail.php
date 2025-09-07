@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\DTO\PayloadCteDTO;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -20,7 +21,7 @@ class SolicitacaoCteMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(public PayloadCteDTO $payload)
     {
         $this->toAddress = db_config('config-bugio.email', 'dionathan.transmagnabosco.com.br');
         $this->replyToAddress = db_config('config-bugio.email-retorno', 'dionathan.transmagnabosco.com.br');

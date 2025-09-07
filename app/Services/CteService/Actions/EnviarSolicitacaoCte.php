@@ -3,6 +3,7 @@
 namespace App\Services\CteService\Actions;
 
 use App\DTO\PayloadCteDTO;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class EnviarSolicitacaoCte
@@ -14,8 +15,8 @@ class EnviarSolicitacaoCte
     }
     public function handle(): void
     {
-
-
+        Mail::send(new \App\Mail\SolicitacaoCteMail());
+        
     }
 
 }

@@ -13,12 +13,18 @@ class SolicitacaoCteMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    protected $toAddress;
+    protected $replyToAddress;
+    protected $ccAddress;
+
     /**
      * Create a new message instance.
      */
     public function __construct()
     {
-        //
+        $this->toAddress = db_config('config-bugio.email', 'dionathan.transmagnabosco.com.br');
+        $this->replyToAddress = db_config('config-bugio.email-retorno', 'dionathan.transmagnabosco.com.br');
+        $this->ccAddress = db_config('config-bugio.emails-copia', '');
     }
 
     /**
@@ -27,7 +33,10 @@ class SolicitacaoCteMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Solicitacao Cte Mail',
+            subject: 'Solicitação CT-e Magnabosco - Bugio',
+            to: $this->toAddress,
+            replyTo: $this->replyToAddress,
+            cc: $this->ccAddress,
         );
     }
 
@@ -38,7 +47,7 @@ class SolicitacaoCteMail extends Mailable
     {
         return new Content(
             markdown: 'mail.solicitacao-cte-mail',
-            
+
         );
     }
 

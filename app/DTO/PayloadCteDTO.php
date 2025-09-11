@@ -5,6 +5,7 @@ namespace App\DTO;
 use Illuminate\Support\Collection;
 use App\Models\Integrado;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PayloadCteDTO
 {
@@ -21,7 +22,11 @@ class PayloadCteDTO
 
     public static function fromArray(array $data): self
     {
+        Log::debug(__METHOD__ . '-' . __LINE__, [
+            'data' => collect(db_config('config-bugio.motoristas')),
+        ]);
         $nomeMotorista = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['nome'] ?? null;
+
         $data['motorista'] = [
             'nome' => $nomeMotorista,
         ];

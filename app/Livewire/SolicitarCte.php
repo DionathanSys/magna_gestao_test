@@ -92,6 +92,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->label('Anexos')
                             ->multiple()
                             ->maxFiles(10)
+                            ->panelLayout('integrated')
                             ->directory('cte')
                             ->visibility('private')
                             ->required()

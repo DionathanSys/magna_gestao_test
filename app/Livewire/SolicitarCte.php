@@ -152,7 +152,8 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     {
         $data = $this->mutateData($this->data ?? []);
 
-        Log::debug(__METHOD__ . '-' . __LINE__, [
+        Log::debug("dados do componente livewire", [
+            'método' => __METHOD__.'-'.__LINE__,
             'data' => $data,
         ]);
 

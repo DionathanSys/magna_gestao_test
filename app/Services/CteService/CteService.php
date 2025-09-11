@@ -14,14 +14,11 @@ class CteService
 
     public function solicitarCtePorEmail(array $data)
     {
-        Log::debug(__METHOD__ . '-' . __LINE__, [
-            'data' => $data,
-            'user_id' => Auth::id() ?? 'N/A',
-        ]);
 
         try {
 
-            Log::debug(__METHOD__ . '-' . __LINE__, [
+            Log::debug("dados recebidos do componente livewire", [
+                'método' => __METHOD__.'-'.__LINE__,
                 'data' => $data,
                 'user_id' => Auth::id() ?? 'N/A',
             ]);
@@ -31,13 +28,15 @@ class CteService
 
             $payloadDto = PayloadCteDTO::fromArray($data);
 
-            Log::debug(__METHOD__ . '-' . __LINE__, [
+            Log::debug("dados do payload DTO", [
+                'método' => __METHOD__.'-'.__LINE__,
                 'payloadDto' => $payloadDto->toArray(),
                 'user_id' => Auth::id() ?? 'N/A',
             ]);
 
             if (!$payloadDto->isValid()){
-                Log::warning(__METHOD__.'-'.__LINE__, [
+                Log::warning('dados do payload DTO inválidos', [
+                    'método' => __METHOD__.'-'.__LINE__,
                     'errors' => $payloadDto->errors,
                     'user_id' => Auth::id() ?? 'N/A',
                 ]);

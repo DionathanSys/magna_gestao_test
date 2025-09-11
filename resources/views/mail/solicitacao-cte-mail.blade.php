@@ -9,5 +9,7 @@
 
 <p>CPF: {{$payload->motorista['cpf']}}</p>
 
+<p>Favor responder este e-mail, incluindo todos os destinatários em cópia.</p>
+<p>Obrigado!</p>
+<p style='font-weight: bold'>AxionSoft - Gestão</p>
 
-**AxionSoft** - Magna Gestão

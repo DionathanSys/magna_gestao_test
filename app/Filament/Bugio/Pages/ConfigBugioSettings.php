@@ -13,6 +13,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Inerba\DbConfig\DbConfig;
 use App\Services\NotificacaoService as notify;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Auth;
 
 class ConfigBugioSettings extends AbstractPageSettings
@@ -60,6 +62,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                     ->schema([
                         TextInput::make('email')
                             ->label('Email Emissor CTe')
+                            ->disabled(fn(): bool => !Auth::user()->is_admin)
                             ->columnSpan(6)
                             ->email()
                             ->autocomplete(false)
@@ -74,6 +77,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                         Repeater::make('emails-copia')
                             ->label('Email\'s em Cópia')
                             ->addActionLabel('Incluir Email em Cópia')
+                            ->deletable(fn(): bool => Auth::user()->is_admin)
                             ->defaultItems(1)
                             ->columnSpan(6)
                             ->columnStart(1)
@@ -81,7 +85,15 @@ class ConfigBugioSettings extends AbstractPageSettings
                                 TextInput::make('email')
                                     ->columnSpanFull()
                                     ->email()
-                                    ->required(),
+                                    ->required()
+                                    ->afterStateUpdated(function (Set $set, ?string $state, ?string  $old) {
+                                        dump($state, $old);
+                                        if($old != Auth::user()->email) {
+                                            $set('email', strtolower($old));
+                                            dd($old);
+                                        }
+                                    })
+                                    ->autocomplete(false)
 
                             ),
                     ]),

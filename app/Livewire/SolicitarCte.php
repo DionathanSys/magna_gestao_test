@@ -95,7 +95,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->directory('cte')
                             ->visibility('public')
                             ->required()
-                            ->downloadable()
                     ]),
                 Repeater::make('data-integrados')
                     ->label('Integrados')
@@ -153,7 +152,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         Log::debug(__METHOD__ . '-' . __LINE__, [
             'data' => $data,
         ]);
-        
+
         $service = new CteService\CteService();
         $service->solicitarCtePorEmail($data);
     }

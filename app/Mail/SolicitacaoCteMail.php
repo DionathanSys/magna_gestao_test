@@ -6,9 +6,11 @@ use App\DTO\PayloadCteDTO;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SolicitacaoCteMail extends Mailable
 {
@@ -59,6 +61,30 @@ class SolicitacaoCteMail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $attachments = [];
+
+        foreach ($this->payload->anexos as $anexo) {
+            try {
+                Log::debug('Anexo para email', [
+                    'nome' => $anexo->getClientOriginalName(),
+                    'tipo' => $anexo->getClientOriginalExtension(),
+                    'tamanho' => $anexo->getSize(),
+                    'mime' => $anexo->getMimeType(),
+                    'realPath' => $anexo->getRealPath(),
+                ]);
+
+                $attachments[] = Attachment::fromPath($anexo->getRealPath())
+                    ->as($anexo->getClientOriginalName())
+                    ->withMime($anexo->getMimeType());
+            } catch (\Exception $e) {
+                Log::error('Erro ao anexar arquivo no email', [
+                    'error' => $e->getMessage(),
+                    'nome' => $anexo->getClientOriginalName(),
+
+                ]);
+            }
+        }
+
+        return $attachments;
     }
 }

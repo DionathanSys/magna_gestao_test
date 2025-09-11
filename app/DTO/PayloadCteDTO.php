@@ -22,14 +22,7 @@ class PayloadCteDTO
 
     public static function fromArray(array $data): self
     {
-        Log::debug(__METHOD__ . '-' . __LINE__, [
-            'input_data' => $data,
-            'data' => collect(db_config('config-bugio.motoristas')),
-            'cpf' => $data['motorista']['cpf'],
-            'nome_motorista' => collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['nome'] ?? null
-        ]);
-
-        $nomeMotorista = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['nome'] ?? null;
+        $nomeMotorista = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
 
         $data['motorista'] = [
             'nome' => $nomeMotorista,

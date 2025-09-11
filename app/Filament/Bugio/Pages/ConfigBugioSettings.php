@@ -134,7 +134,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                     ->columnSpanFull()
                     ->columns(12)
                     ->schema([
-                        TextInput::make('valor-quilomentro')
+                        TextInput::make('valor-quilometro')
                             ->label('R$/Km')
                             ->columnStart(1)
                             ->columnSpan(2)

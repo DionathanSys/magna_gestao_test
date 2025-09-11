@@ -8,6 +8,7 @@ use App\Filament\Resources\OrdemServicos\Pages\ListOrdemServicos;
 use App\Filament\Resources\OrdemServicos\Pages\OrdemServico as PagesOrdemServico;
 use App\Filament\Resources\OrdemServicos\Pages\OrdemServicoCustom;
 use App\Filament\Resources\OrdemServicos\Pages\OrdemServicoTeste;
+use App\Filament\Resources\OrdemServicos\RelationManagers\ItensRelationManager;
 use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
 use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoInfolist;
 use App\Filament\Resources\OrdemServicos\Tables\OrdemServicosTable;
@@ -51,7 +52,7 @@ class OrdemServicoResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ItensRelationManager::class,
         ];
     }
 

@@ -41,8 +41,8 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             ->columns(12)
             ->components([
                 Section::make('Detalhes do Frete')
-                    ->columns(['md' => 4, 'xl' => 6])
-                    ->columnSpan(['md' => 2, 'xl' => 5])
+                    ->columns(12)
+                    ->columnSpanFull()
                     ->schema([
                         TextInput::make('km_total')
                             ->label('KM Total')

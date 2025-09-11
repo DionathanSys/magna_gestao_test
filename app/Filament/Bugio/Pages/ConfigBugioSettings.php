@@ -11,6 +11,8 @@ use Inerba\DbConfig\AbstractPageSettings;
 use Filament\Schemas\Components;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Inerba\DbConfig\DbConfig;
+use App\Services\NotificacaoService as notify;
 
 class ConfigBugioSettings extends AbstractPageSettings
 {
@@ -155,5 +157,17 @@ class ConfigBugioSettings extends AbstractPageSettings
                 ->label('Salvar')
                 ->action(fn() => $this->save()),
         ];
+    }
+
+    public function save(): void
+    {
+        /** @var array<string,mixed> $state */
+        $state = $this->content->getState();
+
+        collect($state)->each(function ($setting, $key) {
+            DbConfig::set($this->settingName() . '.' . $key, $setting);
+        });
+
+        notify::success('Configurações salvas com sucesso!');
     }
 }

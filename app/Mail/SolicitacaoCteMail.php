@@ -34,7 +34,7 @@ class SolicitacaoCteMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Solicitação CT-e Magnabosco - Bugio',
+            subject: 'Solicitação CT-e Magnabosco - Bugio ' . now()->format('d/m/Y H:i'),
             to: $this->toAddress,
             replyTo: $this->replyToAddress,
             cc: $this->ccAddress,

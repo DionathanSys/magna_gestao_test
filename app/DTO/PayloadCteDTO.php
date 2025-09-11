@@ -12,6 +12,8 @@ class PayloadCteDTO
         public readonly float $kmTotal,
         public readonly array $anexos,
         public readonly Collection $integrados,
+        public readonly string $veiculo,
+        public readonly array $motorista = [],
         public readonly ?int $userId = null,
         public readonly ?string $observacao = null,
         public array $errors = [],
@@ -19,6 +21,11 @@ class PayloadCteDTO
 
     public static function fromArray(array $data): self
     {
+        $nomeMotorista = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['nome'] ?? null;
+        $data['motorista'] = [
+            'nome' => $nomeMotorista,
+        ];
+
         return new self(
             kmTotal: (float) ($data['km_total'] ?? 0),
             anexos: $data['anexos'] ?? [],
@@ -28,6 +35,8 @@ class PayloadCteDTO
                     kmRota: (float) ($item['km_rota'] ?? 0)
                 )
             ),
+            veiculo: $data['veiculo'] ?? 'Não informado',
+            motorista: $data['motorista'] ?? [],
             userId: Auth::id(),
             observacao: $data['observacao'] ?? null,
         );
@@ -46,9 +55,9 @@ class PayloadCteDTO
         } else {
             $hasPdf = false;
             $hasXml = false;
-
             foreach ($this->anexos as $anexo) {
-                $extension = strtolower(pathinfo($anexo, PATHINFO_EXTENSION));
+                
+                $extension = strtolower(pathinfo($anexo->getClientOriginalExtension, PATHINFO_EXTENSION));
                 if ($extension === 'pdf') {
                     $hasPdf = true;
                 }
@@ -109,6 +118,8 @@ class PayloadCteDTO
             'km_total'          => $this->kmTotal,
             'anexos'            => $this->anexos,
             'integrados'        => $this->integrados->toArray(),
+            'veiculo'           => $this->veiculo,
+            'motorista'         => $this->motorista,
             'user_id'           => $this->userId,
             'observacao'        => $this->observacao,
             'data_solicitacao'  => now()->toISOString(),

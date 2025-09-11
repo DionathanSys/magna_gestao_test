@@ -19,6 +19,7 @@ use Filament\Schemas\Schema;
 use Livewire\Component;
 use App\Services\CteService;
 use BackedEnum;
+use Illuminate\Support\Facades\Log;
 
 class SolicitarCte extends Component implements HasSchemas, HasActions
 {
@@ -55,19 +56,40 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                         TextInput::make('valor_frete')
                             ->label('Valor do Frete')
                             ->columnSpan(['md' => 1, 'xl' => 2])
+                            ->prefix('R$')
                             ->disabled()
                             ->numeric()
                             ->default(0)
                             ->minValue(0)
                             ->reactive(),
-                    ]),
-                Section::make('Anexos')
-                    ->columns(['md' => 4, 'xl' => 6])
-                    ->columnSpan(['md' => 2, 'xl' => 5])
-                    ->schema([
+                        Select::make('motorista')
+                            ->label('Motorista')
+                            ->columnSpan(['md' => 2, 'xl' => 4])
+                            ->searchable()
+                            ->preload()
+                            ->options(fn() => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
+                            ->required()
+                            ->reactive()
+                            ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
+                                if ($state) {
+                                    $placa = collect(db_config('config-bugio.motoristas'))
+                                        ->firstWhere('cpf', $state)['placa'] ?? null;
+                                    $set('veiculo', $placa);
+                                } else {
+                                    $set('veiculo', null);
+                                }
+                            }),
+                        Select::make('veiculo')
+                            ->label('Veículo')
+                            ->columnSpan(['md' => 2, 'xl' => 4])
+                            ->searchable()
+                            ->preload()
+                            ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
+                            ->required()
+                            ->reactive(),
                         FileUpload::make('anexos')
                             ->label('Anexos')
-                            ->columnSpan(['md' => 2, 'xl' => 5])
+                            ->columnSpan(['md' => 2, 'xl' => 4])
                             ->multiple()
                             ->maxFiles(10)
                             ->directory('cte')
@@ -119,8 +141,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->live(onBlur: true)
                     ]),
 
-
-
             ])
             ->statePath('data');
     }
@@ -128,20 +148,36 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     public function handle(): void
     {
 
-        $data = $this->form->getState();
-        $data['integrados'] = $data['data-integrados'];
-        unset($data['data-integrados']);
+        $data = $this->mutateData($this->data ?? []);
 
-        ds($data)->label(__METHOD__.'-'.__LINE__);
-
+        Log::debug(__METHOD__ . '-' . __LINE__, [
+            'data' => $data,
+        ]);
+        
         $service = new CteService\CteService();
         $service->solicitarCtePorEmail($data);
+    }
 
+    private function mutateData(array $data): array
+    {
+        Log::debug(__METHOD__ . '-' . __LINE__, [
+            'data' => $data,
+        ]);
+
+        $data['integrados'] = $data['data-integrados'];
+        $data['veiculo'] = $data['veiculo'] ?? null;
+        $data['motorista'] = [
+            'cpf' => $data['motorista'] ?? null,
+        ];
+
+        // Remover dados desnecessários
+        unset($data['data-integrados']);
+
+        return $data;
     }
 
     public function render()
     {
         return view('livewire.solicitar-cte');
     }
-
 }

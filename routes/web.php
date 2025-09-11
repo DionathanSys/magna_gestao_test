@@ -15,3 +15,8 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
     $service = new \App\Services\OrdemServico\OrdemServicoPdfService();
     return $service->visualizarPdfOrdemServico($ordemServico);
 })->name('ordem-servico.pdf.visualizar');
+
+Route::get('/teste', function () {
+    dump(db_config('config-bugio.veiculos'));
+    dd(db_config('config-bugio.motoristas'));
+});

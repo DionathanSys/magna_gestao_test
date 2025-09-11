@@ -69,7 +69,6 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->autocomplete(false)
                             ->required(),
                         Repeater::make('emails-copia')
-
                             ->label('Email\'s em Cópia')
                             ->addActionLabel('Incluir Email em Cópia')
                             ->defaultItems(1)
@@ -90,6 +89,9 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->label('Motoristas')
                             ->addActionLabel('Incluir Motorista')
                             ->columns(12)
+                            ->columnSpan(6)
+                            ->collapsible()
+                            ->collapsed()
                             ->schema([
                                 TextInput::make('motorista')
                                     ->label('Motorista Padrão')
@@ -113,6 +115,9 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->label('Veículos')
                             ->addActionLabel('Incluir Veículo')
                             ->columns(12)
+                            ->columnSpan(6)
+                            ->collapsible()
+                            ->collapsed()
                             ->schema([
                                 Select::make('placa')
                                     ->label('Placa')

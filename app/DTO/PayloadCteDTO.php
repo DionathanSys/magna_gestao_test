@@ -56,8 +56,7 @@ class PayloadCteDTO
             $hasPdf = false;
             $hasXml = false;
             foreach ($this->anexos as $anexo) {
-                
-                $extension = strtolower(pathinfo($anexo->getClientOriginalExtension, PATHINFO_EXTENSION));
+                $extension = strtolower(pathinfo($anexo->getClientOriginalName(), PATHINFO_EXTENSION));
                 if ($extension === 'pdf') {
                     $hasPdf = true;
                 }

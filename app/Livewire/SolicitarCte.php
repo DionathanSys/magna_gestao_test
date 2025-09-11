@@ -87,14 +87,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
                             ->required()
                             ->reactive(),
-                        FileUpload::make('anexos')
-                            ->label('Anexos')
-                            ->columnSpan(['md' => 2, 'xl' => 4])
-                            ->multiple()
-                            ->maxFiles(10)
-                            ->directory('cte')
-                            ->visibility('public')
-                            ->required()
+
                     ]),
                 Repeater::make('data-integrados')
                     ->label('Integrados')
@@ -139,14 +132,24 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             })
                             ->live(onBlur: true)
                     ]),
-
+                    Section::make('Anexos')
+                            ->columnSpanFull()
+                           ->schema([
+                               FileUpload::make('anexos')
+                                    ->columnSpanFull()
+                                    ->label('Anexos')
+                                    ->multiple()
+                                    ->maxFiles(10)
+                                    ->directory('cte')
+                                    ->visibility('private')
+                                    ->required()
+                           ]),
             ])
             ->statePath('data');
     }
 
     public function handle(): void
     {
-
         $data = $this->mutateData($this->data ?? []);
 
         Log::debug(__METHOD__ . '-' . __LINE__, [

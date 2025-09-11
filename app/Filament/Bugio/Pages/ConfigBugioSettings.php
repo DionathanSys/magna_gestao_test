@@ -89,6 +89,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                                     ->afterStateUpdated(function (Set $set, ?string $state, ?string  $old) {
                                         if(($old != null) && ($old != Auth::user()->email)) {
                                             $set('email', strtolower($old));
+                                            notify::error('Não possui permissão para alterar este e-mail!');
                                         }
                                     })
                                     ->autocomplete(false)

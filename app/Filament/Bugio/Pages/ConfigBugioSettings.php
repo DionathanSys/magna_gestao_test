@@ -87,7 +87,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                                     ->email()
                                     ->required()
                                     ->afterStateUpdated(function (Set $set, ?string $state, ?string  $old) {
-                                        if($old != Auth::user()->email) {
+                                        if(($old != null) && ($old != Auth::user()->email)) {
                                             $set('email', strtolower($old));
                                         }
                                     })

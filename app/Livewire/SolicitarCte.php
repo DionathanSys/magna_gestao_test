@@ -103,6 +103,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->columnSpan(['md' => 2, 'xl' => 5])
                             ->defaultItems(1)
                             ->addActionLabel('Adicionar Integrado')
+                            ->deletable(false)
                             ->schema([
                                 Select::make('integrado_id')
                                     ->label('Integrado')

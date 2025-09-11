@@ -121,6 +121,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                     $kmTotal = $get('../../km_total') + ($kmRota ?? 0);
                                     $set('km_rota', $kmRota ?? 0);
                                     $set('../../km_total', $kmTotal);
+                                    $set('../../valor_frete', $this->calcularFrete($kmTotal));
                                 } else {
                                     $set('km_rota', 0);
                                 }
@@ -135,7 +136,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $state, ?string $old) {
                                 if ($state !== $old) {
                                     $kmTotal = $get('../../km_total') - ($old ?? 0) + ($state ?? 0);
+
                                     $set('../../km_total', $kmTotal);
+                                    $set('../../valor_frete', $this->calcularFrete($kmTotal));
                                 }
                             })
                             ->live(onBlur: true)
@@ -173,6 +176,19 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         unset($data['data-integrados']);
 
         return $data;
+    }
+
+    private function calcularFrete(float $kmTotal): float
+    {
+        $valorQuilometro = db_config('config-bugio.valor-quilometro', 0);
+
+        return $valorQuilometro * $kmTotal;
+    }
+
+    private function resetForm(): void
+    {
+        $this->data = [];
+        $this->form->fill();
     }
 
     public function render()

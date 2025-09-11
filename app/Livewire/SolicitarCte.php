@@ -19,6 +19,7 @@ use Filament\Schemas\Schema;
 use Livewire\Component;
 use App\Services\CteService;
 use BackedEnum;
+use App\Services\NotificacaoService as notify;
 use Illuminate\Support\Facades\Log;
 
 class SolicitarCte extends Component implements HasSchemas, HasActions
@@ -158,6 +159,13 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
         $service = new CteService\CteService();
         $service->solicitarCtePorEmail($data);
+
+        if ($service->hasError()) {
+            notify::error('Erro ao enviar solicitação de CTe.');
+            return;
+        }
+
+        notify::success('Solicitação de CTe enviada com sucesso!');
     }
 
     private function mutateData(array $data): array

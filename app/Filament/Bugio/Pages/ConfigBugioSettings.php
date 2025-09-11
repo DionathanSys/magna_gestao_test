@@ -106,6 +106,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->columnSpan(6)
                             ->collapsible()
                             ->collapsed()
+                            ->itemLabel(fn (array $state): ?string => $state['motorista'] ?? null)
                             ->schema([
                                 TextInput::make('motorista')
                                     ->label('Motorista Padrão')
@@ -118,9 +119,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                                     ->required(),
                                 Select::make('placa')
                                     ->label('Placa')
-                                    ->options(Models\Veiculo::query()
-                                        ->pluck('placa', 'placa')
-                                        ->toArray())
+                                    ->options(collect(db_config('config-bugio.veiculos') ?? [])->pluck('placa', 'placa'))
                                     ->searchable()
                                     ->columnSpan(3)
                                     ->required(),
@@ -132,6 +131,8 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->columnSpan(6)
                             ->collapsible()
                             ->collapsed()
+                            ->itemLabel(fn (array $state): ?string => $state['placa'] ?? null)
+                            ->grid(5)
                             ->schema([
                                 Select::make('placa')
                                     ->label('Placa')
@@ -139,7 +140,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                                         ->pluck('placa', 'placa')
                                         ->toArray())
                                     ->searchable()
-                                    ->columnSpan(3)
+                                    ->columnSpanFull()
                                     ->columnStart(1)
                                     ->required(),
                             ]),

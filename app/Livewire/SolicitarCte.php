@@ -121,11 +121,11 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                             $kmRota = \App\Models\Integrado::find($state)?->km_rota;
                                             $kmTotal = $get('../../km_total') + ($kmRota ?? 0);
                                             $set('km_rota', $kmRota ?? 0);
-                                            $set('../../km_total', $kmTotal);
+                                            $set('../../km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                         } else {
                                             $kmTotal = $get('../../km_total') - $get('km_rota', 0);
-                                            $set('../../km_total', $kmTotal);
+                                            $set('../../km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                             $set('km_rota', 0);
 
@@ -142,7 +142,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                         if ($state !== $old) {
                                             $kmTotal = $get('../../km_total') - ($old ?? 0) + ($state ?? 0);
 
-                                            $set('../../km_total', $kmTotal);
+                                            $set('../../km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                         }
                                     })

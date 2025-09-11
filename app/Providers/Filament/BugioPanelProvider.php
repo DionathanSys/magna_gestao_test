@@ -27,6 +27,8 @@ class BugioPanelProvider extends PanelProvider
         return $panel
             ->id('bugio')
             ->path('bugio')
+            ->login()
+            ->brandName('Axion Soft - Gestão')
             ->maxContentWidth(Width::Full)
             ->globalSearchKeyBindings(['command+s', 'ctrl+s'])
             ->colors([

@@ -25,7 +25,7 @@ class CteService
             ]);
 
             $data['motorista']['nome'] = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
-            $data['valor_frete'] = db_config('config-bugio.valor-quilometro', 0);
+            $data['valor_frete'] = $data['km_total'] * db_config('config-bugio.valor-quilometro', 0);
 
             $payloadDto = PayloadCteDTO::fromArray($data);
 

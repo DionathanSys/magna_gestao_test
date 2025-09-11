@@ -81,14 +81,14 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             }),
                         Select::make('veiculo')
                             ->label('Veículo')
-                            ->columnSpan(['md' => 4, 'xl' => 6])
+                            ->columnSpan(['md' => 3, 'xl' => 4])
                             ->searchable()
                             ->preload()
                             ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
                             ->required()
                             ->reactive(),
                         FileUpload::make('anexos')
-                            ->columnSpan(['md' => 4, 'xl' => 6])
+                            ->columnSpan(['md' => 1, 'xl' => 2])
                             ->label('Anexos')
                             ->multiple()
                             ->maxFiles(10)

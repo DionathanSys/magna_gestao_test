@@ -22,11 +22,7 @@ class PayloadCteDTO
 
     public static function fromArray(array $data): self
     {
-        $nomeMotorista = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
-
-        $data['motorista'] = [
-            'nome' => $nomeMotorista,
-        ];
+        $data['motorista']['nome'] = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
 
         return new self(
             kmTotal: (float) ($data['km_total'] ?? 0),

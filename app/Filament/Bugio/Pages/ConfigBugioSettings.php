@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Inerba\DbConfig\DbConfig;
 use App\Services\NotificacaoService as notify;
+use Illuminate\Support\Facades\Auth;
 
 class ConfigBugioSettings extends AbstractPageSettings
 {
@@ -138,6 +139,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                     ->schema([
                         TextInput::make('valor-quilometro')
                             ->label('R$/Km')
+                            ->disabled(fn(): bool => !Auth::user()->is_admin)
                             ->columnStart(1)
                             ->columnSpan(2)
                             ->numeric()

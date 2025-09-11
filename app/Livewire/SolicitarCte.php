@@ -172,6 +172,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         }
 
         notify::success('Solicitação de CTe enviada com sucesso!');
+        $this->resetForm();
     }
 
     private function mutateData(array $data): array

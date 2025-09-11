@@ -20,7 +20,7 @@ class CteService
             Log::debug("dados recebidos do componente livewire", [
                 'método' => __METHOD__.'-'.__LINE__,
                 'data' => $data,
-                'db_config' => db_config('config-bugio'),
+                'db_config.valor-quilometro' => db_config('config-bugio.valor-quilometro'),
                 'user_id' => Auth::id() ?? 'N/A',
             ]);
 

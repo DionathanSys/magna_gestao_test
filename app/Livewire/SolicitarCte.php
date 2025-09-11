@@ -96,54 +96,55 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->panelLayout('grid')
                             ->directory('cte')
                             ->visibility('private')
-                            ->required()
-                    ]),
-                Repeater::make('data-integrados')
-                    ->label('Integrados')
-                    ->columns(['md' => 4, 'xl' => 6])
-                    ->columnSpan(['md' => 2, 'xl' => 5])
-                    ->defaultItems(1)
-                    ->addActionLabel('Adicionar Integrado')
-                    ->schema([
-                        Select::make('integrado_id')
-                            ->label('Integrado')
-                            ->searchable()
-                            ->columnSpan(['md' => 2, 'xl' => 4])
-                            ->preload()
-                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                            ->options(\App\Models\Integrado::query()
-                                ->where('cliente', ClienteEnum::BUGIU)
-                                ->pluck('nome', 'id'))
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
-                                if ($state) {
-                                    $kmRota = \App\Models\Integrado::find($state)?->km_rota;
-                                    $kmTotal = $get('../../km_total') + ($kmRota ?? 0);
-                                    $set('km_rota', $kmRota ?? 0);
-                                    $set('../../km_total', $kmTotal);
-                                    $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
-                                } else {
-                                    $set('km_rota', 0);
-                                }
-                            }),
-                        TextInput::make('km_rota')
-                            ->label('KM Rota')
-                            ->columnSpan(['md' => 1, 'xl' => 2])
-                            ->numeric()
-                            ->minValue(0)
-                            ->required()
-                            ->default(0)
-                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state, ?string $old) {
-                                if ($state !== $old) {
-                                    $kmTotal = $get('../../km_total') - ($old ?? 0) + ($state ?? 0);
+                            ->required(),
+                        Repeater::make('data-integrados')
+                            ->label('Integrados')
+                            ->columns(['md' => 4, 'xl' => 6])
+                            ->columnSpan(['md' => 2, 'xl' => 5])
+                            ->defaultItems(1)
+                            ->addActionLabel('Adicionar Integrado')
+                            ->schema([
+                                Select::make('integrado_id')
+                                    ->label('Integrado')
+                                    ->searchable()
+                                    ->columnSpan(['md' => 2, 'xl' => 4])
+                                    ->preload()
+                                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                    ->options(\App\Models\Integrado::query()
+                                        ->where('cliente', ClienteEnum::BUGIU)
+                                        ->pluck('nome', 'id'))
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
+                                        if ($state) {
+                                            $kmRota = \App\Models\Integrado::find($state)?->km_rota;
+                                            $kmTotal = $get('../../km_total') + ($kmRota ?? 0);
+                                            $set('km_rota', $kmRota ?? 0);
+                                            $set('../../km_total', $kmTotal);
+                                            $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
+                                        } else {
+                                            $set('km_rota', 0);
+                                        }
+                                    }),
+                                TextInput::make('km_rota')
+                                    ->label('KM Rota')
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required()
+                                    ->default(0)
+                                    ->afterStateUpdated(function (Get $get, Set $set, ?string $state, ?string $old) {
+                                        if ($state !== $old) {
+                                            $kmTotal = $get('../../km_total') - ($old ?? 0) + ($state ?? 0);
 
-                                    $set('../../km_total', $kmTotal);
-                                    $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
-                                }
-                            })
-                            ->live(onBlur: true)
+                                            $set('../../km_total', $kmTotal);
+                                            $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
+                                        }
+                                    })
+                                    ->live(onBlur: true)
+                            ]),
                     ]),
+
             ])
             ->statePath('data');
     }
@@ -153,7 +154,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $data = $this->mutateData($this->data ?? []);
 
         Log::debug("dados do componente livewire", [
-            'método' => __METHOD__.'-'.__LINE__,
+            'método' => __METHOD__ . '-' . __LINE__,
             'data' => $data,
         ]);
 

@@ -4,11 +4,13 @@ namespace App\Services\CteService;
 
 use App\DTO\PayloadCteDTO;
 use App\Services\CteService\Actions;
+use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CteService
 {
+    use ServiceResponseTrait;
 
     public function solicitarCtePorEmail(array $data)
     {
@@ -45,12 +47,15 @@ class CteService
             $action = new Actions\EnviarSolicitacaoCte();
             $action->handle($payloadDto);
 
+            $this->setSuccess('Solicitação de CTe enviada com sucesso!');
+
         } catch (\Exception $e) {
             Log::error(__METHOD__ . '-' . __LINE__, [
                 'error' => $e->getMessage(),
                 'data' => $data,
                 'user_id' => Auth::id() ?? 'N/A',
             ]);
+            $this->setError('Erro ao enviar solicitação de CTe: ' . $e->getMessage());
         }
     }
 }

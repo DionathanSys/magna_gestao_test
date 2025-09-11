@@ -24,13 +24,16 @@ class CteService
                 'user_id' => Auth::id() ?? 'N/A',
             ]);
 
+            $data['motorista']['nome'] = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
+            $data['valor_frete'] = db_config('config-bugio.valor-quilometro', 0);
+
             $payloadDto = PayloadCteDTO::fromArray($data);
 
             Log::debug(__METHOD__ . '-' . __LINE__, [
-                'payloadDto' => $payloadDto,
+                'payloadDto' => $payloadDto->toArray(),
                 'user_id' => Auth::id() ?? 'N/A',
             ]);
-            
+
             if (!$payloadDto->isValid()){
                 Log::warning(__METHOD__.'-'.__LINE__, [
                     'errors' => $payloadDto->errors,
@@ -39,13 +42,8 @@ class CteService
                 throw new \InvalidArgumentException('Dados inválidos: ' . implode(', ', $payloadDto->errors));
             }
 
-            dd($payloadDto->toArray());
-            Log::debug('payloadDto', [
-                'payload' => $payloadDto
-            ]);
-
-            $action = new Actions\EnviarSolicitacaoCte($payloadDto);
-            $action->handle();
+            $action = new Actions\EnviarSolicitacaoCte();
+            $action->handle($payloadDto);
 
         } catch (\Exception $e) {
             Log::error(__METHOD__ . '-' . __LINE__, [

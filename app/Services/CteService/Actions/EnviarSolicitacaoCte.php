@@ -9,14 +9,9 @@ use Illuminate\Support\Facades\Validator;
 class EnviarSolicitacaoCte
 {
 
-    public function __construct(protected PayloadCteDTO $payloadCteDTO)
+    public function handle(PayloadCteDTO $payloadCteDTO): void
     {
-
-    }
-    public function handle(): void
-    {
-        Mail::send(new \App\Mail\SolicitacaoCteMail($this->payloadCteDTO));
-
+        Mail::send(new \App\Mail\SolicitacaoCteMail($payloadCteDTO));
     }
 
 }

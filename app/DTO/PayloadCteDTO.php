@@ -11,6 +11,9 @@ class PayloadCteDTO
 {
     public function __construct(
         public readonly float $kmTotal,
+        public readonly float $valorFreteTotal,
+        public readonly float $valorFreteUnitario,
+        public readonly int $quantidadeCte = 1,
         public readonly array $anexos,
         public readonly Collection $integrados,
         public readonly string $veiculo,
@@ -22,10 +25,14 @@ class PayloadCteDTO
 
     public static function fromArray(array $data): self
     {
-        $data['motorista']['nome'] = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
+        $quantidadeCte = count($data['integrados'] ?? []);
+        $valorFreteUnitario = $quantidadeCte > 0 ? (float) ($data['valor_frete'] ?? 0) / $quantidadeCte : 0;
 
         return new self(
             kmTotal: (float) ($data['km_total'] ?? 0),
+            valorFreteTotal: (float) ($data['valor_frete']),
+            valorFreteUnitario: $valorFreteUnitario,
+            quantidadeCte: (int) $quantidadeCte,
             anexos: $data['anexos'] ?? [],
             integrados: collect($data['integrados'] ?? [])->map(fn($item) =>
                 new IntegradoCteDTO(
@@ -120,48 +127,6 @@ class PayloadCteDTO
             'user_id'           => $this->userId,
             'observacao'        => $this->observacao,
             'data_solicitacao'  => now()->toISOString(),
-        ];
-    }
-
-    public function toEmailPayload(): array
-    {
-        // Separar anexos por tipo
-        $anexosPdf = [];
-        $anexosXml = [];
-
-        foreach ($this->anexos as $anexo) {
-            $extension = strtolower(pathinfo($anexo, PATHINFO_EXTENSION));
-            if ($extension === 'pdf') {
-                $anexosPdf[] = $anexo;
-            } elseif ($extension === 'xml') {
-                $anexosXml[] = $anexo;
-            }
-        }
-
-        return [
-            'assunto' => 'Solicitação de CTE - ' . now()->format('d/m/Y H:i'),
-            'remetente' => Auth::user()?->email ?? 'sistema@empresa.com',
-            'dados_frete' => [
-                'km_total' => $this->kmTotal,
-                'quantidade_integrados' => $this->integrados->count(),
-            ],
-            'integrados' => $this->integrados->map(fn($integrado) => [
-                'id' => $integrado->integradoId,
-                'nome' => $integrado->getNomeIntegrado(),
-                'km_rota' => $integrado->kmRota,
-                'codigo' => $integrado->getCodigoIntegrado(),
-            ])->toArray(),
-            'anexos' => [
-                'pdf' => $anexosPdf,
-                'xml' => $anexosXml,
-                'total' => count($this->anexos),
-            ],
-            'observacao' => $this->observacao,
-            'solicitante' => [
-                'nome' => Auth::user()?->name ?? 'Sistema',
-                'email' => Auth::user()?->email ?? 'sistema@empresa.com',
-                'data' => now()->format('d/m/Y H:i:s'),
-            ],
         ];
     }
 

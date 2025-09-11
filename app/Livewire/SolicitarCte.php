@@ -64,7 +64,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->reactive(),
                         Select::make('motorista')
                             ->label('Motorista')
-                            ->columnSpan(['md' => 2, 'xl' => 4])
+                            ->columnSpan(['md' => 4, 'xl' => 6])
                             ->searchable()
                             ->preload()
                             ->options(fn() => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
@@ -81,13 +81,20 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             }),
                         Select::make('veiculo')
                             ->label('Veículo')
-                            ->columnSpan(['md' => 2, 'xl' => 4])
+                            ->columnSpan(['md' => 4, 'xl' => 6])
                             ->searchable()
                             ->preload()
                             ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
                             ->required()
                             ->reactive(),
-
+                        FileUpload::make('anexos')
+                            ->columnSpan(['md' => 4, 'xl' => 6])
+                            ->label('Anexos')
+                            ->multiple()
+                            ->maxFiles(10)
+                            ->directory('cte')
+                            ->visibility('private')
+                            ->required()
                     ]),
                 Repeater::make('data-integrados')
                     ->label('Integrados')
@@ -132,18 +139,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             })
                             ->live(onBlur: true)
                     ]),
-                    Section::make('Anexos')
-                            ->columnSpanFull()
-                           ->schema([
-                               FileUpload::make('anexos')
-                                    ->columnSpanFull()
-                                    ->label('Anexos')
-                                    ->multiple()
-                                    ->maxFiles(10)
-                                    ->directory('cte')
-                                    ->visibility('private')
-                                    ->required()
-                           ]),
             ])
             ->statePath('data');
     }

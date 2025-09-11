@@ -123,7 +123,11 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                             $set('../../km_total', $kmTotal);
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                         } else {
+                                            $kmTotal = $get('../../km_total') - $get('km_rota', 0);
+                                            $set('../../km_total', $kmTotal);
+                                            $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                             $set('km_rota', 0);
+
                                         }
                                     }),
                                 TextInput::make('km_rota')

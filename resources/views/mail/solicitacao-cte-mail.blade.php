@@ -1,12 +1,12 @@
 
-Solicitamos a emissão de CT-es para a placa {{{$payload->veiculo}}} referente as NF's em anexo.<br>
+<p>Solicitamos a emissão de CT-es para a placa {{{$payload->veiculo}}} referente as NF's em anexo.</p>
 
-Valor total frete R$ {{number_format($payload->valorFreteTotal, 2, ',', '.') }}, sendo {{$payload->quantidadeCte}} CT-e(s), R$ {{number_format($payload->valorFreteUnitario, 2, ',', '.') }} cada CT-e <br>
+<p>Valor total frete R$ {{number_format($payload->valorFreteTotal, 2, ',', '.') }}, sendo {{$payload->quantidadeCte}} CT-e(s), R$ {{number_format($payload->valorFreteUnitario, 2, ',', '.') }} cada CT-e </p>
 
-CNPJ:75.813.923/0010-52<br>
+<p>CNPJ Transportadora:75.813.923/0010-52</p>
 
-Motorista: {{$payload->motorista['nome']}} <br><br>
+<p>Motorista: {{$payload->motorista['nome']}}</p>
 
-CPF: {{$payload->motorista['cpf']}} <br><br>
+<p>CPF: {{$payload->motorista['cpf']}}</p>
 
 {{ config('app.name') }}

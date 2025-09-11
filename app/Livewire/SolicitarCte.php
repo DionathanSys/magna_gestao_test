@@ -121,7 +121,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                     $kmTotal = $get('../../km_total') + ($kmRota ?? 0);
                                     $set('km_rota', $kmRota ?? 0);
                                     $set('../../km_total', $kmTotal);
-                                    $set('../../valor_frete', $this->calcularFrete($kmTotal));
+                                    $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                 } else {
                                     $set('km_rota', 0);
                                 }
@@ -138,7 +138,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                     $kmTotal = $get('../../km_total') - ($old ?? 0) + ($state ?? 0);
 
                                     $set('../../km_total', $kmTotal);
-                                    $set('../../valor_frete', $this->calcularFrete($kmTotal));
+                                    $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                 }
                             })
                             ->live(onBlur: true)

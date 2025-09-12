@@ -90,15 +90,16 @@ class PneusRelationManager extends RelationManager
                     ->width('1%')
                     ->numeric(0, ',', '.'),
                 TextColumn::make('km_total_historico_ciclo')
-                    ->label('KM Histórico (Ciclo 1)')
+                    ->label('Km TT Ciclo Atual')
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->state(function (PneuPosicaoVeiculo $record): int {
                         if (!$record->pneu) return 0;
 
-                        return \App\Models\HistoricoMovimentoPneu::where('pneu_id', $record->pneu->id)
+                        $kmHistorico =  \App\Models\HistoricoMovimentoPneu::where('pneu_id', $record->pneu->id)
                             ->where('ciclo_vida', $record->pneu->ciclo_vida)
                             ->sum('km_percorrido');
+                        return $kmHistorico + ($record->km_rodado ?? 0);
                     })
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_inicial')

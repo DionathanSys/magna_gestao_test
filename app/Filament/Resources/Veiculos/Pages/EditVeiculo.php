@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditVeiculo extends EditRecord
 {
@@ -15,9 +16,12 @@ class EditVeiculo extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
+            DeleteAction::make()
+                ->visible(fn() => Auth::user()->is_admin),
+            ForceDeleteAction::make()
+                ->visible(fn() => Auth::user()->is_admin),
+            RestoreAction::make()
+                ->visible(fn() => Auth::user()->is_admin),
         ];
     }
 }

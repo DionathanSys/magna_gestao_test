@@ -23,8 +23,6 @@ class DocumentoFreteResource extends Resource
 {
     protected static ?string $model = DocumentoFrete::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
     protected static ?string $modelLabel = 'Documento Frete';

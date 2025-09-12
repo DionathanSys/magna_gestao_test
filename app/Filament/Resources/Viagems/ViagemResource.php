@@ -22,8 +22,6 @@ class ViagemResource extends Resource
 {
     protected static ?string $model = Viagem::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
     protected static ?string $modelLabel = 'Viagem';

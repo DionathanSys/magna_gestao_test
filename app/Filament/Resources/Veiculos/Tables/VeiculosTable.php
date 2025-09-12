@@ -40,6 +40,7 @@ class VeiculosTable
                 TextColumn::make('informacoes_complementares.afericao_tacografo')
                     ->label('Dt. Próx. Aferição Tacógrafo')
                     ->date('d/m/Y')
+                    ->badge()
                     ->color(fn ($state): string => match (true) {
                         !$state => 'gray',
                         $state <= now()->addDays(30) => 'danger',

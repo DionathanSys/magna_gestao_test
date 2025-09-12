@@ -1,6 +1,7 @@
 <?php
 
 use App\Imports\DocumentoFreteImport;
+use App\Models\Pneu;
 use App\Services\DocumentoFrete\DocumentoFreteService;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,10 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 })->name('ordem-servico.pdf.visualizar');
 
 Route::get('/teste', function () {
-    dump(db_config('config-bugio.veiculos'));
-    dd(db_config('config-bugio.motoristas'));
+    $totalKm = Pneu::where('numero_fogo', 2324817)
+        ->withSum('historicoMovimentacao', 'km_percorrido')
+        ->first()
+        ->historico_movimentacao_sum_km_percorrido;
+
+    dd($totalKm);
 });

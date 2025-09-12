@@ -8,7 +8,7 @@ enum ClienteEnum: string
     case BRF_CTV = 'BRF Catanduvas';
     case BRF_FBT = 'BRF Francisco Beltrão';
     case BRF_CNC = 'BRF Concórdia';
-    case BUGIU   = 'Bugiu';
+    case BUGIO   = 'Bugio';
 
     public static function toSelectArray(): array
     {

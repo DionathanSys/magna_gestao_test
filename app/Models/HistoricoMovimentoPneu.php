@@ -25,13 +25,6 @@ class HistoricoMovimentoPneu extends Model
         return $this->morphMany(Comentario::class, 'comentavel');
     }
 
-    public function kmPercorrido(): Attribute
-    {
-        return Attribute::get(
-            fn () => ($this->km_final ?? 0) - ($this->km_inicial ?? 0)
-        );
-    }
-
     public function anexos(): MorphMany
     {
         return $this->morphMany(Anexo::class, 'anexavel');

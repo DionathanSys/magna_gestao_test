@@ -40,6 +40,11 @@ class VeiculosTable
                 TextColumn::make('informacoes_complementares.afericao_tacografo')
                     ->label('Dt. Próx. Aferição Tacógrafo')
                     ->date('d/m/Y')
+                    ->color([
+                        'danger' => fn ($state): bool => $state && $state <= now()->addDays(30),
+                        'warning' => fn ($state): bool => $state && $state <= now()->addDays(60),
+                        'success' => fn ($state): bool => $state && $state > now()->addDays(60),
+                    ])
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.teste_fumaca')

@@ -141,7 +141,7 @@ class ItensRelationManager extends RelationManager
                 ])->icon('heroicon-o-bars-3-center-left')
             ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
-                // Actions\VincularServicoOrdemServicoAction::make($this->ordemServico->id)
+                Actions\VincularServicoOrdemServicoAction::make()
             ])
             ->headerActions([
                 CreateAction::make(),

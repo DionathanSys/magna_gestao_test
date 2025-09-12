@@ -5,9 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany, HasOne};
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Veiculo extends Model
 {
+
+    use SoftDeletes;
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'informacoes_complementares' => 'array',
+    ];
 
     // Descomente se quiser sempre no array/json
     // protected $appends = ['km_atual'];

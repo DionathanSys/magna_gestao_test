@@ -86,11 +86,11 @@ class PneusRelationManager extends RelationManager
                 // ->state(fn (PneuPosicaoVeiculo $record): string => $record->km_inicial ? (($record->veiculo->kmAtual->quilometragem ?? 0) - $record->km_inicial) : 'N/A')
                 ,
                 TextColumn::make('km_rodado')
-                    ->label('Km Rodado Pos.')
+                    ->label('Km Posição')
                     ->width('1%')
                     ->numeric(0, ',', '.'),
                 TextColumn::make('km_total_historico_ciclo')
-                    ->label('Km TT Ciclo Atual')
+                    ->label('Km Ciclo Atual')
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->state(function (PneuPosicaoVeiculo $record): int {

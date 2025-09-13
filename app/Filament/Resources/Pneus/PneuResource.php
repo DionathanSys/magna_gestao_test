@@ -53,7 +53,6 @@ class PneuResource extends Resource
     {
         return [
             'index' => ListPneus::route('/'),
-            'create' => CreatePneu::route('/create'),
             'view' => ViewPneu::route('/{record}'),
             'edit' => EditPneu::route('/{record}/edit'),
         ];

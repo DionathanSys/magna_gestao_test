@@ -52,6 +52,7 @@ class PneuInfolist
                         TextEntry::make('status')
                             ->label('Status')
                             ->badge()
+                            ->color('info')
                             ->columnSpan(2),
                         TextEntry::make('local')
                             ->label('Local')
@@ -118,6 +119,7 @@ class PneuInfolist
                                     ->value('observacao')
                             )
                             ->columnStart(1)
+                            ->placeholder('Não informado')
                             ->columnSpanFull(),
                     ]),
             ]);

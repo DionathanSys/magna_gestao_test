@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Pneus\Schemas;
 
+use App\Models;
 use App\Enum\Pneu\LocalPneuEnum;
 use App\Enum\Pneu\StatusPneuEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 
 class PneuForm
@@ -19,7 +21,20 @@ class PneuForm
                 TextInput::make('numero_fogo')
                     ->label('Nº de Fogo')
                     ->required()
-                    ->maxLength(255),
+                    ->numeric()
+                    ->maxLength(255)
+                    ->afterStateUpdated(function ($state) {
+                        if($state){
+                            $pneu = Models\Pneu::query()
+                                ->where('numero_fogo', $state)
+                                ->first();
+                            if($pneu){
+                                Notification::make()
+                                    ->title('Pneu encontrado')
+                                    ->send();
+                            }
+                        }
+                    }),
                 Select::make('marca')
                     ->searchable()
                     ->options(db_config('config-pneu.marcas_pneu', [])),
@@ -46,8 +61,9 @@ class PneuForm
                     ->prefix('R$'),
                 Select::make('desenho_pneu_id')
                     ->label('Desenho Borracha')
-                    ->relationship('desenhoPneu', 'descricao')
+                    ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', 'NOVO'))
                     ->searchable()
+                    ->preload()
                     ->required()
                     // ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
                     ,

@@ -113,7 +113,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                     ->preload()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                     ->options(\App\Models\Integrado::query()
-                                        ->where('cliente', ClienteEnum::BUGIU)
+                                        ->where('cliente', ClienteEnum::BUGIO)
                                         ->pluck('nome', 'id'))
                                     ->required()
                                     ->live()

@@ -28,7 +28,7 @@ class TesteSettings extends AbstractPageSettings
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Configurações';
+        return 'Cadastro';
     }
 
     protected function settingName(): string

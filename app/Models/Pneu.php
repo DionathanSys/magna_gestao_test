@@ -50,4 +50,21 @@ class Pneu extends Model
         return $this->hasMany(HistoricoMovimentoPneu::class, 'pneu_id');
     }
 
+    protected function kmPercorridoCiclo(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes): int => $this->historicoMovimentacao()
+                ->where('ciclo_vida', $this->ciclo_vida)
+                ->sum('km_percorrido'),
+        );
+    }
+
+    protected function kmPercorrido(): Attribute
+    {
+        return Attribute::make(
+            get: fn(mixed $value, array $attributes): int => $this->historicoMovimentacao()
+                ->sum('km_percorrido'),
+        );
+    }
+
 }

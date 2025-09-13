@@ -95,6 +95,7 @@ class VeiculosTable
                 Filter::make('is_active')
                     ->label('Ativo')
                     ->toggle()
+                    ->default(true)
                     ->query(fn ($query) => $query->where('is_active', true)),
                 TrashedFilter::make(),
             ])

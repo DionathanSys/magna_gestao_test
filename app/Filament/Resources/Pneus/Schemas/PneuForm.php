@@ -86,13 +86,6 @@ class PneuForm
                             ->numeric()
                             ->default(0)
                             ->prefix('R$'),
-                        Select::make('parceiro_id')
-                            ->label('Parceiro')
-                            ->relationship('parceiro', 'nome')
-                            ->required()
-                            ->default(1)
-                            ->searchable()
-                            ->preload(),
                     ])
 
             ]);

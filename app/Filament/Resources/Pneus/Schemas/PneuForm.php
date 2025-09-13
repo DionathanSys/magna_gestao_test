@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use App\Services\NotificacaoService as notify;
 
 class PneuForm
 {
@@ -30,9 +31,10 @@ class PneuForm
                                 ->where('numero_fogo', $state)
                                 ->first();
                             if($pneu){
-                                Notification::make()
-                                    ->title('Pneu encontrado')
-                                    ->send();
+                                notify::alert(
+                                    titulo: 'Atenção',
+                                    mensagem: "Já existe um pneu cadastrado com o Nº de Fogo: {$state}",
+                                );
                             }
                         }
                     }),

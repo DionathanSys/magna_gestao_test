@@ -23,6 +23,7 @@ class PneuForm
                     ->required()
                     ->numeric()
                     ->maxLength(255)
+                    ->live(onBlur: true)
                     ->afterStateUpdated(function ($state) {
                         if($state){
                             $pneu = Models\Pneu::query()

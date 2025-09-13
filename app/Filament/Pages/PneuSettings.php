@@ -54,32 +54,46 @@ class PneuSettings extends AbstractPageSettings
                     ->columnSpanFull()
                     ->description('Configurações relacionadas a pneus.')
                     ->components([
-                        Repeater::make('marcas_pneu')
-                            ->label('Marcas de Pneu')
+                        Section::make('Marcas de Pneu')
+                            ->description('Adicione as marcas de pneus disponíveis.')
                             ->columns(12)
-                            ->simple(
-                                TextInput::make('marca')
-                                    ->label('Marca')
-                                    ->required()
-                                    ->columnSpanFull(),
-                            )
-                            ->columnSpan(4)
-                            ->addActionLabel('Adicionar Marca de Pneu')
+                            ->columnSpan(6)
                             ->collapsible()
-                            ->collapsed(),
-                        Repeater::make('modelos_pneu')
-                            ->label('Modelos de Pneu')
+                            ->collapsed()
+                            ->schema([
+                                Repeater::make('marcas_pneu')
+                                    ->label('Marcas de Pneu')
+                                    ->simple(
+                                        TextInput::make('marca')
+                                            ->label('Marca')
+                                            ->required()
+                                            ->columnSpanFull(),
+                                    )
+                                    ->columnSpanFull()
+                                    ->addActionLabel('Adicionar Marca de Pneu')
+                                    ->collapsible()
+                                    ->collapsed(),
+                            ]),
+                        Section::make('Modelos de Pneu')
+                            ->description('Adicione as marcas de pneus disponíveis.')
                             ->columns(12)
-                            ->simple(
-                                TextInput::make('modelo')
-                                    ->label('Modelo')
-                                    ->required()
-                                    ->columnSpanFull(),
-                            )
-                            ->columnSpan(4)
-                            ->addActionLabel('Adicionar Modelo de Pneu')
+                            ->columnSpan(6)
                             ->collapsible()
-                            ->collapsed(),
+                            ->collapsed()
+                            ->schema([
+                                Repeater::make('modelos_pneu')
+                                    ->label('Modelos de Pneu')
+                                    ->simple(
+                                        TextInput::make('modelo')
+                                            ->label('Modelo')
+                                            ->required()
+                                            ->columnSpanFull(),
+                                    )
+                                    ->columnSpanFull()
+                                    ->addActionLabel('Adicionar Modelo de Pneu')
+                                    ->collapsible()
+                                    ->collapsed(),
+                            ]),
                     ]),
             ])
             ->statePath('data');

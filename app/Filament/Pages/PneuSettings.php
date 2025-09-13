@@ -57,12 +57,12 @@ class PneuSettings extends AbstractPageSettings
                         Repeater::make('marcas_pneu')
                             ->label('Marcas de Pneu')
                             ->columns(12)
-                            ->schema([
+                            ->simple(
                                 TextInput::make('marca')
                                     ->label('Marca')
                                     ->required()
                                     ->columnSpanFull(),
-                            ])
+                            )
                             ->columnSpan(4)
                             ->addActionLabel('Adicionar Marca de Pneu')
                             ->collapsible()
@@ -70,12 +70,12 @@ class PneuSettings extends AbstractPageSettings
                         Repeater::make('modelos_pneu')
                             ->label('Modelos de Pneu')
                             ->columns(12)
-                            ->schema([
+                            ->simple(
                                 TextInput::make('modelo')
                                     ->label('Modelo')
                                     ->required()
                                     ->columnSpanFull(),
-                            ])
+                            )
                             ->columnSpan(4)
                             ->addActionLabel('Adicionar Modelo de Pneu')
                             ->collapsible()

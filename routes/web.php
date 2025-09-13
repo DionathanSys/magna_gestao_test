@@ -18,10 +18,5 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 })->name('ordem-servico.pdf.visualizar');
 
 Route::get('/teste', function () {
-    $pneu = Pneu::where('numero_fogo', 2324817)
-        // ->withSum('historicoMovimentacao', 'km_percorrido')
-        ->first();
-        // ->historico_movimentacao_sum_km_percorrido;
-
-    dd($pneu->km_percorrido_ciclo, $pneu->km_percorrido);
+    dd(db_config('config-pneu.marcas_pneu', []));
 });

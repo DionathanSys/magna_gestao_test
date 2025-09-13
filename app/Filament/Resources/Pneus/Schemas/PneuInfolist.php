@@ -46,7 +46,7 @@ class PneuInfolist
                         TextEntry::make('ciclo_vida')
                             ->label('Ciclo de Vida Atual')
                             ->columnSpan(2),
-                        TextEntry::make('desenhoPneu.descricao')
+                        TextEntry::make('ultimoRecap.desenhoPneu.descricao')
                             ->label('Desenho Borracha Atual')
                             ->columnSpan(2),
                         TextEntry::make('status')

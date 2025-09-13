@@ -25,7 +25,6 @@ class PneuInfolist
                         TextEntry::make('numero_fogo')
                             ->label('Nº de Fogo')
                             ->weight(FontWeight::Bold)
-                            ->badge()
                             ->columnSpan(2),
                         TextEntry::make('marca')
                             ->label('Marca')
@@ -63,15 +62,25 @@ class PneuInfolist
                         TextEntry::make('km_percorrido_ciclo')
                             ->label('KM Percorrido no Ciclo')
                             ->columnStart(1)
+                            ->numeric(0, ',', '.')
                             ->columnSpan(2),
                         TextEntry::make('km_percorrido')
                             ->label('KM Percorrido Total')
+                            ->numeric(0, ',', '.')
                             ->columnSpan(2),
                     ]),
                 Section::make('Informações de Ult. Movimentação')
                     ->columns(12)
                     ->columnSpan(12)
                     ->components([
+                        TextEntry::make('veiculo')
+                            ->label('Veículo')
+                            ->state(
+                                fn(Models\Pneu $record) => $record->historicoMovimentacao()
+                                    ->latest()
+                                    ->first()?->veiculo?->placa ?? 'Não informado'
+                            )
+                            ->columnSpan(2),
                         TextEntry::make('posicao_eixo')
                             ->label('Posição/Eixo')
                             ->state(function (Models\Pneu $record) {
@@ -101,6 +110,15 @@ class PneuInfolist
                             ->date('d/m/Y')
                             ->placeholder('Não informado')
                             ->columnSpan(2),
+                        TextEntry::make('observacao')
+                            ->label('Observação')
+                            ->state(
+                                fn(Models\Pneu $record) => $record->historicoMovimentacao()
+                                    ->latest()
+                                    ->value('observacao')
+                            )
+                            ->columnStart(1)
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

@@ -65,15 +65,9 @@ class PneuForm
                     ])
                     ->columnSpanFull()
                     ->schema([
-                        Select::make('pneu_id')
+                        TextInput::make('pneu_id')
                             ->label('Pneu')
-                            ->relationship('pneu', 'numero_fogo', function (Builder $query) {
-                                $query->where('status', StatusPneuEnum::DISPONIVEL)
-                                    ->where('local', LocalPneuEnum::ESTOQUE_CCO);
-                            })
-                            ->required()
-                            ->searchable()
-                            ->preload(),
+                            ->required(),
                         DatePicker::make('data_recapagem')
                             ->date('d/m/Y')
                             ->displayFormat('d/m/Y')

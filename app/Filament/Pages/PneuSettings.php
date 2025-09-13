@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Pages;
+namespace App\Filament\Pages;
 
 use BackedEnum;
 use Filament\Forms\Components\Repeater;
@@ -16,16 +16,18 @@ class PneuSettings extends AbstractPageSettings
 
     protected static ?string $title = 'Pneu';
 
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Configurações';
-    }
+    // protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-wrench-screwdriver'; // Uncomment if you want to set a custom navigation icon
 
     // protected ?string $subheading = ''; // Uncomment if you want to set a custom subheading
 
     // protected static ?string $slug = 'pneu-settings'; // Uncomment if you want to set a custom slug
 
     protected string $view = 'filament.pages.pneu-settings';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Configurações';
+    }
 
     protected function settingName(): string
     {
@@ -48,6 +50,7 @@ class PneuSettings extends AbstractPageSettings
             ->columns(12)
             ->components([
                 Section::make('Configurações de Pneu')
+                    ->columns(12)
                     ->columnSpanFull()
                     ->description('Configurações relacionadas a pneus.')
                     ->components([

@@ -10,8 +10,10 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class VeiculosTable
 {
@@ -82,11 +84,21 @@ class VeiculosTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('filial')
+                    ->options([
+                        'CATANDUVAS' => 'Catanduvas',
+                        'CHAPECO'    => 'Chapecó',
+                        'CONCORDIA'  => 'Concórdia',
+                    ])
+                    ->default(fn() => Auth::user()->name == 'Carol' ? 'CATANDUVAS' : 'CHAPECO')
+                    ->selectablePlaceholder(false),
                 Filter::make('is_active')
                     ->label('Ativo')
+                    ->toggle()
                     ->query(fn ($query) => $query->where('is_active', true)),
                 TrashedFilter::make(),
             ])
+            ->paginated(false)
             ->recordActions([
                 EditAction::make(),
             ])

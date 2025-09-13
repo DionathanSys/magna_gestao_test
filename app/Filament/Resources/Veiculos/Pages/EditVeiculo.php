@@ -19,9 +19,9 @@ class EditVeiculo extends EditRecord
             DeleteAction::make()
                 ->visible(fn() => Auth::user()->is_admin),
             ForceDeleteAction::make()
-                ->visible(fn() => Auth::user()->is_admin),
+                ->disabled(fn() => ! Auth::user()->is_admin),
             RestoreAction::make()
-                ->visible(fn() => Auth::user()->is_admin),
+                ->disabled(fn() => ! Auth::user()->is_admin),
         ];
     }
 }

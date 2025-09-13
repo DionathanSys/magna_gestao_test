@@ -22,6 +22,13 @@ class VeiculosTable
                     ->searchable(),
                 TextColumn::make('filial')
                     ->label('Filial'),
+                TextColumn::make('veiculo.kmAtual.quilometragem')
+                    ->label('KM Atual')
+                    ->width('1%')
+                    ->numeric(0, ',', '.'),
+                TextColumn::make('km_medio')
+                    ->label('KM Médio/Dia')
+                    ->numeric(2, ',', '.'),
                 IconColumn::make('is_active')
                     ->label('Ativo')
                     ->boolean(),
@@ -36,7 +43,7 @@ class VeiculosTable
                 TextColumn::make('chassis')
                     ->label('Chassi')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.afericao_tacografo')
                     ->label('Dt. Próx. Aferição Tacógrafo')
                     ->date('d/m/Y')

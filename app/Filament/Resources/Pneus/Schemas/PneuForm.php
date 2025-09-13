@@ -13,6 +13,7 @@ use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Illuminate\Database\Eloquent\Builder;
 
 class PneuForm
 {
@@ -21,79 +22,85 @@ class PneuForm
         return $schema
             ->columns(4)
             ->components([
-                Tabs::make('Tabs')
+                Components\NumeroFogoInput::make(),
+                Components\MarcaInput::make(),
+                Components\ModeloInput::make(),
+                Select::make('medida')
+                    ->options([
+                        '275/80 R22.5' => '275/80 R22.5',
+                        '295/80 R22.5' => '295/80 R22.5',
+                    ])
+                    ->default('275/80 R22.5'),
+                TextInput::make('ciclo_vida')
+                    ->label('Vida')
+                    ->numeric()
+                    ->default(0)
+                    ->minValue(0)
+                    ->maxValue(3),
+                TextInput::make('valor')
+                    ->label('Valor')
+                    ->numeric()
+                    ->default(0)
+                    ->minValue(0)
+                    ->prefix('R$'),
+                Components\DesenhoPneuInput::make(),
+                Select::make('status')
+                    ->options(StatusPneuEnum::toSelectArray())
+                    ->required()
+                    ->default(StatusPneuEnum::DISPONIVEL->value),
+                Select::make('local')
+                    ->options(LocalPneuEnum::toSelectArray())
+                    ->required()
+                    ->default(LocalPneuEnum::ESTOQUE_CCO->value),
+                DatePicker::make('data_aquisicao')
+                    ->label('Dt. Aquisição')
+                    ->default(now())
+                    ->maxDate(now())
+                    ->required(),
+                Section::make('Recapagem')
+                    ->description('Registrar recapagem do pneu.')
                     ->columns(4)
-                            ->columnSpanFull()
-                    ->tabs([
-                        Tabs\Tab::make('Geral')
-                            ->columns(4)
-                            ->columnSpanFull()
-                            ->schema([
-                                Components\NumeroFogoInput::make(),
-                                Components\MarcaInput::make(),
-                                Components\ModeloInput::make(),
-                                Select::make('medida')
-                                    ->options([
-                                        '275/80 R22.5' => '275/80 R22.5',
-                                        '295/80 R22.5' => '295/80 R22.5',
-                                    ])
-                                    ->default('275/80 R22.5'),
-                                TextInput::make('ciclo_vida')
-                                    ->label('Vida')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0)
-                                    ->maxValue(3),
-                                TextInput::make('valor')
-                                    ->label('Valor')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0)
-                                    ->prefix('R$'),
-                                Components\DesenhoPneuInput::make(),
-                                Select::make('status')
-                                    ->options(StatusPneuEnum::toSelectArray())
-                                    ->required()
-                                    ->default(StatusPneuEnum::DISPONIVEL->value),
-                                Select::make('local')
-                                    ->options(LocalPneuEnum::toSelectArray())
-                                    ->required()
-                                    ->default(LocalPneuEnum::ESTOQUE_CCO->value),
-                                DatePicker::make('data_aquisicao')
-                                    ->label('Dt. Aquisição')
-                                    ->default(now())
-                                    ->maxDate(now())
-                                    ->required(),
-                            ]),
-                        Tabs\Tab::make('Recapagem')
-                            ->columns(4)
-                            ->schema([
-                                Section::make('Recapagem')
-                                    ->description('Registrar recapagem do pneu.')
-                                    ->columns(4)
-                                    ->afterHeader([
-                                        Action::make('test'),
-                                    ])
-                                    ->columnSpanFull()
-                                    ->schema([
-                                        TextInput::make('vida_recape')
-                                            ->label('Vida Recape')
-                                            ->numeric()
-                                            ->default(0)
-                                            ->minValue(0)
-                                            ->maxValue(3),
-                                        TextInput::make('valor_recape')
-                                            ->label('Valor Recape')
-                                            ->numeric()
-                                            ->default(0)
-                                            ->minValue(0)
-                                            ->prefix('R$'),
-                                        DatePicker::make('data_recape')
-                                            ->label('Dt. Recape')
-                                            ->maxDate(now()),
-                            ]),
+                    ->afterHeader([
+                        Action::make('test'),
                     ])
+                    ->columnSpanFull()
+                    ->schema([
+                        Select::make('pneu_id')
+                            ->label('Pneu')
+                            ->relationship('pneu', 'numero_fogo', function (Builder $query) {
+                                $query->where('status', StatusPneuEnum::DISPONIVEL)
+                                    ->where('local', LocalPneuEnum::ESTOQUE_CCO);
+                            })
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        DatePicker::make('data_recapagem')
+                            ->date('d/m/Y')
+                            ->displayFormat('d/m/Y')
+                            ->closeOnDateSelection()
+                            ->maxDate(now())
+                            ->required(),
+                        Select::make('desenho_pneu_id')
+                            ->label('Desenho do Pneu')
+                            ->relationship('desenhoPneu', 'descricao')
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        Components\DesenhoPneuInput::make(),
+                        TextInput::make('valor')
+                            ->label('Valor')
+                            ->numeric()
+                            ->default(0)
+                            ->prefix('R$'),
+                        Select::make('parceiro_id')
+                            ->label('Parceiro')
+                            ->relationship('parceiro', 'nome')
+                            ->required()
+                            ->default(1)
+                            ->searchable()
+                            ->preload(),
                     ])
+
             ]);
     }
 }

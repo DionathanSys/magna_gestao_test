@@ -63,6 +63,7 @@ class PneuSettings extends AbstractPageSettings
                             ->schema([
                                 Repeater::make('marcas_pneu')
                                     ->label('Marcas de Pneu')
+                                    ->grid(4)
                                     ->simple(
                                         TextInput::make('marca')
                                             ->label('Marca')
@@ -83,6 +84,7 @@ class PneuSettings extends AbstractPageSettings
                             ->schema([
                                 Repeater::make('modelos_pneu')
                                     ->label('Modelos de Pneu')
+                                    ->grid(4)
                                     ->simple(
                                         TextInput::make('modelo')
                                             ->label('Modelo')

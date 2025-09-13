@@ -6,6 +6,7 @@ use App\Models;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\FontWeight;
 
 class PneuInfolist
 {
@@ -23,16 +24,20 @@ class PneuInfolist
                             ->columnSpan(1),
                         TextEntry::make('numero_fogo')
                             ->label('Nº de Fogo')
+                            ->weight(FontWeight::Bold)
                             ->badge()
                             ->columnSpan(2),
                         TextEntry::make('marca')
                             ->label('Marca')
+                            ->weight(FontWeight::Bold)
                             ->columnSpan(2),
                         TextEntry::make('modelo')
                             ->label('Modelo Carcaça')
+                            ->weight(FontWeight::Bold)
                             ->columnSpan(2),
                         TextEntry::make('medida')
                             ->label('Medida Carcaça')
+                            ->weight(FontWeight::Bold)
                             ->columnSpan(2),
                     ]),
                 Section::make('Status')
@@ -41,7 +46,7 @@ class PneuInfolist
                     ->components([
                         TextEntry::make('ciclo_vida')
                             ->label('Ciclo de Vida Atual')
-                            ->columnSpan(1),
+                            ->columnSpan(2),
                         TextEntry::make('desenhoPneu.descricao')
                             ->label('Desenho Borracha Atual')
                             ->columnSpan(2),

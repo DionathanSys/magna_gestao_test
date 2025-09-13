@@ -21,8 +21,10 @@ class PneuForm
                     ->required()
                     ->maxLength(255),
                 Select::make('marca')
+                    ->searchable()
                     ->options(db_config('config-pneu.marcas_pneu', [])),
                 Select::make('modelo')
+                    ->searchable()
                     ->options(db_config('config-pneu.modelos_pneu', [])),
                 Select::make('medida')
                     ->options([

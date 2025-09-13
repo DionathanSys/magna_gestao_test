@@ -21,39 +21,9 @@ class PneuForm
                     ->required()
                     ->maxLength(255),
                 Select::make('marca')
-                    ->options([
-                        'APOLLO' => 'APOLLO',
-                        'MICHELIN' => 'MICHELIN',
-                        'X BRI' => 'X BRI',
-                        'GOODYEAR' => 'GOODYEAR',
-                        'PIRELLI' => 'PIRELLI',
-                        'SPEEDMAX PRIME' => 'SPEEDMAX PRIME',
-                        'DUNLOP' => 'DUNLOP',
-                        'STRONG TRAC' => 'STRONG TRAC',
-                        'CONTINENTAL' => 'CONTINENTAL',
-                    ]),
+                    ->options(db_config('config-pneu.marcas_pneu', [])),
                 Select::make('modelo')
-                    ->options([
-                        'ENDUTRAXMA' => 'ENDUTRAXMA',
-                        'KMAX Z' => 'KMAX Z',
-                        'X WORKS' => 'X WORKS',
-                        'X WORKS Z' => 'X WORKS Z',
-                        'FORZA BLOCK' => 'FORZA BLOCK',
-                        'DPLUS' => 'DPLUS',
-                        'X MULTI Z' => 'X MULTI Z',
-                        'X MULTI D' => 'X MULTI D',
-                        'MIXMAX A' => 'MIXMAX A',
-                        'MIX WORKS' => 'MIX WORKS',
-                        'SP320' => 'SP320',
-                        'HSR2' => 'HSR2',
-                        'FG-01' => 'FG-01',
-                        'TG-01' => 'TG-01',
-                        'FR-88' => 'FR-88',
-                        'TR-01' => 'TR-01',
-                        'G686 MSS PLUS' => 'G686 MSS PLUS',
-                        'CHD3' => 'CHD3',
-                        'R02 PROWAY' => 'R02 PROWAY'
-                    ]),
+                    ->options(db_config('config-pneu.modelos_pneu', [])),
                 Select::make('medida')
                     ->options([
                         '275/80 R22.5' => '275/80 R22.5',

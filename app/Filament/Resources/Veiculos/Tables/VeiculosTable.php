@@ -9,6 +9,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -24,7 +25,6 @@ class VeiculosTable
                     ->label('Filial'),
                 TextColumn::make('kmAtual.quilometragem')
                     ->label('KM Atual')
-                    ->width('1%')
                     ->numeric(0, ',', '.'),
                 TextColumn::make('km_medio')
                     ->label('KM Médio/Dia')
@@ -82,6 +82,9 @@ class VeiculosTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Filter::make('is_active')
+                    ->label('Ativo')
+                    ->query(fn ($query) => $query->where('is_active', true)),
                 TrashedFilter::make(),
             ])
             ->recordActions([

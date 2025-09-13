@@ -10,6 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\Action;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 
@@ -75,7 +76,6 @@ class PneuForm
                                     ])
                                     ->columnSpanFull()
                                     ->schema([
-                                        Components\RecapagemInput::make(),
                                         TextInput::make('vida_recape')
                                             ->label('Vida Recape')
                                             ->numeric()

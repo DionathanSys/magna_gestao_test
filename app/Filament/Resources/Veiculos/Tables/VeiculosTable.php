@@ -22,7 +22,7 @@ class VeiculosTable
                     ->searchable(),
                 TextColumn::make('filial')
                     ->label('Filial'),
-                TextColumn::make('veiculo.kmAtual.quilometragem')
+                TextColumn::make('kmAtual.quilometragem')
                     ->label('KM Atual')
                     ->width('1%')
                     ->numeric(0, ',', '.'),

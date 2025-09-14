@@ -22,4 +22,14 @@ class EditPneu extends EditRecord
             RestoreAction::make(),
         ];
     }
+
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return 'Pneu';
+    }
 }

@@ -59,6 +59,7 @@ class PneuForm
                     ->required(),
                 Section::make('Recapagem')
                     ->description('Registrar recapagem do pneu.')
+                    ->visibleOn('create')
                     ->columns(12)
                     ->afterHeader([
                         Action::make('Registrar Recapagem'),

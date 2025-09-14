@@ -21,7 +21,11 @@ class PneuInfolist
                     ->components([
                         TextEntry::make('id')
                             ->label('ID')
-                            ->columnSpan(1),
+                            ->columnSpan(2),
+                        TextEntry::make('ciclo_vida')
+                            ->label('Ciclo de Vida Atual')
+                            ->weight(FontWeight::Bold)
+                            ->columnSpan(2),
                         TextEntry::make('numero_fogo')
                             ->label('Nº de Fogo')
                             ->weight(FontWeight::Bold)
@@ -38,36 +42,32 @@ class PneuInfolist
                             ->label('Medida Carcaça')
                             ->weight(FontWeight::Bold)
                             ->columnSpan(2),
-                    ]),
-                Section::make('Status')
-                    ->columns(12)
-                    ->columnSpan(12)
-                    ->components([
-                        TextEntry::make('ciclo_vida')
-                            ->label('Ciclo de Vida Atual')
-                            ->columnSpan(2),
                         TextEntry::make('ultimoRecap.desenhoPneu.descricao')
-                            ->label('Desenho Borracha Atual')
-                            ->columnSpan(2),
-                        TextEntry::make('status')
-                            ->label('Status')
-                            ->badge()
-                            ->color('info')
-                            ->columnSpan(2),
-                        TextEntry::make('local')
-                            ->label('Local')
+                            ->label('Borracha Recap')
+                            ->weight(FontWeight::Bold)
                             ->columnSpan(2),
                         TextEntry::make('veiculo.placa')
                             ->label('Veículo')
+                            ->weight(FontWeight::Bold)
                             ->columnSpan(2),
                         TextEntry::make('km_percorrido_ciclo')
                             ->label('KM Percorrido no Ciclo')
-                            ->columnStart(1)
+                            ->weight(FontWeight::Bold)
                             ->numeric(0, ',', '.')
                             ->columnSpan(2),
                         TextEntry::make('km_percorrido')
                             ->label('KM Percorrido Total')
                             ->numeric(0, ',', '.')
+                            ->weight(FontWeight::Bold)
+                            ->columnSpan(2),
+                        TextEntry::make('status')
+                            ->label('Status')
+                            ->weight(FontWeight::Bold)
+                            ->color('info')
+                            ->columnSpan(2),
+                        TextEntry::make('local')
+                            ->label('Local')
+                            ->weight(FontWeight::Bold)
                             ->columnSpan(2),
                     ]),
                 Section::make('Informações de Ult. Movimentação')
@@ -92,7 +92,7 @@ class PneuInfolist
                             ->placeholder('Não informado')
                             ->columnSpan(2),
                         TextEntry::make('data_inicial')
-                            ->label('Dt. Ult. Aplicação')
+                            ->label('Dt. Aplicação')
                             ->state(
                                 fn(Models\Pneu $record) => $record->historicoMovimentacao()
                                     ->latest()
@@ -102,7 +102,7 @@ class PneuInfolist
                             ->placeholder('Não informado')
                             ->columnSpan(2),
                         TextEntry::make('data_final')
-                            ->label('Dt. Ult. Remoção')
+                            ->label('Dt. Remoção')
                             ->state(
                                 fn(Models\Pneu $record) => $record->historicoMovimentacao()
                                     ->latest()
@@ -110,6 +110,15 @@ class PneuInfolist
                             )
                             ->date('d/m/Y')
                             ->placeholder('Não informado')
+                            ->columnSpan(2),
+                        TextEntry::make('km_percorrido')
+                            ->label('Km Percorrido')
+                            ->state(
+                                fn(Models\Pneu $record) => $record->historicoMovimentacao()
+                                    ->latest()
+                                    ->value('km_percorrido')
+                            )
+                            ->numeric(0, ',', '.')
                             ->columnSpan(2),
                         TextEntry::make('observacao')
                             ->label('Observação')

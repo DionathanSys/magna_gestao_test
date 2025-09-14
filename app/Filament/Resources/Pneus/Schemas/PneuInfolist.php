@@ -10,6 +10,7 @@ use Filament\Support\Enums\FontWeight;
 
 class PneuInfolist
 {
+
     public static function configure(Schema $schema): Schema
     {
         return $schema

@@ -11,6 +11,7 @@ use App\Filament\Resources\Pneus\RelationManagers\HistoricoMovimentacaoRelationM
 use App\Filament\Resources\Pneus\Schemas\PneuForm;
 use App\Filament\Resources\Pneus\Schemas\PneuInfolist;
 use App\Filament\Resources\Pneus\Tables\PneusTable;
+use App\Livewire\PneuResource as LivewirePneuResource;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -71,4 +72,11 @@ class PneuResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    public static function getWidgets(): array
+{
+    return [
+        LivewirePneuResource::class,
+    ];
+}
 }

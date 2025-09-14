@@ -6,6 +6,7 @@ use App\Filament\Resources\Pneus\Pages\CreatePneu;
 use App\Filament\Resources\Pneus\Pages\EditPneu;
 use App\Filament\Resources\Pneus\Pages\ListPneus;
 use App\Filament\Resources\Pneus\Pages\ViewPneu;
+use App\Filament\Resources\Pneus\RelationManagers\ConsertosRelationManager;
 use App\Filament\Resources\Pneus\RelationManagers\HistoricoMovimentacaoRelationManager;
 use App\Filament\Resources\Pneus\Schemas\PneuForm;
 use App\Filament\Resources\Pneus\Schemas\PneuInfolist;
@@ -18,6 +19,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\Pneu;
+use Filament\Resources\RelationManagers\RelationGroup;
 use UnitEnum;
 
 class PneuResource extends Resource
@@ -46,7 +48,10 @@ class PneuResource extends Resource
     public static function getRelations(): array
     {
         return [
-            HistoricoMovimentacaoRelationManager::class,
+            RelationGroup::make('Grupo de Relações', [
+                HistoricoMovimentacaoRelationManager::class,
+                ConsertosRelationManager::class,
+            ])
         ];
     }
 

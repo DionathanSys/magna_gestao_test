@@ -16,8 +16,10 @@ class HistoricoMovimentacaoRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->defaultGroup('pneu.ciclo_vida')
             ->headerActions([
                 CreateAction::make(),
             ]);
     }
+
 }

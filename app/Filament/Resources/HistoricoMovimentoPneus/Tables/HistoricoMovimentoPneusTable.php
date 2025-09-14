@@ -114,6 +114,9 @@ class HistoricoMovimentoPneusTable
                 Group::make('pneu.numero_fogo')
                     ->label('Nº de Fogo')
                     ->collapsible(),
+                Group::make('pneu.ciclo_vida')
+                    ->label('Ciclo de Vida')
+                    ->collapsible(),
                 Group::make('veiculo.placa')
                     ->label('Placa')
                     ->collapsible(),

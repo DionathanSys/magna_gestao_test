@@ -82,6 +82,16 @@ class PneuInfolist
                                     ->first()?->veiculo?->placa ?? 'Não informado'
                             )
                             ->columnSpan(2),
+                        TextEntry::make('ciclo_vida')
+                            ->label('Ciclo de Vida')
+                            ->state(function (Models\Pneu $record) {
+                                return fn(Models\Pneu $record) => $record->historicoMovimentacao()
+                                    ->latest()
+                                    ->value('ciclo_vida');
+                            })
+
+                            ->placeholder('Não informado')
+                            ->columnSpan(2),
                         TextEntry::make('posicao_eixo')
                             ->label('Posição/Eixo')
                             ->state(function (Models\Pneu $record) {
@@ -120,6 +130,14 @@ class PneuInfolist
                             )
                             ->numeric(0, ',', '.')
                             ->columnSpan(2),
+                        TextEntry::make('motivo')
+                            ->label('Motivo Remoção')
+                            ->state(
+                                fn(Models\Pneu $record) => $record->historicoMovimentacao()
+                                    ->latest()
+                                    ->value('motivo')
+                            )
+                            ->columnSpan(2),
                         TextEntry::make('observacao')
                             ->label('Observação')
                             ->state(
@@ -127,9 +145,8 @@ class PneuInfolist
                                     ->latest()
                                     ->value('observacao')
                             )
-                            ->columnStart(1)
                             ->placeholder('Não informado')
-                            ->columnSpanFull(),
+                            ->columnSpan(6),
                     ]),
             ]);
     }

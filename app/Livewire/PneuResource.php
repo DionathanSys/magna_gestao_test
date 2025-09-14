@@ -42,15 +42,16 @@ class PneuResource extends StatsOverviewWidget
             ->where('pneu_id', $this->record?->id)
             ->sum('km_percorrido');
 
-        $veiculoAtual = Models\PneuPosicaoVeiculo::query()
+        $posicaoAtual = Models\PneuPosicaoVeiculo::query()
             ->where('pneu_id', $this->record?->id)
             ->first();
 
-        if ($veiculoAtual) {
+        if ($posicaoAtual) {
             $kmAtualVeiculo = Models\Veiculo::query()
-                ->where('id', $veiculoAtual->veiculo_id)
-                ->value('quilometragemAtual');
-            $kmRodado = $kmRodadoHistorico + ($kmAtualVeiculo ?? 0);
+                ->where('id', $posicaoAtual->veiculo_id)
+                ->first()?->quilometragem_atual;
+            $kmRodadoPosicaoAtual = $kmAtualVeiculo - $posicaoAtual->km_inicial;
+            $kmRodado = $kmRodadoHistorico + $kmRodadoPosicaoAtual;
         } else {
             $kmRodado = $kmRodadoHistorico;
         }

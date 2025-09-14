@@ -51,25 +51,31 @@ class ConsertosRelationManager extends RelationManager
             ->recordTitleAttribute('pneu_id')
             ->columns([
                 TextColumn::make('data_conserto')
-                    ->date()
+                    ->label('Data')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('tipo_conserto')
-                    ->searchable(),
-                TextColumn::make('parceiro.id')
-                    ->searchable(),
+                    ->label('Tipo'),
+                TextColumn::make('parceiro.nome')
+                    ->label('Fornecedor')
+                    ->placeholder('Não Informado'),
                 TextColumn::make('valor')
-                    ->numeric()
+                    ->money('BRL')
                     ->sortable(),
                 IconColumn::make('garantia')
+                    ->label('C/ Garantia')
                     ->boolean(),
-                TextColumn::make('veiculo.id')
-                    ->searchable(),
+                TextColumn::make('veiculo.placa')
+                    ->label('Veículo')
+                    ->placeholder('Não Informado'),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

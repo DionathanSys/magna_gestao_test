@@ -17,8 +17,7 @@ class Veiculo extends Model
         'informacoes_complementares' => 'array',
     ];
 
-    // Descomente se quiser sempre no array/json
-    // protected $appends = ['km_atual'];
+    protected $appends = ['quilometragem_atual'];
 
     public function pneus(): HasMany
     {

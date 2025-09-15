@@ -112,7 +112,11 @@ class HistoricoMovimentoPneusTable
                     ->relationship('veiculo', 'placa')
                     ->multiple()
                     ->searchable(),
+                DateRangeFilter::make('data_inicial')
+                    ->label('Dt. Aplicação')
+                    ->alwaysShowCalendar(),
                 DateRangeFilter::make('data_final')
+                    ->label('Dt. Remoção')
                     ->alwaysShowCalendar()
             ])
             ->defaultSort('id', 'desc')

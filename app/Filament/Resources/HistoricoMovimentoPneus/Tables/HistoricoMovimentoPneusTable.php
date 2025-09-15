@@ -131,6 +131,12 @@ class HistoricoMovimentoPneusTable
                 Group::make('veiculo.placa')
                     ->label('Placa')
                     ->collapsible(),
+                Group::make('data_inicial')
+                    ->label('Dt. Aplicação')
+                    ->collapsible(),
+                Group::make('data_final')
+                    ->label('Dt. Remoção')
+                    ->collapsible(),
             ])
             ->recordActions([
                 EditAction::make()

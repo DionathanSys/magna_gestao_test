@@ -21,11 +21,6 @@ class PneuPosicaoVeiculo extends Model
         return $this->belongsTo(Veiculo::class, 'veiculo_id');
     }
 
-    public function ultimoRecap()
-    {
-        return $this->pneu?->ultimoRecap();
-    }
-
     public function kmPercorrido(): Attribute
     {
         return Attribute::get(

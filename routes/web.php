@@ -18,5 +18,5 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 })->name('ordem-servico.pdf.visualizar');
 
 Route::get('/teste', function () {
-dd(Pneu::find(198)->ultimoRecap);
+dd(Pneu::with('ultimoRecap')->find(198));
 });

@@ -118,12 +118,6 @@ class PneusRelationManager extends RelationManager
                     ->label('Modelo')
                     ->width('1%')
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('ultimoRecap.desenhoPneu.descricao')
-                    ->label('Desenho do Pneu')
-                    ->width('1%')
-                    ->placeholder('N/A')
-                    ->state(fn($state) => dd($state))
-                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('sequencia')
                     ->label('Sequência')
                     ->toggleable(isToggledHiddenByDefault: false),

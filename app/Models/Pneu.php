@@ -42,7 +42,7 @@ class Pneu extends Model
 
     public function ultimoRecap()
     {
-        return $this->hasOne(Recapagem::class, 'pneu_id')->latestOfMany();
+        return $this->hasOne(Recapagem::class, 'pneu_id')->latestOfMany()->dd();
     }
 
     public function historicoMovimentacao(): HasMany

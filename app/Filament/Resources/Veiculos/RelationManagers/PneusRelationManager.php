@@ -15,6 +15,7 @@ use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -37,6 +38,13 @@ class PneusRelationManager extends RelationManager
                     ->columnSpan(2)
                     ->numeric()
                     ->required(),
+                Select::make('pneu_id')
+                    ->label('Pneu')
+                    ->columnSpan(4)
+                    ->relationship('pneu', 'numero_fogo')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('eixo')
                     ->visible(fn(): bool => Auth::user()->is_admin)
                     ->columnStart(1)
@@ -45,14 +53,17 @@ class PneusRelationManager extends RelationManager
                     ->required(),
                 TextInput::make('posicao')
                     ->label('Posição')
+                    ->columnSpan(2)
                     ->required()
                     ->maxLength(20),
                 TextInput::make('km_inicial')
                     ->label('KM Inicial')
+                    ->columnSpan(2)
                     ->numeric()
                     ->required(),
                 DatePicker::make('data_inicial')
                     ->label('Dt. Aplicação')
+                    ->columnSpan(3)
                     ->date()
                     ->default(now())
                     ->maxDate(now())

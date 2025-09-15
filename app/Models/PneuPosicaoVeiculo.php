@@ -23,7 +23,7 @@ class PneuPosicaoVeiculo extends Model
 
     public function ultimoRecap()
     {
-        return $this->hasOne(Recapagem::class, 'pneu_id')->latestOfMany()->dd();
+        return $this->pneu?->ultimoRecap();
     }
 
     public function kmPercorrido(): Attribute

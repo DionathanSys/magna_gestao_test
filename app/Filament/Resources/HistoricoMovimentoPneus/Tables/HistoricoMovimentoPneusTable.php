@@ -54,7 +54,7 @@ class HistoricoMovimentoPneusTable
                     ->width('1%')
                     ->numeric(null, '', '.')
                     ->searchable(),
-                TextColumn::make('kmPercorrido')
+                TextColumn::make('km_percorrido')
                     ->label('KM Percorrido')
                     ->width('1%')
                     ->numeric(null, '', '.')
@@ -117,6 +117,9 @@ class HistoricoMovimentoPneusTable
                     ->alwaysShowCalendar(),
                 DateRangeFilter::make('data_final')
                     ->label('Dt. Remoção')
+                    ->alwaysShowCalendar(),
+                DateRangeFilter::make('created_at')
+                    ->label('Dt. Registro')
                     ->alwaysShowCalendar()
             ])
             ->defaultSort('id', 'desc')

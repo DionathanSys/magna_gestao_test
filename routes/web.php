@@ -18,5 +18,5 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 })->name('ordem-servico.pdf.visualizar');
 
 Route::get('/teste', function () {
-    dd(db_config('config-pneu.marcas_pneu', []));
+dd(Pneu::find(198)->ultimoRecap);
 });

@@ -122,6 +122,7 @@ class PneusRelationManager extends RelationManager
                     ->label('Desenho do Pneu')
                     ->width('1%')
                     ->placeholder('N/A')
+                    ->state(fn($state) => dd($state))
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('sequencia')
                     ->label('Sequência')

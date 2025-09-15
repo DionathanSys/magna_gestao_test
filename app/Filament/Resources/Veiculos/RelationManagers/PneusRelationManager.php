@@ -75,7 +75,7 @@ class PneusRelationManager extends RelationManager
                     ->label('Pneu')
                     ->placeholder('Vazio')
                     ->width('1%')
-                    ->url(fn(PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->id]))
+                    ->url(fn(PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->pneu_id]))
                     ->openUrlInNewTab(),
                 TextColumn::make('posicao')
                     ->label('Posição')

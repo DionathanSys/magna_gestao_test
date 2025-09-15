@@ -10,7 +10,7 @@ class PneuPosicaoVeiculo extends Model
     protected $table = 'pneu_posicao_veiculo';
 
     protected $appends = ['km_rodado'];
-    
+
     public function pneu()
     {
         return $this->belongsTo(Pneu::class, 'pneu_id');
@@ -19,6 +19,11 @@ class PneuPosicaoVeiculo extends Model
     public function veiculo()
     {
         return $this->belongsTo(Veiculo::class, 'veiculo_id');
+    }
+
+    public function ultimoRecap()
+    {
+        return $this->hasOne(Recapagem::class, 'pneu_id')->latestOfMany();
     }
 
     public function kmPercorrido(): Attribute

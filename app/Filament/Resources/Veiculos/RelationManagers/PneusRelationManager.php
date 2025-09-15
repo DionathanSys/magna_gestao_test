@@ -104,15 +104,19 @@ class PneusRelationManager extends RelationManager
                     })
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_inicial')
+                    ->width('1%')
                     ->date('d/m/Y'),
                 TextColumn::make('pneu.marca')
                     ->label('Marca')
+                    ->width('1%')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('pneu.modelo')
                     ->label('Modelo')
+                    ->width('1%')
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('pneu.ultimoRecap.desenhoPneu.descricao')
+                TextColumn::make('ultimoRecap.desenhoPneu.descricao')
                     ->label('Desenho do Pneu')
+                    ->width('1%')
                     ->placeholder('N/A')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('sequencia')

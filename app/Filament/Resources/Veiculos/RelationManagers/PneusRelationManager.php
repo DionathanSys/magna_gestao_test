@@ -67,6 +67,10 @@ class PneusRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('numero_fogo')
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->width('1%')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('pneu.numero_fogo')
                     ->label('Pneu')
                     ->placeholder('Vazio')

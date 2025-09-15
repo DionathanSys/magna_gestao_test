@@ -18,6 +18,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 class ConsertosRelationManager extends RelationManager
@@ -27,21 +28,33 @@ class ConsertosRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(12)
             ->components([
                 DatePicker::make('data_conserto')
+                    ->columnSpan(4)
                     ->required(),
                 TextInput::make('tipo_conserto')
+                    ->columnSpan(4)
                     ->required(),
-                Select::make('parceiro_id')
-                    ->relationship('parceiro', 'id'),
                 TextInput::make('valor')
+                    ->columnSpan(4)
                     ->required()
                     ->numeric()
+                    ->prefix('R$')
                     ->default(0.0),
-                Toggle::make('garantia')
-                    ->required(),
+                Select::make('parceiro_id')
+                    ->columnSpan(4)
+                    ->relationship('parceiro', 'nome')
+                    ->searchable()
+                    ->preload(),
                 Select::make('veiculo_id')
-                    ->relationship('veiculo', 'id'),
+                    ->columnSpan(4)
+                    ->relationship('veiculo', 'placa')
+                    ->searchable()
+                    ->preload(),
+                Toggle::make('garantia')
+                    ->columnSpan(4)
+                    ->required(),
             ]);
     }
 
@@ -87,10 +100,11 @@ class ConsertosRelationManager extends RelationManager
                 AssociateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
-                DeleteAction::make(),
-            ])
+                EditAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
+            ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DissociateBulkAction::make(),

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
+use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use Filament\Actions\Action;
 use App\Models;
 use App\Services\NotificacaoService as notify;
@@ -61,6 +62,8 @@ class VincularOrdemSankhyaAction
                     'ordem_servico_id' => $record->id,
                     'ordem_sankhya_id' => $data['ordem_sankhya_id'],
                 ]);
+
+                $record->update(['status_sankhya' => StatusOrdemServicoEnum::EXECUCAO]);
 
                 if ($arguments['another'] ?? false) {
                     $form->fill();

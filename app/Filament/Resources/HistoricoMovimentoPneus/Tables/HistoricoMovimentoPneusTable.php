@@ -16,6 +16,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class HistoricoMovimentoPneusTable
 {
@@ -111,15 +112,8 @@ class HistoricoMovimentoPneusTable
                     ->relationship('veiculo', 'placa')
                     ->multiple()
                     ->searchable(),
-                Filter::make('de_data_remocao')
-                    ->schema([
-                        TextColumn::make('data_final')
-                            ->label('Dt. Remoção de')
-                            ->date('d/m/Y'),
-                        TextColumn::make('data_final_ate')
-                            ->label('Dt. Remoção até')
-                            ->date('d/m/Y'),
-                    ])
+                DateRangeFilter::make('data_final')
+                    ->alwaysShowCalendar()
             ])
             ->defaultSort('id', 'desc')
             ->defaultGroup('pneu.numero_fogo')

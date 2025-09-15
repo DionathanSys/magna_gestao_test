@@ -13,6 +13,7 @@
         "laravel/framework": "^12.0",
         "laravel/pulse": "^1.4",
         "laravel/tinker": "^2.10.1",
+        "malzariey/filament-daterangepicker-filter": "^4.0",
         "opcodesio/log-viewer": "^3.19",
         "phpoffice/phpspreadsheet": "^5.0",
         "predis/predis": "^3.2"

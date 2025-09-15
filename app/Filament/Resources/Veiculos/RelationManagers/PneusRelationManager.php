@@ -85,9 +85,7 @@ class PneusRelationManager extends RelationManager
                 TextColumn::make('veiculo.kmAtual.quilometragem')
                     ->label('Km Atual')
                     ->width('1%')
-                    ->numeric(0, ',', '.')
-                // ->state(fn (PneuPosicaoVeiculo $record): string => $record->km_inicial ? (($record->veiculo->kmAtual->quilometragem ?? 0) - $record->km_inicial) : 'N/A')
-                ,
+                    ->numeric(0, ',', '.'),
                 TextColumn::make('km_rodado')
                     ->label('Km Posição')
                     ->width('1%')
@@ -107,6 +105,16 @@ class PneusRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_inicial')
                     ->date('d/m/Y'),
+                TextColumn::make('pneu.marca')
+                    ->label('Marca')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('pneu.modelo')
+                    ->label('Modelo')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('pneu.ultimoRecap.desenhoPneu.descricao')
+                    ->label('Desenho do Pneu')
+                    ->placeholder('N/A')
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('sequencia')
                     ->label('Sequência')
                     ->toggleable(isToggledHiddenByDefault: false),

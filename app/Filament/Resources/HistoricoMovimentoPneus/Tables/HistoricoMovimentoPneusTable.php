@@ -11,6 +11,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
@@ -110,6 +111,15 @@ class HistoricoMovimentoPneusTable
                     ->relationship('veiculo', 'placa')
                     ->multiple()
                     ->searchable(),
+                Filter::make('de_data_remocao')
+                    ->schema([
+                        TextColumn::make('data_final')
+                            ->label('Dt. Remoção de')
+                            ->date('d/m/Y'),
+                        TextColumn::make('data_final_ate')
+                            ->label('Dt. Remoção até')
+                            ->date('d/m/Y'),
+                    ])
             ])
             ->defaultSort('id', 'desc')
             ->defaultGroup('pneu.numero_fogo')

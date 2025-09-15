@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\HistoricoMovimentoPneus\Tables;
 
+use App\Filament\Resources\Pneus\PneuResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -24,7 +25,9 @@ class HistoricoMovimentoPneusTable
                 TextColumn::make('pneu.numero_fogo')
                     ->label('Nº de Fogo')
                     ->width('1%')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn($record) => PneuResource::getUrl('view', ['record' => $record->pneu_id]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')

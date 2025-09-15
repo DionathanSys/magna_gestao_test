@@ -29,12 +29,14 @@ class OrdemServicosTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
+                    ->sortable()
                     ->width('1%'),
                 TextColumn::make('sankhyaId.ordem_sankhya_id')
                     ->label('OS Sankhya')
                     ->width('1%'),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
+                    ->sortable()
                     ->width('1%'),
                 TextColumn::make('quilometragem')
                     ->label('Quilometragem')
@@ -46,10 +48,12 @@ class OrdemServicosTable
                     ->width('1%'),
                 TextColumn::make('data_inicio')
                     ->label('Dt. Inicio')
+                    ->sortable()
                     ->width('1%')
                     ->date('d/m/Y'),
                 TextColumn::make('data_fim')
                     ->label('Dt. Fim')
+                    ->sortable()
                     ->width('1%')
                     ->date('d/m/Y')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -75,6 +79,7 @@ class OrdemServicosTable
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
+                    ->sortable()
                     ->label('Criado Em')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
@@ -143,7 +148,7 @@ class OrdemServicosTable
                     ->color('primary')
                     ->modalWidth(Width::FiveExtraLarge)
                     ->iconButton(),
-                
+
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([

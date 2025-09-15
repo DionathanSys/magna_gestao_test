@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Veiculos\RelationManagers;
 
+use App\Filament\Resources\Pneus\PneuResource;
 use App\Filament\Resources\Veiculos\Actions;
 use App\Models\PneuPosicaoVeiculo;
 use Filament\Actions\Action;
@@ -69,7 +70,9 @@ class PneusRelationManager extends RelationManager
                 TextColumn::make('pneu.numero_fogo')
                     ->label('Pneu')
                     ->placeholder('Vazio')
-                    ->width('1%'),
+                    ->width('1%')
+                    ->url(fn($record) => PneuResource::getUrl('view', ['record' => $record->pneu_id]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('posicao')
                     ->label('Posição')
                     ->width('1%'),

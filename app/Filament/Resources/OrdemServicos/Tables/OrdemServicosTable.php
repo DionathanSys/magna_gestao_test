@@ -69,10 +69,10 @@ class OrdemServicosTable
                 TextColumn::make('status')
                     ->width('1%')
                     ->badge('success'),
-                SelectColumn::make('status_sankhya')
+                TextColumn::make('status_sankhya')
                     ->label('Sankhya')
                     ->width('1%')
-                    ->native(false)
+                    ->native(true)
                     ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray()),
                 TextColumn::make('parceiro.nome')
                     ->label('Fornecedor')

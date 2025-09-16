@@ -20,6 +20,7 @@ use Filament\Support\Enums\Width;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\{SelectFilter, Filter};
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class OrdemServicosTable
 {
@@ -114,24 +115,14 @@ class OrdemServicosTable
                     ->label('Status')
                     ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray())
                     ->multiple(),
-                Filter::make('data_inicio')
-                    ->schema([
-                        DatePicker::make('data_inicio')
-                            ->label('Dt. Abertura de'),
-                        DatePicker::make('data_fim')
-                            ->label('Dt. Abertura até'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['data_inicio'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('data_inicio', '>=', $date),
-                            )
-                            ->when(
-                                $data['data_fim'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('data_inicio', '<=', $date),
-                            );
-                    }),
+                DateRangeFilter::make('data_inicio')
+                    ->label('Dt. Abertura')
+                    ->alwaysShowCalendar(),
+                DateRangeFilter::make('data_fim')
+                    ->label('Dt. Fechamento')
+                    ->alwaysShowCalendar(),
+                DateRangeFilter::make('created_at')
+                    ->label('Dt. Registro'),
             ])
             ->recordActions([
                 ActionGroup::make([

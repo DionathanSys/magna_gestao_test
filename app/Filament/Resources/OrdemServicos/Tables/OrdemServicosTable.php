@@ -69,7 +69,7 @@ class OrdemServicosTable
                 TextColumn::make('status')
                     ->width('1%')
                     ->badge('success'),
-                TextColumn::make('status_sankhya')
+                SelectColumn::make('status_sankhya')
                     ->label('Sankhya')
                     ->width('1%')
                     ->native(true)

@@ -124,6 +124,7 @@ class OrdemServicoForm
             ->label('Veículo')
             ->searchPrompt('Buscar Placa')
             ->placeholder('Buscar ...')
+            ->native(false)
             ->columnSpan(2)
             ->required()
             ->relationship('veiculo', 'placa')

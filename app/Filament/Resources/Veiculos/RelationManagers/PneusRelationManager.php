@@ -44,7 +44,7 @@ class PneusRelationManager extends RelationManager
                     ->relationship('pneu', 'numero_fogo')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required(fn(string $operation): bool => $operation === 'create'),
                 TextInput::make('eixo')
                     ->visible(fn(): bool => Auth::user()->is_admin)
                     ->columnStart(1)

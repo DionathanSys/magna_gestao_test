@@ -17,7 +17,7 @@ class RecaparPneuAction
             ->label('Registrar Recapagem')
             ->color('success')
             ->action(function (Action $action, array $data, array $arguments) {
-
+                dd($data, $arguments);
                 $data = self::mutateDataRecap($data['recap']);
                 $service = new Services\Pneus\PneuService();
                 $service->recapar($data);

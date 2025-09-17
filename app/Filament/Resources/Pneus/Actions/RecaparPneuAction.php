@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pneus\Actions;
 
+use App\Enum\Pneu\StatusPneuEnum;
 use App\Models;
 use App\Services;
 use Filament\Actions\Action;
@@ -10,6 +11,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -21,8 +23,9 @@ class RecaparPneuAction
             ->label('Registrar Recapagem')
             ->color('info')
             ->schema([
-                TextInput::make('pneu_id')
+                Select::make('pneu_id')
                     ->label('Pneu')
+                    ->relationship('pneu', 'numero_fogo', fn(Builder $query) => $query->where('status', StatusPneuEnum::DISPONIVEL))
                     ->columnSpan(2),
                 DatePicker::make('data_recapagem')
                     ->date('d/m/Y')

@@ -24,7 +24,7 @@ class ListPneus extends ListRecords
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
                 ->using(function (Schema $schema, CreateAction $action, array $data, array $arguments): ?Models\Pneu {
-
+                    dd(array_merge($data['recap'], ['pneu_id' => 1]));
                     Log::debug(__METHOD__ . ' - Dados do formulário de criação de pneu', ['data' => $data, 'arguments' => $arguments]);
 
                     $service = new Services\Pneus\PneuService();
@@ -41,7 +41,7 @@ class ListPneus extends ListRecords
 
                         Log::debug(__METHOD__ . ' - Iniciando recapagem após criação do pneu', ['data_recap' => $data['recap']]);
 
-                        $data['recap'] = $this->mutateDataRecap($data['recap']);
+                        $data['recap'] = $this->mutateDataRecap(array_merge($data['recap'], ['pneu_id' => $pneu->id]));
                         $service->recapar($data['recap']);
 
                         if($service->hasError()){

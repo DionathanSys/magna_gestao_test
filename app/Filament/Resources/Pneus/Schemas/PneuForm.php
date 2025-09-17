@@ -23,7 +23,7 @@ class PneuForm
             ->columns(12)
             ->components([
                 Components\NumeroFogoInput::make()
-                    ->columnSpan(4),
+                    ->columnSpan(5),
                 TextInput::make('ciclo_vida')
                     ->label('Vida')
                     ->columnSpan(2)

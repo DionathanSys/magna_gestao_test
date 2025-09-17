@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pneus\Schemas;
 
+use App\Filament\Resources\Pneus\Actions;
 use App\Enum\Pneu\LocalPneuEnum;
 use App\Enum\Pneu\StatusPneuEnum;
 use Filament\Forms\Components\DatePicker;
@@ -74,7 +75,7 @@ class PneuForm
                     ->visibleOn('create')
                     ->columns(12)
                     ->afterHeader([
-                        Action::make('Registrar Recapagem'),
+                        Actions\RecaparPneuAction::make(),
                     ])
                     ->columnSpanFull()
                     ->schema([

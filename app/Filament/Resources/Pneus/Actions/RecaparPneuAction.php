@@ -23,9 +23,8 @@ class RecaparPneuAction
             ->label('Registrar Recapagem')
             ->color('info')
             ->schema([
-                Select::make('pneu_id')
+                TextInput::make('pneu_id')
                     ->label('Pneu')
-                    ->relationship('pneu', 'numero_fogo', fn(Builder $query) => $query->where('status', StatusPneuEnum::DISPONIVEL))
                     ->columnSpan(2),
                 DatePicker::make('data_recapagem')
                     ->date('d/m/Y')

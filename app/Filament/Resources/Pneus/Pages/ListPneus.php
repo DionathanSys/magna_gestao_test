@@ -27,6 +27,9 @@ class ListPneus extends ListRecords
                 ->using(function (array $data, array $arguments): ?Models\Pneu {
                     Log::debug(__METHOD__ . ' - Dados do formulário de criação de pneu', ['data' => $data, 'arguments' => $arguments]);
 
+                    $dataRecap = $data['recap'];
+                    unset($data['recap']);
+
                     $service = new Services\Pneus\PneuService();
                     $pneu = $service->create($data);
 
@@ -39,10 +42,11 @@ class ListPneus extends ListRecords
 
                     if($arguments['recapar']){
 
-                        Log::debug(__METHOD__ . ' - Iniciando recapagem após criação do pneu', ['data_recap' => $data['recap']]);
+                        $dataRecap = $this->mutateDataRecap(array_merge($dataRecap, ['pneu_id' => $pneu->id]));
 
-                        $data['recap'] = $this->mutateDataRecap(array_merge($data['recap'], ['pneu_id' => $pneu->id]));
-                        $service->recapar($data['recap']);
+                        Log::debug(__METHOD__ . ' - Iniciando recapagem após criação do pneu', ['data_recap' => $dataRecap]);
+                        
+                        $service->recapar($dataRecap);
 
                         if($service->hasError()){
                             notify::error(titulo: 'Erro ao recapar pneu', mensagem: $service->getMessage());

@@ -35,8 +35,9 @@ class ListPneus extends ListRecords
                 })
                 ->successNotification(null)
                 ->extraModalFooterActions(fn (CreateAction $action): array => [
-                    $action->makeModalSubmitAction('criarRecapar', arguments: ['another' => true]),
-                ]),
+                    $action->makeModalSubmitAction('criarERecapar', arguments: ['another' => true]),
+                ])
+                ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),
         ];
     }
 

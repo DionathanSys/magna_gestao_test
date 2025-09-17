@@ -32,7 +32,7 @@ class PneuForm
                     ->minValue(0)
                     ->maxValue(3),
                 TextInput::make('valor')
-                    ->columnSpan(2)
+                    ->columnSpan(3)
                     ->numeric()
                     ->default(0)
                     ->minValue(0)
@@ -89,13 +89,19 @@ class PneuForm
                             ->closeOnDateSelection()
                             ->maxDate(now())
                             ->required(),
-                        TextInput::make('valor')
+                        TextInput::make('valor_recapagem')
                             ->label('Valor')
                             ->columnSpan(3)
                             ->numeric()
                             ->default(0)
                             ->prefix('R$'),
-                        Components\DesenhoPneuInput::make()
+                        Select::make('desenho_pneu_id_recapagem')
+                            ->label('Desenho Borracha')
+                            ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', 'RECAPADO'))
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            // ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
                             ->columnSpan(4),
 
                     ])

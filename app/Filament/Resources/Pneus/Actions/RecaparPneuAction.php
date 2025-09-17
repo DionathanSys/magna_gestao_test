@@ -11,14 +11,14 @@ use Illuminate\Support\Arr;
 
 class RecaparPneuAction
 {
-    public static function make(array $data, array $arguments): Action
+    public static function make(array $data): Action
     {
         return Action::make('recapar')
             ->label('Registrar Recapagem')
             ->color('success')
-            ->action(function (Action $action) use ($data, $arguments) {
-                dd($data, $arguments);
-                $data = self::mutateDataRecap($data['recap']);
+            ->action(function (Action $action) use ($data) {
+
+                $data = self::mutateDataRecap($data);
                 $service = new Services\Pneus\PneuService();
                 $service->recapar($data);
 

@@ -160,7 +160,7 @@ class PneusRelationManager extends RelationManager
                     ->label('Adicionar Pneu')
                     ->icon('heroicon-o-plus-circle')
                     ->visible(fn() => Auth::user()->is_admin)
-                    ->preserveFormDataWhenCreatingAnother(['eixo', 'sequencia', 'km_inicial', 'data_inicial']),
+                    ->preserveFormDataWhenCreatingAnother(['eixo', 'km_inicial', 'data_inicial']),
             ])
             ->recordActions([
                 Actions\DesvincularPneuAction::make(),

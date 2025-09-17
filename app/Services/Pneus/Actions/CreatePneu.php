@@ -25,19 +25,17 @@ class CreatePneu
 
     private function validate(array $data): void
     {
-
         Validator::make($data, [
-            'numero_fogo'   => 'required|integer',
-            'medida'        => 'required',
-            'marca'         => 'required',
-            'modelo'        => 'nullable',
-            'valor'         => 'nullable|numeric',
-            'desenho_pneu_id' => 'required|exists:desenhos_pneu,id',
-            'local'         => 'required|in:' . implode(',', array_column(Enum\Pneu\LocalPneuEnum::cases(), 'value')),
-            'status'        => 'required|in:' . implode(',', array_column(Enum\Pneu\StatusPneuEnum::cases(), 'value')),
-            'ciclo_vida'   => 'required|integer',
-            'observacoes'   => 'nullable|string|max:500',
-            'data_aquisicao' => 'nullable|date',
+            'numero_fogo'       => 'required|integer',
+            'medida'            => 'required',
+            'marca'             => 'required',
+            'modelo'            => 'nullable',
+            'valor'             => 'nullable|numeric|min:0',
+            'desenho_pneu_id'   => 'required|exists:desenhos_pneu,id',
+            'local'             => 'required|in:' . implode(',', array_column(Enum\Pneu\LocalPneuEnum::cases(), 'value')),
+            'status'            => 'required|in:' . implode(',', array_column(Enum\Pneu\StatusPneuEnum::cases(), 'value')),
+            'ciclo_vida'        => 'required|integer|min:0',
+            'data_aquisicao'    => 'required|date',
         ])->validate();
 
         if ($this->exists($data['numero_fogo'])) {

@@ -3,13 +3,33 @@
 namespace App\Services\Pneus;
 
 use App\Models;
+use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Log;
 
 class PneuService
 {
+    use ServiceResponseTrait;
+
     public function create(array $data): ?Models\Pneu
     {
-        return Models\Pneu::create($data);
+        try {
+
+            $action = new Actions\CreatePneu();
+            $pneu = $action->handle($data);
+            $this->setSuccess('Pneu criado com sucesso.');
+            return $pneu;
+
+        } catch (\Exception $e) {
+
+            Log::error('Erro ao criar pneu', [
+                'metodo' => __METHOD__.'-'.__LINE__,
+                'error' => $e->getMessage(),
+                'data' => $data]);
+
+            $this->setError('Erro ao criar pneu: ' . $e->getMessage());
+            return null;
+        }
+
     }
 
     public static function atualizarCicloVida(Models\Recapagem $recapagem)

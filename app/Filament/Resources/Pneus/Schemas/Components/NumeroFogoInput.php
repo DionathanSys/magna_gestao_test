@@ -17,6 +17,9 @@ class NumeroFogoInput
             ->numeric()
             ->maxLength(255)
             ->live(onBlur: true)
+            ->aboveLabel(fn($state) => [
+                $state ?? 'vazio'
+            ])
             ->afterStateUpdated(function (Set $set, $state) {
                 if ($state) {
                     $pneu = Models\Pneu::query()

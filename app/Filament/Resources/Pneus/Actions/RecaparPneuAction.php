@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use App\Services\NotificacaoService as notify;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 class RecaparPneuAction
 {
@@ -15,8 +16,10 @@ class RecaparPneuAction
     {
         return Action::make('recapar')
             ->label('Registrar Recapagem')
-            ->color('success')
+            ->color('info')
             ->action(function (Action $action) use ($data) {
+
+                Log::debug(__METHOD__ . ' - Iniciando recapagem via action', ['data' => $data]);
 
                 $data = self::mutateDataRecap($data);
                 $service = new Services\Pneus\PneuService();

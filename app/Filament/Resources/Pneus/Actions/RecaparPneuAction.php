@@ -22,6 +22,7 @@ class RecaparPneuAction
         return Action::make('recapar')
             ->label('Registrar Recapagem')
             ->color('info')
+            ->columns(12)
             ->schema([
                 TextInput::make('pneu_id')
                     ->label('Pneu')

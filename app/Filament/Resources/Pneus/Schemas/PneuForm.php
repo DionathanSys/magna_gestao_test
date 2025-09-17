@@ -76,7 +76,7 @@ class PneuForm
                     ->columns(12)
                     ->afterHeader([
                         //TODO: Incluir limpeza do form, ou action para resetar
-                        fn(array $data, array $arguments) => Actions\RecaparPneuAction::make($data, $arguments),
+                        fn($component) => Actions\RecaparPneuAction::make($component->data, $component->arguments),
                     ])
                     ->columnSpanFull()
                     ->schema([

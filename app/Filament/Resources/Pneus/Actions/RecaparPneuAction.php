@@ -16,7 +16,6 @@ class RecaparPneuAction
         return Action::make('recapar')
             ->label('Registrar Recapagem')
             ->color('success')
-            ->visibleOn('create')
             ->action(function (Schema $schema, Action $action, array $data, array $arguments) {
 
                 $data = $this->mutateDataRecap($data['recap']);

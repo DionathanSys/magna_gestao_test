@@ -80,15 +80,14 @@ class PneuForm
                     ->schema([
                         TextInput::make('recap.pneu_id')
                             ->label('Pneu')
-                            ->columnSpan(2)
-                            ->required(),
+                            ->columnSpan(2),
                         DatePicker::make('recap.data_recapagem')
                             ->date('d/m/Y')
                             ->columnSpan(3)
                             ->displayFormat('d/m/Y')
                             ->closeOnDateSelection()
-                            ->maxDate(now())
-                            ->required(),
+                            ->default(now())
+                            ->maxDate(now()),
                         TextInput::make('recap.valor_recapagem')
                             ->label('Valor')
                             ->columnSpan(3)
@@ -100,9 +99,8 @@ class PneuForm
                             ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', 'RECAPADO'))
                             ->searchable()
                             ->preload()
-                            ->required()
                             // ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
-                            ->columnSpan(3),
+                            ->columnSpan(4),
 
                     ])
 

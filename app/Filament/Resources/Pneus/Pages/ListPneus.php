@@ -73,7 +73,7 @@ class ListPneus extends ListRecords
                 ])
                 ->extraModalFooterActions(function (CreateAction $action, array $data): array {
                     return [Actions\RecaparPneuAction::make()
-                        ->fillForm(['pneu_id' => $data['pneu_id']])
+                        ->fillForm(['pneu_id' => $data['recap.pneu_id']])
                     ];
                 })
                 ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),

@@ -26,7 +26,7 @@ class NumeroFogoInput
                         ->where('numero_fogo', $state)
                         ->first();
                     if ($pneu) {
-                        $set('pneu_id', $pneu->id);
+                        $set('recap.pneu_id', $pneu->id);
                         $component->afterLabel([Icon::make(Heroicon::ExclamationTriangle),'Pneu já cadastrado']);
                         notify::alert(
                             titulo: 'Atenção',

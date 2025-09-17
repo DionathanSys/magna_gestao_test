@@ -27,7 +27,7 @@ class RecaparPneuAction
                     $action->halt();
                 }
 
-                $schema->fill(Arr::only($data, [['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']]));
+                $schema->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
                 notify::success('Recapagem realizada com sucesso.');
             });
     }

@@ -40,12 +40,12 @@ class ListPneus extends ListRecords
 
                     notify::success('Pneu criado com sucesso.');
 
-                    if($arguments['recapar']){
+                    if(array_key_exists('recapar', $arguments) && $arguments['recapar']){
 
                         $dataRecap = $this->mutateDataRecap(array_merge($dataRecap, ['pneu_id' => $pneu->id]));
 
                         Log::debug(__METHOD__ . ' - Iniciando recapagem após criação do pneu', ['data_recap' => $dataRecap]);
-                        
+
                         $service->recapar($dataRecap);
 
                         if($service->hasError()){
@@ -54,12 +54,12 @@ class ListPneus extends ListRecords
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
-                        $this->fill(Arr::only($data, [['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']]));
+                        $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
                         return $pneu;
                     }
 
                     if($arguments['another']){
-                        $this->fill(Arr::only($data, [['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']]));
+                        $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
                         return $pneu;
                     }
 

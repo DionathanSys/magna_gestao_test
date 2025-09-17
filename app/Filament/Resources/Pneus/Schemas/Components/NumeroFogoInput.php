@@ -35,7 +35,7 @@ class NumeroFogoInput
                         return;
                     }
                     $component->afterLabel([Icon::make(Heroicon::CheckBadge),'Pneu sem cadastrado']);
-                    $set('pneu_id', null);
+                    $set('recap.pneu_id', null);
                 }
             });
     }

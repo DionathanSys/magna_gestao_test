@@ -12,6 +12,8 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Illuminate\Database\Eloquent\Builder;
@@ -76,7 +78,7 @@ class PneuForm
                     ->columns(12)
                     ->afterHeader([
                         //TODO: Incluir limpeza do form, ou action para resetar
-                        fn($component) => dd($component),
+                        fn(Livewire $livewire) => dd($livewire),
                     ])
                     ->columnSpanFull()
                     ->schema([

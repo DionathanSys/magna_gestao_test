@@ -32,7 +32,7 @@ class ListPneus extends ListRecords
 
                     if($service->hasError()){
                         notify::error(titulo: 'Erro ao criar pneu', mensagem: $service->getMessage());
-                        $action->halt();
+                        $this->halt();
                     }
 
                     notify::success('Pneu criado com sucesso.');

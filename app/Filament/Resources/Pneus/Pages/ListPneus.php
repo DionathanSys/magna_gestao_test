@@ -23,7 +23,7 @@ class ListPneus extends ListRecords
             CreateAction::make()
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
-                ->using(function (Schema $schema, CreateAction $action, array $data, array $arguments): ?Models\Pneu {
+                ->using(function (array $data, array $arguments): ?Models\Pneu {
                     dd(array_merge($data['recap'], ['pneu_id' => 1]));
                     Log::debug(__METHOD__ . ' - Dados do formulário de criação de pneu', ['data' => $data, 'arguments' => $arguments]);
 
@@ -46,16 +46,16 @@ class ListPneus extends ListRecords
 
                         if($service->hasError()){
                             notify::error(titulo: 'Erro ao recapar pneu', mensagem: $service->getMessage());
-                            $action->halt();
+                            $this->halt();
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
-                        $schema->fill();
+                        $this->fill([]);
                         return $pneu;
                     }
 
                     if($arguments['another']){
-                        $schema->fill();
+                        $this->fill([]);
                         return $pneu;
                     }
 

@@ -18,7 +18,7 @@ class RecaparPneuAction
             ->color('success')
             ->action(function (Action $action, array $data, array $arguments) {
 
-                $data = $this->mutateDataRecap($data['recap']);
+                $data = self::mutateDataRecap($data['recap']);
                 $service = new Services\Pneus\PneuService();
                 $service->recapar($data);
 
@@ -31,7 +31,7 @@ class RecaparPneuAction
             });
     }
 
-    private function mutateDataRecap(array $data): array
+    private static function mutateDataRecap(array $data): array
     {
         //Normalizar os indices do array, devido conflito de nomes no form
         //entre os campos do pneu e da recapagem

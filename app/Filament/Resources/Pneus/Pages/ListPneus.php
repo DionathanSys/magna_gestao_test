@@ -31,7 +31,7 @@ class ListPneus extends ListRecords
                     $pneu = $service->create($data);
 
                     if($service->hasError()){
-                        notify::error(mensagem: $service->getMessage());
+                        notify::error(titulo: 'Erro ao criar pneu', mensagem: $service->getMessage());
                         $action->halt();
                     }
 
@@ -45,16 +45,22 @@ class ListPneus extends ListRecords
                         $service->recapar($data['recap']);
 
                         if($service->hasError()){
-                            notify::error(mensagem: $service->getMessage());
+                            notify::error(titulo: 'Erro ao recapar pneu', mensagem: $service->getMessage());
                             $action->halt();
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
                         $schema->fill();
-
-
+                        return $pneu;
                     }
+
+                    if($arguments['another']){
+                        $schema->fill();
+                        return $pneu;
+                    }
+
                     return $pneu;
+
                 })
                 ->successNotification(null)
                 ->extraModalFooterActions(fn (CreateAction $action): array => [

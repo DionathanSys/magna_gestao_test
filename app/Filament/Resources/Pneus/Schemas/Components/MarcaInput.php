@@ -13,6 +13,6 @@ class MarcaInput
     {
         return Select::make('marca')
             ->searchable()
-            ->options(db_config('config-pneu.marcas_pneu', []));
+            ->options(collect(db_config('config-pneu.marcas_pneu', []))->mapWithKeys(fn($item) => [$item => $item])->toArray());
     }
 }

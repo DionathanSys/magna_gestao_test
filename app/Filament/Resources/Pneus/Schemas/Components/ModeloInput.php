@@ -14,6 +14,6 @@ class ModeloInput
     {
         return Select::make('modelo')
             ->searchable()
-            ->options(db_config('config-pneu.modelos_pneu', []));
+            ->options(collect(db_config('config-pneu.modelos_pneu', []))->mapWithKeys(fn($item) => [$item => $item])->toArray());
     }
 }

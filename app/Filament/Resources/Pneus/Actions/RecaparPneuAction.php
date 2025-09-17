@@ -25,25 +25,32 @@ class RecaparPneuAction
             ->schema(fn(Schema $schema) => $schema
                 ->columns(12)
                 ->components([
-                    TextInput::make('pneu_id')
-                        ->label('Pneu')
-                        ->columnSpan(2),
-                    DatePicker::make('data_recapagem')
-                        ->date('d/m/Y')
-                        ->default(now())
-                        ->columnSpan(2),
-                    Select::make('desenho_pneu_id')
-                        ->label('Desenho do Pneu')
-                        ->relationship('desenhoPneu', 'nome')
-                        ->columnSpan(4),
-                    TextInput::make('valor')
-                        ->label('Valor')
-                        ->numeric()
-                        ->minValue(0)
-                        ->step(0.01)
-                        ->prefix('R$')
-                        ->default(0)
-                        ->columnSpan(2),
+
+                TextInput::make('pneu_id')
+                    ->label('Pneu')
+                    ->columnSpan(2),
+                DatePicker::make('data_recapagem')
+                    ->date('d/m/Y')
+                    ->columnSpan(3)
+                    ->displayFormat('d/m/Y')
+                    ->closeOnDateSelection()
+                    ->default(now())
+                    ->maxDate(now()),
+                TextInput::make('valor')
+                    ->label('Valor')
+                    ->columnSpan(3)
+                    ->numeric()
+                    ->default(0)
+                    ->prefix('R$'),
+                Select::make('desenho_pneu_id')
+                    ->label('Desenho Borracha')
+                    ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', 'RECAPADO'))
+                    ->searchable()
+                    ->preload()
+                    // ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
+                    ->columnSpan(4),
+
+
                 ]))
             ->action(function (Action $action, array $data) {
 

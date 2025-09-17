@@ -11,6 +11,7 @@ use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class ListPneus extends ListRecords
@@ -24,7 +25,6 @@ class ListPneus extends ListRecords
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
                 ->using(function (array $data, array $arguments): ?Models\Pneu {
-                    dd(array_merge($data['recap'], ['pneu_id' => 1]));
                     Log::debug(__METHOD__ . ' - Dados do formulário de criação de pneu', ['data' => $data, 'arguments' => $arguments]);
 
                     $service = new Services\Pneus\PneuService();
@@ -50,12 +50,12 @@ class ListPneus extends ListRecords
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
-                        $this->fill([]);
+                        $this->fill(Arr::only($data, [['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']]));
                         return $pneu;
                     }
 
                     if($arguments['another']){
-                        $this->fill([]);
+                        $this->fill(Arr::only($data, [['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']]));
                         return $pneu;
                     }
 

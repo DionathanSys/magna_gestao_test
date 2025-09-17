@@ -36,9 +36,11 @@ class PneuService
     {
         try {
 
+            Log::debug(__METHOD__ . ' - Iniciando recapagem do pneu', ['data' => $data]);
+            
             $action = new Actions\RecaparPneu();
             $recapagem = $action->handle($data);
-            
+
             self::atualizarCicloVida($recapagem);
             $this->setSuccess('Recapagem realizada com sucesso.');
             return $recapagem;

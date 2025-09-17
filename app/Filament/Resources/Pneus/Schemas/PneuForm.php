@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Builder;
 
 class PneuForm
@@ -78,7 +79,7 @@ class PneuForm
                     ->columns(12)
                     ->afterHeader([
                         //TODO: Incluir limpeza do form, ou action para resetar
-                        fn(Livewire $livewire) => dd($livewire),
+                        fn(Get $get) => dd($get('recap')),
                     ])
                     ->columnSpanFull()
                     ->schema([

@@ -20,40 +20,52 @@ class PneuForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(4)
+            ->columns(12)
             ->components([
-                Components\NumeroFogoInput::make(),
-                Components\MarcaInput::make(),
-                Components\ModeloInput::make(),
-                Select::make('medida')
-                    ->options([
-                        '275/80 R22.5' => '275/80 R22.5',
-                        '295/80 R22.5' => '295/80 R22.5',
-                    ])
-                    ->default('275/80 R22.5'),
+                Components\NumeroFogoInput::make()
+                    ->columnSpan(4),
                 TextInput::make('ciclo_vida')
                     ->label('Vida')
+                    ->columnSpan(2)
                     ->numeric()
                     ->default(0)
                     ->minValue(0)
                     ->maxValue(3),
                 TextInput::make('valor')
-                    ->label('Valor')
+                    ->columnSpan(2)
                     ->numeric()
                     ->default(0)
                     ->minValue(0)
                     ->prefix('R$'),
-                Components\DesenhoPneuInput::make(),
+                Components\MarcaInput::make()
+                    ->columnStart(1)
+                    ->columnSpan(4),
+                Components\ModeloInput::make()
+                    ->columnSpan(4),
+                Select::make('medida')
+                    ->columnSpan(4)
+                    ->options([
+                        '275/80 R22.5' => '275/80 R22.5',
+                        '295/80 R22.5' => '295/80 R22.5',
+                    ])
+                    ->default('275/80 R22.5'),
+
+                Components\DesenhoPneuInput::make()
+                    ->columnSpan(4),
                 Select::make('status')
+                    ->columnStart(1)
+                    ->columnSpan(4)
                     ->options(StatusPneuEnum::toSelectArray())
                     ->required()
                     ->default(StatusPneuEnum::DISPONIVEL->value),
                 Select::make('local')
+                    ->columnSpan(4)
                     ->options(LocalPneuEnum::toSelectArray())
                     ->required()
                     ->default(LocalPneuEnum::ESTOQUE_CCO->value),
                 DatePicker::make('data_aquisicao')
                     ->label('Dt. Aquisição')
+                    ->columnSpan(4)
                     ->default(now())
                     ->maxDate(now())
                     ->required(),
@@ -85,7 +97,7 @@ class PneuForm
                             ->prefix('R$'),
                         Components\DesenhoPneuInput::make()
                             ->columnSpan(4),
-                        
+
                     ])
 
             ]);

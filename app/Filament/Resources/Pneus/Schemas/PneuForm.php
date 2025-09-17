@@ -65,7 +65,7 @@ class PneuForm
                     ->default(LocalPneuEnum::ESTOQUE_CCO->value),
                 DatePicker::make('data_aquisicao')
                     ->label('Dt. Aquisição')
-                    ->columnSpan(4)
+                    ->columnSpan(3)
                     ->default(now())
                     ->maxDate(now())
                     ->required(),
@@ -78,31 +78,31 @@ class PneuForm
                     ])
                     ->columnSpanFull()
                     ->schema([
-                        TextInput::make('pneu_id')
+                        TextInput::make('recap.pneu_id')
                             ->label('Pneu')
                             ->columnSpan(2)
                             ->required(),
-                        DatePicker::make('data_recapagem')
+                        DatePicker::make('recap.data_recapagem')
                             ->date('d/m/Y')
                             ->columnSpan(3)
                             ->displayFormat('d/m/Y')
                             ->closeOnDateSelection()
                             ->maxDate(now())
                             ->required(),
-                        TextInput::make('valor_recapagem')
+                        TextInput::make('recap.valor_recapagem')
                             ->label('Valor')
                             ->columnSpan(3)
                             ->numeric()
                             ->default(0)
                             ->prefix('R$'),
-                        Select::make('desenho_pneu_id_recapagem')
+                        Select::make('recap.desenho_pneu_id_recapagem')
                             ->label('Desenho Borracha')
                             ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', 'RECAPADO'))
                             ->searchable()
                             ->preload()
                             ->required()
                             // ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
-                            ->columnSpan(4),
+                            ->columnSpan(3),
 
                     ])
 

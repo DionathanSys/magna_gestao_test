@@ -4,12 +4,15 @@ namespace App\Services\Pneus\Actions;
 
 use App\Models;
 use App\Enum;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CreatePneu
 {
     public function handle(array $data): ?Models\Pneu
     {
+        Log::debug(__METHOD__ . ' - Dados recebidos para criação de pneu', ['data' => $data]);
+        
         $this->validate($data);
         return Models\Pneu::create($data);
     }

@@ -32,6 +32,30 @@ class PneuService
 
     }
 
+    public function recapar(array $data): ?Models\Recapagem
+    {
+        try {
+
+            $action = new Actions\RecaparPneu();
+            $recapagem = $action->handle($data);
+            
+            self::atualizarCicloVida($recapagem);
+            $this->setSuccess('Recapagem realizada com sucesso.');
+            return $recapagem;
+
+        } catch (\Exception $e) {
+
+            Log::error('Erro ao recapar pneu', [
+                'metodo' => __METHOD__.'-'.__LINE__,
+                'error' => $e->getMessage(),
+                'data' => $data]);
+
+            $this->setError('Erro ao recapar pneu: ' . $e->getMessage());
+            return null;
+        }
+
+    }
+
     public static function atualizarCicloVida(Models\Recapagem $recapagem)
     {
         Log::debug('Atualizando ciclo de vida do pneu', [

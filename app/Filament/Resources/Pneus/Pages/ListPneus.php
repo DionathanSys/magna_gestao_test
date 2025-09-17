@@ -10,6 +10,8 @@ use App\Filament\Resources\Pneus\PneuResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Log;
 
 class ListPneus extends ListRecords
 {
@@ -21,8 +23,10 @@ class ListPneus extends ListRecords
             CreateAction::make()
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
-                ->using(function (CreateAction $action, array $data, array $arguments): ?Models\Pneu {
-                    dd($data);
+                ->using(function (Schema $schema, CreateAction $action, array $data, array $arguments): ?Models\Pneu {
+
+                    Log::debug(__METHOD__ . ' - Dados do formulário de criação de pneu', ['data' => $data, 'arguments' => $arguments]);
+
                     $service = new Services\Pneus\PneuService();
                     $pneu = $service->create($data);
 
@@ -30,14 +34,46 @@ class ListPneus extends ListRecords
                         notify::error(mensagem: $service->getMessage());
                         $action->halt();
                     }
+
                     notify::success('Pneu criado com sucesso.');
+
+                    if($arguments['recapar']){
+
+                        Log::debug(__METHOD__ . ' - Iniciando recapagem após criação do pneu', ['data_recap' => $data['recap']]);
+
+                        $data['recap'] = $this->mutateDataRecap($data['recap']);
+                        $service->recapar($data['recap']);
+
+                        if($service->hasError()){
+                            notify::error(mensagem: $service->getMessage());
+                            $action->halt();
+                        }
+
+                        notify::success('Recapagem realizada com sucesso.');
+                        $schema->fill();
+
+
+                    }
                     return $pneu;
                 })
                 ->successNotification(null)
                 ->extraModalFooterActions(fn (CreateAction $action): array => [
-                    $action->makeModalSubmitAction('criarERecapar', arguments: ['another' => true]),
+                    $action->makeModalSubmitAction('criarERecapar', arguments: ['recapar' => true]),
+                    $action->makeModalSubmitAction('salvarECriarOutro', arguments: ['another' => true]),
                 ])
                 ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),
+        ];
+    }
+
+    private function mutateDataRecap(array $data): array
+    {
+        //Normalizar os indices do array, devido conflito de nomes no form
+        //entre os campos do pneu e da recapagem
+        return [
+            'pneu_id'           => $data['pneu_id'],
+            'valor'             => $data['valor_recapagem'],
+            'desenho_pneu_id'   => $data['desenho_pneu_id_recapagem'],
+            'data_recapagem'    => $data['data_recapagem'],
         ];
     }
 

@@ -20,9 +20,6 @@ class NumeroFogoInput
             ->numeric()
             ->maxLength(255)
             ->live(onBlur: true)
-            ->afterLabel(fn($state) => [
-                $state
-            ])
             ->afterStateUpdated(function (Set $set, Field $component, $state) {
                 if ($state) {
                     $pneu = Models\Pneu::query()
@@ -35,7 +32,10 @@ class NumeroFogoInput
                             titulo: 'Atenção',
                             mensagem: "Já existe um pneu cadastrado com o Nº de Fogo: {$state}",
                         );
+                        return;
                     }
+                    $component->afterLabel([Icon::make(Heroicon::CheckBadge),'Pneu sem cadastrado']);
+                    $set('pneu_id', null);
                 }
             });
     }

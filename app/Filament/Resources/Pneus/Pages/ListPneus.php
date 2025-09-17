@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Pneus\Pages;
 
 use App\Models;
 use App\Services;
+use App\Filament\Resources\Pneus\Actions;
 use App\Enum;
 use App\Services\NotificacaoService as notify;
 use App\Filament\Resources\Pneus\PneuResource;
@@ -33,14 +34,14 @@ class ListPneus extends ListRecords
                     $service = new Services\Pneus\PneuService();
                     $pneu = $service->create($data);
 
-                    if($service->hasError()){
+                    if ($service->hasError()) {
                         notify::error(titulo: 'Erro ao criar pneu', mensagem: $service->getMessage());
                         $this->halt();
                     }
 
                     notify::success('Pneu criado com sucesso.');
 
-                    if(array_key_exists('recapar', $arguments) && $arguments['recapar']){
+                    if (array_key_exists('recapar', $arguments) && $arguments['recapar']) {
 
                         $dataRecap = $this->mutateDataRecap(array_merge($dataRecap, ['pneu_id' => $pneu->id]));
 
@@ -48,7 +49,7 @@ class ListPneus extends ListRecords
 
                         $service->recapar($dataRecap);
 
-                        if($service->hasError()){
+                        if ($service->hasError()) {
                             notify::error(titulo: 'Erro ao recapar pneu', mensagem: $service->getMessage());
                             $this->halt();
                         }
@@ -58,19 +59,23 @@ class ListPneus extends ListRecords
                         return $pneu;
                     }
 
-                    if($arguments['another']){
+                    if ($arguments['another']) {
                         $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
                         return $pneu;
                     }
 
                     return $pneu;
-
                 })
                 ->successNotification(null)
-                ->extraModalFooterActions(fn (CreateAction $action): array => [
+                ->extraModalFooterActions(fn(CreateAction $action): array => [
                     $action->makeModalSubmitAction('criarERecapar', arguments: ['recapar' => true]),
                     $action->makeModalSubmitAction('salvarECriarOutro', arguments: ['another' => true]),
                 ])
+                ->extraModalFooterActions(function (CreateAction $action, array $data): array {
+                    return [Actions\RecaparPneuAction::make()
+                        ->fillForm(['pneu_id' => $data['pneu_id']])
+                    ];
+                })
                 ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),
         ];
     }
@@ -92,13 +97,13 @@ class ListPneus extends ListRecords
         return [
             'Todos' => Tab::make(),
             'Estoque' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)),
+                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)),
             'Frota' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::FROTA)),
+                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::FROTA)),
             'Outros' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereNotIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
+                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->whereNotIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
             'Est./Frota' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
+                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->whereIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
         ];
     }
 

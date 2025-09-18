@@ -126,7 +126,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                                 'conteudo'      => $data['conteudo'],
                             ]);
                         }),
-                    Actions\EditarServicoOrdemServicoAction::make($this->record->id),
+                    Actions\EditarServicoOrdemServicoAction::make(fn(Models\ItemOrdemServico $record) => $record->id),
                     DeleteAction::make()
                         ->action(function (Models\ItemOrdemServico $itemOrdemServico) {
                             Services\OrdemServico\ItemOrdemServicoService::delete($itemOrdemServico);

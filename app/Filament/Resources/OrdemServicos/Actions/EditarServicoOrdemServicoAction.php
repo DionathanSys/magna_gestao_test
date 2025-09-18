@@ -7,14 +7,14 @@ use Filament\Actions\Action;
 use App\Models;
 use App\Services;
 use App\Services\NotificacaoService as notify;
-
+use Closure;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 
 
 class EditarServicoOrdemServicoAction
 {
-    public static function make(int $recordId): Action
+    public static function make(int|Closure $recordId): Action
     {
         return Action::make('editar_servico')
             ->label('Editar')

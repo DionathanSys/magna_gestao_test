@@ -66,7 +66,7 @@ class ItemOrdemServicoForm
             ->required()
             // ->relationship('servico', 'descricao')
             ->getSearchResultsUsing(fn(string $search): array => Models\Servico::query()
-                ->where('descricao', 'like', "%{".str_replace(' ', '%', $search)."}%")
+                ->where('descricao', 'like', "%".str_replace(' ', '%', $search)."%")
                 ->limit(10)
                 ->pluck('descricao', 'id')
                 ->all())
@@ -75,6 +75,7 @@ class ItemOrdemServicoForm
             ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
             ->searchable()
             ->live()
+            ->preload()
             ->afterStateUpdated(function (Set $set, $state) {
                 if ($state) {
                     $servico = Models\Servico::find($state);

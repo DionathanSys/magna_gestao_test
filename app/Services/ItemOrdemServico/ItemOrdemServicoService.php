@@ -31,9 +31,10 @@ class ItemOrdemServicoService
         }
     }
 
-    public function update(Models\ItemOrdemServico $item, array $data): ?Models\ItemOrdemServico
+    public function update(int $itemId, array $data): ?Models\ItemOrdemServico
     {
         try {
+            $item = Models\ItemOrdemServico::query()->findOrFail($itemId, 'id');
             $item = (new Actions\AtualizarItem($item))->handle($data);
             $this->setSuccess('Item atualizado com sucesso!');
             return $item;

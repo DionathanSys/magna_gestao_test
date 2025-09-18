@@ -61,15 +61,15 @@ class OrdemServicoForm
                                         'lg' => 3,
                                     ]),
 
-                                Section::make('Manutenção Externa')
-                                    ->columnSpanFull()
-                                    ->columns(8)
-                                    ->schema([
+                                // Section::make('Manutenção Externa')
+                                //     ->columnSpanFull()
+                                //     ->columns(8)
+                                //     ->schema([
                                         static::getParceiroIdFormField()
                                             ->columnSpan(4),
-                                    ])
-                                    ->collapsed()
-                                    ->collapsible(),
+                                    // ])
+                                    // ->collapsed()
+                                    // ->collapsible(),
                             ]),
                         Tabs\Tab::make('Ordens Sankhya')
                             ->columns(3)

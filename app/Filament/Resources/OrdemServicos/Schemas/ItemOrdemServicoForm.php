@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use App\Enum;
+use App\Models;
 use App\Filament\Resources\Servicos\Schemas\ServicoForm;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -63,7 +64,8 @@ class ItemOrdemServicoForm
         return Select::make('servico_id')
             ->label('Serviço')
             ->required()
-            ->relationship('servico', 'descricao')
+            // ->relationship('servico', 'descricao')
+            ->options(Models\Servico::orderBy('descricao')->pluck('descricao', 'id')->toArray())
             ->createOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
             ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
             ->searchable()
@@ -71,7 +73,7 @@ class ItemOrdemServicoForm
             ->live()
             ->afterStateUpdated(function (Set $set, $state) {
                 if ($state) {
-                    $servico = \App\Models\Servico::find($state);
+                    $servico = Models\Servico::find($state);
                     $set('controla_posicao', $servico?->controla_posicao ? true : false);
                 } else {
                     $set('controla_posicao', false);

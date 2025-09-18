@@ -30,7 +30,7 @@ class FormTeste extends Component implements HasSchemas
 
     public function mount(OrdemServico $ordemServico): void
     {
-        $this->ordemServico = $ordemServico->load('agendamentosPendentes');
+        $this->ordemServico = $ordemServico->load(['agendamentosPendentes', 'planoPreventivoVinculado', 'sankhyaId']);
         $this->form->fill($ordemServico->attributesToArray());
     }
 

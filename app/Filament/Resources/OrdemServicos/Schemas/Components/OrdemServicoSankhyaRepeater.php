@@ -20,7 +20,7 @@ class OrdemServicoSankhyaRepeater
     {
         return Repeater::make('sankhyaId')
             ->label('OS Sankhya')
-            ->relationship('sankhyaId')
+            
             ->columns(12)
             ->columnSpanFull()
             ->addActionLabel('Adicionar OS Sankhya')
@@ -39,11 +39,6 @@ class OrdemServicoSankhyaRepeater
                         'md' => 4,
                         'lg' => 8,
                     ]),
-            ])
-            ->extraItemActions([
-                    // ->successRedirectUrl(fn(Model $record): string => OrdemServicoResource::getUrl('custom', [
-                    //     'record' => $record,
-                    // ])),
             ]);
     }
 }

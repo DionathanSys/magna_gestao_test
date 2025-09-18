@@ -82,7 +82,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('creator.name')
                     ->label('Criado por')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('comentarios.conteudo')
                     ->label('Comentários')
                     ->html()

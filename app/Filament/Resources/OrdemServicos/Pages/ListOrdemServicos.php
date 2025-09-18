@@ -44,7 +44,7 @@ class ListOrdemServicos extends ListRecords
         return [
             'todos' => Tab::make(),
             'hoje' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('data_inicio', now()->format('Y-m-d')))
+                ->modifyQueryUsing(fn (Builder $query) => dd($query->where('data_inicio', now()->format('Y-m-d'))))
                 ->badge(Models\OrdemServico::query()->where('data_inicio', now()->format('Y-m-d'))->count()),
             'pendente' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)),

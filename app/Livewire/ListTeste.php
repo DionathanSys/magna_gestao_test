@@ -71,6 +71,15 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                 TextColumn::make('status')
                     ->width('1%')
                     ->badge('success'),
+                TextColumn::make('comentarios.conteudo')
+                    ->label('Comentários')
+                    ->html()
+                    ->wrap()
+                    ->size(TextSize::ExtraSmall)
+                    ->listWithLineBreaks()
+                    ->limitList(1)
+                    ->expandableLimitedList()
+                    ->visibleFrom('xl'),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->label('Criado Em')
@@ -83,15 +92,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                     ->label('Criado por')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('comentarios.conteudo')
-                    ->label('Comentários')
-                    ->html()
-                    ->wrap()
-                    ->size(TextSize::ExtraSmall)
-                    ->listWithLineBreaks()
-                    ->limitList(1)
-                    ->expandableLimitedList()
-                    ->visibleFrom('xl'),
+
             ])
             ->defaultSort('id', 'desc')
             ->filters([])

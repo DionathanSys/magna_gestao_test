@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
+use App\Filament\Resources\OrdemServicos\Schemas\ItemOrdemServicoForm;
 use Filament\Actions\CreateAction;
 use App\Models;
 use App\Services;
@@ -20,50 +21,12 @@ use Illuminate\Support\Facades\Log;
 
 class VincularServicoOrdemServicoAction
 {
-    public static function make(?int $ordemServicoId = null): CreateAction
+    public static function make($ordemServicoId = null): CreateAction
     {
         return CreateAction::make()
             ->label('Adicionar Serviço')
             ->icon('heroicon-o-plus')
-            ->schema(
-                fn(Schema $schema) => $schema
-                    ->columns([
-                        'sm' => 1,
-                        'md' => 4,
-                        'lg' => 8,
-                    ])
-                    ->components(
-                        [
-                            self::getServicoIdFormField()
-                                ->columnStart(1)
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 2,
-                                    'lg' => 3
-                                ]),
-                            self::getControlaPosicaoFormField()
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2
-                                ]),
-                            self::getPosicaoFormField()
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 1,
-                                    'lg' => 2
-                                ]),
-                            self::getStatusFormField()
-                                ->columnSpan([
-                                    'sm' => 1,
-                                    'md' => 2,
-                                    'lg' => 3
-                                ]),
-                            self::getObservacaoFormField()
-                                ->columnSpanFull(),
-                        ]
-                    )
-            )
+            ->schema(fn(Schema $schema) => ItemOrdemServicoForm::configure($schema))
             ->model(Models\ItemOrdemServico::class) // Definir o model
             ->mutateDataUsing(function (array $data) use ($ordemServicoId): array {
                 $data['ordem_servico_id'] = $ordemServicoId;
@@ -78,63 +41,11 @@ class VincularServicoOrdemServicoAction
                     $action->halt();
                     return null;
                 }
+                
                 notify::success(mensagem: 'Serviço vinculado com sucesso!');
                 return $itemOrdemServico;
             });
     }
 
-    public static function getServicoIdFormField(): Select
-    {
-        return Select::make('servico_id')
-            ->label('Serviço')
-            ->required()
-            ->relationship('servico', 'descricao')
-            ->createOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
-            ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
-            ->searchable()
-            ->preload()
-            ->live()
-            ->afterStateUpdated(function (Set $set, $state) {
-                if ($state) {
-                    $servico = \App\Models\Servico::find($state);
-                    $set('controla_posicao', $servico?->controla_posicao ? true : false);
-                } else {
-                    $set('controla_posicao', false);
-                }
-            });
-    }
 
-    public static function getControlaPosicaoFormField(): Toggle
-    {
-        return Toggle::make('controla_posicao')
-            ->label('Controla Posição')
-            ->inline(false)
-            ->disabled()
-            ->live();
-    }
-
-    public static function getPosicaoFormField(): TextInput
-    {
-        return TextInput::make('posicao')
-            ->label('Posição')
-            ->requiredIf('controla_posicao', true)
-            ->minLength(2)
-            ->maxLength(7);
-    }
-
-    public static function getObservacaoFormField(): Textarea
-    {
-        return Textarea::make('observacao')
-            ->label('Observação')
-            ->maxLength(200);
-    }
-
-    public static function getStatusFormField(): Select
-    {
-        return Select::make('status')
-            ->label('Status')
-            ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray())
-            ->default(Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE->value)
-            ->required();
-    }
 }

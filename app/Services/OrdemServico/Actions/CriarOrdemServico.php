@@ -28,7 +28,7 @@ class CriarOrdemServico
         $data['data_inicio'] = $data['data_inicio'] ?? now();
         $data['status'] = StatusOrdemServicoEnum::PENDENTE;
         $data['status_sankhya'] = StatusOrdemServicoEnum::PENDENTE;
-        $data['quilometragem'] = $data['quilometragem'] ?? $this->veiculoService->getQuilometragemAtualByVeiculoId($data['veiculo_id']);
+        $data['quilometragem'] = $data['quilometragem'];
 
         Log::debug(__METHOD__. ' - ' . __LINE__, [
             'data' => $data,
@@ -54,7 +54,7 @@ class CriarOrdemServico
 
         $validator = Validator::make($data, [
             'veiculo_id'        => 'required|exists:veiculos,id',
-            'quilometragem'     => 'required|numeric|min:0',
+            'quilometragem'     => 'required|numeric|min:1',
             'parceiro_id'       => 'nullable|exists:parceiros,id',
             'tipo_manutencao'   => 'required',
             'status'            => 'required',

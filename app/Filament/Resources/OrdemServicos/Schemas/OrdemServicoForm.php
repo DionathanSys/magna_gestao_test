@@ -31,31 +31,16 @@ class OrdemServicoForm
                                 'lg' => 10,
                             ])
                             ->schema([
-                                static::getVeiculoIdFormField()
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 2,
-                                        'lg' => 3,
-                                    ]),
+                                Components\OrdemServicoVeiculoInput::make(),
                                 static::getQuilometragemFormField()
                                     ->columnSpan([
                                         'sm' => 1,
                                         'md' => 2,
                                         'lg' => 3,
                                     ]),
-                                static::getTipoManutencaoFormField()
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 2,
-                                        'lg' => 3,
-                                    ]),
-                                static::getDataInicioFormField()
-                                    ->columnStart(1)
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 2,
-                                        'lg' => 3,
-                                    ]),
+                                Components\OrdemServicoTipoManutencaoInput::make(),
+                                Components\OrdemServicoDataAberturaInput::make()
+                                    ->columnStart(1),
                                 static::getDataFimFormField()
                                     ->visibleOn('edit')
                                     ->columnSpan([

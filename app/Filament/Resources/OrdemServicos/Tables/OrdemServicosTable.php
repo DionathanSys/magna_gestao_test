@@ -139,7 +139,8 @@ class OrdemServicosTable
                     ->color('primary')
                     ->modalWidth(Width::FiveExtraLarge)
                     ->iconButton(),
-
+                Actions\VincularServicoOrdemServicoAction::make(fn( $record) => $record->id)
+                    ->iconButton(),
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([

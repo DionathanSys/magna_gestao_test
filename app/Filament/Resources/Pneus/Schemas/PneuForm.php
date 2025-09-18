@@ -77,10 +77,6 @@ class PneuForm
                     ->description('Registrar recapagem do pneu.')
                     ->visibleOn('create')
                     ->columns(12)
-                    ->afterHeader([
-                        //TODO: Incluir limpeza do form, ou action para resetar
-                        fn(Get $get) => Actions\RecaparPneuAction::make($get('recap'))
-                    ])
                     ->columnSpanFull()
                     ->schema([
                         TextInput::make('recap.pneu_id')

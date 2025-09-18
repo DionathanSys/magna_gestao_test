@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\NotificacaoService as notify;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use Symfony\Component\Mailer\Transport\Dsn;
 
 class ViagemsTable
@@ -237,24 +238,15 @@ class ViagemsTable
                     ->preload()
                     ->multiple()
                     ->columnSpanFull(),
-                Filter::make('data_competencia')
-                    ->schema([
-                        DatePicker::make('data_inicio')
-                            ->label('Data Comp. Início'),
-                        DatePicker::make('data_fim')
-                            ->label('Data Comp. Fim'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['data_inicio'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('data_competencia', '>=', $date),
-                            )
-                            ->when(
-                                $data['data_fim'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('data_competencia', '<=', $date),
-                            );
-                    }),
+                DateRangeFilter::make('data_competencia')
+                    ->label('Dt. Competência')
+                    ->alwaysShowCalendar(),
+                DateRangeFilter::make('data_inicio')
+                    ->label('Dt. Inicio')
+                    ->alwaysShowCalendar(),
+                DateRangeFilter::make('data_fim')
+                    ->label('Dt. Fim')
+                    ->alwaysShowCalendar(),
                 SelectFilter::make('motivo_divergencia')
                     ->label('Motivo Divergência')
                     ->options(Enum\MotivoDivergenciaViagem::toSelectArray())

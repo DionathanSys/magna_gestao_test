@@ -15,6 +15,8 @@ class OrdemServicoTeste extends Page
 
     protected static string $resource = OrdemServicoResource::class;
 
+    protected static ?string $title = 'Ordem de Serviço';
+
     protected string $view = 'filament.resources.ordem-servicos.pages.ordem-servico-teste';
 
     public function mount(int|string $record): void

@@ -20,7 +20,7 @@ class OrdemServicoSankhyaRepeater
     {
         return Repeater::make('sankhyaId')
             ->label('OS Sankhya')
-            
+            ->relationship()
             ->columns(12)
             ->columnSpanFull()
             ->addActionLabel('Adicionar OS Sankhya')

@@ -8,6 +8,7 @@ use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Concerns\InteractsWithRecord;
 use Livewire\Component;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\FusedGroup;
 use Filament\Schemas\Components\Section;
@@ -113,6 +114,12 @@ class FormTeste extends Component implements HasSchemas
                                     ->schema([
                                         Components\PlanosPreventivosVinculadoRepeater::make()
                                             ->columnSpanFull(),
+                                    ]),
+                                Tabs\Tab::make('Sankhya')
+                                    ->columns(4)
+                                    ->schema([
+                                        Repeater::make('sankhya')
+                                            ->relationship('sankhyaId')
                                     ]),
 
                             ]

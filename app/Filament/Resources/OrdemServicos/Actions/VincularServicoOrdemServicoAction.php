@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
 use App\Filament\Resources\OrdemServicos\Schemas\ItemOrdemServicoForm;
-use Filament\Actions\CreateAction;
+use Filament\Actions\Action;
 use App\Models;
 use App\Services;
 use App\Enum;
@@ -21,18 +21,18 @@ use Illuminate\Support\Facades\Log;
 
 class VincularServicoOrdemServicoAction
 {
-    public static function make($ordemServicoId = null): CreateAction
+    public static function make($ordemServicoId = null): Action
     {
-        return CreateAction::make()
+        return Action::make()
             ->label('Adicionar Serviço')
             ->icon('heroicon-o-plus')
             ->schema(fn(Schema $schema) => ItemOrdemServicoForm::configure($schema))
-            ->model(Models\ItemOrdemServico::class) // Definir o model
+            ->model(Models\ItemOrdemServico::class)
             ->mutateDataUsing(function (array $data) use ($ordemServicoId): array {
                 $data['ordem_servico_id'] = $ordemServicoId;
                 return $data;
             })
-            ->using(function (array $data, string $model, CreateAction $action): ?Model {
+            ->action(function (array $data, string $model, Action $action): ?Model {
                 $service = new Services\ItemOrdemServico\ItemOrdemServicoService();
                 $itemOrdemServico = $service->create($data);
 
@@ -41,7 +41,7 @@ class VincularServicoOrdemServicoAction
                     $action->halt();
                     return null;
                 }
-                
+
                 notify::success(mensagem: 'Serviço vinculado com sucesso!');
                 return $itemOrdemServico;
             });

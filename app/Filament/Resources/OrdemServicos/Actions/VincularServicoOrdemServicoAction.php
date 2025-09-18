@@ -23,7 +23,7 @@ class VincularServicoOrdemServicoAction
 {
     public static function make($ordemServicoId = null): Action
     {
-        return Action::make()
+        return Action::make('vincular_servico')
             ->label('Adicionar Serviço')
             ->icon('heroicon-o-plus')
             ->schema(fn(Schema $schema) => ItemOrdemServicoForm::configure($schema))

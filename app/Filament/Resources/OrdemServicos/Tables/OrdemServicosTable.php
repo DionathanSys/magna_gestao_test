@@ -43,7 +43,7 @@ class OrdemServicosTable
                     ->label('Quilometragem')
                     ->width('1%')
                     ->numeric(0, ',', '.')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('tipo_manutencao')
                     ->label('Tipo Manutenção')
                     ->width('1%'),
@@ -76,20 +76,22 @@ class OrdemServicosTable
                     ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray()),
                 TextColumn::make('parceiro.nome')
                     ->label('Fornecedor')
+                    ->width('1%')
                     ->placeholder('N/A')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
+                    ->width('1%')
                     ->sortable()
                     ->label('Criado Em')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime('d/m/Y H:i')
-                    ->label('Editado Em')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('creator.name')
                     ->label('Criado por')
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('updated_at')
+                    ->dateTime('d/m/Y H:i')
+                    ->label('Editado Em')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('id', 'desc')

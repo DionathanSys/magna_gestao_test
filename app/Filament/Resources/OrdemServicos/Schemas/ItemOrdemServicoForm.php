@@ -64,15 +64,15 @@ class ItemOrdemServicoForm
         return Select::make('servico_id')
             ->label('Serviço')
             ->required()
-            // ->relationship('servico', 'descricao')
+            // ->relationship('servico', 'descricao') //TODO Não está funcionando por usar no OrdemTable talvez criar um relationship 'servico' de certo
             ->getSearchResultsUsing(fn(string $search): array => Models\Servico::query()
                 ->where('descricao', 'like', "%".str_replace(' ', '%', $search)."%")
                 ->limit(10)
                 ->pluck('descricao', 'id')
                 ->all())
             ->getOptionLabelUsing(fn($value): ?string => Models\Servico::find($value)?->descricao)
-            ->createOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
-            ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
+            // ->createOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))    //TODO Não está funcionando por não usar o relationship
+            // ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
             ->searchable()
             ->live()
             ->preload()

@@ -118,8 +118,7 @@ class FormTeste extends Component implements HasSchemas
                                 Tabs\Tab::make('Sankhya')
                                     ->columns(4)
                                     ->schema([
-                                        Repeater::make('sankhya')
-                                            ->relationship('sankhyaId')
+                                        Components\OrdemServicoSankhyaRepeater::make()
                                     ]),
 
                             ]

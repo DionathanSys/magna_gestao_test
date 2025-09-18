@@ -20,8 +20,10 @@ class OrdemServicoSankhyaRepeater
     {
         return Repeater::make('sankhyaId')
             ->label('OS Sankhya')
-            ->relationship()
+            ->relationship('sankhyaId')
             ->columns(12)
+            ->columnSpanFull()
+            ->addActionLabel('Adicionar OS Sankhya')
             ->schema([
                 TextEntry::make('id')
                     ->label('ID')
@@ -29,15 +31,13 @@ class OrdemServicoSankhyaRepeater
                         'default' => 6,
                         'md' => 2,
                         'lg' => 4,
-                        'xl' => 2,
                     ]),
                 TextEntry::make('ordem_sankhya_id')
                     ->label('OS Sankhya')
                     ->columnSpan([
                         'default' => 6,
-                        'md' => 2,
-                        'lg' => 4,
-                        'xl' => 2,
+                        'md' => 4,
+                        'lg' => 8,
                     ]),
             ])
             ->extraItemActions([

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EditarServicoOrdemServicoAction
 {
-    public static function make(int|Closure $recordId): Action
+    public static function make(): Action
     {
         return Action::make('editar_servico')
             ->label('Editar')
@@ -22,9 +22,9 @@ class EditarServicoOrdemServicoAction
             ->fillForm(fn(Models\ItemOrdemServico $record): array => $record->toArray())
             ->schema(fn(Schema $schema) => ItemOrdemServicoForm::configure($schema))
             ->model(Models\ItemOrdemServico::class)
-            ->action(function (array $data, string $model, Action $action) use($recordId): ?Model {
+            ->action(function (Models\ItemOrdemServico $record, array $data, string $model, Action $action): ?Model {
                 $service = new Services\ItemOrdemServico\ItemOrdemServicoService();
-                $itemOrdemServico = $service->update($recordId, $data);
+                $itemOrdemServico = $service->update($record->id, $data);
 
                 if ($service->hasError()) {
                     notify::error(mensagem: $service->getMessage());

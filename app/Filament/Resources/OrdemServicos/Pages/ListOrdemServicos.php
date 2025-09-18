@@ -43,6 +43,9 @@ class ListOrdemServicos extends ListRecords
     {
         return [
             'todos' => Tab::make(),
+            'hoje' => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('data_inicio', now()->format('Y-m-d')))
+                ->badge(Models\OrdemServico::query()->where('data_inicio', now()->format('Y-m-d'))->count()),
             'pendente' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)),
             'concluído' => Tab::make()
@@ -58,6 +61,12 @@ class ListOrdemServicos extends ListRecords
                                                                 ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                                                                 ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)->count())
                                                             ->badgeColor('info'),
+            'Terceiros' => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
+                    ->where('parceiro_id', '!=', null))
+                ->badge(Models\OrdemServico::query()->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
+                    ->where('parceiro_id', '!=', null)->count())
+                    ->badgeColor('danger'),
 
         ];
     }

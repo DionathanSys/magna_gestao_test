@@ -18,5 +18,6 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 })->name('ordem-servico.pdf.visualizar');
 
 Route::get('/teste', function () {
-dd(Pneu::with('ultimoRecap')->find(198));
+echo now()->format('Y-m-d H:i:s T'); // Mostra data/hora com timezone
+echo config('app.timezone'); // Mostra o timezone configurado
 });

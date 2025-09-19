@@ -34,7 +34,7 @@ class ListOrdemServicos extends ListRecords
                 })
                 ->mutateDataUsing(function (array $data): array {
                     $data['created_by'] = Auth::user()->id;
-                    return dd($data);
+                    return $data;
                 }),
         ];
     }

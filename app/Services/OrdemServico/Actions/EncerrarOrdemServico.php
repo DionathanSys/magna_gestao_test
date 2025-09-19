@@ -33,7 +33,7 @@ class EncerrarOrdemServico
         // Atualiza o status dos itens da ordem de serviço
         $this->ordemServico->itens->each(function (Models\ItemOrdemServico $item) {
             if (in_array($item->status, [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO])) {
-                $this->itemOrdemServicoService->update($item, [
+                $this->itemOrdemServicoService->update($item->id, [
                     'status' => StatusOrdemServicoEnum::CONCLUIDO,
                 ]);
             }

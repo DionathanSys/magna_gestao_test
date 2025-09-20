@@ -33,11 +33,11 @@ class OrdemServicosTable
                     ->label('ID')
                     ->sortable()
                     ->width('1%')
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 TextColumn::make('sankhyaId.ordem_sankhya_id')
                     ->label('OS Sankhya')
                     ->width('1%')
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->sortable()
@@ -99,6 +99,8 @@ class OrdemServicosTable
             ])
             ->defaultSort('id', 'desc')
             ->persistFiltersInSession()
+            ->deferLoading()
+            ->searchable(['sankhyaId.ordem_sankhya_id'])
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
@@ -158,6 +160,7 @@ class OrdemServicosTable
             ])
             ->headerActions([
             ])
+            ->striped()
             ->poll('5s');
     }
 }

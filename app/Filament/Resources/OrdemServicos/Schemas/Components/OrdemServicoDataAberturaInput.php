@@ -2,17 +2,13 @@
 
 namespace App\Filament\Resources\OrdemServicos\Schemas\Components;
 
-use App\Services\Veiculo\VeiculoService;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Set;
+use Filament\Forms\Components\DateTimePicker;
 
 class OrdemServicoDataAberturaInput
 {
-    public static function make($column = 'data_inicio'): DatePicker
+    public static function make($column = 'data_inicio'): DateTimePicker
     {
-        return DatePicker::make($column)
+        return DateTimePicker::make($column)
             ->label('Dt. Inicio')
             ->columnSpan(2)
             ->seconds(false)

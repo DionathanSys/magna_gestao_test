@@ -155,7 +155,6 @@ class OrdemServicosTable
                 ]),
             ])
             ->headerActions([
-                // Actions\CriarOrdemServicoAction::make(),
             ])
             ->poll('5s');
     }

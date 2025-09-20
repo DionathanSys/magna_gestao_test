@@ -123,7 +123,6 @@ class ManutencoesRelationManager extends RelationManager
                     ->label('Dt. Registro'),
             ])
             ->headerActions([
-                CreateAction::make(),
             ]);
     }
 }

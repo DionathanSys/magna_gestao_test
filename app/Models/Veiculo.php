@@ -34,10 +34,11 @@ class Veiculo extends Model
         return $this->belongsToMany(PlanoPreventivo::class, 'planos_manutencao_veiculo', 'veiculo_id', 'plano_preventivo_id');
     }
 
-    public function manutencoes(): BelongsTo
+    public function manutencoes(): HasMany
     {
-        return $this->belongsTo(OrdemServico::class, 'veiculo_id');
+        return $this->hasMany(OrdemServico::class, 'veiculo_id');
     }
+
 
     /**
      * Accessor: retorna a quilometragem atual (numero) via relação kmAtual().

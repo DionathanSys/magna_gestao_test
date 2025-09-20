@@ -77,7 +77,7 @@ class PneusRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('numero_fogo')
-            ->modifyQueryUsing(fn($query) => $query->with(['pneu', 'veiculo', 'veiculo.kmAtual.quilometragem'])->orderBy('sequencia'))
+            ->modifyQueryUsing(fn($query) => $query->with(['pneu', 'veiculo', 'veiculo.kmAtual'])->orderBy('sequencia'))
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')

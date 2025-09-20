@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use App\Enum;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use App\Models\OrdemServico;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ViewAction;
@@ -141,8 +142,12 @@ class OrdemServicosTable
                     ->color('primary')
                     ->modalWidth(Width::FiveExtraLarge)
                     ->iconButton(),
-                Actions\VincularServicoOrdemServicoAction::make(fn( $record) => $record->id)
-                    ->iconButton(),
+                Actions\VincularServicoOrdemServicoAction::make(fn($record) => $record->id)
+                    ->iconButton()
+                    ->mutateDataUsing(function (OrdemServico $record, array $data): array {
+                        $data['ordem_servico_id'] = $record->id;
+                        return $data;
+                    }),
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([

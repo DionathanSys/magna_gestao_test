@@ -32,10 +32,12 @@ class OrdemServicosTable
                 TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
-                    ->width('1%'),
+                    ->width('1%')
+                    ->searchable(isIndividual: true),
                 TextColumn::make('sankhyaId.ordem_sankhya_id')
                     ->label('OS Sankhya')
-                    ->width('1%'),
+                    ->width('1%')
+                    ->searchable(isIndividual: true),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->sortable()

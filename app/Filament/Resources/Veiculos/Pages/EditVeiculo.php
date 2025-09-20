@@ -24,4 +24,14 @@ class EditVeiculo extends EditRecord
                 ->disabled(fn() => ! Auth::user()->is_admin),
         ];
     }
+
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return 'Geral';
+    }
 }

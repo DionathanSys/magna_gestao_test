@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany, HasOne};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne};
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -32,6 +32,11 @@ class Veiculo extends Model
     public function planoPreventivo(): BelongsToMany
     {
         return $this->belongsToMany(PlanoPreventivo::class, 'planos_manutencao_veiculo', 'veiculo_id', 'plano_preventivo_id');
+    }
+
+    public function manutencoes(): BelongsTo
+    {
+        return $this->belongsTo(OrdemServico::class, 'veiculo_id');
     }
 
     /**

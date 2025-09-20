@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Veiculos;
 use App\Filament\Resources\Veiculos\Pages\CreateVeiculo;
 use App\Filament\Resources\Veiculos\Pages\EditVeiculo;
 use App\Filament\Resources\Veiculos\Pages\ListVeiculos;
+use App\Filament\Resources\Veiculos\RelationManagers\ManutencoesRelationManager;
 use App\Filament\Resources\Veiculos\RelationManagers\PneusRelationManager;
 use App\Filament\Resources\Veiculos\Schemas\VeiculoForm;
 use App\Filament\Resources\Veiculos\Tables\VeiculosTable;
@@ -40,6 +41,7 @@ class VeiculoResource extends Resource
     {
         return [
             PneusRelationManager::class,
+            ManutencoesRelationManager::class,
         ];
     }
 

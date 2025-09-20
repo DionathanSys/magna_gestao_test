@@ -99,7 +99,6 @@ class OrdemServicosTable
             ])
             ->defaultSort('id', 'desc')
             ->persistFiltersInSession()
-            ->deferLoading()
             ->searchable(['sankhyaId.ordem_sankhya_id'])
             ->filters([
                 SelectFilter::make('veiculo_id')

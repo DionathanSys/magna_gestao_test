@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasManyThrough, HasOne};
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -37,6 +37,18 @@ class Veiculo extends Model
     public function manutencoes(): HasMany
     {
         return $this->hasMany(OrdemServico::class, 'veiculo_id');
+    }
+
+    public function itens(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ItemOrdemServico::class,
+            OrdemServico::class,
+            'veiculo_id',
+            'ordem_servico_id',
+            'id',
+            'id'
+        );
     }
 
 

@@ -28,6 +28,10 @@ class OrdemServicosTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->with(['sankhyaId', 'veiculo', 'parceiro', 'creator']);
+                return $query->withCount(['itens', 'pendentes']);
+            })
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')

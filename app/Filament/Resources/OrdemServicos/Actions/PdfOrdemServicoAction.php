@@ -24,6 +24,6 @@ class PdfOrdemServicoAction
                 return route('ordem-servico.pdf.visualizar', $record);
             })
             ->openUrlInNewTab()
-            ->color('info');
+            ->color('success');
     }
 }

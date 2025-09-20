@@ -23,7 +23,8 @@ class OrdemServicoSankhyaRepeater
             ->relationship()
             ->columns(12)
             ->columnSpanFull()
-            ->addActionLabel('Adicionar OS Sankhya')
+            // ->addActionLabel('Adicionar OS Sankhya')
+            ->addable(false)
             ->schema([
                 TextEntry::make('id')
                     ->label('ID')

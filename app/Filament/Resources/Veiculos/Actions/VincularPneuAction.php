@@ -34,7 +34,7 @@ class VincularPneuAction
             ->schema(fn(Schema $schema) => $schema
                 ->columns(4)
                 ->schema([
-                    Select::make('pneu')
+                    Select::make('pneu_id')
                         ->label('Pneu')
                         ->columnSpan(3)
                         ->native(false)

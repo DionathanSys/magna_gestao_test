@@ -4,6 +4,7 @@ namespace App\Filament\Resources\HistoricoMovimentoPneus\Schemas;
 
 use App\Enum\Pneu\MotivoMovimentoPneuEnum;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -78,6 +79,15 @@ class HistoricoMovimentoPneuForm
                     ->label('Observação')
                     ->columnSpanFull()
                     ->maxLength(255),
+                FileUpload::make('anexos')
+                    ->image()
+                    ->previewable()
+                    ->multiple()
+                    ->panelLayout('grid')
+                    ->disk('local')
+                    ->directory('pneus/movimentacoes')
+                    ->visibility('private')
+                    ->columnSpanFull()
             ]);
     }
 }

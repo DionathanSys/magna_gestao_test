@@ -10,6 +10,10 @@ class HistoricoMovimentoPneu extends Model
 {
     protected $table = 'historico_movimento_pneus';
 
+    protected $casts = [
+        'anexos' => 'array',
+    ];
+
     public function pneu()
     {
         return $this->belongsTo(Pneu::class);

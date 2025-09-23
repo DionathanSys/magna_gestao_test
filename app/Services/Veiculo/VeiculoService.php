@@ -2,6 +2,7 @@
 
 namespace App\Services\Veiculo;
 
+use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use Illuminate\Support\Facades\Cache;
 
 class VeiculoService
@@ -46,5 +47,12 @@ class VeiculoService
 
         });
 
+    }
+
+    public static function getQuilometragemUltimoMovimento(int $veiculoId): int
+    {
+        return Cache::remember('km_ultimo_movimento_veiculo_id_' . $veiculoId, 86400, function () use ($veiculoId) {
+            return (new GetQuilometragemUltimoMovimento())->handle($veiculoId);
+        });
     }
 }

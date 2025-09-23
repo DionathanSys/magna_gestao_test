@@ -37,7 +37,7 @@ class PneuService
         try {
 
             Log::debug(__METHOD__ . ' - Iniciando recapagem do pneu', ['data' => $data]);
-            
+
             $action = new Actions\RecaparPneu();
             $recapagem = $action->handle($data);
 
@@ -68,6 +68,8 @@ class PneuService
         $pneu->ciclo_vida = $pneu->ciclo_vida + 1;
         $pneu->save();
     }
+
+    
 
 
 }

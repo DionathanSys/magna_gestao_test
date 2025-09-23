@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('desenhos_pneu', function (Blueprint $table) {
-            $table->string('image_path')->nullable()->after('descricao');
+        Schema::table('historico_movimento_pneus', function (Blueprint $table) {
+            $table->json('anexos')->nullable()->after('observacao');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('desenhos_pneu', function (Blueprint $table) {
-            $table->dropColumn('image_path');
+        Schema::table('historico_movimento_pneus', function (Blueprint $table) {
+            $table->dropColumn('anexos');
         });
     }
 };

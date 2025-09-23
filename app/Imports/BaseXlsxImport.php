@@ -161,7 +161,8 @@ abstract class BaseXlsxImport implements XlsxImportInterface
                 throw new \Exception("Data inválida. Formato esperado: {$format}");
             }
 
-            return $date->format('Y-m-d');
+            return $date->format($format);
+            // return $date->format('Y-m-d');
         } catch (\Exception $e) {
             throw new \Exception("Erro ao processar data: " . $e->getMessage());
         }

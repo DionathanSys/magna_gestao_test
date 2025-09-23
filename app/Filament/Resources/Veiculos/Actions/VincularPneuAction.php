@@ -44,7 +44,7 @@ class VincularPneuAction
                         //     ->whereDoesntHave('veiculo')
                         //     ->pluck('numero_fogo', 'id')
                         //     ->toArray())
-                        ->getSearchResultsUsing(fn(string $search): array => (new Services\Pneus\PneuService())->getPneusDisponiveis($search))
+                        ->getSearchResultsUsing(fn(string $search): => (new Services\Pneus\PneuService())->getPneusDisponiveis($search))
                         ->getOptionLabelUsing(fn($value): ?string => Models\Pneu::find($value)?->descricao)
                         ->searchable()
                         ->searchDebounce(700)

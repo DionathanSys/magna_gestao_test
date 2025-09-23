@@ -28,8 +28,15 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $id = $this->option('id');
-        $resultado = VeiculoService::getQuilometragemUltimoMovimento($id);
-        dd($resultado);
+        $state = '2025-04-11'; // Exemplo de data de teste_fumaca
+        $state = \Carbon\Carbon::parse($state);
+
+        dd(match (true) {
+            !$state => 'null',
+            $state <= now()->subDays(180) => '180 dias, Now: ' . now()->subDays(180) . ' - Diferença: ' . $state->diffInDays(now()),
+            $state <= now()->subDays(165) => '165 dias, Now: ' . now()->subDays(165) . ' - Diferença: ' . $state->diffInDays(now()),
+            $state <= now()->subDays(150) => '150 dias, Now: ' . now()->subDays(150) . ' - Diferença: ' . $state->diffInDays(now()),
+            default => 'default',
+        });
     }
 }

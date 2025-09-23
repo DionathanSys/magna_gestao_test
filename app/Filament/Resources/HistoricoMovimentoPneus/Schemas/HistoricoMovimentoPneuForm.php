@@ -81,7 +81,10 @@ class HistoricoMovimentoPneuForm
                     ->maxLength(255),
                 FileUpload::make('anexos')
                     ->image()
+                    ->imageEditor()
+                    ->openable()
                     ->previewable()
+                    ->downloadable()
                     ->multiple()
                     ->panelLayout('grid')
                     ->disk('local')

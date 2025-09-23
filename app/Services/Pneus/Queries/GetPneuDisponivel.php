@@ -7,7 +7,7 @@ use App\Enum;
 
 class GetPneuDisponivel
 {
-    public function handle($search): array
+    public function handle($search)
     {
         ds($search)->label('Search Term');
         return Models\Pneu::query()
@@ -15,7 +15,6 @@ class GetPneuDisponivel
             ->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)
             ->where('numero_fogo', 'like', '%'.$search.'%')
             ->whereDoesntHave('veiculo')
-            ->pluck('numero_fogo', 'id')
-            ->toArray();
+            ->pluck('numero_fogo', 'id');
     }
 }

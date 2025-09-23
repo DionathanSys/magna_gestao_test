@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Veiculos\Actions;
 use App\Models\PneuPosicaoVeiculo;
 use App\Services;
 use App\Models;
+use App\Enum;
 use App\Services\Veiculo\VeiculoService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -33,10 +34,16 @@ class VincularPneuAction
             ->schema(fn(Schema $schema) => $schema
                 ->columns(4)
                 ->schema([
-                    Select::make('pneu_id')
+                    Select::make('pneu')
                         ->label('Pneu')
                         ->columnSpan(3)
                         ->native(false)
+                        // ->options(fn(): array => Models\Pneu::query()
+                        //     ->where('status', Enum\Pneu\StatusPneuEnum::DISPONIVEL)
+                        //     ->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)
+                        //     ->whereDoesntHave('veiculo')
+                        //     ->pluck('numero_fogo', 'id')
+                        //     ->toArray())
                         ->getSearchResultsUsing(fn(string $search): array => (new Services\Pneus\PneuService())->getPneusDisponiveis($search))
                         ->getOptionLabelUsing(fn($value): ?string => Models\Pneu::find($value)?->descricao)
                         ->searchable()

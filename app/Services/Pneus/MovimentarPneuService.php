@@ -82,7 +82,7 @@ class MovimentarPneuService
 
     public function aplicarPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
-
+        dd($data);
         $pneuVeiculo->update([
             'pneu_id'       => $data['pneu_id'],
             'data_inicial'  => $data['data_inicial'],

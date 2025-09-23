@@ -62,6 +62,13 @@ class VeiculosTable
                     ->label('Dt. Teste de Fumaça')
                     ->date('d/m/Y')
                     ->sortable()
+                    ->badge()
+                    ->color(fn ($state): string => match (true) {
+                        !$state => 'gray',
+                        $state <= now()->addDays(30) => 'danger',
+                        $state <= now()->addDays(60) => 'warning',
+                        default => 'success'
+                    })
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.codigo_imobilizado')
                     ->label('Código Imobilizado')

@@ -50,7 +50,7 @@ class VeiculosTable
                     ->label('Dt. Próx. Aferição Tacógrafo')
                     ->date('d/m/Y')
                     ->badge()
-                    ->color(fn ($state): string => match (true) {
+                    ->color(fn($state): string => match (true) {
                         !$state => 'gray',
                         $state <= now()->addDays(30) => 'danger',
                         $state <= now()->addDays(60) => 'warning',
@@ -63,10 +63,11 @@ class VeiculosTable
                     ->date('d/m/Y')
                     ->sortable()
                     ->badge()
-                    ->color(fn ($state): string => match (true) {
+                    ->color(fn($state): string => match (true) {
                         !$state => 'gray',
-                        $state <= now()->subDay(30)=> 'danger',
-                        $state <= now()->subDay(60) => 'info',
+                        $state <= now()->subMonths(6) => 'danger',
+                        $state <= now()->subDays(60) => 'success',
+                        $state <= now()->subDays(30) => 'info',
                         default => 'success'
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -103,7 +104,7 @@ class VeiculosTable
                     ->label('Ativo')
                     ->toggle()
                     ->default(true)
-                    ->query(fn ($query) => $query->where('is_active', true)),
+                    ->query(fn($query) => $query->where('is_active', true)),
                 TrashedFilter::make(),
             ])
             ->paginated(false)

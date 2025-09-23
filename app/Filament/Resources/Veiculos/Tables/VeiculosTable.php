@@ -71,16 +71,9 @@ class VeiculosTable
                         default => 'primary',
                     })
                     ->formatStateUsing(
-                        function($state) {
-                            if (!$state) return 'Sem data';
-
-                            $state = \Carbon\Carbon::parse($state);
-                            $days = $state->diffInDays(now());
-
-                            return $state->isPast()
-                                ? "{$days} dias atrás"
-                                : "Em {$days} dias";
-                        }
+                        fn($state) => $state
+                            ? \Carbon\Carbon::parse($state)->format('d/m/Y') . ' (' . \Carbon\Carbon::parse($state)->diffInDays(now()) . ' dias atrás)'
+                            : 'Sem data'
                     )
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.codigo_imobilizado')

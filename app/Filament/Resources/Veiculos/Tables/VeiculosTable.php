@@ -71,9 +71,15 @@ class VeiculosTable
                         default => 'primary',
                     })
                     ->formatStateUsing(
-                        fn($state) => $state
-                            ? $state->format('d/m/Y') . ' (' . $state->diffInDays(now()) . ' dias atrás)'
-                            : 'Sem data'
+                        function($state) {
+                            if (!$state) return 'Sem data';
+
+                            $days = $state->diffInDays(now());
+
+                            return $state->isPast()
+                                ? "{$days} dias atrás"
+                                : "Em {$days} dias";
+                        }
                     )
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.codigo_imobilizado')

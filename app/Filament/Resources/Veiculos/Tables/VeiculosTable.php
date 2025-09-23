@@ -65,8 +65,8 @@ class VeiculosTable
                     ->badge()
                     ->color(fn ($state): string => match (true) {
                         !$state => 'gray',
-                        $state <= now()->addDays(30) => 'danger',
-                        $state <= now()->addDays(60) => 'warning',
+                        $state <= now()->subDay(30)=> 'danger',
+                        $state <= now()->subDay(60) => 'warning',
                         default => 'success'
                     })
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -72,7 +72,7 @@ class VeiculosTable
                             } else if ($days < 0) {
                                 return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Vencido!';
                             } else {
-                                return 'Faltam ' . \Carbon\Carbon::parse($state)->format('d/m/Y') . ' ' . number_format($days, 0, ',', '.') . ' dias';
+                                return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Faltam ' . number_format($days, 0, ',', '.') . ' dias';
                             }
 
                         }

@@ -70,7 +70,7 @@ class VeiculosTable
                         $state <= now()->subDays(150) => 'info',
                         default => 'primary',
                     })
-                    ->state(
+                    ->formatStateUsing(
                         fn($state) => $state
                             ? $state->format('d/m/Y') . ' (' . $state->diffInDays(now()) . ' dias atrás)'
                             : 'Sem data'

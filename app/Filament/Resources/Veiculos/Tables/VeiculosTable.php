@@ -62,10 +62,9 @@ class VeiculosTable
                             if (!$state) {
                                 return 'Sem data';
                             }
-                            // dump($state);
-                            // dump(now());
+
                             $days = \Carbon\Carbon::parse(now())->diffInDays($state, false);
-                            // dd  ($days);
+
                             if ($days === 0) {
                                 return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Hoje!';
                             } elseif ($days === 1) {
@@ -73,7 +72,7 @@ class VeiculosTable
                             } else if ($days < 0) {
                                 return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Vencido!';
                             } else {
-                                return 'Faltam ' . \Carbon\Carbon::parse($state)->format('d/m/Y') . ' ' . $days . ' dias';
+                                return 'Faltam ' . \Carbon\Carbon::parse($state)->format('d/m/Y') . ' ' . number_format($days, 2) . ' dias';
                             }
 
                         }

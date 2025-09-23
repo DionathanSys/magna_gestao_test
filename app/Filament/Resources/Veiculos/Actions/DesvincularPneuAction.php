@@ -62,8 +62,14 @@ class DesvincularPneuAction
                         ->columnSpanFull()
                         ->maxLength(255),
                     FileUpload::make('anexos')
-                        ->visibility('private')
+                        ->image()
+                        ->openable()
+                        ->downloadable()
+                        ->multiple()
+                        ->panelLayout('grid')
+                        ->disk('local')
                         ->directory('pneus/movimentacoes')
+                        ->visibility('private')
                         ->columnSpanFull()
                 ]))
             ->action(fn($record, array $data) => (new Services\Pneus\MovimentarPneuService())->removerPneu($record, $data));

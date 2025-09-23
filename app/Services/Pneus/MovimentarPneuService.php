@@ -24,7 +24,7 @@ class MovimentarPneuService
 
     public function removerPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
-        dd($data);
+        
         if ($pneuVeiculo->km_inicial > $data['km_final']) {
             throw new \Exception('A KM final não pode ser menor que a KM inicial.');
         }

@@ -66,7 +66,7 @@ class VeiculosTable
                     ->color(fn($state): string => match (true) {
                         !$state => 'gray',
                         $state <= now()->subMonths(6) => 'danger',
-                        $state <= now()->subDays(60) => 'success',
+                        $state <= now()->subDays(60) => 'info',
                         $state <= now()->subDays(30) => 'info',
                         default => 'success'
                     })

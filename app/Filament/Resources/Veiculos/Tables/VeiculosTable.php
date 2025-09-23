@@ -51,11 +51,31 @@ class VeiculosTable
                     ->date('d/m/Y')
                     ->badge()
                     ->color(fn($state): string => match (true) {
-                        !$state => 'gray',
+                        !$state => 'success',
                         $state <= now()->addDays(30) => 'danger',
                         $state <= now()->addDays(60) => 'warning',
-                        default => 'success'
+                        default => 'primary'
                     })
+                    ->formatStateUsing(
+                        function($state) {
+                            if (!$state) {
+                                return 'Sem data';
+                            }
+
+                            $days = \Carbon\Carbon::parse($state)->diffInDays(now(), false);
+
+                            if ($days === 0) {
+                                return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Hoje!';
+                            } elseif ($days === 1) {
+                                return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Amanhã!';
+                            } else if ($days < 0) {
+                                return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Vencido!';
+                            } else {
+                                return 'Faltam ' . \Carbon\Carbon::parse($state)->format('d/m/Y') . ' dias';
+                            }
+
+                        }
+                    )
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.teste_fumaca')

@@ -70,6 +70,11 @@ class VeiculosTable
                         $state <= now()->subDays(150) => 'info',
                         default => 'primary',
                     })
+                    ->state(
+                        fn($state) => $state
+                            ? $state->format('d/m/Y') . ' (' . $state->diffInDays(now()) . ' dias atrás)'
+                            : 'Sem data'
+                    )
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.codigo_imobilizado')
                     ->label('Código Imobilizado')

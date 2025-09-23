@@ -2,11 +2,12 @@
 
 namespace App\Filament\Resources\Veiculos\Actions;
 
-use App\Models\PneuPosicaoVeiculo;
+use App\Filament\Resources\Pneus\PneuResource;
 use App\Services;
 use App\Models;
 use App\Enum;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
@@ -17,18 +18,18 @@ use Filament\Schemas\Components\Icon;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Collection;
 
-class TrocarPneuAction
+class RodizioPneuAction
 {
 
-    public static function make(): Action
+    public static function make(): BulkAction
     {
-        return Action::make('trocar-pneu')
+        return BulkAction::make('desvincular-pneu')
+            ->label('Rodízio')
             ->icon('heroicon-o-arrows-right-left')
-            ->iconButton()
-            ->tooltip('Substituir Pneu')
-            ->visible(fn($record) => ! $record->pneu_id == null)
-            ->modalWidth(Width::ExtraLarge)
+            ->requiresConfirmation()
+            ->modalWidth(Width::Large)
             ->schema(fn(Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
@@ -42,17 +43,8 @@ class TrocarPneuAction
                         ->numeric()
                         ->maxValue(30)
                         ->minValue(0),
-                    Select::make('pneu_id')
-                        ->label('Pneu')
-                        ->columnSpanFull()
-                        ->native(false)
-                        ->getSearchResultsUsing(fn(string $search): array => (new Services\Pneus\PneuService())->getPneusDisponiveis($search))
-                        ->getOptionLabelUsing(fn($value): ?string => Models\Pneu::find($value)?->descricao)
-                        ->searchable()
-                        ->searchDebounce(700)
-                        ->required(),
-                    DatePicker::make('data_final')
-                        ->label('Dt. Final')
+                    DatePicker::make('data_inicial')
+                        ->label('Dt. Inicial')
                         ->columnSpan(4)
                         ->date('d/m/Y')
                         ->default(now())
@@ -64,7 +56,7 @@ class TrocarPneuAction
                         ->numeric()
                         ->required()
                         ->live(debounce: 700)
-                        ->afterStateUpdated(function (PneuPosicaoVeiculo $record, Field $component, $state) {
+                        ->afterStateUpdated(function (Models\PneuPosicaoVeiculo $record, Field $component, $state) {
                             $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($record->veiculo_id);
                             if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
                                 $component->belowContent([
@@ -88,6 +80,7 @@ class TrocarPneuAction
                         ->visibility('private')
                         ->columnSpanFull()
                 ]))
-            ->action(fn(array $data, PneuPosicaoVeiculo $record) => (new Services\Pneus\MovimentarPneuService())->trocarPneu($record, $data));
+            ->action(fn(array $data, Collection $records) => (new Services\Pneus\MovimentarPneuService())->rodizioPneu($records, $data))
+                        ->deselectRecordsAfterCompletion();
     }
 }

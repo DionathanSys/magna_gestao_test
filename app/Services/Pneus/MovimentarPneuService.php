@@ -82,7 +82,7 @@ class MovimentarPneuService
 
     public function aplicarPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
-        
+
         $pneuVeiculo->update([
             'pneu_id'       => $data['pneu_id'],
             'data_inicial'  => $data['data_inicial'],
@@ -105,6 +105,7 @@ class MovimentarPneuService
             'sulco'      => $data['sulco'] ?? 0,
             'motivo'     => $data['motivo'],
             'observacao' => $data['observacao'] ?? null,
+            'anexos'     => $data['anexos'] ?? null,
         ]);
 
         $this->aplicarPneu($pneuVeiculo, [
@@ -116,7 +117,7 @@ class MovimentarPneuService
 
     public function rodizioPneu(Collection $pneusVeiculo, array $data)
     {
-        if ($pneusVeiculo->isEmpty() && $pneusVeiculo->count() == 2) {
+        if ($pneusVeiculo->count() !== 2) {
             return;
         }
 

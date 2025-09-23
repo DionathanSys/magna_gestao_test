@@ -168,8 +168,7 @@ class PneusRelationManager extends RelationManager
                 Actions\VincularPneuAction::make(),
                 Actions\TrocarPneuAction::make(),
                 EditAction::make()
-                    ->iconButton()
-                    ->visible(fn() => Auth::user()->is_admin),
+                    ->iconButton(),
                 DeleteAction::make()
                     ->iconButton()
                     ->visible(fn() => Auth::user()->is_admin),
@@ -177,10 +176,7 @@ class PneusRelationManager extends RelationManager
 
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DissociateBulkAction::make(),
-                    DeleteBulkAction::make(),
-                ]),
+                Actions\RodizioPneuAction::make(),
             ]);
     }
 }

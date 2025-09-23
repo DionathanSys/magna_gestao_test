@@ -84,7 +84,7 @@ class HistoricoMovimentoPneuForm
                     ->openable()
                     ->downloadable()
                     ->multiple()
-                    // ->panelLayout('grid')
+                    ->panelLayout('grid')
                     ->disk('local')
                     ->directory('pneus/movimentacoes')
                     ->visibility('private')

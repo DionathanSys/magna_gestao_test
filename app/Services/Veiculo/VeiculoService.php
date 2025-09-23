@@ -55,4 +55,13 @@ class VeiculoService
             return (new GetQuilometragemUltimoMovimento())->handle($veiculoId);
         });
     }
+
+    public static function getQuilometragemLimiteMovimentacao(int $veiculoId): array
+    {
+        $query = new Queries\GetQuilometragemLimiteMovimentacao();
+        $km_limite = $query->handle($veiculoId);
+
+        return $km_limite;
+
+    }
 }

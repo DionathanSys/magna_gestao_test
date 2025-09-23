@@ -39,10 +39,7 @@ class VincularPneuAction
                         ->columnSpan(3)
                         ->native(false)
                         ->options(fn(): array => (new Services\Pneus\PneuService())->getPneusDisponiveis())
-                        // ->getSearchResultsUsing(fn(string $search): array => (new Services\Pneus\PneuService())->getPneusDisponiveis($search))
-                        // ->getOptionLabelUsing(fn($value): ?string => Models\Pneu::find($value)?->descricao)
                         ->searchable()
-                        ->searchDebounce(700)
                         ->required(),
                     TextInput::make('posicao')
                         ->label('Posição')

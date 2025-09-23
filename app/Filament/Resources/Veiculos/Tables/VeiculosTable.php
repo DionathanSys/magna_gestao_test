@@ -69,12 +69,14 @@ class VeiculosTable
                                 return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Hoje!';
                             } elseif ($days === 1) {
                                 return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Amanhã!';
-                            } else if ($days < 0) {
+                            } elseif ($days < 0) {
                                 return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Vencido!';
-                            } else {
+                            } elseif ($days < 61) {
                                 return \Carbon\Carbon::parse($state)->format('d/m/Y') . ' Faltam ' . number_format($days, 0, ',', '.') . ' dias';
-                            }
+                            } else {
+                                return \Carbon\Carbon::parse($state)->format('d/m/Y');
 
+                        }
                         }
                     )
                     ->sortable()

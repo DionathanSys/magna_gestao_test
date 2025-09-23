@@ -72,7 +72,7 @@ class VeiculosTable
                     })
                     ->formatStateUsing(
                         fn($state) => $state
-                            ? \Carbon\Carbon::parse($state)->format('d/m/Y') . ' (' . \Carbon\Carbon::parse($state)->diffInDays(now()) . ' dias atrás)'
+                            ? \Carbon\Carbon::parse($state)->format('d/m/Y') . ' (' . number_format(\Carbon\Carbon::parse($state)->diffInDays(now()), 0) . ' dias atrás)'
                             : 'Sem data'
                     )
                     ->toggleable(isToggledHiddenByDefault: true),

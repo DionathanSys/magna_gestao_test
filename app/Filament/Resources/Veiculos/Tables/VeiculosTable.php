@@ -74,6 +74,7 @@ class VeiculosTable
                         function($state) {
                             if (!$state) return 'Sem data';
 
+                            $state = \Carbon\Carbon::parse($state);
                             $days = $state->diffInDays(now());
 
                             return $state->isPast()

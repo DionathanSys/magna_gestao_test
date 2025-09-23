@@ -28,7 +28,7 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $state = '2025-04-11'; // Exemplo de data de teste_fumaca
+        $state = '2025-03-24'; // Exemplo de data de teste_fumaca
         $state = \Carbon\Carbon::parse($state);
 
         dd(match (true) {

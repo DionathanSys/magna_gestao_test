@@ -68,7 +68,7 @@ class VeiculosTable
                         $state <= now()->subDays(180) => 'danger',
                         $state <= now()->subDays(165) => 'warning',
                         $state <= now()->subDays(150) => 'info',
-                        default => 'success',
+                        default => 'primary',
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.codigo_imobilizado')

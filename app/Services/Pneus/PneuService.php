@@ -69,10 +69,10 @@ class PneuService
         $pneu->save();
     }
 
-    public function getPneusDisponiveis($search)
+    public function getPneusDisponiveis(): array
     {
         $query = new Queries\GetPneuDisponivel();
-        return $query->handle($search);
+        return $query->handle();
     }
 
 

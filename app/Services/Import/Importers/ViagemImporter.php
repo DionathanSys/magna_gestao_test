@@ -3,15 +3,21 @@
 namespace App\Services\Import\Importers;
 
 use App\Models;
+use App\Enum;
 use App\Contracts\ExcelImportInterface;
-use App\Services\Viagem\ViagemService;
+use App\Services;
+use App\Traits\UserCheckTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
 class ViagemImporter implements ExcelImportInterface
 {
+    use UserCheckTrait;
+
     public function __construct(
-        private ViagemService $viagemService
+        private Services\Viagem\ViagemService $viagemService,
+        private Services\Integrado\IntegradoService $integradoService,
+        private Services\Veiculo\VeiculoService $veiculoService
     )
     {}
 
@@ -65,25 +71,32 @@ class ViagemImporter implements ExcelImportInterface
 
     public function transform(array $row): array
     {
-        $veiculo = Models\Veiculo::where('placa', $row['Placa'])->first();
+        $veiculo_id = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
+        $codigoIntegrado = $this->integradoService->extrairCodigoIntegrado($row['Destino']);
+        $integrado = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
 
         return [
-            'veiculo_id'            => $veiculo->id,
+            'veiculo_id'            => $veiculo_id,
             'numero_viagem'         => $row['Viagem'],
             'documento_transporte'  => $row['Carga Cliente'] ?? null,
+            'data_competencia'      => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d'),
             'data_inicio'           => Carbon::createFromFormat('d/m/Y H:i', $row['Inicio'])->format('Y-m-d H:i'),
             'data_fim'              => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d H:i'),
             'destino'               => $row['Destino'] ?? null,
             'km_rodado'             => is_numeric($row['Km Rodado']) ? (float) $row['Km Rodado'] : 0,
             'km_pago'               => is_numeric($row['Km Sugerida']) ? (float) $row['Km Sugerida'] : 0,
+            'km_cadastro'           => $integrado->km_rota ?? 0,
+            'km_cobrar'             => 0,
+            'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS->value,
+            'conferido'             => false,
+            'created_by'            => $this->getUserIdChecked(),
+            'updated_by'            => $this->getUserIdChecked(),
         ];
     }
 
     public function process(array $transformedData): mixed
     {
-        dd($transformedData);
         return $this->viagemService->create($transformedData);
-        return false;
     }
 
 

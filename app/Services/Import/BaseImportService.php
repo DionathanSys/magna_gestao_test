@@ -185,7 +185,7 @@ abstract class BaseImportService
     protected function finalizeImportLog(Models\ImportLog $importLog): void
     {
         $importLog->update([
-            'status' => $this->errorRows > 0 ? 'CONCLUIDO_COM_ERROS' : 'CONCLUIDO',
+            'status' => $this->errorRows > 0 ? Enum\Import\StatusImportacaoEnum::CONCLUIDO_COM_ERROS : Enum\Import\StatusImportacaoEnum::CONCLUIDO,
             'total_rows' => $this->processedRows,
             'success_rows' => $this->successRows,
             'error_rows' => $this->errorRows,

@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\Cache;
 
 class VeiculoService
 {
+
+    public function getVeiculoIdByPlaca(string $placa): ?int
+    {
+        $veiculo = \App\Models\Veiculo::query()
+            ->select('id')
+            ->where('placa', $placa)
+            ->first();
+
+        return $veiculo?->id;
+    }
     public function getKmMedio(int $veiculoId): float
     {
         $veiculo = \App\Models\Veiculo::query()
@@ -62,6 +72,5 @@ class VeiculoService
         $km_limite = $query->handle($veiculoId);
 
         return $km_limite;
-
     }
 }

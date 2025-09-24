@@ -15,7 +15,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Icon;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
@@ -61,8 +64,8 @@ class RodizioPneuAction
                             $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($records->first()->veiculo_id);
                             if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
                                 $component->belowContent([
-                                    Icon::make(Heroicon::InformationCircle),
-                                    'Verifique a quilometragem.',
+                                    Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
+                                    Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
                                 ]);
                             }
                         }),

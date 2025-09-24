@@ -5,14 +5,21 @@ namespace App\Filament\Resources\Veiculos\Actions;
 use App\Filament\Resources\Pneus\PneuResource;
 use App\Services;
 use App\Enum;
+use App\Models\PneuPosicaoVeiculo;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Icon;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 
 class DesvincularPneuAction
 {
@@ -56,7 +63,16 @@ class DesvincularPneuAction
                         ->label('Km Final')
                         ->columnSpan(3)
                         ->numeric()
-                        ->required(),
+                        ->required()
+                        ->afterStateUpdated(function (PneuPosicaoVeiculo $record, Field $component, $state) {
+                            $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($record->veiculo_id);
+                            if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
+                                $component->belowContent([
+                                    Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
+                                    Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
+                                ]);
+                            }
+                        }),
                     Textarea::make('observacao')
                         ->label('Observação')
                         ->columnSpanFull()

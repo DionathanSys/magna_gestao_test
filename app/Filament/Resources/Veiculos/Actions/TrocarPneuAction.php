@@ -14,7 +14,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Icon;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 
@@ -51,15 +54,15 @@ class TrocarPneuAction
                         ->searchable()
                         ->searchDebounce(700)
                         ->required(),
-                    DatePicker::make('data_final')
-                        ->label('Dt. Final')
+                    DatePicker::make('data_movimento')
+                        ->label('Dt. Movimento')
                         ->columnSpan(4)
                         ->date('d/m/Y')
                         ->default(now())
                         ->maxDate(now())
                         ->required(),
-                    TextInput::make('km_inicial')
-                        ->label('KM Inicial')
+                    TextInput::make('km_movimento')
+                        ->label('Km Movimento')
                         ->columnSpan(4)
                         ->numeric()
                         ->required()
@@ -68,8 +71,8 @@ class TrocarPneuAction
                             $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($record->veiculo_id);
                             if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
                                 $component->belowContent([
-                                    Icon::make(Heroicon::InformationCircle),
-                                    'Verifique a quilometragem.',
+                                    Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
+                                    Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
                                 ]);
                             }
                         }),

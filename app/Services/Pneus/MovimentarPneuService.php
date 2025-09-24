@@ -118,8 +118,8 @@ class MovimentarPneuService
     {
 
         $this->removerPneu($pneuVeiculo, [
-            'data_final' => $data['data_inicial'],
-            'km_final'   => $data['km_inicial'],
+            'data_final' => $data['data_movimento'],
+            'km_final'   => $data['km_movimento'],
             'sulco'      => $data['sulco'] ?? 0,
             'motivo'     => $data['motivo'],
             'observacao' => $data['observacao'] ?? null,
@@ -128,8 +128,8 @@ class MovimentarPneuService
 
         $this->aplicarPneu($pneuVeiculo, [
             'pneu_id'       => $data['pneu_id'],
-            'data_inicial'  => $data['data_inicial'],
-            'km_inicial'    => $data['km_inicial'],
+            'data_inicial'  => $data['data_movimento'],
+            'km_inicial'    => $data['km_movimento'],
         ]);
     }
 

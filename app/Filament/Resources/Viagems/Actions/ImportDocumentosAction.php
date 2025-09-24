@@ -17,6 +17,7 @@ class ImportDocumentosAction
             ->schema([
                 FileUpload::make('arquivo')
                     ->label('Relatório Excel')
+                    ->disk('public')
                     ->required(),
 
                 Toggle::make('usar_fila')

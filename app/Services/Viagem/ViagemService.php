@@ -2,6 +2,7 @@
 
 namespace App\Services\Viagem;
 
+use App\DTO\ViagemDTO;
 use App\Models;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +16,13 @@ class ViagemService
     {
 
     }
+
+    public function create(array $data)
+    {
+
+    }
+
+
 
     public function marcarViagemComoConferida(Models\Viagem $viagem)
     {

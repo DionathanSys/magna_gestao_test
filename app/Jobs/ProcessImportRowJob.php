@@ -6,6 +6,7 @@ use App\Models;
 use App\Contracts\ExcelImportInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 class ProcessImportRowJob implements ShouldQueue
 {
@@ -26,12 +27,12 @@ class ProcessImportRowJob implements ShouldQueue
      */
     public function handle(): void
     {
-           $importLog = Models\ImportLog::find($this->importLogId);
+        $importLog = Models\ImportLog::find($this->importLogId);
 
         foreach ($this->batch as $index => $row) {
             try {
                 $rowData = array_combine($this->headers, $row);
-
+                
                 $validationErrors = $this->importer->validate($rowData, $index + 2);
                 if (empty($validationErrors)) {
                     $transformedData = $this->importer->transform($rowData);
@@ -39,7 +40,11 @@ class ProcessImportRowJob implements ShouldQueue
                 }
 
             } catch (\Exception $e) {
-                // Log error
+                Log::error('Erro ao processar linha', [
+                    'import_log_id' => $this->importLogId,
+                    'row_index' => $index + 2,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 

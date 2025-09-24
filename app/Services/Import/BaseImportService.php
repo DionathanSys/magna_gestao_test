@@ -5,8 +5,9 @@ namespace App\Services\Import;
 use App\Models;
 use App\Enum;
 use App\Contracts\ExcelImportInterface;
+use App\Jobs\ProcessImportRowJob;
 use App\Traits\ServiceResponseTrait;
-use Illuminate\Support\Facades\{Auth, DB, Storage};
+use Illuminate\Support\Facades\{Auth, DB, Log, Storage};
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 abstract class BaseImportService
@@ -22,18 +23,21 @@ abstract class BaseImportService
     public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
     {
         try {
-            ds('Iniciando importação')->label(__METHOD__)->blue();
+            Log::debug('Iniciando importação', [
+                'file_path' => Storage::disk('public')->path($filePath),
+                'options' => $options
+            ]);
+
             DB::beginTransaction();
 
             // Criar log de importação
             $importLog = $this->createImportLog($filePath, $options);
-            ds($importLog)->label('ImportLog Criado')->blue();
+
             // Validar arquivo
             $this->validateFile($filePath);
-            ds($filePath)->label('Caminho do Arquivo')->blue();
-            dd(10);
+
             // Ler arquivo Excel
-            $spreadsheet = IOFactory::load(Storage::path($filePath));
+            $spreadsheet = IOFactory::load(Storage::disk('public')->path($filePath));
             $worksheet = $spreadsheet->getActiveSheet();
             $rows = $worksheet->toArray();
 
@@ -76,7 +80,7 @@ abstract class BaseImportService
 
         $log = Models\ImportLog::create([
             'file_name' => basename($filePath),
-            'file_path' => $filePath,
+            'file_path' => Storage::disk('public')->path($filePath),
             'import_type' => static::class,
             'user_id' => Auth::id(),
             'status' => Enum\Import\StatusImportacaoEnum::PROCESSANDO,
@@ -84,13 +88,14 @@ abstract class BaseImportService
             'started_at' => now(),
         ]);
 
-        ds($log)->label('ImportLog Criado')->blue();
+        Log::debug('ImportLog Criado', ['log' => $log]);
+
         return $log;
     }
 
     protected function validateFile(string $filePath): void
     {
-        if (!Storage::exists($filePath)) {
+        if (!Storage::disk('public')->exists($filePath)) {
             throw new \InvalidArgumentException('Arquivo não encontrado.');
         }
 
@@ -98,6 +103,9 @@ abstract class BaseImportService
         if (!in_array(strtolower($extension), ['xlsx', 'xls', 'csv'])) {
             throw new \InvalidArgumentException('Formato de arquivo não suportado.');
         }
+
+        Log::debug('Arquivo validado');
+
     }
 
     protected function validateHeaders(array $headers, ExcelImportInterface $importer): void
@@ -116,6 +124,8 @@ abstract class BaseImportService
                 'Colunas obrigatórias não encontradas: ' . implode(', ', $missingColumns)
             );
         }
+
+        Log::debug('Cabeçalho validado', ['headers' => $headers]);
     }
 
     protected function processRows(array $rows, ExcelImportInterface $importer, Models\ImportLog $importLog, array $options): void
@@ -125,8 +135,9 @@ abstract class BaseImportService
         $useQueue = $options['use_queue'] ?? false;
 
         foreach (array_chunk($rows, $batchSize) as $batch) {
+
             if ($useQueue) {
-                // ProcessImportRowJob::dispatch($batch, $headers, $importer, $importLog->id);
+                ProcessImportRowJob::dispatch($batch, $headers, $importer, $importLog->id);
             } else {
                 $this->processBatch($batch, $headers, $importer, $importLog);
             }
@@ -174,7 +185,7 @@ abstract class BaseImportService
     protected function finalizeImportLog(Models\ImportLog $importLog): void
     {
         $importLog->update([
-            'status' => $this->errorRows > 0 ? 'COMPLETED_WITH_ERRORS' : 'COMPLETED',
+            'status' => $this->errorRows > 0 ? 'CONCLUIDO_COM_ERROS' : 'CONCLUIDO',
             'total_rows' => $this->processedRows,
             'success_rows' => $this->successRows,
             'error_rows' => $this->errorRows,

@@ -2,43 +2,47 @@
 
 namespace App\Filament\Resources\Veiculos\Actions;
 
-use App\Filament\Resources\Pneus\PneuResource;
+use App\Models\PneuPosicaoVeiculo;
 use App\Services;
 use App\Models;
 use App\Enum;
 use Filament\Actions\Action;
-use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Icon;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Collection;
 
-class RodizioPneuAction
+class InverterPneuAction
 {
 
-    public static function make(): BulkAction
+    public static function make(): Action
     {
-        return BulkAction::make('desvincular-pneu')
-            ->label('Rodízio')
-            ->icon('heroicon-o-arrows-right-left')
-            ->requiresConfirmation()
-            ->modalWidth(Width::Large)
+        return Action::make('inverter-pneu')
+            ->icon('heroicon-o-arrow-path')
+            ->iconButton()
+            ->tooltip('Inverter Pneu na Mesma Posição')
+            ->visible(fn($record) => ! $record->pneu_id == null)
+            ->modalWidth(Width::ExtraLarge)
             ->schema(fn(Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
-                    Select::make('motivo')
+                    TextInput::make('motivo')
                         ->columnSpan(5)
-                        ->options(Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray())
+                        ->default(Enum\Pneu\MotivoMovimentoPneuEnum::INVERSAO)
+                        ->disabled()
                         ->required(),
                     TextInput::make('sulco')
-                        ->label('Sulco Removido (mm)')
+                        ->label('Sulco (mm)')
                         ->columnSpan(3)
                         ->numeric()
                         ->maxValue(30)
@@ -56,12 +60,12 @@ class RodizioPneuAction
                         ->numeric()
                         ->required()
                         ->live(debounce: 700)
-                        ->afterStateUpdated(function (Models\PneuPosicaoVeiculo $record, Field $component, $state) {
+                        ->afterStateUpdated(function (PneuPosicaoVeiculo $record, Field $component, $state) {
                             $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($record->veiculo_id);
                             if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
                                 $component->belowContent([
-                                    Icon::make(Heroicon::InformationCircle),
-                                    'Verifique a quilometragem.',
+                                    Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
+                                    Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
                                 ]);
                             }
                         }),
@@ -71,8 +75,6 @@ class RodizioPneuAction
                         ->maxLength(255),
                     FileUpload::make('anexos')
                         ->image()
-                        ->openable()
-                        ->downloadable()
                         ->multiple()
                         ->panelLayout('grid')
                         ->disk('local')
@@ -80,7 +82,6 @@ class RodizioPneuAction
                         ->visibility('private')
                         ->columnSpanFull()
                 ]))
-            ->action(fn(array $data, Collection $records) => (new Services\Pneus\MovimentarPneuService())->rodizioPneu($records, $data))
-                        ->deselectRecordsAfterCompletion();
+            ->action(fn(array $data, PneuPosicaoVeiculo $record) => (new Services\Pneus\MovimentarPneuService())->inverterPneu($record, $data));
     }
 }

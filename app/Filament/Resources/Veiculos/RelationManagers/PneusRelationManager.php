@@ -164,6 +164,7 @@ class PneusRelationManager extends RelationManager
                     ->preserveFormDataWhenCreatingAnother(['eixo', 'km_inicial', 'data_inicial']),
             ])
             ->recordActions([
+                Actions\InverterPneuAction::make(),
                 Actions\DesvincularPneuAction::make(),
                 Actions\VincularPneuAction::make(),
                 Actions\TrocarPneuAction::make(),

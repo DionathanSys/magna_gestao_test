@@ -21,6 +21,24 @@ class MovimentarPneuService
         $this->historicoMovimentoPneu = new HistoricoMovimentoPneu();
     }
 
+    public function inverterPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
+    {
+        $this->removerPneu($pneuVeiculo, [
+            'data_final' => $data['data_movimento'],
+            'km_final'   => $data['km_movimento'],
+            'sulco'      => $data['sulco'] ?? 0,
+            'motivo'     => $data['motivo'],
+            'observacao' => $data['observacao'] ?? null,
+            'anexos'     => $data['anexos'] ?? null,
+        ]);
+
+        $this->aplicarPneu($pneuVeiculo, [
+            'pneu_id'       => $pneuVeiculo->pneu_id,
+            'data_inicial'  => $data['data_movimento'],
+            'km_inicial'    => $data['km_movimento'],
+        ]);
+    }
+
 
     public function removerPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
@@ -29,6 +47,7 @@ class MovimentarPneuService
             throw new \Exception('A KM final não pode ser menor que a KM inicial.');
         }
 
+        //TODO: Separar em outro serviço a criação do histórico
         $this->historicoMovimentoPneu->create([
             'pneu_id'           => $pneuVeiculo->pneu_id,
             'veiculo_id'        => $pneuVeiculo->veiculo_id,
@@ -131,17 +150,18 @@ class MovimentarPneuService
             $pneuId = Arr::first($pneuId);
 
             $this->removerPneu($pneuVeiculo, [
-                'data_final' => $data['data_inicial'],
-                'km_final'   => $data['km_inicial'],
+                'data_final' => $data['data_movimento'],
+                'km_final'   => $data['km_movimento'],
                 'sulco'      => $data['sulco'] ?? 0,
-                'observacao' => $data['observacao'] ?? null,
                 'motivo'     => $data['motivo'] ?? MotivoMovimentoPneuEnum::RODIZIO->value,
+                'observacao' => $data['observacao'] ?? null,
+                'anexos'     => $data['anexos'] ?? null,
             ]);
 
             $this->aplicarPneu($pneuVeiculo, [
                 'pneu_id'       => $pneuId,
-                'data_inicial'  => $data['data_inicial'],
-                'km_inicial'    => $data['km_inicial'],
+                'data_inicial'  => $data['data_movimento'],
+                'km_inicial'    => $data['km_movimento'],
             ]);
         });
     }

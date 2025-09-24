@@ -135,7 +135,6 @@ class MovimentarPneuService
 
     public function rodizioPneu(Collection $pneusVeiculo, array $data)
     {
-        dd($pneusVeiculo);
         if ($pneusVeiculo->count() !== 2) {
             return;
         }

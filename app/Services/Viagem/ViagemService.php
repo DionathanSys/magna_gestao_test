@@ -21,8 +21,8 @@ class ViagemService
     {
         try {
 
-            $destino = $data['integrado'];
-            unset($data['integrado']);
+            $destino = $data['destino'];
+            unset($data['destino']);
 
             $action = new Actions\CriarViagem();
             $viagem = $action->handle($data);

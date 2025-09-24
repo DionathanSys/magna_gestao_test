@@ -21,7 +21,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 
 class RodizioPneuAction
 {
@@ -60,15 +60,16 @@ class RodizioPneuAction
                         ->numeric()
                         ->required()
                         ->live(debounce: 700)
-                        ->afterStateUpdated(function (Collection $records, Field $component, $state) {
-                            $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($records->first()->veiculo_id);
-                            if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
-                                $component->belowContent([
-                                    Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
-                                    Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
-                                ]);
-                            }
-                        }),
+                        // ->afterStateUpdated(function (Collection $records, Field $component, $state) {
+                        //     $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao(dd($records));
+                        //     if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
+                        //         $component->belowContent([
+                        //             Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
+                        //             Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
+                        //         ]);
+                        //     }
+                        // })
+                        ,
                     Textarea::make('observacao')
                         ->label('Observação')
                         ->columnSpanFull()

@@ -135,7 +135,7 @@ abstract class BaseImportService
         $useQueue = $options['use_queue'] ?? false;
 
         foreach (array_chunk($rows, $batchSize) as $batch) {
-
+            Log::debug('Processando lote de importação', ['batch' => $batch]);
             if ($useQueue) {
                 ProcessImportRowJob::dispatch($batch, $headers, $importer, $importLog->id);
             } else {

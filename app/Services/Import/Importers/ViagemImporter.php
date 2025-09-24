@@ -8,6 +8,7 @@ use App\Contracts\ExcelImportInterface;
 use App\Services;
 use App\Traits\UserCheckTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ViagemImporter implements ExcelImportInterface
@@ -66,6 +67,8 @@ class ViagemImporter implements ExcelImportInterface
             }
         }
 
+        Log::debug("Validação da linha {$rowNumber}", ['row' => $row, 'errors' => $errors]);
+
         return $errors;
     }
 
@@ -96,6 +99,7 @@ class ViagemImporter implements ExcelImportInterface
 
     public function process(array $transformedData): mixed
     {
+        Log::debug('Processando importação de viagem', ['data' => $transformedData]);
         return $this->viagemService->create($transformedData);
     }
 

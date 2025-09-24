@@ -57,8 +57,8 @@ class RodizioPneuAction
                         ->numeric()
                         ->required()
                         ->live(debounce: 700)
-                        ->afterStateUpdated(function (Models\PneuPosicaoVeiculo $record, Field $component, $state) {
-                            $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($record->veiculo_id);
+                        ->afterStateUpdated(function (Collection $records, Field $component, $state) {
+                            $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao($records->first()->veiculo_id);
                             if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
                                 $component->belowContent([
                                     Icon::make(Heroicon::InformationCircle),

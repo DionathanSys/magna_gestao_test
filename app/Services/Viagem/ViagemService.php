@@ -14,7 +14,7 @@ class ViagemService
     use ServiceResponseTrait;
 
     public function __construct(
-        protected Services\Veiculo\VeiculoService $veiculoService
+        // protected Services\Veiculo\VeiculoService $veiculoService
     ) {}
 
     public function create(array $data): ?Models\Viagem

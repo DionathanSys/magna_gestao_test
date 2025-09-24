@@ -21,6 +21,9 @@ class ViagemService
     {
         try {
 
+            $destino = $data['integrado'];
+            unset($data['integrado']);
+
             $action = new Actions\CriarViagem();
             $viagem = $action->handle($data);
             $this->setSuccess('Viagem criada com sucesso!');

@@ -33,9 +33,10 @@ class RodizioPneuAction
             ->schema(fn(Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
-                    Select::make('motivo')
+                    TextInput::make('motivo')
                         ->columnSpan(5)
-                        ->options(Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray())
+                        ->default(Enum\Pneu\MotivoMovimentoPneuEnum::RODIZIO)
+                        ->disabled()
                         ->required(),
                     TextInput::make('sulco')
                         ->label('Sulco Removido (mm)')

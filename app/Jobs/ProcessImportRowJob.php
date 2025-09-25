@@ -32,12 +32,17 @@ class ProcessImportRowJob implements ShouldQueue
         foreach ($this->batch as $index => $row) {
             try {
                 $rowData = array_combine($this->headers, $row);
-                
+
                 $validationErrors = $this->importer->validate($rowData, $index + 2);
-                if (empty($validationErrors)) {
-                    $transformedData = $this->importer->transform($rowData);
-                    $this->importer->process($transformedData);
+                if (!empty($validationErrors)) {
+                    Log::alert('Erro de validação na linha', [
+                        'import_log_id' => $this->importLogId,
+                        'row_index' => $index + 2,
+                        'errors' => $validationErrors,
+                    ]);
                 }
+                $transformedData = $this->importer->transform($rowData);
+                $this->importer->process($transformedData);
 
             } catch (\Exception $e) {
                 Log::error('Erro ao processar linha', [

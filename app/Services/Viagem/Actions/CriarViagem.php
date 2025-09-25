@@ -41,7 +41,7 @@ class CriarViagem
             ]);
 
         Log::debug('Criando nova viagem.', $data);
-        
+
         $viagem = Models\Viagem::create(
             $data
         );
@@ -66,7 +66,7 @@ class CriarViagem
             'conferido'             => 'boolean',
         ])->validate();
 
-        Log::debug('Validação de criação de viagem concluída com sucesso.', $data['numero_viagem'] ?? []);
+        Log::debug('Validação de criação de viagem concluída com sucesso.', [$data['numero_viagem'] ?? null]);
 
         return true;
     }

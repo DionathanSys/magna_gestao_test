@@ -82,8 +82,8 @@ class ViagemService
                     Log::info("Viagem Nº " . $viagem['numero_viagem'] . " já conferida, não será atualizado");
                     break;
                 default:
-                    Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
                     $viagem = $this->create($data);
+                    Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
                     $carga = $this->cargaService->create($data['integrado'], $viagem);
             }
 

@@ -4,6 +4,7 @@ namespace App\Services\Viagem\Actions;
 
 use App\Models;
 use App\Traits\UserCheckTrait;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CriarViagem
@@ -34,11 +35,15 @@ class CriarViagem
 
         $this->validate($filteredData);
 
-        $viagem = Models\Viagem::create(
-            array_merge($filteredData, [
+        $data = array_merge($filteredData, [
                 'created_by' => $this->getUserIdChecked(),
                 'updated_by' => $this->getUserIdChecked(),
-            ])
+            ]);
+
+        Log::debug('Criando nova viagem.', $data);
+        
+        $viagem = Models\Viagem::create(
+            $data
         );
 
         return $viagem;
@@ -60,6 +65,8 @@ class CriarViagem
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
         ])->validate();
+
+        Log::debug('Validação de criação de viagem concluída com sucesso.', $data['numero_viagem'] ?? []);
 
         return true;
     }

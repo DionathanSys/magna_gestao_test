@@ -6,6 +6,7 @@ use App\Services\Import\ViagemImportService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Toggle;
+use Illuminate\Support\Facades\Log;
 
 class ImportDocumentosAction
 {
@@ -25,13 +26,15 @@ class ImportDocumentosAction
                     ->default(true),
             ])
             ->action(function (array $data, ViagemImportService $importService): void {
-                ds($data)->label('Dados do Formulário de Importação')->blue();
                 $filePath = $data['arquivo'];
                 $options = [
                     'use_queue' => $data['usar_fila'],
                     'batch_size' => 100,
                 ];
-
+                Log::debug('Iniciando importação de viagens via ação Filament', [
+                    'file_path' => $filePath,
+                    'options' => $options
+                ]);
                 $result = $importService->importarViagens($filePath, $options);
 
                 if ($importService->hasError()) {

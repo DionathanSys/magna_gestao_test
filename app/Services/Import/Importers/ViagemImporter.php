@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ViagemImporter implements ExcelImportInterface
 {
-    use UserCheckTrait;
-
     public function __construct(
         private Services\Viagem\ViagemService $viagemService,
         private Services\Integrado\IntegradoService $integradoService,
@@ -74,9 +72,9 @@ class ViagemImporter implements ExcelImportInterface
 
     public function transform(array $row): array
     {
-        $veiculo_id = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
-        $codigoIntegrado = $this->integradoService->extrairCodigoIntegrado($row['Destino']);
-        $integrado = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
+        $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
+        $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino']);
+        $integrado          = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
 
         return [
             'veiculo_id'            => $veiculo_id,
@@ -92,15 +90,13 @@ class ViagemImporter implements ExcelImportInterface
             'km_cobrar'             => 0,
             'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS->value,
             'conferido'             => false,
-            'created_by'            => $this->getUserIdChecked(),
-            'updated_by'            => $this->getUserIdChecked(),
         ];
     }
 
     public function process(array $transformedData): mixed
     {
         Log::debug('Processando importação de viagem', ['data' => $transformedData]);
-        return $this->viagemService->create($transformedData);
+        return $this->viagemService->updateOrCreate($transformedData);
     }
 
 

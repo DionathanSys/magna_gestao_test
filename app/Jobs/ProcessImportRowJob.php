@@ -18,7 +18,8 @@ class ProcessImportRowJob implements ShouldQueue
     public function __construct(
         private array $batch,
         private array $headers,
-        private ExcelImportInterface $importer,
+        // private ExcelImportInterface $importer,
+        private string $importerClass,
         private int $importLogId
     ) {}
 
@@ -34,6 +35,8 @@ class ProcessImportRowJob implements ShouldQueue
 
         $importLog = Models\ImportLog::find($this->importLogId);
 
+        $importer = app($this->importerClass);
+
         foreach ($this->batch as $index => $row) {
             Log::debug('Processando linha do lote', [
                 'import_log_id' => $this->importLogId,
@@ -42,7 +45,7 @@ class ProcessImportRowJob implements ShouldQueue
             try {
                 $rowData = array_combine($this->headers, $row);
 
-                $validationErrors = $this->importer->validate($rowData, $index + 2);
+                $validationErrors = $importer->validate($rowData, $index + 2);
                 if (!empty($validationErrors)) {
                     Log::alert('Erro de validação na linha', [
                         'import_log_id' => $this->importLogId,
@@ -50,8 +53,8 @@ class ProcessImportRowJob implements ShouldQueue
                         'errors' => $validationErrors,
                     ]);
                 }
-                $transformedData = $this->importer->transform($rowData);
-                $this->importer->process($transformedData);
+                $transformedData = $importer->transform($rowData);
+                $importer->process($transformedData);
 
             } catch (\Exception $e) {
                 Log::error('Erro ao processar linha', [

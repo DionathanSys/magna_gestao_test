@@ -18,6 +18,25 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 })->name('ordem-servico.pdf.visualizar');
 
 Route::get('/teste', function () {
-echo now()->format('Y-m-d H:i:s T'); // Mostra data/hora com timezone
-echo config('app.timezone'); // Mostra o timezone configurado
+
+    $viagemDataCompleta = [
+    'veiculo_id'            => 2,
+    'numero_viagem'         => '21522246',
+    'documento_transporte'  => '129985668',
+    'km_rodado'             => 81.0,
+    'km_pago'               => 0.0,
+    'km_cadastro'           => 79.07,
+    'km_cobrar'             => 0.0,
+    'motivo_divergencia'    => 'SEM OBSERVAÇÃO',
+    'data_competencia'      => '2025-09-23',
+    'data_inicio'           => '2025-09-23 00:34',
+    'data_fim'              => '2025-09-23 05:33',
+    'conferido'             => false,
+    'created_by'            => 2,
+    'updated_by'            => 2,
+];
+
+    // Criar diretamente
+    $viagem = \App\Models\Viagem::create($viagemDataCompleta);
+
 });

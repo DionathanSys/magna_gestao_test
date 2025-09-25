@@ -41,7 +41,7 @@ class ImportDocumentosAction
                     \App\Services\NotificacaoService::error($importService->getMessage());
                 } else {
                     \App\Services\NotificacaoService::success(
-                        "Importação iniciada! {$result['success_rows']} registros processados."
+                        "Importação iniciada!"
                     );
                 }
             });

@@ -138,6 +138,7 @@ abstract class BaseImportService
             Log::debug('Processando lote de importação', ['useQueue' => $useQueue]);
             if ($useQueue) {
                 ProcessImportRowJob::dispatch($batch, $headers, $importer, $importLog->id);
+                Log::debug('Lote enviado para fila', ['batch_size' => count($batch)]);
             } else {
                 $this->processBatch($batch, $headers, $importer, $importLog);
             }

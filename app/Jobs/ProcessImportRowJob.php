@@ -27,12 +27,12 @@ class ProcessImportRowJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $importLog = Models\ImportLog::find($this->importLogId);
-
         Log::debug('Iniciando processamento de lote', [
             'import_log_id' => $this->importLogId,
             'batch_size' => count($this->batch),
         ]);
+
+        $importLog = Models\ImportLog::find($this->importLogId);
 
         foreach ($this->batch as $index => $row) {
             Log::debug('Processando linha do lote', [

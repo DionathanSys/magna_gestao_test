@@ -123,7 +123,6 @@ class ViagemsTable
                         ->toggleable(isToggledHiddenByDefault: true),
                     SelectColumn::make('motivo_divergencia')
                         ->label('Motivo Divergência')
-                        ->native(false)
                         ->wrapHeader()
                         ->grow()
                         // ->width('2%')

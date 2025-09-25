@@ -65,8 +65,6 @@ class ViagemImporter implements ExcelImportInterface
             }
         }
 
-        Log::debug("Validação da linha {$rowNumber}", ['row' => $row, 'errors' => $errors]);
-
         return $errors;
     }
 
@@ -75,6 +73,16 @@ class ViagemImporter implements ExcelImportInterface
         $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
         $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino']);
         $integrado          = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
+
+        $km_pago = (float) str_replace(',', '.', $row['Km Sugerida']);
+
+        Log::debug('KM Pago',[
+            'km_sugerida' => $row['Km Sugerida'],
+            'replace' => str_replace(',', '.', $row['Km Sugerida']),
+            'float' => (float) str_replace(',', '.', $row['Km Sugerida']),
+            'km_pago' => $km_pago
+        ]);
+
 
         return [
             'veiculo_id'            => $veiculo_id,
@@ -85,7 +93,7 @@ class ViagemImporter implements ExcelImportInterface
             'data_fim'              => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d H:i'),
             'destino'               => $integrado ?? null,
             'km_rodado'             => is_numeric($row['Km Rodado']) ? (float) $row['Km Rodado'] : 0,
-            'km_pago'               => is_numeric($row['Km Sugerida']) ? (float) str_replace(',', '.', $row['Km Sugerida']) : 0,
+            'km_pago'               => is_numeric($km_pago) ? (float) $km_pago : 0,
             'km_cadastro'           => $integrado->km_rota ?? 0,
             'km_cobrar'             => 0,
             'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS->value,

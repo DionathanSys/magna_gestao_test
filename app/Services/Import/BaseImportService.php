@@ -19,19 +19,22 @@ abstract class BaseImportService
     protected int $processedRows = 0;
     protected int $successRows = 0;
     protected int $errorRows = 0;
+    protected Models\ImportLog $importLog;
 
     public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
     {
         try {
-            Log::debug('Iniciando importação', [
+            Log::debug(__METHOD__.':'.__LINE__, [
                 'file_path' => Storage::disk('public')->path($filePath),
-                'options' => $options
             ]);
 
-            DB::beginTransaction();
-
             // Criar log de importação
-            $importLog = $this->createImportLog($filePath, $options);
+            $this->importLog = $this->createImportLog($filePath, $options);
+
+            // Apenas aciona a beginTransaction se não estiver usando fila
+            if(!($options['use_queue'] ?? false)){
+                DB::beginTransaction();
+            }
 
             // Validar arquivo
             $this->validateFile($filePath);
@@ -45,17 +48,19 @@ abstract class BaseImportService
             $this->validateHeaders($rows[0] ?? [], $importer);
 
             // Processar linhas
-            $this->processRows($rows, $importer, $importLog, $options);
+            $this->processRows($rows, $importer, $this->importLog, $options);
 
             // Finalizar log
-            $this->finalizeImportLog($importLog);
+            $this->finalizeImportLog($this->importLog);
 
-            DB::commit();
+            if(!($options['use_queue'] ?? false)){
+                DB::commit();
+            }
 
             $this->setSuccess("Importação concluída. {$this->successRows} registros processados com sucesso.");
 
             return [
-                'import_log_id' => $importLog->id,
+                'import_log_id' => $this->importLog->id,
                 'total_rows' => $this->processedRows,
                 'success_rows' => $this->successRows,
                 'error_rows' => $this->errorRows,
@@ -63,8 +68,14 @@ abstract class BaseImportService
                 'warnings' => $this->warnings,
             ];
         } catch (\Exception $e) {
-            DB::rollBack();
+
+            if(!($options['use_queue'] ?? false)){
+                DB::rollBack();
+            }
+
             $this->setError("Erro na importação: " . $e->getMessage());
+
+            $this->finalizeImportLog($this->importLog);
 
             return [
                 'errors' => [$e->getMessage()],
@@ -134,7 +145,15 @@ abstract class BaseImportService
         $batchSize = $options['batch_size'] ?? 100;
         $useQueue = $options['use_queue'] ?? false;
 
-        foreach (array_chunk($rows, $batchSize) as $batch) {
+        $batches = array_chunk($rows, $batchSize);
+        $totalBatches = count($batches);
+
+        $importLog->update([
+            'total_rows' => count($rows),
+            'total_batches' => $totalBatches,
+        ]);
+
+        foreach ($batches as $batch) {
 
             if ($useQueue) {
                 ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLog->id);

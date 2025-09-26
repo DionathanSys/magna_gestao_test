@@ -29,7 +29,7 @@ class ImportDocumentosAction
                 $filePath = $data['arquivo'];
                 $options = [
                     'use_queue' => $data['usar_fila'],
-                    'batch_size' => 100,
+                    'batch_size' => 5,
                 ];
                 Log::debug('Iniciando importação de viagens via ação Filament', [
                     'file_path' => $filePath,

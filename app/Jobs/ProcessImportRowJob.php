@@ -18,7 +18,7 @@ class ProcessImportRowJob implements ShouldQueue
     public function __construct(
         private array $batch,
         private array $headers,
-        // private ExcelImportInterface $importer,
+        // private ExcelImportInterface $importe
         private string $importerClass,
         private int $importLogId
     ) {}

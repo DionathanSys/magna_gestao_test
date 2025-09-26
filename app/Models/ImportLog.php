@@ -116,17 +116,17 @@ class ImportLog extends Model
     // Métodos úteis
     public function isCompleted(): bool
     {
-        return in_array($this->status, ['COMPLETED', 'COMPLETED_WITH_ERRORS']);
+        return in_array($this->status, [Enum\Import\StatusImportacaoEnum::CONCLUIDO, Enum\Import\StatusImportacaoEnum::CONCLUIDO_COM_ERROS]);
     }
 
     public function isInProgress(): bool
     {
-        return $this->status === 'PROCESSING';
+        return $this->status === Enum\Import\StatusImportacaoEnum::PROCESSANDO;
     }
 
     public function hasFailed(): bool
     {
-        return $this->status === 'FAILED';
+        return $this->status === Enum\Import\StatusImportacaoEnum::FALHOU;
     }
 
     public function hasErrors(): bool

@@ -27,7 +27,7 @@ class MovimentarPneuService
             'data_final' => $data['data_movimento'],
             'km_final'   => $data['km_movimento'],
             'sulco'      => $data['sulco'] ?? 0,
-            'motivo'     => $data['motivo'],
+            'motivo'     => MotivoMovimentoPneuEnum::INVERSAO,
             'observacao' => $data['observacao'] ?? null,
             'anexos'     => $data['anexos'] ?? null,
         ]);

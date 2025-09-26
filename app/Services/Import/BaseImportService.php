@@ -5,6 +5,7 @@ namespace App\Services\Import;
 use App\Models;
 use App\Enum;
 use App\Contracts\ExcelImportInterface;
+use App\Jobs\FinalizeImportJob;
 use App\Jobs\ProcessImportRowJob;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\{Auth, DB, Log, Storage};
@@ -24,7 +25,7 @@ abstract class BaseImportService
     public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
     {
         try {
-            Log::debug(__METHOD__.':'.__LINE__, [
+            Log::debug(__METHOD__ . ':' . __LINE__, [
                 'file_path' => Storage::disk('public')->path($filePath),
             ]);
 
@@ -32,7 +33,7 @@ abstract class BaseImportService
             $this->importLog = $this->createImportLog($filePath, $options);
 
             // Apenas aciona a beginTransaction se não estiver usando fila
-            if(!($options['use_queue'] ?? false)){
+            if (!($options['use_queue'] ?? false)) {
                 DB::beginTransaction();
             }
 
@@ -53,7 +54,7 @@ abstract class BaseImportService
             // Finalizar log
             $this->finalizeImportLog($this->importLog);
 
-            if(!($options['use_queue'] ?? false)){
+            if (!($options['use_queue'] ?? false)) {
                 DB::commit();
             }
 
@@ -69,7 +70,7 @@ abstract class BaseImportService
             ];
         } catch (\Exception $e) {
 
-            if(!($options['use_queue'] ?? false)){
+            if (!($options['use_queue'] ?? false)) {
                 DB::rollBack();
             }
 
@@ -116,7 +117,6 @@ abstract class BaseImportService
         }
 
         Log::debug('Arquivo validado');
-
     }
 
     protected function validateHeaders(array $headers, ExcelImportInterface $importer): void
@@ -153,6 +153,13 @@ abstract class BaseImportService
             'total_batches' => $totalBatches,
         ]);
 
+        Log::info("Iniciando processamento", [
+            'total_rows' => count($rows),
+            'total_batches' => $totalBatches,
+            'batch_size' => $batchSize,
+            'use_queue' => $useQueue
+        ]);
+
         foreach ($batches as $batch) {
 
             if ($useQueue) {
@@ -160,6 +167,11 @@ abstract class BaseImportService
             } else {
                 $this->processBatch($batch, $headers, $importer, $importLog);
             }
+        }
+
+        if ($useQueue) {
+            // Disparar job para finalizar a importação
+            FinalizeImportJob::dispatch($importLog->id);
         }
     }
 

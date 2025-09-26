@@ -75,16 +75,28 @@ class ViagemService
 
             switch (true) {
                 case ($viagem && $viagem->conferido == false):
+
+                    $action = new Actions\AtualizarViagem($viagem);
+                    $viagem = $action->handle($data);
+
                     Log::info("Viagem Nº " . $viagem['numero_viagem'] . " atualizada");
-                    $this->update($viagem, $data);
+                    $this->setSuccess('Viagem atualizada com sucesso!');
+
                     break;
+
                 case ($viagem && $viagem->conferido == true):
                     Log::info("Viagem Nº " . $viagem['numero_viagem'] . " já conferida, não será atualizado");
+                    $this->setSuccess("Viagem Nº " . $viagem['numero_viagem'] . " já conferida, não será atualizado");
                     break;
                 default:
-                    $viagem = $this->create($data);
+                    $action = new Actions\CriarViagem();
+                    $viagem = $action->handle($data);
+
                     Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
+                    
                     $carga = $this->cargaService->create($data['integrado'], $viagem);
+                    $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");
+
             }
 
             return $viagem;

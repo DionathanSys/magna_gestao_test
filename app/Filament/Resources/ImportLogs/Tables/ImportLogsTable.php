@@ -31,6 +31,7 @@ class ImportLogsTable
                     ->searchable(),
                 TextColumn::make('status')
                     ->searchable(),
+                TextColumn::make('errors'),
                 TextColumn::make('total_rows')
                     ->label('Total de Linhas')
                     ->numeric(0, ',', '.')

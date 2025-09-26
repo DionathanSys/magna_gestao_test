@@ -73,6 +73,10 @@ class ViagemService
 
             $viagem = Models\Viagem::where('numero_viagem', $data['numero_viagem'])->first();
 
+            Log::debug(__METHOD__.':'.__LINE__, [
+                'viagem' => $viagem ?? null,
+            ]);
+            
             switch (true) {
                 case ($viagem && $viagem->conferido == false):
 
@@ -93,7 +97,7 @@ class ViagemService
                     $viagem = $action->handle($data);
 
                     Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
-                    
+
                     $carga = $this->cargaService->create($data['integrado'], $viagem);
                     $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");
 

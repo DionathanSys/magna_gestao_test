@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models;
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use App\Services\Veiculo\VeiculoService;
+use Illuminate\Support\Facades\Log;
 
 class TesteCommand extends Command
 {
@@ -28,15 +29,8 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $state = '2025-03-24'; // Exemplo de data de teste_fumaca
-        $state = \Carbon\Carbon::parse($state);
-
-        dd(match (true) {
-            !$state => 'null',
-            $state <= now()->subDays(180) => '180 dias, Now: ' . now()->subDays(180) . ' - Diferença: ' . $state->diffInDays(now()),
-            $state <= now()->subDays(165) => '165 dias, Now: ' . now()->subDays(165) . ' - Diferença: ' . $state->diffInDays(now()),
-            $state <= now()->subDays(150) => '150 dias, Now: ' . now()->subDays(150) . ' - Diferença: ' . $state->diffInDays(now()),
-            default => 'default',
-        });
+        Log::debug('TesteCommand executado com sucesso!');
+        ds('TesteCommand executado com sucesso!');
+        $this->info('TesteCommand executado com sucesso!');
     }
 }

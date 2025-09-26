@@ -111,7 +111,6 @@ abstract class BaseImportService
             throw new \InvalidArgumentException('Formato de arquivo não suportado.');
         }
 
-        Log::debug('Arquivo validado');
     }
 
     protected function validateHeaders(array $headers, ExcelImportInterface $importer): void
@@ -131,7 +130,6 @@ abstract class BaseImportService
             );
         }
 
-        Log::debug('Cabeçalho validado', ['headers' => $headers]);
     }
 
     protected function processRows(array $rows, ExcelImportInterface $importer, Models\ImportLog $importLog, array $options): void
@@ -146,13 +144,6 @@ abstract class BaseImportService
         $importLog->update([
             'total_rows' => count($rows),
             'total_batches' => $totalBatches,
-        ]);
-
-        Log::info("Iniciando processamento", [
-            'total_rows' => count($rows),
-            'total_batches' => $totalBatches,
-            'batch_size' => $batchSize,
-            'use_queue' => $useQueue
         ]);
 
         foreach ($batches as $batch) {

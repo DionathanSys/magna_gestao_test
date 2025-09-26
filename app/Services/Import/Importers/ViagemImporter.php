@@ -76,14 +76,6 @@ class ViagemImporter implements ExcelImportInterface
 
         $km_pago = (float) str_replace(',', '.', $row['Km Sugerida']);
 
-        Log::debug('KM Pago',[
-            'km_sugerida' => $row['Km Sugerida'],
-            'replace' => str_replace(',', '.', $row['Km Sugerida']),
-            'float' => (float) str_replace(',', '.', $row['Km Sugerida']),
-            'km_pago' => $km_pago
-        ]);
-
-
         return [
             'veiculo_id'            => $veiculo_id,
             'numero_viagem'         => $row['Viagem'],
@@ -106,7 +98,7 @@ class ViagemImporter implements ExcelImportInterface
         Log::debug('Processando importação de viagem', ['data' => $transformedData]);
 
         $viagem = $this->viagemService->updateOrCreate($transformedData);
-        
+
         if($this->viagemService->hasError()){
             Log::error('Erro ao importar viagem', [
                 'data' => $transformedData,

@@ -18,7 +18,6 @@ class ProcessImportRowJob implements ShouldQueue
     public function __construct(
         private array $batch,
         private array $headers,
-        // private ExcelImportInterface $importe
         private string $importerClass,
         private int $importLogId
     ) {}
@@ -43,6 +42,12 @@ class ProcessImportRowJob implements ShouldQueue
         $errors = [];
         $warnings = [];
 
+        Log::debug('Iniciando processamento do batch', [
+            'import_log_id' => $this->importLogId,
+            'batch' => $this->batch,
+        ]);
+
+         // Processar cada linha do batch
         foreach ($this->batch as $index => $row) {
             $rowNumber = $index + 2;
 
@@ -62,7 +67,7 @@ class ProcessImportRowJob implements ShouldQueue
 
                     Log::alert('Erro de validação na linha', [
                         'row_index' => $rowNumber,
-                        'errors' => $validationErrors,
+                        'errors'    => $validationErrors,
                     ]);
                     continue;
                 }
@@ -70,6 +75,11 @@ class ProcessImportRowJob implements ShouldQueue
                 // Transformar e processar
                 $transformedData = $importer->transform($rowData);
                 $result = $importer->process($transformedData);
+
+                Log::debug('Resultado do processamento da linha', [
+                    'row_index' => $rowNumber,
+                    'result' => $result,
+                ]);
 
                 if ($result) {
                     $successRows++;

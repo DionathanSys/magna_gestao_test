@@ -31,10 +31,7 @@ class ImportDocumentosAction
                     'use_queue' => $data['usar_fila'],
                     'batch_size' => 5,
                 ];
-                Log::debug('Iniciando importação de viagens via ação Filament', [
-                    'file_path' => $filePath,
-                    'options' => $options
-                ]);
+
                 $result = $importService->importarViagens($filePath, $options);
 
                 if ($importService->hasError()) {

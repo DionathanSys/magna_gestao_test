@@ -25,9 +25,6 @@ abstract class BaseImportService
     public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
     {
         try {
-            Log::debug(__METHOD__ . ':' . __LINE__, [
-                'file_path' => Storage::disk('public')->path($filePath),
-            ]);
 
             // Criar log de importação
             $this->importLog = $this->createImportLog($filePath, $options);
@@ -99,8 +96,6 @@ abstract class BaseImportService
             'options' => json_encode($options),
             'started_at' => now(),
         ]);
-
-        Log::debug('ImportLog Criado', ['log' => $log]);
 
         return $log;
     }

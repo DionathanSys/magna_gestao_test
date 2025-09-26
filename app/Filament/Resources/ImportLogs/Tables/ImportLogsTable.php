@@ -16,66 +16,82 @@ class ImportLogsTable
         return $table
             ->columns([
                 TextColumn::make('file_name')
-                    ->searchable(),
-                TextColumn::make('file_path')
-                    ->searchable(),
-                TextColumn::make('file_size')
-                    ->searchable(),
-                TextColumn::make('file_hash')
-                    ->searchable(),
+                    ->label('Arquivo')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('import_type')
-                    ->searchable(),
+                    ->label('Tipo de Importação')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('import_description')
+                    ->label('Descrição')
                     ->searchable(),
                 TextColumn::make('user.name')
+                    ->label('Usuário')
                     ->searchable(),
                 TextColumn::make('status')
                     ->searchable(),
                 TextColumn::make('total_rows')
-                    ->numeric()
+                    ->label('Total de Linhas')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('processed_rows')
-                    ->numeric()
+                    ->label('Linhas Processadas')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('success_rows')
-                    ->numeric()
+                    ->label('Linhas com Sucesso')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('error_rows')
-                    ->numeric()
+                    ->label('Linhas com Erros')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('warning_rows')
-                    ->numeric()
+                    ->label('Linhas com Avisos')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('skipped_rows')
-                    ->numeric()
+                    ->label('Linhas Ignoradas')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('total_batches')
-                    ->numeric()
+                    ->label('Total de Batches')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('processed_batches')
-                    ->numeric()
+                    ->label('Batches Processados')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('progress_percentage')
-                    ->numeric()
+                    ->label('Progresso (%)')
+                    ->suffix('%')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('started_at')
-                    ->dateTime()
+                    ->label('Iniciado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('finished_at')
-                    ->dateTime()
+                    ->label('Finalizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('duration_seconds')
-                    ->numeric()
+                    ->label('Duração (s)')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->reorderableColumns()
             ->filters([
                 //
             ])

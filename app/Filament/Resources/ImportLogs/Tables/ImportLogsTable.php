@@ -32,28 +32,17 @@ class ImportLogsTable
                 TextColumn::make('status')
                     ->searchable(),
                 TextColumn::make('errors')
-                    ->label('Erros')
-                    ->getStateUsing(function ($record) {
-                        $errors = json_decode($record->errors, true) ?? [];
-                        if (empty($errors)) {
-                            return 'Sem erros';
-                        }
-
-                        $firstError = $errors[0] ?? '';
-                        $totalErrors = count($errors);
-
-                        if ($totalErrors > 1) {
-                            return Str::limit($firstError, 50) . " (+{$totalErrors} erros)";
-                        }
-
-                        return Str::limit($firstError, 100);
-                    })
-                    ->tooltip(function ($record) {
-                        $errors = json_decode($record->errors, true) ?? [];
-                        return empty($errors) ? null : implode("\n", array_slice($errors, 0, 5));
-                    })
-                    ->wrap()
-                    ->color(fn($record) => empty(json_decode($record->errors, true)) ? 'success' : 'danger'),
+    ->label('Erros')
+    ->getStateUsing(function ($record) {
+        $errors = json_decode($record->errors, true) ?? [];
+        return $errors;
+    })
+    ->listWithLineBreaks()
+    ->bulleted()
+    ->limitList(3)
+    ->expandableLimitedList()
+    ->color('danger')
+    ->placeholder('Nenhum erro'),
                 TextColumn::make('total_rows')
                     ->label('Total de Linhas')
                     ->numeric(0, ',', '.')

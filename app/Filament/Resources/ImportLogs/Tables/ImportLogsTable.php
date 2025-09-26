@@ -31,7 +31,16 @@ class ImportLogsTable
                     ->searchable(),
                 TextColumn::make('status')
                     ->searchable(),
-                TextColumn::make('errors'),
+                TextColumn::make('errors')
+                    ->label('Erros')
+                    ->getStateUsing(function ($record) {
+                        $errors = json_decode($record->errors, true) ?? [];
+                        return count($errors);
+                    })
+                    ->badge()
+                    ->color(fn($state) => $state > 0 ? 'danger' : 'success')
+                    ->formatStateUsing(fn($state) => $state > 0 ? "{$state} erro(s)" : 'Sem erros')
+                    ->sortable(),
                 TextColumn::make('total_rows')
                     ->label('Total de Linhas')
                     ->numeric(0, ',', '.')

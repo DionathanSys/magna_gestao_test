@@ -97,6 +97,8 @@ abstract class BaseImportService
             'started_at' => now(),
         ]);
 
+        Log::debug("Log de importação criado: ID {$log->id}");
+
         return $log;
     }
 
@@ -110,6 +112,8 @@ abstract class BaseImportService
         if (!in_array(strtolower($extension), ['xlsx', 'xls', 'csv'])) {
             throw new \InvalidArgumentException('Formato de arquivo não suportado.');
         }
+
+        Log::debug("Arquivo validado: {$filePath}");
 
     }
 
@@ -145,6 +149,8 @@ abstract class BaseImportService
             'total_rows' => count($rows),
             'total_batches' => $totalBatches,
         ]);
+
+        Log::debug("Processando {$totalBatches} lotes de tamanho {$batchSize}, uso de fila: " . ($useQueue ? 'sim' : 'não'), ['import_log_id' => $importLog->id, 'options' => $options]);
 
         foreach ($batches as $batch) {
 

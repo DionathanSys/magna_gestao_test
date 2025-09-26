@@ -95,7 +95,7 @@ class ViagemImporter implements ExcelImportInterface
 
     public function process(array $transformedData): mixed
     {
-        Log::debug('Processando importação de viagem', ['data' => $transformedData]);
+        Log::debug(__METHOD__.'@'.__LINE__, ['data' => $transformedData]);
 
         $viagem = $this->viagemService->updateOrCreate($transformedData);
 
@@ -106,6 +106,9 @@ class ViagemImporter implements ExcelImportInterface
             ]);
             return null;
         }
+
+        Log::debug(__METHOD__.'@'.__LINE__, ['viagem_id' => $viagem->id]);
+
         return $viagem;
     }
 

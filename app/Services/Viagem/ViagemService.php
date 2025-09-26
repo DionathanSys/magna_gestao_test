@@ -73,32 +73,39 @@ class ViagemService
 
             $viagem = Models\Viagem::where('numero_viagem', $data['numero_viagem'])->first();
 
-            Log::debug(__METHOD__.':'.__LINE__, [
-                'viagem' => $viagem ?? null,
+            Log::debug(__METHOD__.'@'.__LINE__, [
+                'viagem' => $viagem ?? $data['numero_viagem'] . ' (nova)',
             ]);
-            
+
             switch (true) {
                 case ($viagem && $viagem->conferido == false):
 
+                    Log::debug("Viagem Nº " . $viagem['numero_viagem'] . " encontrada e não conferida, será atualizada");
                     $action = new Actions\AtualizarViagem($viagem);
                     $viagem = $action->handle($data);
-
                     Log::info("Viagem Nº " . $viagem['numero_viagem'] . " atualizada");
                     $this->setSuccess('Viagem atualizada com sucesso!');
-
                     break;
 
                 case ($viagem && $viagem->conferido == true):
+
                     Log::info("Viagem Nº " . $viagem['numero_viagem'] . " já conferida, não será atualizado");
                     $this->setSuccess("Viagem Nº " . $viagem['numero_viagem'] . " já conferida, não será atualizado");
                     break;
+
                 default:
+
+                    Log::debug("Viagem Nº " . $data['numero_viagem'] . " não encontrada, será criada");
                     $action = new Actions\CriarViagem();
                     $viagem = $action->handle($data);
-
                     Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
 
                     $carga = $this->cargaService->create($data['integrado'], $viagem);
+
+                    if($carga){
+                        Log::info("Carga da viagem Nº " . $data['numero_viagem']);
+                    }
+
                     $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");
 
             }
@@ -106,6 +113,7 @@ class ViagemService
             return $viagem;
         } catch (\Exception $e) {
             Log::error(__METHOD__, [
+                'metodo'        => __METHOD__ . '@' . __LINE__,
                 'error'         => $e->getMessage(),
                 'viagem_numero' => $data['numero_viagem'] ?? null,
                 'data'          => $data,

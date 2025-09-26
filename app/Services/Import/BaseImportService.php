@@ -150,7 +150,7 @@ abstract class BaseImportService
             'total_batches' => $totalBatches,
         ]);
 
-        Log::debug("Processando {$totalBatches} lotes de tamanho {$batchSize}, uso de fila: " . ($useQueue ? 'sim' : 'não'), ['import_log_id' => $importLog->id, 'options' => $options]);
+        Log::debug("Processando {$totalBatches} lotes de tamanho {$batchSize}, row(" . count($rows) . "), uso de fila: " . ($useQueue ? 'sim' : 'não'), ['import_log_id' => $importLog->id, 'options' => $options]);
 
         foreach ($batches as $batch) {
 

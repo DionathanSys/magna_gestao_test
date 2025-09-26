@@ -35,12 +35,25 @@ class ImportLogsTable
                     ->label('Erros')
                     ->getStateUsing(function ($record) {
                         $errors = json_decode($record->errors, true) ?? [];
-                        return count($errors);
+                        if (empty($errors)) {
+                            return 'Sem erros';
+                        }
+
+                        $firstError = $errors[0] ?? '';
+                        $totalErrors = count($errors);
+
+                        if ($totalErrors > 1) {
+                            return Str::limit($firstError, 50) . " (+{$totalErrors} erros)";
+                        }
+
+                        return Str::limit($firstError, 100);
                     })
-                    ->badge()
-                    ->color(fn($state) => $state > 0 ? 'danger' : 'success')
-                    ->formatStateUsing(fn($state) => $state > 0 ? "{$state} erro(s)" : 'Sem erros')
-                    ->sortable(),
+                    ->tooltip(function ($record) {
+                        $errors = json_decode($record->errors, true) ?? [];
+                        return empty($errors) ? null : implode("\n", array_slice($errors, 0, 5));
+                    })
+                    ->wrap()
+                    ->color(fn($record) => empty(json_decode($record->errors, true)) ? 'success' : 'danger'),
                 TextColumn::make('total_rows')
                     ->label('Total de Linhas')
                     ->numeric(0, ',', '.')

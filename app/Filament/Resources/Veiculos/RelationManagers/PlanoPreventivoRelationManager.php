@@ -75,7 +75,7 @@ class PlanoPreventivoRelationManager extends RelationManager
                 TextColumn::make('itens')
                     ->label('Itens')
                     ->getStateUsing(function ($record) {
-                        $itens = json_decode($record->itens) ?? [];
+                        $itens = $record->itens ?? [];
                         return $itens;
                     })
                     ->listWithLineBreaks()

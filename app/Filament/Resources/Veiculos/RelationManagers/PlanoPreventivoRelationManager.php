@@ -75,7 +75,7 @@ class PlanoPreventivoRelationManager extends RelationManager
                 TextColumn::make('itens')
                     ->label('Itens')
                     ->getStateUsing(function ($record) {
-                        $itens = json_decode($record->itens, true) ?? [];
+                        $itens = $record->itens ?? [];
                         return $itens;
                     })
                     ->listWithLineBreaks()
@@ -83,7 +83,7 @@ class PlanoPreventivoRelationManager extends RelationManager
                     ->limitList(3)
                     ->expandableLimitedList()
                     ->color('danger')
-                    ->placeholder('Nenhum erro'),
+                    ->placeholder('Nenhum item'),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime()

@@ -35,15 +35,15 @@ class VeiculosTable
                     ->numeric(2, ',', '.'),
                 ToggleColumn::make('is_active')
                     ->label('Ativo'),
-                TextInputColumn::make('marca')
+                TextColumn::make('marca')
                     ->label('Marca')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextInputColumn::make('modelo')
+                TextColumn::make('modelo')
                     ->label('Modelo')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextInputColumn::make('chassis')
+                TextColumn::make('chassis')
                     ->label('Chassi')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),

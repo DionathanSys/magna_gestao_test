@@ -79,11 +79,10 @@ class PlanoPreventivoRelationManager extends RelationManager
                         return $itens;
                     })
                     ->listWithLineBreaks()
-                    ->bulleted()
-                    ->limitList(3)
+                    ->limitList(1)
                     ->expandableLimitedList()
-                    ->color('danger')
-                    ->placeholder('Nenhum item'),
+                    ->placeholder('Nenhum item')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime()

@@ -34,8 +34,7 @@ class VeiculosTable
                     ->label('KM Médio/Dia')
                     ->numeric(2, ',', '.'),
                 ToggleColumn::make('is_active')
-                    ->label('Ativo')
-                    ->boolean(),
+                    ->label('Ativo'),
                 TextInputColumn::make('marca')
                     ->label('Marca')
                     ->searchable()

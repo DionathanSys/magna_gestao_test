@@ -29,135 +29,138 @@ class ProcessImportRowJob implements ShouldQueue
     public function handle(): void
     {
 
-        try {
+        // try {
 
-            Log::debug('Iniciando job de processamento de lote - ImportLog ' . $this->importLogId, [
-                'batch_size' => count($this->batch),
-                'importer' => $this->importerClass,
-            ]);
+        //     $importLog = Models\ImportLog::find($this->importLogId);
 
-            $importer = app($this->importerClass);
-            $importLog = Models\ImportLog::find($this->importLogId);
+        //     Log::debug('Iniciando job de processamento de lote', [
+        //         'batch_size' => count($this->batch),
+        //         'importer' => $this->importerClass,
+        //     ]);
 
-            if (!$importLog) {
-                Log::error("ImportLog não encontrado: {$this->importLogId}");
-                return;
-            }
+        //     $importer = app($this->importerClass);
 
-            $processedRows = 0;
-            $successRows = 0;
-            $errorRows = 0;
-            $errors = [];
-            $warnings = [];
+        //     if (!$importLog) {
+        //         Log::error("ImportLog não encontrado: {$this->importLogId}");
+        //         return;
+        //     }
 
-            // Processar cada linha do batch
-            foreach ($this->batch as $index => $row) {
+        //     $processedRows = 0;
+        //     $successRows = 0;
+        //     $errorRows = 0;
+        //     $errors = [];
+        //     $warnings = [];
 
-                $rowNumber = $index + 2;
+        //     // Processar cada linha do batch
+        //     foreach ($this->batch as $index => $row) {
 
-                try {
+        //         $rowNumber = $index + 2;
 
-                    $rowData = array_combine($this->headers, $row);
+        //         try {
 
-                    if (!$rowData) {
-                        throw new \Exception("Erro ao combinar headers com dados");
-                    }
+        //             $rowData = array_combine($this->headers, $row);
 
-                    Log::debug('Processando linha do lote', [
-                        'metodo' => __METHOD__ . '@' . __LINE__,
-                        'rowData' => $rowData,
-                        'row_index' => $index,
-                        'row_data' => $row,
-                    ]);
+        //             if (!$rowData) {
+        //                 throw new \Exception("Erro ao combinar headers com dados");
+        //             }
 
-                    $validationErrors = $importer->validate($rowData, $rowNumber);
+        //             Log::debug('Processando linha do lote', [
+        //                 'metodo' => __METHOD__ . '@' . __LINE__,
+        //                 'rowData' => $rowData,
+        //                 'row_index' => $index,
+        //                 'row_data' => $row,
+        //             ]);
 
-                    if (!empty($validationErrors)) {
-                        $errors[] = "Linha {$rowNumber}: " . implode(', ', $validationErrors);
-                        $errorRows++;
-                        $processedRows++;
+        //             $validationErrors = $importer->validate($rowData, $rowNumber);
 
-                        Log::debug('Erro de validação na linha', [
-                            'row_index' => $rowNumber,
-                            'errors'    => $validationErrors,
-                            'errorRows' => $errorRows,
-                            'processedRows' => $processedRows,
-                        ]);
-                        continue;
-                    }
+        //             if (!empty($validationErrors)) {
+        //                 $errors[] = "Linha {$rowNumber}: " . implode(', ', $validationErrors);
+        //                 $errorRows++;
+        //                 $processedRows++;
 
-                    // Transformar e processar
-                    $transformedData = $importer->transform($rowData);
-                    $result = $importer->process($transformedData);
+        //                 Log::debug('Erro de validação na linha', [
+        //                     'row_index' => $rowNumber,
+        //                     'errors'    => $validationErrors,
+        //                     'errorRows' => $errorRows,
+        //                     'processedRows' => $processedRows,
+        //                 ]);
+        //                 continue;
+        //             }
 
-                    Log::debug('Resultado do processamento da linha', [
-                        'row_index' => $rowNumber,
-                        'result' => $result,
-                    ]);
+        //             // Transformar e processar
+        //             $transformedData = $importer->transform($rowData);
+        //             $result = $importer->process($transformedData);
 
-                    if ($result) {
-                        $successRows++;
-                        Log::debug("Linha {$rowNumber} processada com sucesso");
-                    } else {
-                        $errorRows++;
-                        $errors[] = "Linha {$rowNumber}: Erro no processamento";
-                    }
+        //             Log::debug('Resultado do processamento da linha', [
+        //                 'row_index' => $rowNumber,
+        //                 'result' => $result,
+        //             ]);
 
-                    $processedRows++;
+        //             if ($result) {
+        //                 $successRows++;
+        //                 Log::debug("Linha {$rowNumber} processada com sucesso");
+        //             } else {
+        //                 $errorRows++;
+        //                 $errors[] = "Linha {$rowNumber}: Erro no processamento";
+        //             }
 
-                } catch (\Exception $e) {
+        //             $processedRows++;
 
-                    $errorRows++;
-                    $errors[] = "Linha {$rowNumber}: " . $e->getMessage();
-                    $processedRows++;
+        //         } catch (\Exception $e) {
 
-                    Log::error('Erro ao processar linha', [
-                        'import_log_id' => $this->importLogId,
-                        'row_index' => $rowNumber,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
-            }
+        //             $errorRows++;
+        //             $errors[] = "Linha {$rowNumber}: " . $e->getMessage();
+        //             $processedRows++;
 
-            // Atualizar o ImportLog com as estatísticas do batch
-            $importLog->increment('processed_batches');
-            $importLog->increment('total_rows', $processedRows);
-            $importLog->increment('success_rows', $successRows);
-            $importLog->increment('error_rows', $errorRows);
+        //             Log::error('Erro ao processar linha', [
+        //                 'import_log_id' => $this->importLogId,
+        //                 'row_index' => $rowNumber,
+        //                 'error' => $e->getMessage(),
+        //             ]);
+        //         }
+        //     }
 
-            // Mesclar erros existentes com novos erros
-            $existingErrors = json_decode($importLog->errors ?? '[]', true);
-            $allErrors = array_merge($existingErrors, $errors);
+        //     // Atualizar o ImportLog com as estatísticas do batch
+        //     $importLog->increment('processed_batches');
+        //     $importLog->increment('total_rows', $processedRows);
+        //     $importLog->increment('success_rows', $successRows);
+        //     $importLog->increment('error_rows', $errorRows);
 
-            $existingWarnings = json_decode($importLog->warnings ?? '[]', true);
-            $allWarnings = array_merge($existingWarnings, $warnings);
+        //     // Mesclar erros existentes com novos erros
+        //     $existingErrors = json_decode($importLog->errors ?? '[]', true);
+        //     $allErrors = array_merge($existingErrors, $errors);
 
-            $importLog->update([
-                'errors' => json_encode($allErrors),
-                'warnings' => json_encode($allWarnings),
-            ]);
+        //     $existingWarnings = json_decode($importLog->warnings ?? '[]', true);
+        //     $allWarnings = array_merge($existingWarnings, $warnings);
 
-            Log::info('Batch processado', [
-                'processed' => $processedRows,
-                'success' => $successRows,
-                'errors' => $errorRows
-            ]);
+        //     $importLog->update([
+        //         'errors' => json_encode($allErrors),
+        //         'warnings' => json_encode($allWarnings),
+        //     ]);
 
-        } catch (\Exception $e) {
+        //     Log::info('Batch processado', [
+        //         'processed' => $processedRows,
+        //         'success' => $successRows,
+        //         'errors' => $errorRows
+        //     ]);
 
-            $importLog->update([
-                'status' => StatusImportacaoEnum::FALHOU,
-                'finished_at' => now(),
-                'total_rows' => $processedRows,
-                'success_rows' => $successRows,
-                'error_rows' => $errorRows,
-            ]);
+        // } catch (\Exception $e) {
 
-            Log::error('Erro ao processar batch de importação', [
-                'import_log_id' => $this->importLogId,
-                'error' => $e->getMessage(),
-            ]);
+        //     $importLog = Models\ImportLog::find($this->importLogId);
 
-        }
+        //     $importLog->update([
+        //         'status' => StatusImportacaoEnum::FALHOU,
+        //         'finished_at' => now(),
+        //         'total_rows' => $processedRows,
+        //         'success_rows' => $successRows,
+        //         'error_rows' => $errorRows,
+        //     ]);
+
+        //     Log::error('Erro ao processar batch de importação', [
+        //         'import_log_id' => $this->importLogId,
+        //         'error' => $e->getMessage(),
+        //     ]);
+
+        // }
     }
 }

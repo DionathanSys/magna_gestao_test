@@ -9,6 +9,8 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -31,18 +33,18 @@ class VeiculosTable
                 TextColumn::make('km_medio')
                     ->label('KM Médio/Dia')
                     ->numeric(2, ',', '.'),
-                IconColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label('Ativo')
                     ->boolean(),
-                TextColumn::make('marca')
+                TextInputColumn::make('marca')
                     ->label('Marca')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('modelo')
+                TextInputColumn::make('modelo')
                     ->label('Modelo')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('chassis')
+                TextInputColumn::make('chassis')
                     ->label('Chassi')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),

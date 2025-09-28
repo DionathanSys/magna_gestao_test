@@ -3,19 +3,42 @@
 namespace App\Services\Viagem\Actions;
 
 use App\Models;
+use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Validator;
 
 class AtualizarViagem
 {
+    use UserCheckTrait;
 
-    public function __construct(protected Models\Viagem $viagem)
-    {
+    protected array $allowedFields = [
+        'veiculo_id',
+        'numero_viagem',
+        'documento_transporte',
+        'km_rodado',
+        'km_pago',
+        'km_cadastro',
+        'km_cobrar',
+        'motivo_divergencia',
+        'data_competencia',
+        'data_inicio',
+        'data_fim',
+        'conferido',
+        'created_by',
+        'updated_by',
+    ];
 
-    }
+    public function __construct(protected Models\Viagem $viagem) {}
 
     public function handle(array $data): ?Models\Viagem
     {
-        $this->validate($data);
+        // Filtra apenas campos permitidos
+        $filteredData = collect($data)->only($this->allowedFields)->toArray();
+
+        $this->validate($filteredData);
+
+        $data = array_merge($filteredData, [
+            'updated_by' => $this->getUserIdChecked(),
+        ]);
 
         $this->viagem->update($data);
 
@@ -37,7 +60,6 @@ class AtualizarViagem
             'data_inicio'           => 'required|date',
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
-            'created_by'            => 'required|exists:users,id',
             'updated_by'            => 'required|exists:users,id',
         ], [
             'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
@@ -66,8 +88,6 @@ class AtualizarViagem
             'data_fim.date'                 => 'O campo Data Fim deve ser uma data válida.',
             'data_fim.after_or_equal'       => 'O campo Data Fim deve ser uma data posterior ou igual à Data Início.',
             'conferido.boolean'             => 'O campo Conferido deve ser verdadeiro ou falso.',
-            'created_by.required'           => 'O campo Criado Por é obrigatório.',
-            'created_by.exists'             => 'Usuário Criador não encontrado.',
             'updated_by.required'           => 'O campo Atualizado Por é obrigatório.',
             'updated_by.exists'             => 'Usuário Atualizador não encontrado.',
         ])->validate();

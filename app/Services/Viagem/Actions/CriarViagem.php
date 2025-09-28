@@ -36,11 +36,9 @@ class CriarViagem
         $this->validate($filteredData);
 
         $data = array_merge($filteredData, [
-                'created_by' => $this->getUserIdChecked(),
-                'updated_by' => $this->getUserIdChecked(),
-            ]);
-
-        Log::debug('Criando nova viagem.', $data);
+            'created_by' => $this->getUserIdChecked(),
+            'updated_by' => $this->getUserIdChecked(),
+        ]);
 
         $viagem = Models\Viagem::create(
             $data
@@ -64,6 +62,37 @@ class CriarViagem
             'data_inicio'           => 'required|date',
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
+        ],[
+            'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
+            'veiculo_id.exists'             => 'Veículo não encontrado.',
+            'numero_viagem.required'        => 'O campo Viagem é obrigatório.',
+            'numero_viagem.string'          => 'O campo Viagem deve ser um texto válido.',
+            'km_rodado.required'            => 'O campo Km Rodado é obrigatório.',
+            'km_rodado.numeric'             => 'O campo Km Rodado deve ser um número válido.',
+            'km_rodado.min'                 => 'O campo Km Rodado deve ser maior ou igual a 0.',
+            'km_pago.required'              => 'O campo Km Pago é obrigatório.',
+            'km_pago.numeric'               => 'O campo Km Pago deve ser um número válido.',
+            'km_pago.min'                   => 'O campo Km Pago deve ser maior ou igual a 0.',
+            'km_cadastro.required'          => 'O campo Km Cadastro é obrigatório.',
+            'km_cadastro.numeric'           => 'O campo Km Cadastro deve ser um número válido.',
+            'km_cadastro.min'               => 'O campo Km Cadastro deve ser maior ou igual a 0.',
+            'km_cobrar.required'            => 'O campo Km Cobrar é obrigatório.',
+            'km_cobrar.numeric'             => 'O campo Km Cobrar deve ser um número válido.',
+            'km_cobrar.min'                 => 'O campo Km Cobrar deve ser maior ou igual a 0.',
+            'motivo_divergencia.required'   => 'O campo Motivo Divergência é obrigatório.',
+            'motivo_divergencia.string'     => 'O campo Motivo Divergência deve ser um texto válido.',
+            'data_competencia.required'     => 'O campo Data Competência é obrigatório.',
+            'data_competencia.date'         => 'O campo Data Competência deve ser uma data válida.',
+            'data_inicio.required'          => 'O campo Data Início é obrigatório.',
+            'data_inicio.date'              => 'O campo Data Início deve ser uma data válida.',
+            'data_fim.required'             => 'O campo Data Fim é obrigatório.',
+            'data_fim.date'                 => 'O campo Data Fim deve ser uma data válida.',
+            'data_fim.after_or_equal'       => 'O campo Data Fim deve ser uma data posterior ou igual à Data Início.',
+            'conferido.boolean'             => 'O campo Conferido deve ser verdadeiro ou falso.',
+            'created_by.required'           => 'O campo Criado Por é obrigatório.',
+            'created_by.exists'             => 'Usuário Criador não encontrado.',
+            'updated_by.required'           => 'O campo Atualizado Por é obrigatório.',
+            'updated_by.exists'             => 'Usuário Atualizador não encontrado.',
         ])->validate();
 
         return true;

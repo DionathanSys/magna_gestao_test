@@ -17,10 +17,7 @@ class ProcessImportRowJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        // private array   $batch,
-        // private array   $headers,
-        // private string  $importerClass,
-        // private int     $importLogId
+
     ) {}
 
     /**
@@ -29,6 +26,6 @@ class ProcessImportRowJob implements ShouldQueue
     public function handle(): void
     {
         Log::debug("Iniciando processamento do lote para ImportLog ID");
-   
+
     }
 }

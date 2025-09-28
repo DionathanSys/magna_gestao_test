@@ -28,3 +28,9 @@ Route::get('/teste', function () {
    TesteJob::dispatch();
 
 });
+
+
+        // private array   $batch,
+        // private array   $headers,
+        // private string  $importerClass,
+        // private int     $importLogId

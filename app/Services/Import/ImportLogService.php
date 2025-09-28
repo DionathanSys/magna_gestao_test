@@ -49,6 +49,8 @@ class ImportLogService
     public function incrementSuccessRows(): void
     {
         $this->importLog->increment('success_rows');
+        //TODO: alterar propriedade para ser uma coluna virtual calculada
+        $this->importLog->increment('processed_rows');
     }
 
     public function incrementErrorRows(array $errors): void
@@ -75,7 +77,7 @@ class ImportLogService
     public function failed(): void
     {
         Log::debug("Marcando log de importação como falhado: " . $this->importLog->id);
-        
+
         $this->importLog->markAsFailed("Erro na importação");
     }
 }

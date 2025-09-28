@@ -82,11 +82,11 @@ class ImportLogsTable
                     ->sortable(),
                 TextColumn::make('started_at')
                     ->label('Iniciado em')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 TextColumn::make('finished_at')
                     ->label('Finalizado em')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
                 TextColumn::make('duration_seconds')
                     ->label('Duração (s)')

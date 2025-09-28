@@ -142,7 +142,7 @@ class ImportLog extends Model
     public function calculateDuration(): void
     {
         if ($this->started_at && $this->finished_at) {
-            $this->duration_seconds = $this->finished_at->diffInSeconds($this->started_at);
+            $this->duration_seconds = $this->started_at->diffInSeconds($this->finished_at);
             $this->save();
         }
     }

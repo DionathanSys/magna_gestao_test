@@ -94,10 +94,18 @@ class ViagemService
                     $viagem = $action->handle($data);
                     Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
 
-                    $carga = $this->cargaService->create($data['integrado'], $viagem);
+                    try {
+                        $carga = $this->cargaService->create($data['destino'], $viagem);
+                    } catch (\Exception $e) {
+                        Log::error("Erro ao criar carga para a viagem Nº " . $data['numero_viagem'], [
+                            'metodo' => __METHOD__ . '@' . __LINE__,
+                            'error' => $e->getMessage(),
+                            'destino' => $data['destino'] ?? null,
+                        ]);
+                    }
 
                     if($carga){
-                        Log::alert("Carga da viagem Nº " . $data['numero_viagem']);
+                        Log::alert("Não foi possível criar carga da viagem Nº " . $data['numero_viagem']);
                     }
 
                     $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");
@@ -106,7 +114,7 @@ class ViagemService
 
             return $viagem;
         } catch (\Exception $e) {
-            Log::error(__METHOD__, [
+            Log::error("Erro ao atualizar ou criar viagem ", [
                 'metodo'        => __METHOD__ . '@' . __LINE__,
                 'error'         => $e->getMessage(),
                 'viagem_numero' => $data['numero_viagem'] ?? null,

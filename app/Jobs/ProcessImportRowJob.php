@@ -30,8 +30,10 @@ class ProcessImportRowJob implements ShouldQueue
     {
 
         //mone o foreach para  a batch
+        $i = 0;
         foreach ($this->batch as $index => $row) {
-            Log::debug("Iniciando processamento do lote para ImportLog ID: {$this->importLogId}, Linha: {$row}");
+            Log::debug("Iniciando processamento do lote para ImportLog ID: {$this->importLogId}, Linha: {$i}");
+            $i++;
         }
 
 

@@ -72,6 +72,7 @@ class ImportLogService
     public function incrementBatchProcessed(): void
     {
         $this->importLog->increment('processed_batches');
+        $this->importLog->updateProgress();
     }
 
     public function failed(): void

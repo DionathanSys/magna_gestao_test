@@ -105,12 +105,12 @@ class ImportLog extends Model
 
     public function scopeCompleted($query)
     {
-        return $query->whereIn('status', ['COMPLETED', 'COMPLETED_WITH_ERRORS']);
+        return $query->whereIn('status', [Enum\Import\StatusImportacaoEnum::CONCLUIDO, Enum\Import\StatusImportacaoEnum::CONCLUIDO_COM_ERROS]);
     }
 
     public function scopeInProgress($query)
     {
-        return $query->where('status', 'PROCESSING');
+        return $query->where('status', Enum\Import\StatusImportacaoEnum::PROCESSANDO);
     }
 
     // Métodos úteis
@@ -158,7 +158,7 @@ class ImportLog extends Model
     public function markAsCompleted(): void
     {
         $this->update([
-            'status' => $this->error_rows > 0 ? 'COMPLETED_WITH_ERRORS' : 'COMPLETED',
+            'status' => $this->error_rows > 0 ? Enum\Import\StatusImportacaoEnum::CONCLUIDO_COM_ERROS : Enum\Import\StatusImportacaoEnum::CONCLUIDO,
             'finished_at' => now(),
         ]);
 
@@ -171,7 +171,7 @@ class ImportLog extends Model
         $errors[] = $errorMessage;
 
         $this->update([
-            'status' => 'FAILED',
+            'status' => Enum\Import\StatusImportacaoEnum::FALHOU,
             'finished_at' => now(),
             'errors' => $errors,
         ]);

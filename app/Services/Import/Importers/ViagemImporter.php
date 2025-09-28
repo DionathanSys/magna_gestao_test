@@ -6,17 +6,20 @@ use App\Models;
 use App\Enum;
 use App\Contracts\ExcelImportInterface;
 use App\Services;
-use App\Traits\UserCheckTrait;
+use App\Traits\ServiceResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ViagemImporter implements ExcelImportInterface
 {
+    use ServiceResponseTrait;
+
     public function __construct(
-        private Services\Viagem\ViagemService $viagemService,
+        private Services\Viagem\ViagemService       $viagemService,
         private Services\Integrado\IntegradoService $integradoService,
-        private Services\Veiculo\VeiculoService $veiculoService
+        private Services\Veiculo\VeiculoService     $veiculoService
+
     ) {}
 
     public function getRequiredColumns(): array
@@ -47,9 +50,22 @@ class ViagemImporter implements ExcelImportInterface
         $validator = Validator::make($row, [
             'Viagem'            => 'required|string',
             'Carga Cliente'     => 'nullable|string',
-            'Destino'           => 'required|string',
+            'Destino'           => 'nullable|string',
             'Placa'             => 'required|string',
             'Condutor Viagem'   => 'required|string',
+            'Inicio'            => 'required|date_format:d/m/Y H:i',
+            'Fim'               => 'required|date_format:d/m/Y H:i',
+        ], [
+            'Viagem.required'           => 'O campo Viagem é obrigatório na linha ' . $rowNumber,
+            'Viagem.string'             => 'O campo Viagem deve ser um texto válido na linha ' . $rowNumber,
+            'Placa.required'            => 'A Placa é obrigatória na linha ' . $rowNumber,
+            'Placa.string'              => 'A Placa deve ser um texto válido na linha ' . $rowNumber,
+            'Condutor Viagem.required'  => 'O Condutor da Viagem é obrigatório na linha ' . $rowNumber,
+            'Condutor Viagem.string'    => 'O Condutor da Viagem deve ser um texto válido na linha ' . $rowNumber,
+            'Inicio.required'           => 'A Data de Início é obrigatória na linha ' . $rowNumber,
+            'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm na linha ' . $rowNumber,
+            'Fim.required'              => 'A Data de Fim é obrigatória na linha ' . $rowNumber,
+            'Fim.date_format'         => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm na linha ' . $rowNumber,
         ]);
 
         if ($validator->fails()) {
@@ -92,9 +108,22 @@ class ViagemImporter implements ExcelImportInterface
         ];
     }
 
-    public function process(array $transformedData): mixed
+    public function process(array $data, int $rowNumber): ?Models\Viagem
     {
-        Log::debug(__METHOD__ . '@' . __LINE__, ['data' => $transformedData]);
+        $errors = $this->validate($data, $rowNumber);
+
+        if (!empty($errors)) {
+            Log::alert('Erros de validação na importação de viagem', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'row' => $rowNumber,
+                'data' => $data,
+                'errors' => $errors
+            ]);
+            $this->setError("Erros de validação na linha {$rowNumber}.", $errors);
+            return null;
+        }
+
+        $transformedData = $this->transform($data);
 
         $viagem = $this->viagemService->updateOrCreate($transformedData);
 
@@ -103,20 +132,11 @@ class ViagemImporter implements ExcelImportInterface
                 'data' => $transformedData,
                 'errors' => $this->viagemService->getMessage()
             ]);
+            $this->setError("Erro na linha {$rowNumber}.", [$this->viagemService->getMessage()]);
             return null;
         }
-
-        Log::debug(__METHOD__ . '@' . __LINE__, ['viagem_id' => $viagem->id]);
 
         return $viagem;
     }
 
-    public function dispatchJobRow(
-        array   $batch,
-        array   $headers,
-        string  $importerClass,
-        int     $importLogId
-    ): void {
-
-    }
 }

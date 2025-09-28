@@ -29,6 +29,9 @@ class FinalizeImportJob implements ShouldQueue
         $importLog = ImportLog::find($this->importLogId);
 
         if (!$importLog) {
+            Log::alert("ImportLog não encontrado", [
+                'import_log_id' => $this->importLogId
+            ]);
             return;
         }
 

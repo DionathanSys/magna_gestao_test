@@ -2,8 +2,7 @@
 
 namespace App\Services\Import;
 
-use App\Models;
-use App\Enum;
+use App\{Models, Enum, Services};
 use App\Contracts\ExcelImportInterface;
 use App\Jobs\FinalizeImportJob;
 use App\Jobs\ProcessImportRowJob;
@@ -21,14 +20,19 @@ abstract class BaseImportService
     protected int $processedRows = 0;
     protected int $successRows = 0;
     protected int $errorRows = 0;
-    protected Models\ImportLog $importLog;
+    protected Services\Import\ImportLogService $importLogService;
+
+    public function __construct()
+    {
+    }
 
     public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
     {
         try {
 
             // Criar log de importação
-            $this->importLog = $this->createImportLog($filePath, $options);
+            $importLog = $this->importLogService::createImportLog($filePath, $options);
+            $this->importLogService = new Services\Import\ImportLogService($importLog->id);
 
             // Validar arquivo
             $this->validateFile($filePath);
@@ -42,53 +46,29 @@ abstract class BaseImportService
             $this->validateHeaders($rows[0] ?? [], $importer);
 
             // Processar linhas
-            $this->processRows($rows, $importer, $this->importLog, $options);
+            $this->processRows($rows, $importer, $importLog->id, $options);
 
-            // Finalizar log
-            $this->finalizeImportLog($this->importLog);
-
-            $this->setSuccess("Importação concluída. {$this->successRows} registros processados com sucesso.");
+            $this->setSuccess("Importação iniciada.");
 
             return [
-                'import_log_id' => $this->importLog->id,
-                'total_rows' => $this->processedRows,
-                'success_rows' => $this->successRows,
-                'error_rows' => $this->errorRows,
-                'errors' => $this->errors,
-                'warnings' => $this->warnings,
+                'import_log_id' => $importLog->id,
             ];
+
         } catch (\Exception $e) {
 
             $this->setError("Erro na importação: " . $e->getMessage());
 
-            $importLog = $this->importLog ?? ImportLog::where('file_path', Storage::disk('public')->path($filePath))->latest()->first();
+            if (!$this->importLogService) {
+                $importLog = ImportLog::where('file_path', Storage::disk('public')->path($filePath))->latest()->first();
+                $this->importLogService = new Services\Import\ImportLogService($importLog->id);
+            }
 
-            $this->finalizeImportLog($importLog);
+            $this->importLogService->failed();
 
             return [
                 'errors' => [$e->getMessage()],
-                'total_rows' => $this->processedRows,
-                'success_rows' => 0,
-                'error_rows' => $this->processedRows,
             ];
         }
-    }
-
-    protected function createImportLog(string $filePath, array $options): Models\ImportLog
-    {
-
-        $log = Models\ImportLog::create([
-            'import_description' => $options['descricao'] ?? 'Importação de dados',
-            'file_name' => basename($filePath),
-            'file_path' => Storage::disk('public')->path($filePath),
-            'import_type' => static::class,
-            'user_id' => Auth::id(),
-            'status' => Enum\Import\StatusImportacaoEnum::PENDENTE,
-            'options' => json_encode($options),
-            'started_at' => now(),
-        ]);
-
-        return $log;
     }
 
     protected function validateFile(string $filePath): void
@@ -125,48 +105,23 @@ abstract class BaseImportService
 
     }
 
-    protected function processRows(array $rows, ExcelImportInterface $importer, Models\ImportLog $importLog, array $options): void
+    protected function processRows(array $rows, ExcelImportInterface $importer, int $importLogId, array $options): void
     {
         $headers = array_shift($rows); // Remove cabeçalho
-        $batchSize = $options['batch_size'] ?? 3;
+        $batchSize = $options['batch_size'] ?? 50;
 
         $batches = array_chunk($rows, $batchSize);
         $totalBatches = count($batches);
 
-        //TODO: Melhorar isso aqui, separar
-        $importLog->update([
+        $this->importLogService->update([
             'total_rows'    => count($rows),
             'total_batches' => $totalBatches,
         ]);
 
-        Log::debug("Total de linhas: " . count($rows));
-        Log::debug("Total de lotes: " . $totalBatches);
-
         foreach ($batches as $batch) {
-            ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLog->id);
-            // FinalizeImportJob::dispatch($importLog->id);
+            ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
+            FinalizeImportJob::dispatch($importLogId);
         }
-    }
-
-    protected function finalizeImportLog(Models\ImportLog $importLog): void
-    {
-        if($this->processedRows == 0) {
-            $status = Enum\Import\StatusImportacaoEnum::CONCLUIDO;
-        } elseif ($this->errorRows > 0) {
-            $status = Enum\Import\StatusImportacaoEnum::CONCLUIDO_COM_ERROS;
-        } else {
-            $status = Enum\Import\StatusImportacaoEnum::CONCLUIDO;
-        }
-
-        $importLog->update([
-            'status'        => $status,
-            'total_rows'    => $this->processedRows,
-            'success_rows'  => $this->successRows,
-            'error_rows'    => $this->errorRows,
-            'errors'        => json_encode($this->errors),
-            'warnings'      => json_encode($this->warnings),
-            'finished_at'   => now(),
-        ]);
     }
 
 }

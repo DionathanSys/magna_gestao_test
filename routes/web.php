@@ -30,7 +30,4 @@ Route::get('/teste', function () {
 });
 
 
-        // private array   $batch,
-        // private array   $headers,
-        // private string  $importerClass,
-        // private int     $importLogId
+        

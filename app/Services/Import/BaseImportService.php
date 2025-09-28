@@ -7,6 +7,7 @@ use App\Enum;
 use App\Contracts\ExcelImportInterface;
 use App\Jobs\FinalizeImportJob;
 use App\Jobs\ProcessImportRowJob;
+use App\Models\ImportLog;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\{Auth, DB, Log, Storage};
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -60,7 +61,9 @@ abstract class BaseImportService
 
             $this->setError("Erro na importação: " . $e->getMessage());
 
-            // $this->finalizeImportLog($this->importLog);
+            $importLog = $this->importLog ?? ImportLog::where('file_path', Storage::disk('public')->path($filePath))->latest()->first();
+
+            $this->finalizeImportLog($importLog);
 
             return [
                 'errors' => [$e->getMessage()],
@@ -125,7 +128,7 @@ abstract class BaseImportService
     protected function processRows(array $rows, ExcelImportInterface $importer, Models\ImportLog $importLog, array $options): void
     {
         $headers = array_shift($rows); // Remove cabeçalho
-        $batchSize = $options['batch_size'] ?? 100;
+        $batchSize = $options['batch_size'] ?? 3;
 
         $batches = array_chunk($rows, $batchSize);
         $totalBatches = count($batches);

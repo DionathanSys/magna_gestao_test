@@ -73,7 +73,7 @@ class ViagemService
 
             $viagem = Models\Viagem::where('numero_viagem', $data['numero_viagem'])->first();
 
-            Log::debug(__METHOD__.'@'.__LINE__, [
+            Log::debug(__METHOD__ . '@' . __LINE__, [
                 'viagem' => $viagem ?? $data['numero_viagem'] . ' (nova)',
             ]);
 
@@ -93,24 +93,23 @@ class ViagemService
                     $action = new Actions\CriarViagem();
                     $viagem = $action->handle($data);
                     Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
-
-                    try {
-                        $carga = $this->cargaService->create($data['destino'], $viagem);
-                    } catch (\Exception $e) {
-                        Log::error("Erro ao criar carga para a viagem Nº " . $data['numero_viagem'], [
-                            'metodo' => __METHOD__ . '@' . __LINE__,
-                            'error' => $e->getMessage(),
-                            'destino' => $data['destino'] ?? null,
-                        ]);
-                    }
-
-                    if($carga){
-                        Log::alert("Não foi possível criar carga da viagem Nº " . $data['numero_viagem']);
-                    }
-
-                    $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");
-
             }
+
+            try {
+                $carga = $this->cargaService->create($data['destino'], $viagem);
+            } catch (\Exception $e) {
+                Log::error("Erro ao criar/atualizar carga para a viagem Nº " . $data['numero_viagem'], [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'error' => $e->getMessage(),
+                    'destino' => $data['destino'] ?? null,
+                ]);
+            }
+
+            if ($carga) {
+                Log::alert("Não foi possível criar carga da viagem Nº " . $data['numero_viagem']);
+            }
+
+            $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");
 
             return $viagem;
         } catch (\Exception $e) {

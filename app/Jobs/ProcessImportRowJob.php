@@ -41,11 +41,9 @@ class ProcessImportRowJob implements ShouldQueue
             $rowData = array_combine($this->headers, $row);
 
             try {
-                $result = $importer->process($rowData, $rowNumber);
-                if (!$result) {
-                    $this->importLogService->incrementErrorRows([
-                        "Linha {$rowNumber}: Erro ao processar a linha."
-                    ]);
+                $importer->process($rowData, $rowNumber);
+                if ($importer->hasError()) {
+                    $this->importLogService->incrementErrorRows($importer->getData());
                     continue;
                 }
 

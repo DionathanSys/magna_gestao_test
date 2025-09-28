@@ -24,7 +24,7 @@ Route::get('/teste', function () {
 
    Log::debug('TesteCommand executado com sucesso!');
 
-   TesteJob::dispatch();
    ProcessImportRowJob::dispatch();
+   TesteJob::dispatch();
 
 });

@@ -28,7 +28,7 @@ class ProcessImportRowJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::debug("Iniciando processamento do lote para ImportLog ID: {$this->importLogId}");
-        echo "Processando lote de " . count($this->batch) . " linhas.\n";
+        Log::debug("Iniciando processamento do lote para ImportLog ID");
+   
     }
 }

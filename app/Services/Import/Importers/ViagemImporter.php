@@ -17,8 +17,7 @@ class ViagemImporter implements ExcelImportInterface
         private Services\Viagem\ViagemService $viagemService,
         private Services\Integrado\IntegradoService $integradoService,
         private Services\Veiculo\VeiculoService $veiculoService
-    )
-    {}
+    ) {}
 
     public function getRequiredColumns(): array
     {
@@ -95,11 +94,11 @@ class ViagemImporter implements ExcelImportInterface
 
     public function process(array $transformedData): mixed
     {
-        Log::debug(__METHOD__.'@'.__LINE__, ['data' => $transformedData]);
+        Log::debug(__METHOD__ . '@' . __LINE__, ['data' => $transformedData]);
 
         $viagem = $this->viagemService->updateOrCreate($transformedData);
 
-        if($this->viagemService->hasError()){
+        if ($this->viagemService->hasError()) {
             Log::error('Erro ao importar viagem', [
                 'data' => $transformedData,
                 'errors' => $this->viagemService->getMessage()
@@ -107,13 +106,17 @@ class ViagemImporter implements ExcelImportInterface
             return null;
         }
 
-        Log::debug(__METHOD__.'@'.__LINE__, ['viagem_id' => $viagem->id]);
+        Log::debug(__METHOD__ . '@' . __LINE__, ['viagem_id' => $viagem->id]);
 
         return $viagem;
     }
 
+    public function dispatchJobRow(
+        array   $batch,
+        array   $headers,
+        string  $importerClass,
+        int     $importLogId
+    ): void {
 
-
+    }
 }
-
-

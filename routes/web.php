@@ -1,6 +1,8 @@
 <?php
 
 use App\Imports\DocumentoFreteImport;
+use App\Jobs\ProcessImportRowJob;
+use App\Jobs\TesteJob;
 use App\Models\Pneu;
 use App\Services\DocumentoFrete\DocumentoFreteService;
 use Illuminate\Support\Facades\Log;
@@ -21,5 +23,8 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 Route::get('/teste', function () {
 
    Log::debug('TesteCommand executado com sucesso!');
+
+   TesteJob::dispatch();
+   ProcessImportRowJob::dispatch();
 
 });

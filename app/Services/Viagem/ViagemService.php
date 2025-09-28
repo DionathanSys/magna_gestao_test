@@ -79,8 +79,6 @@ class ViagemService
 
             switch (true) {
                 case ($viagem && $viagem->conferido == false):
-
-                    Log::debug("Viagem Nº " . $viagem['numero_viagem'] . " encontrada e não conferida, será atualizada");
                     $action = new Actions\AtualizarViagem($viagem);
                     $viagem = $action->handle($data);
                     Log::info("Viagem Nº " . $viagem['numero_viagem'] . " atualizada");
@@ -88,14 +86,10 @@ class ViagemService
                     break;
 
                 case ($viagem && $viagem->conferido == true):
-
-                    Log::info("Viagem Nº " . $viagem['numero_viagem'] . " já conferida, não será atualizado");
                     $this->setSuccess("Viagem Nº " . $viagem['numero_viagem'] . " já conferida, não será atualizado");
                     break;
 
                 default:
-
-                    Log::debug("Viagem Nº " . $data['numero_viagem'] . " não encontrada, será criada");
                     $action = new Actions\CriarViagem();
                     $viagem = $action->handle($data);
                     Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
@@ -103,7 +97,7 @@ class ViagemService
                     $carga = $this->cargaService->create($data['integrado'], $viagem);
 
                     if($carga){
-                        Log::info("Carga da viagem Nº " . $data['numero_viagem']);
+                        Log::alert("Carga da viagem Nº " . $data['numero_viagem']);
                     }
 
                     $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");

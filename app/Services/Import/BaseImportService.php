@@ -118,6 +118,8 @@ abstract class BaseImportService
             'total_batches' => $totalBatches,
         ]);
 
+        Log::debug("Processando " . count($rows) . " linhas em {$totalBatches} lotes de tamanho {$batchSize}.");
+        
         foreach ($batches as $batch) {
             ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
             FinalizeImportJob::dispatch($importLogId);

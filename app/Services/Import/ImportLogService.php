@@ -5,6 +5,7 @@ namespace App\Services\Import;
 use App\{Models, Enum};
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ImportLogService
@@ -20,6 +21,7 @@ class ImportLogService
 
     public static function createImportLog(string $filePath, array $options): Models\ImportLog
     {
+        Log::debug("Criando log de importação para o arquivo: " . $filePath);
 
         return Models\ImportLog::create([
             'import_description' => $options['descricao'] ?? 'Importação de dados',
@@ -72,6 +74,8 @@ class ImportLogService
 
     public function failed(): void
     {
+        Log::debug("Marcando log de importação como falhado: " . $this->importLog->id);
+        
         $this->importLog->markAsFailed("Erro na importação");
     }
 }

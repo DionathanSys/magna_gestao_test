@@ -60,7 +60,6 @@ class AtualizarViagem
             'data_inicio'           => 'required|date',
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
-            'updated_by'            => 'required|exists:users,id',
         ], [
             'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
             'veiculo_id.exists'             => 'Veículo não encontrado.',
@@ -88,8 +87,6 @@ class AtualizarViagem
             'data_fim.date'                 => 'O campo Data Fim deve ser uma data válida.',
             'data_fim.after_or_equal'       => 'O campo Data Fim deve ser uma data posterior ou igual à Data Início.',
             'conferido.boolean'             => 'O campo Conferido deve ser verdadeiro ou falso.',
-            'updated_by.required'           => 'O campo Atualizado Por é obrigatório.',
-            'updated_by.exists'             => 'Usuário Atualizador não encontrado.',
         ])->validate();
 
         if ($this->viagem->conferida) {

@@ -31,7 +31,7 @@ abstract class BaseImportService
         try {
 
             // Criar log de importação
-            $importLog = $this->importLogService::createImportLog($filePath, $options);
+            $importLog = Services\Import\ImportLogService::createImportLog($filePath, $options);
             $this->importLogService = new Services\Import\ImportLogService($importLog->id);
 
             // Validar arquivo
@@ -119,7 +119,7 @@ abstract class BaseImportService
         ]);
 
         Log::debug("Processando " . count($rows) . " linhas em {$totalBatches} lotes de tamanho {$batchSize}.");
-        
+
         foreach ($batches as $batch) {
             ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
             FinalizeImportJob::dispatch($importLogId);

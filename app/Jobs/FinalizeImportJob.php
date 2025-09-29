@@ -46,14 +46,26 @@ class FinalizeImportJob implements ShouldQueue
                 'success_rows' => $importLog->success_rows,
                 'error_rows' => $importLog->error_rows,
             ]);
-        } else {
-            Log::info("99 - Importação ainda em andamento", [
-                'import_log_id' => $this->importLogId,
-                'processed_batches' => $importLog->processed_batches,
-                'total_batches' => $importLog->total_batches,
-            ]);
+        } else
+
             // Se ainda há batches pendentes, reagendar para mais tarde
-            FinalizeImportJob::dispatch($this->importLogId)->delay(now()->addSeconds(30));
+            if ($importLog->total_rows <= $importLog->processed_rows){
+                // Se todas as linhas foram processadas, mas os batches não conferem, marcar como erro
+                $importLog->markAsFailed("Inconsistência nos batches processados.");
+                Log::error("Inconsistência nos batches processados", [
+                    'import_log_id' => $this->importLogId,
+                    'processed_batches' => $importLog->processed_batches,
+                    'total_batches' => $importLog->total_batches,
+                ]);
+            } else {
+                Log::info("Importação ainda em andamento, reagendando finalização", [
+                    'import_log_id' => $this->importLogId,
+                    'processed_batches' => $importLog->processed_batches,
+                    'total_batches' => $importLog->total_batches,
+                ]);
+                FinalizeImportJob::dispatch($this->importLogId)->delay(now()->addSeconds(30));
+
+            }
         }
     }
 }

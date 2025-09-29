@@ -38,7 +38,7 @@ class CargaService
                 ->first();
 
             if ($cargaViagem) {
-                Log::info("Carga de viagem existente para a viagem ID {$viagem->id} porém sem integrado, atualizando integrado ID " . $integrado->id ?? 'null');
+                Log::info("Carga de viagem existente para a viagem ID {$viagem->id} porém sem integrado, atualizando integrado");
                 $cargaViagem->update([
                     'integrado_id' => $integrado->id ?? null,
                     'updated_by'   => $this->getUserIdChecked(),
@@ -46,7 +46,7 @@ class CargaService
                 return $cargaViagem;
 
             } else {
-                Log::info("Será criado nova carga de viagem para a viagem ID {$viagem->id} com integrado ID {($integrado->id ?? 0)}");
+                Log::info("Será criado nova carga de viagem para a viagem ID {$viagem->id} com integrado");
             }
 
             return $this->cargaViagem->query()->updateOrCreate(

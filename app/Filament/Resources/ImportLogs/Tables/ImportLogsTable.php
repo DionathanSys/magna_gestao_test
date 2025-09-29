@@ -34,7 +34,15 @@ class ImportLogsTable
                 TextColumn::make('errors')
                     ->label('Erros')
                     ->getStateUsing(function ($record) {
-                        $errors = json_decode($record->errors, true) ?? [];
+                        // Verificar se já é um array ou se precisa decodificar
+                        if (is_array($record->errors)) {
+                            $errors = $record->errors;
+                        } elseif (is_string($record->errors)) {
+                            $errors = json_decode($record->errors, true) ?? [];
+                        } else {
+                            $errors = [];
+                        }
+
                         return count($errors);
                     })
                     ->numeric()

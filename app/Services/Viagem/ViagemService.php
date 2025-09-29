@@ -73,10 +73,6 @@ class ViagemService
 
             $viagem = Models\Viagem::where('numero_viagem', $data['numero_viagem'])->first();
 
-            Log::debug(__METHOD__ . '@' . __LINE__, [
-                'viagem' => $viagem ?? $data['numero_viagem'] . ' (nova)',
-            ]);
-
             switch (true) {
                 case ($viagem && $viagem->conferido == false):
                     $action = new Actions\AtualizarViagem($viagem);

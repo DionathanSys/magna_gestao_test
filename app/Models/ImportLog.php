@@ -6,6 +6,7 @@ use App\Enum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Log;
 
 class ImportLog extends Model
 {
@@ -153,6 +154,11 @@ class ImportLog extends Model
             $this->progress_percentage = ($this->processed_batches / $this->total_batches) * 100;
             $this->save();
         }
+        Log::debug("Progresso atualizado: " . $this->progress_percentage . "%", [
+            'processed_batches' => $this->processed_batches,
+            'total_batches' => $this->total_batches,
+            'progress_percentage' => $this->progress_percentage,
+        ]);
     }
 
     public function markAsCompleted(): void

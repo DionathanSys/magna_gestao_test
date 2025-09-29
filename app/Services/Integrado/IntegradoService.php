@@ -31,7 +31,10 @@ class IntegradoService
 
     public function extrairCodigoIntegrado(string $nome): ?string
     {
-        Log::debug(" 10 - codigo integrado: " . $nome);
+        if (stripos($nome, 'BRF') !== false) {
+            return 0;
+        }
+
         if (preg_match('/\((\d+)/', $nome, $matches)) {
             return $matches[1];
         }

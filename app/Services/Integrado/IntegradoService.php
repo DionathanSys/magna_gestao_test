@@ -14,6 +14,10 @@ class IntegradoService
 
     public function buscaIntegrado(string $nome): ?Models\Integrado
     {
+        if (empty($nome) || !$nome){
+            return null;
+        }
+
         $codigoIntegrado = $this->extrairCodigoIntegrado($nome);
 
         return Models\Integrado::query()->where('codigo', $codigoIntegrado)

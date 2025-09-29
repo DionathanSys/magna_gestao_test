@@ -60,7 +60,6 @@ class ImportLogService
         //TODO: alterar propriedade para ser uma coluna virtual calculada
         $this->importLog->increment('processed_rows');
 
-        //esse trecho precisa manter o valor que já existe no banco
         $existingErrors = $this->importLog->errors ? json_decode($this->importLog->errors, true) : [];
         $allErrors = array_merge($existingErrors, $errors);
 

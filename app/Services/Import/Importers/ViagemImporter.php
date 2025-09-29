@@ -56,15 +56,15 @@ class ViagemImporter implements ExcelImportInterface
             'Inicio'            => 'required|date_format:d/m/Y H:i',
             'Fim'               => 'required|date_format:d/m/Y H:i',
         ], [
-            'Viagem.required'           => 'O campo Viagem é obrigatório na linha ' . $rowNumber,
-            'Viagem.string'             => 'O campo Viagem deve ser um texto válido na linha ' . $rowNumber,
-            'Placa.required'            => 'A Placa é obrigatória na linha ' . $rowNumber,
-            'Placa.string'              => 'A Placa deve ser um texto válido na linha ' . $rowNumber,
-            'Condutor Viagem.string'    => 'O Condutor da Viagem deve ser um texto válido na linha ' . $rowNumber,
-            'Inicio.required'           => 'A Data de Início é obrigatória na linha ' . $rowNumber,
-            'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm na linha ' . $rowNumber,
-            'Fim.required'              => 'A Data de Fim é obrigatória na linha ' . $rowNumber,
-            'Fim.date_format'         => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm na linha ' . $rowNumber,
+            'Viagem.required'           => 'O campo Viagem é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Viagem.string'             => 'O campo Viagem deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Placa.required'            => 'A Placa é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Placa.string'              => 'A Placa deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Condutor Viagem.string'    => 'O Condutor da Viagem deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Inicio.required'           => 'A Data de Início é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Fim.required'              => 'A Data de Fim é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Fim.date_format'         => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
         ]);
 
         if ($validator->fails()) {

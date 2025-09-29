@@ -41,24 +41,15 @@ class ImportLogService
         $this->importLog->update($data);
     }
 
-    public function incrementProcessedRows(): void
-    {
-        $this->importLog->increment('processed_rows');
-    }
-
     public function incrementSuccessRows(): void
     {
         $this->importLog->increment('success_rows');
-        //TODO: alterar propriedade para ser uma coluna virtual calculada
-        $this->importLog->increment('processed_rows');
+
     }
 
     public function incrementErrorRows(array $errors): void
     {
         $this->importLog->increment('error_rows');
-
-        //TODO: alterar propriedade para ser uma coluna virtual calculada
-        $this->importLog->increment('processed_rows');
 
         $existingErrors = $this->importLog->errors ? json_decode($this->importLog->errors, true) : [];
         $allErrors = array_merge($existingErrors, $errors);

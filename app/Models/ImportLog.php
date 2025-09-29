@@ -20,7 +20,7 @@ class ImportLog extends Model
         'summary'               => 'array',
         'started_at'            => 'datetime',
         'finished_at'           => 'datetime',
-        'progress_percentage'   => 'decimal:2',
+        // 'progress_percentage'   => 'decimal:2',
     ];
 
     // Relacionamentos

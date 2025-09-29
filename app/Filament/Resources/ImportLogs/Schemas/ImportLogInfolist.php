@@ -29,6 +29,31 @@ class ImportLogInfolist
                     ->numeric(),
                 TextEntry::make('warning_rows')
                     ->numeric(),
+                    TextEntry::make('errors')
+                    ->label('Erros de Importação')
+                    ->formatStateUsing(function ($state) {
+                        if (empty($state)) {
+                            return 'Nenhum erro encontrado';
+                        }
+
+                        // Verificar se já é um array ou se precisa decodificar
+                        if (is_array($state)) {
+                            $errors = $state;
+                        } elseif (is_string($state)) {
+                            $errors = json_decode($state, true) ?? [];
+                        } else {
+                            $errors = [];
+                        }
+
+                        if (empty($errors)) {
+                            return 'Nenhum erro encontrado';
+                        }
+
+                        return implode("\n", array_map(function ($error, $index) {
+                            return ($index + 1) . ". " . $error;
+                        }, $errors, array_keys($errors)));
+                    })
+                    ->columnSpanFull(),
                 TextEntry::make('skipped_rows')
                     ->numeric(),
                 TextEntry::make('total_batches')

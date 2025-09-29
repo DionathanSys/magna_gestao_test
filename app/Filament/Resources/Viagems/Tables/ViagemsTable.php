@@ -151,6 +151,18 @@ class ViagemsTable
                         ->sortable()
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
+                TextColumn::make('created_at')
+                    ->label('Criado Em')
+                    ->width('1%')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->label('Atualizado Em')
+                    ->width('1%')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('conferido')
                     ->width('1%')
                     ->color(fn(string $state): string => match ($state) {

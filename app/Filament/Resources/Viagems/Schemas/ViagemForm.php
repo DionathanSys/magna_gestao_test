@@ -23,8 +23,6 @@ class ViagemForm
                 TextInput::make('numero_viagem')
                     ->required()
                     ->columnSpan(1),
-                TextInput::make('numero_custo_frete')
-                    ->columnSpan(1),
                 TextInput::make('documento_transporte')
                     ->columnSpan(1),
                 Section::make('Quilometragens')
@@ -42,11 +40,6 @@ class ViagemForm
                             ->default(0),
                         TextInput::make('km_cobrar')
                             ->columnSpan(1)
-                            ->numeric()
-                            ->default(0),
-                        TextInput::make('km_rota_corrigido')
-                            ->columnSpan(1)
-                            ->required()
                             ->numeric()
                             ->default(0),
                         Select::make('motivo_divergencia')

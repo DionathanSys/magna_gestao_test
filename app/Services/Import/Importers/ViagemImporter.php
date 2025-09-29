@@ -52,7 +52,7 @@ class ViagemImporter implements ExcelImportInterface
             'Carga Cliente'     => 'nullable|string',
             'Destino'           => 'nullable|string',
             'Placa'             => 'required|string',
-            'Condutor Viagem'   => 'required|string',
+            'Condutor Viagem'   => 'nullable|string',
             'Inicio'            => 'required|date_format:d/m/Y H:i',
             'Fim'               => 'required|date_format:d/m/Y H:i',
         ], [
@@ -60,7 +60,6 @@ class ViagemImporter implements ExcelImportInterface
             'Viagem.string'             => 'O campo Viagem deve ser um texto válido na linha ' . $rowNumber,
             'Placa.required'            => 'A Placa é obrigatória na linha ' . $rowNumber,
             'Placa.string'              => 'A Placa deve ser um texto válido na linha ' . $rowNumber,
-            'Condutor Viagem.required'  => 'O Condutor da Viagem é obrigatório na linha ' . $rowNumber,
             'Condutor Viagem.string'    => 'O Condutor da Viagem deve ser um texto válido na linha ' . $rowNumber,
             'Inicio.required'           => 'A Data de Início é obrigatória na linha ' . $rowNumber,
             'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm na linha ' . $rowNumber,
@@ -105,6 +104,7 @@ class ViagemImporter implements ExcelImportInterface
             'km_cobrar'             => 0,
             'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS->value,
             'conferido'             => false,
+            'condutor'              => $row['Condutor Viagem'] ?? null,
         ];
     }
 

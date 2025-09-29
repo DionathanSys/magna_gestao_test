@@ -24,6 +24,7 @@ class CriarViagem
         'data_inicio',
         'data_fim',
         'conferido',
+        'condutor',
         'created_by',
         'updated_by',
     ];
@@ -62,6 +63,7 @@ class CriarViagem
             'data_inicio'           => 'required|date',
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
+            'condutor'              => 'nullable|string',
         ],[
             'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
             'veiculo_id.exists'             => 'Veículo não encontrado.',
@@ -93,6 +95,7 @@ class CriarViagem
             'created_by.exists'             => 'Usuário Criador não encontrado.',
             'updated_by.required'           => 'O campo Atualizado Por é obrigatório.',
             'updated_by.exists'             => 'Usuário Atualizador não encontrado.',
+            'condutor.string'              => 'O campo Condutor deve ser um texto válido.',
         ])->validate();
 
         return true;

@@ -66,7 +66,7 @@ class ProcessImportRowJob implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
-        Log::error('Falha ao processar Job', [
+        Log::error('Falha ao processar Job import_log_id: ' . $this->importLogId, [
             'metodo' => __METHOD__ . '@' . __LINE__,
             'exception' => $exception->getMessage()
         ]);

@@ -122,8 +122,8 @@ abstract class BaseImportService
 
         foreach ($batches as $batch) {
             ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
-            FinalizeImportJob::dispatch($importLogId);
         }
+        FinalizeImportJob::dispatch($importLogId);
     }
 
 }

@@ -84,14 +84,24 @@ class ViagemImporter implements ExcelImportInterface
 
     public function transform(array $row): array
     {
-        $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
-        $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino']);
+        try {
 
-        $integrado = null;
-        if ($codigoIntegrado !== null) {
-            $integrado = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
-        } else {
-            Log::alert("Nenhum código integrado encontrado na string '{$row['Destino']}'");
+            $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
+            $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino']);
+
+            $integrado = null;
+            if ($codigoIntegrado) {
+                $integrado = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
+            } else {
+                Log::alert("Nenhum código de integrado encontrado na string '{$row['Destino']}'");
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Erro na busca da Placa/Integrado", [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'error' => $e->getMessage(),
+                'row' => $row
+            ]);
         }
 
         $km_pago = (float) str_replace(',', '.', $row['Km Sugerida']);
@@ -144,5 +154,4 @@ class ViagemImporter implements ExcelImportInterface
 
         return $viagem;
     }
-
 }

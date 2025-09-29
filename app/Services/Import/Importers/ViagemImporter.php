@@ -86,7 +86,11 @@ class ViagemImporter implements ExcelImportInterface
     {
         $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
         $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino']);
-        $integrado          = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
+
+        $integrado = null;
+        if ($codigoIntegrado !== null) {
+            $integrado = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
+        }
 
         $km_pago = (float) str_replace(',', '.', $row['Km Sugerida']);
 

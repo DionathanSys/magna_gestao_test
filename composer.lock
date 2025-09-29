@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "598af1bdf07228db13e6268d06778fca",
+    "content-hash": "ebd5d0d4715850b6a0de7df0df845214",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -4953,6 +4953,162 @@
                 "source": "https://github.com/paragonie/constant_time_encoding"
             },
             "time": "2024-05-08T12:36:18+00:00"
+        },
+        {
+            "name": "pepperfm/filament-json",
+            "version": "4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pepperfm/filament-json.git",
+                "reference": "4465516ba31addf60ad8fb71a15018421b540f8b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pepperfm/filament-json/zipball/4465516ba31addf60ad8fb71a15018421b540f8b",
+                "reference": "4465516ba31addf60ad8fb71a15018421b540f8b",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^4.0",
+                "pepperfm/ssd-for-laravel": "^0.0.8",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.59",
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^8.0",
+                "orchestra/testbench": "^10.4",
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin-arch": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0",
+                "pestphp/pest-plugin-livewire": "^3.0",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "FilamentJson": "PepperFM\\FilamentJson\\Facades\\FilamentJson"
+                    },
+                    "providers": [
+                        "PepperFM\\FilamentJson\\FilamentJsonServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PepperFM\\FilamentJson\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PepperFM",
+                    "email": "Damon3453@yandex.ru",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Filament plugin for processing JSON field",
+            "homepage": "https://github.com/pepperfm/filament-json",
+            "keywords": [
+                "filament-json",
+                "laravel",
+                "pepperfm"
+            ],
+            "support": {
+                "issues": "https://github.com/pepperfm/filament-json/issues",
+                "source": "https://github.com/pepperfm/filament-json"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/pepperfm",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-08-17T17:04:53+00:00"
+        },
+        {
+            "name": "pepperfm/ssd-for-laravel",
+            "version": "0.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pepperfm/ssd-for-laravel.git",
+                "reference": "342a3567356b8a587d117ed5fc7166e95f1209ec"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pepperfm/ssd-for-laravel/zipball/342a3567356b8a587d117ed5fc7166e95f1209ec",
+                "reference": "342a3567356b8a587d117ed5fc7166e95f1209ec",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": ">=10.0",
+                "illuminate/support": ">=10.0",
+                "php": "^8.2"
+            },
+            "conflict": {
+                "laravel/framework": "<10.20.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.59",
+                "laravel/pint": "^1.16",
+                "orchestra/testbench": "^v8.14|^9.11",
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0",
+                "phpunit/phpunit": "^10.0|^11.0",
+                "spatie/laravel-ray": "^1.37"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "SsdForLaravel": "Pepperfm\\Ssd\\Facades\\SsdFacade"
+                    },
+                    "providers": [
+                        "Pepperfm\\Ssd\\Providers\\SsdServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Pepperfm\\Ssd\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dmitry Gaponenko",
+                    "email": "Damon3453@yandex.ru",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Simple Slim DTO",
+            "homepage": "https://github.com/pepperfm/ssd-for-laravel",
+            "keywords": [
+                "Simple",
+                "dto",
+                "pepperfm",
+                "schema",
+                "ssd-for-laravel",
+                "typehint"
+            ],
+            "support": {
+                "issues": "https://github.com/pepperfm/ssd-for-laravel/issues",
+                "source": "https://github.com/pepperfm/ssd-for-laravel/tree/0.0.8"
+            },
+            "time": "2025-02-26T00:08:40+00:00"
         },
         {
             "name": "phpoffice/phpspreadsheet",

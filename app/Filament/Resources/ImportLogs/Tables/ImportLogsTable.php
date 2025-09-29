@@ -35,14 +35,11 @@ class ImportLogsTable
                     ->label('Erros')
                     ->getStateUsing(function ($record) {
                         $errors = json_decode($record->errors, true) ?? [];
-                        return $errors;
+                        return count($errors);
                     })
-                    ->listWithLineBreaks()
-                    ->bulleted()
-                    ->limitList(3)
-                    ->expandableLimitedList()
+                    ->numeric()
                     ->color('danger')
-                    ->placeholder('Nenhum erro'),
+                    ->placeholder('0'),
                 TextColumn::make('total_rows')
                     ->label('Total de Linhas')
                     ->numeric(0, ',', '.')

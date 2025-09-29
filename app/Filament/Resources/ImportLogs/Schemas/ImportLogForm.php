@@ -66,7 +66,7 @@ class ImportLogForm
                     ->required()
                     ->numeric()
                     ->default(0.0),
-                TextInput::make('errors'),
+                Textarea::make('errors'),
                 TextInput::make('warnings'),
                 TextInput::make('skipped_reasons'),
                 TextInput::make('options'),

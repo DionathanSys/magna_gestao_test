@@ -4,6 +4,7 @@ namespace App\Services\Integrado;
 
 use App\Models;
 use App\Services;
+use Illuminate\Support\Facades\Log;
 
 class IntegradoService
 {
@@ -28,6 +29,7 @@ class IntegradoService
 
     public function extrairCodigoIntegrado(string $nome): ?string
     {
+        Log::debug(" 10 - codigo integrado: " . $nome);
         if (preg_match('/\((\d+)/', $nome, $matches)) {
             return $matches[1];
         }

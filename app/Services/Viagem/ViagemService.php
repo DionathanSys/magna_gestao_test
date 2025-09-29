@@ -106,7 +106,9 @@ class ViagemService
             }
 
             if ($carga) {
-                Log::alert("Não foi possível criar carga da viagem Nº " . $data['numero_viagem']);
+                Log::alert("Não foi possível criar carga da viagem Nº " . $data['numero_viagem'], [
+                    'carga' => $carga ?? 'null',
+                ]);
             }
 
             $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");

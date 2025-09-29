@@ -46,7 +46,7 @@ class CargaService
                 return $cargaViagem;
 
             } else {
-                Log::info("Será criado nova carga de viagem para a viagem ID {$viagem->id} com integrado ID {$integrado->id}");
+                Log::info("Será criado nova carga de viagem para a viagem ID {$viagem->id} com integrado ID {($integrado->id ?? 0)}");
             }
 
             return $this->cargaViagem->query()->updateOrCreate(

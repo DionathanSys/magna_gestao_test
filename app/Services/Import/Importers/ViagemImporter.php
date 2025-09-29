@@ -89,8 +89,9 @@ class ViagemImporter implements ExcelImportInterface
 
         $integrado = null;
         if ($codigoIntegrado !== null) {
-            Log::alert("Código integrado extraído: {$codigoIntegrado} da string '{$row['Destino']}'");
             $integrado = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
+        } else {
+            Log::alert("Nenhum código integrado encontrado na string '{$row['Destino']}'");
         }
 
         $km_pago = (float) str_replace(',', '.', $row['Km Sugerida']);

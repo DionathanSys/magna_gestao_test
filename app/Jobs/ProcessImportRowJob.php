@@ -8,6 +8,7 @@ use App\Enum\Import\StatusImportacaoEnum;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessImportRowJob implements ShouldQueue
 {
@@ -62,13 +63,17 @@ class ProcessImportRowJob implements ShouldQueue
         }
 
         $this->importLogService->incrementBatchProcessed();
+        Log::info("Lote processado para import_log_id: " . $this->importLogId);
+
     }
 
-    public function failed(\Throwable $exception): void
+    public function failed(?Throwable $exception): void
     {
         Log::error('Falha ao processar Job import_log_id: ' . $this->importLogId, [
             'metodo' => __METHOD__ . '@' . __LINE__,
-            'exception' => $exception->getMessage()
+            'import_log_id' => $this->importLogId,
+            'batch' => $this->batch,
+            'exception' => $exception?->getMessage()
         ]);
     }
 }

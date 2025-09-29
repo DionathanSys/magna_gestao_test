@@ -87,6 +87,8 @@ class ViagemImporter implements ExcelImportInterface
         try {
 
             $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
+
+            
             $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino'] ?? '');
 
             $integrado = null;

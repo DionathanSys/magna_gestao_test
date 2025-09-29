@@ -17,6 +17,8 @@ class IntegradoService
 
             return Models\Integrado::query()->where('codigo', $codigoIntegrado)
                 ->first();
+        } else {
+            Log::alert("10 - Nome do integrado vazio ao buscar integrado.");
         }
 
         return null;

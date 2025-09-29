@@ -30,13 +30,16 @@ class ImportDocumentosAction
                 $options = [
                     'use_queue' => $data['usar_fila'],
                     'descricao' => 'Importação de Viagens Softlog - BRF',
-                    'batch_size' => 5,
+                    'batch_size' => 15,
                 ];
 
                 $result = $importService->importarViagens($filePath, $options);
 
                 if ($importService->hasError()) {
-                    Log::error('Erro na importação de viagens: ' . $importService->getMessage());
+                    Log::error('Erro na importação de viagens: ' . $importService->getMessage(), [
+                        'metodo' => __METHOD__,
+                        'arquivo' => $filePath,
+                    ]);
                     \App\Services\NotificacaoService::error($importService->getMessage());
                 } else {
                     \App\Services\NotificacaoService::success(

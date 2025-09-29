@@ -81,9 +81,6 @@ abstract class BaseImportService
         if (!in_array(strtolower($extension), ['xlsx', 'xls', 'csv'])) {
             throw new \InvalidArgumentException('Formato de arquivo não suportado.');
         }
-
-        Log::debug("Arquivo validado: {$filePath}");
-
     }
 
     protected function validateHeaders(array $headers, ExcelImportInterface $importer): void
@@ -113,16 +110,26 @@ abstract class BaseImportService
         $batches = array_chunk($rows, $batchSize);
         $totalBatches = count($batches);
 
+        Log::debug("Iniciando processamento de importação em " . ($options['use_queue'] ? 'fila' : 'síncrono') . ".", [
+            'rows' => $rows,
+            'total_rows' => count($rows),
+            'batch_size' => $batchSize,
+            'total_batches' => $totalBatches,
+            'import_log_id' => $importLogId,
+
+        ]);
+        
         $this->importLogService->update([
             'total_rows'    => count($rows),
             'total_batches' => $totalBatches,
         ]);
 
-        Log::debug("Processando " . count($rows) . " linhas em {$totalBatches} lotes de tamanho {$batchSize}.");
+        Log::info("Processando " . count($rows) . " linhas em {$totalBatches} lotes de tamanho {$batchSize}.");
 
         foreach ($batches as $batch) {
             ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
         }
+
         FinalizeImportJob::dispatch($importLogId);
     }
 

@@ -89,6 +89,7 @@ class ViagemImporter implements ExcelImportInterface
 
         $integrado = null;
         if ($codigoIntegrado !== null) {
+            Log::alert("Código integrado extraído: {$codigoIntegrado} da string '{$row['Destino']}'");
             $integrado = $this->integradoService->getIntegradoByCodigo($codigoIntegrado);
         }
 

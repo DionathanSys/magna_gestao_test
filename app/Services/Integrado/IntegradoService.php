@@ -7,21 +7,18 @@ use App\Services;
 
 class IntegradoService
 {
-    public function getKmCadastroIntegrado()
-    {
-
-    }
+    public function getKmCadastroIntegrado() {}
 
     public function buscaIntegrado(string $nome): ?Models\Integrado
     {
-        if (empty($nome) || !$nome){
-            return null;
+        if ($nome) {
+            $codigoIntegrado = $this->extrairCodigoIntegrado($nome);
+
+            return Models\Integrado::query()->where('codigo', $codigoIntegrado)
+                ->first();
         }
 
-        $codigoIntegrado = $this->extrairCodigoIntegrado($nome);
-
-        return Models\Integrado::query()->where('codigo', $codigoIntegrado)
-                                ->first();
+        return null;
     }
 
     public function getIntegradoByCodigo(string $codigo): ?Models\Integrado

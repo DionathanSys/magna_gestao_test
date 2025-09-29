@@ -11,6 +11,7 @@ class FinalizeImportJob implements ShouldQueue
 {
     use Queueable;
 
+
     /**
      * Create a new job instance.
      */
@@ -46,6 +47,11 @@ class FinalizeImportJob implements ShouldQueue
                 'error_rows' => $importLog->error_rows,
             ]);
         } else {
+            Log::info("99 - Importação ainda em andamento", [
+                'import_log_id' => $this->importLogId,
+                'processed_batches' => $importLog->processed_batches,
+                'total_batches' => $importLog->total_batches,
+            ]);
             // Se ainda há batches pendentes, reagendar para mais tarde
             FinalizeImportJob::dispatch($this->importLogId)->delay(now()->addSeconds(30));
         }

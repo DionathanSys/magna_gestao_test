@@ -148,19 +148,6 @@ class ImportLog extends Model
         }
     }
 
-    public function updateProgress(): void
-    {
-        if ($this->total_batches > 0) {
-            $this->progress_percentage = ($this->processed_batches / $this->total_batches) * 100;
-            $this->save();
-        }
-        Log::debug("Progresso atualizado: " . $this->progress_percentage . "%", [
-            'processed_batches' => $this->processed_batches,
-            'total_batches' => $this->total_batches,
-            'progress_percentage' => $this->progress_percentage,
-        ]);
-    }
-
     public function markAsCompleted(): void
     {
         $this->update([

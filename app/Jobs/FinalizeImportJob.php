@@ -67,5 +67,4 @@ class FinalizeImportJob implements ShouldQueue
 
             }
         }
-    }
 }

@@ -10,6 +10,7 @@ use App\Traits\ServiceResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ViagemImporter implements ExcelImportInterface
 {
@@ -88,7 +89,7 @@ class ViagemImporter implements ExcelImportInterface
 
             $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
 
-            
+
             $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino'] ?? '');
 
             $integrado = null;
@@ -122,7 +123,7 @@ class ViagemImporter implements ExcelImportInterface
             'km_cobrar'             => 0,
             'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS->value,
             'conferido'             => false,
-            'condutor'              => $row['Condutor Viagem'] ?? null,
+            'condutor'              => Str::upper($row['Condutor Viagem'] ?? 'não informado'),
         ];
     }
 

@@ -35,6 +35,10 @@ class ViagemsTable
             })
             ->poll(null)
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->width('1%')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
@@ -190,7 +194,10 @@ class ViagemsTable
                         ->width('1%')
                         ->sortable()
                         ->toggleable(isToggledHiddenByDefault: true),
-                ])
+                ]),
+                TextColumn::make('condutor')
+                    ->label('Motorista')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->groups(
                 [

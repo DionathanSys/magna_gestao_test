@@ -23,6 +23,7 @@
 
     <p>CPF: {{$payload->motorista['cpf']}}</p>
 
+    <h4>Observações:</h4>
     <p>Início no município de Chapecó para PF: ICMS DIFERIDO, CST 051 ( campo de observações: ICMS DIFERIDO CFME ARTIGO 122, INCISO II, ANEXO 6, DO RICMS/SC)</p>
 
     <p>Favor responder este e-mail, incluindo todos os destinatários em cópia.</p>

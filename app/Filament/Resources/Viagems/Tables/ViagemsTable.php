@@ -213,15 +213,17 @@ class ViagemsTable
                 ]
             )
             ->filters([
-                TernaryFilter::make('conferido')
-                    ->label('Conferido')
-                    ->trueLabel('Sim')
-                    ->falseLabel('Não'),
                 SelectFilter::make('integrado_id')
                     ->label('Integrado')
                     ->relationship('cargas.integrado', 'nome')
                     ->searchable(['codigo', 'nome'])
                     ->getOptionLabelFromRecordUsing(fn(Models\Integrado $record) => "{$record->codigo} {$record->nome}")
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+                SelectFilter::make('veiculo_id')
+                    ->label('Veículo')
+                    ->relationship('veiculo', 'placa')
                     ->searchable()
                     ->preload()
                     ->multiple(),
@@ -263,13 +265,7 @@ class ViagemsTable
                                 fn(Builder $query, $documentoTransporte): Builder => $query->where('documento_transporte', $documentoTransporte),
                             );
                     }),
-                SelectFilter::make('veiculo_id')
-                    ->label('Veículo')
-                    ->relationship('veiculo', 'placa')
-                    ->searchable()
-                    ->preload()
-                    ->multiple()
-                    ->columnSpanFull(),
+
                 DateRangeFilter::make('data_competencia')
                     ->label('Dt. Competência')
                     ->alwaysShowCalendar(),
@@ -279,28 +275,44 @@ class ViagemsTable
                 DateRangeFilter::make('data_fim')
                     ->label('Dt. Fim')
                     ->alwaysShowCalendar(),
-                SelectFilter::make('motivo_divergencia')
-                    ->label('Motivo Divergência')
-                    ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
-                    ->multiple()
-                    ->columnSpanFull(),
-                TernaryFilter::make('documento_transporte')
+                TernaryFilter::make('possui_documento')
                     ->label('Possui Doc. Transp.?')
+                    ->attribute('documento_transporte')
                     ->nullable()
                     ->placeholder('Todos')
                     ->trueLabel('C/ Doc. Transp.')
                     ->falseLabel('S/ Doc. Transp.'),
                 TernaryFilter::make('sem_carga')
-                    ->label('Possui Carga?')
+                    ->label('Possui Integrado?')
                     ->placeholder('Todos')
-                    ->trueLabel('Com Carga')
-                    ->falseLabel('Sem Carga')
+                    ->trueLabel('Com Integrado')
+                    ->falseLabel('Sem Integrado')
                     ->queries(
-                        true: fn(Builder $query) => $query->whereHas('cargas'),
-                        false: fn(Builder $query) => $query->whereDoesntHave('cargas'),
+                        true: fn(Builder $query) => $query->whereHas('cargas', function (Builder $subQuery) {
+                            $subQuery->whereNotNull('integrado_id');
+                        }),
+                        false: fn(Builder $query) => $query->whereHas('cargas', function (Builder $subQuery) {
+                            $subQuery->whereNull('integrado_id');
+                        })->orWhereDoesntHave('cargas'),
                         blank: fn(Builder $query) => $query,
-                    )
+                    ),
+                TernaryFilter::make('conferido')
+                    ->label('Conferido')
+                    ->trueLabel('Sim')
+                    ->falseLabel('Não'),
+                SelectFilter::make('motivo_divergencia')
+                    ->label('Motivo Divergência')
+                    ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
+                    ->multiple()
+                    ->columnSpanFull(),
             ])
+            ->filtersFormColumns(2)
+            ->filtersTriggerAction(
+                fn(Action $action) => $action
+                    ->button()
+                    ->label('Filtros')
+                    ->slideOver(),
+            )
             ->reorderableColumns()
             ->defaultGroup('data_competencia')
             ->defaultSort('numero_viagem')

@@ -23,6 +23,7 @@ return new class extends Migration
                 ->virtualAs("(COALESCE(km_dispersao, 0) / NULLIF(COALESCE(km_rodado, 0), 0)) * 100");
             $table->date('data_competencia')->nullable();
             $table->decimal('frete', 10, 2)->nullable()->default(0);
+            $table->string('condutor')->nullable();
             $table->boolean('checked')->default(false);
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('updated_by')->nullable()->constrained('users');

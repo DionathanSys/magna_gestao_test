@@ -230,6 +230,13 @@ class ViagemsTable
                         TextInput::make('numero_viagem')
                             ->label('Nº Viagem'),
                     ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['numero_viagem']) {
+                            return null;
+                        }
+
+                        return "Nº Viagem: {$data['numero_viagem']}";
+                    })
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
@@ -242,6 +249,13 @@ class ViagemsTable
                         TextInput::make('documento_transporte')
                             ->label('Nº Doc. Transporte'),
                     ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['documento_transporte']) {
+                            return null;
+                        }
+
+                        return "Doc. Transp.: {$data['documento_transporte']}";
+                    })
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
@@ -270,6 +284,22 @@ class ViagemsTable
                     ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                     ->multiple()
                     ->columnSpanFull(),
+                TernaryFilter::make('documento_transporte')
+                    ->label('Possui Doc. Transp.?')
+                    ->nullable()
+                    ->placeholder('Todos')
+                    ->trueLabel('C/ Doc. Transp.')
+                    ->falseLabel('S/ Doc. Transp.'),
+                TernaryFilter::make('sem_carga')
+                    ->label('Possui Carga?')
+                    ->placeholder('Todos')
+                    ->trueLabel('Com Carga')
+                    ->falseLabel('Sem Carga')
+                    ->queries(
+                        true: fn(Builder $query) => $query->whereHas('cargas'),
+                        false: fn(Builder $query) => $query->whereDoesntHave('cargas'),
+                        blank: fn(Builder $query) => $query,
+                    )
             ])
             ->reorderableColumns()
             ->defaultGroup('data_competencia')

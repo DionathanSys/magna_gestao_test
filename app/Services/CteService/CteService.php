@@ -2,15 +2,17 @@
 
 namespace App\Services\CteService;
 
+use App\{Models, Services, Enum};
 use App\DTO\PayloadCteDTO;
 use App\Services\CteService\Actions;
 use App\Traits\ServiceResponseTrait;
+use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CteService
 {
-    use ServiceResponseTrait;
+    use ServiceResponseTrait, UserCheckTrait;
 
     public function solicitarCtePorEmail(array $data)
     {
@@ -58,4 +60,5 @@ class CteService
             $this->setError('Erro ao enviar solicitação de CTe: ' . $e->getMessage());
         }
     }
+
 }

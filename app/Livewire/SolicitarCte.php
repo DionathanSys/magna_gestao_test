@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Enum\ClienteEnum;
+use App\Jobs\CriarViagemBugioJob;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\FileUpload;
@@ -20,6 +21,7 @@ use Livewire\Component;
 use App\Services\CteService;
 use BackedEnum;
 use App\Services\NotificacaoService as notify;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class SolicitarCte extends Component implements HasSchemas, HasActions
@@ -171,6 +173,11 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             notify::error('Erro ao enviar solicitação de CTe.');
             return;
         }
+
+        $data['created_by'] = Auth::id();
+        $data['updated_by'] = Auth::id();
+
+        CriarViagemBugioJob::dispatch($data);
 
         notify::success('Solicitação de CTe enviada com sucesso!');
         $this->resetForm();

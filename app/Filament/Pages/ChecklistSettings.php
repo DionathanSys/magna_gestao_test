@@ -62,7 +62,7 @@ class ChecklistSettings extends AbstractPageSettings
                             ->columns(12)
                             ->columnSpan(6)
                             ->components([
-                                Repeater::make('itens_checklist')
+                                Repeater::make('itens')
                                     ->label('Itens do Checklist')
                                     ->columns(1)
                                     ->table([

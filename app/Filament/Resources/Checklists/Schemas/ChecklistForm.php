@@ -55,7 +55,7 @@ class ChecklistForm
                                     ->columnSpan(6)
                                     ->defaultItems(self::getCountItens())
                                     ->collapsed()
-                                    ->itemLabel(fn(array $state): ?string => $state['status'] == "NOK" ? $state['item'] . ' ' . $state['status'] : $state['item'] . ' ' . $state['status'])
+                                    ->itemLabel(fn(array $state): ?string => $state['status'] . ' ' . $state['item'])
                                     ->schema([
                                         TextInput::make('item')
                                             ->label('Item')
@@ -86,7 +86,7 @@ class ChecklistForm
                                         Action::make('ok')
                                             ->icon(Heroicon::CheckCircle)
                                             ->color('info')
-                                            ->visible(fn(array $item): bool => $item['status'] !== 'OK')
+                                            // ->visible(fn(array $arguments): bool => $arguments['item']['status'] !== 'OK')
                                             ->action(function (array $arguments, Repeater $component): void {
                                                 $state = $component->getState();
                                                 $state[$arguments['item']]['status'] = 'OK';
@@ -95,7 +95,7 @@ class ChecklistForm
                                         Action::make('nok')
                                             ->icon(Heroicon::XCircle)
                                             ->color('danger')
-                                            ->visible(fn(array $item): bool => $item['status'] !== 'NOK')
+                                            // ->visible(fn(array $item): bool => $item['status'] !== 'NOK')
                                             ->action(function (array $arguments, Repeater $component): void {
                                                 $state = $component->getState();
                                                 $state[$arguments['item']]['status'] = 'NOK';

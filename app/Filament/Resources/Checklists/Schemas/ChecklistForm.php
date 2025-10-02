@@ -82,6 +82,8 @@ class ChecklistForm
 
                                     ])
                                     ->default(fn() => self::getItens())
+                                    ->deletable(false)
+                                    ->addable(false)
                                     ->extraItemActions([
                                         Action::make('ok')
                                             ->icon(Heroicon::CheckCircle)

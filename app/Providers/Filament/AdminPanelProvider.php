@@ -26,7 +26,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            // ->topNavigation()
+            ->topNavigation()
             ->maxContentWidth(Width::Full)
             ->globalSearchKeyBindings(['command+s', 'ctrl+s'])
             ->brandName('Magna Gestão')

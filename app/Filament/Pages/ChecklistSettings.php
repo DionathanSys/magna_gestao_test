@@ -60,7 +60,7 @@ class ChecklistSettings extends AbstractPageSettings
                         Section::make('Itens do Checklist')
                             ->description('Adicione os itens que devem constar no checklist.')
                             ->columns(12)
-                            ->columnSpan(6)
+                            ->columnSpan(12)
                             ->components([
                                 Repeater::make('itens')
                                     ->label('Itens do Checklist')

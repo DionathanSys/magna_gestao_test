@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Checklists\Schemas;
 
-use Dom\Text;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -12,7 +11,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
 
 class ChecklistForm
@@ -54,7 +55,7 @@ class ChecklistForm
                                     ->columnSpan(6)
                                     ->defaultItems(self::getCountItens())
                                     ->collapsed()
-                                    ->itemLabel(fn(array $state): ?string => $state['item'] ? $state['item'] . ($state['status'] ? ' - ' . $state['status'] : '') : 'Vazio')
+                                    ->itemLabel(fn(array $state): ?string => $state['status'] == "NOK" ? $state['item'] . ' ' . $state['status'] : $state['item'] . ' ' . $state['status'])
                                     ->schema([
                                         TextInput::make('item')
                                             ->label('Item')
@@ -85,11 +86,20 @@ class ChecklistForm
                                         Action::make('ok')
                                             ->icon(Heroicon::CheckCircle)
                                             ->color('info')
+                                            ->visible(fn(array $item): bool => $item['status'] !== 'OK')
                                             ->action(function (array $arguments, Repeater $component): void {
                                                 $state = $component->getState();
                                                 $state[$arguments['item']]['status'] = 'OK';
                                                 $component->state($state);
-                                                ds($component->getItemState($arguments['item']));
+                                            }),
+                                        Action::make('nok')
+                                            ->icon(Heroicon::XCircle)
+                                            ->color('danger')
+                                            ->visible(fn(array $item): bool => $item['status'] !== 'NOK')
+                                            ->action(function (array $arguments, Repeater $component): void {
+                                                $state = $component->getState();
+                                                $state[$arguments['item']]['status'] = 'NOK';
+                                                $component->state($state);
                                             }),
                                     ]),
                             ])

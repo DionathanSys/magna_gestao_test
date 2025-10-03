@@ -2,6 +2,7 @@
 
 namespace App\Services\Veiculo;
 
+use App\{Models, Services, Enum};
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use Illuminate\Support\Facades\Cache;
 
@@ -72,5 +73,19 @@ class VeiculoService
         $km_limite = $query->handle($veiculoId);
 
         return $km_limite;
+    }
+
+    public function setDataUltimoChecklist(int $veiculoId, string $data): void
+    {
+        $informacoesComplementares = Models\Veiculo::query()
+            ->where('id', $veiculoId)
+            ->select('informacoes_complementares')
+            ->first();
+
+        $informacoesComplementares['data_ultimo_checklist'] = $data;
+
+        Models\Veiculo::query()
+            ->where('id', $veiculoId)
+            ->update(['informacoes_complementares' => $informacoesComplementares]);
     }
 }

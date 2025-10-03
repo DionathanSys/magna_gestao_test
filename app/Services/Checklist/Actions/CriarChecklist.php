@@ -30,7 +30,7 @@ class CriarChecklist
 
         $data['status'] = 'CONCLUIDO';
 
-        ds($data);
+        $data['periodo'] = \Carbon\Carbon::parse($data['data_referencia'])->startOfMonth();
 
         return Models\Checklist::create($data);
     }

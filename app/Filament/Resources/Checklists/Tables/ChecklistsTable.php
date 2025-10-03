@@ -15,29 +15,32 @@ class ChecklistsTable
     {
         return $table
             ->columns([
-                TextColumn::make('veiculo_id')
-                    ->numeric()
+                TextColumn::make('veiculo.placa')
+                    ->label('Veículo')
                     ->sortable(),
                 TextColumn::make('data_referencia')
-                    ->date()
+                    ->label('Data Realização')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('periodo')
-                    ->date()
+                    ->date('M/Y')
                     ->sortable(),
                 TextColumn::make('quilometragem')
-                    ->numeric()
+                    ->numeric(0 , ',', '.')
                     ->sortable(),
                 TextColumn::make('status')
                     ->searchable(),
-                TextColumn::make('created_by')
-                    ->numeric()
+                TextColumn::make('creator.name')
+                    ->label('Criado por')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

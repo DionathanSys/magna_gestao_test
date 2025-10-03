@@ -26,10 +26,19 @@ class ChecklistsTable
                     ->date('M/Y')
                     ->sortable(),
                 TextColumn::make('quilometragem')
-                    ->numeric(0 , ',', '.')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('status')
                     ->searchable(),
+                TextColumn::make('itens_verificados_count')
+                    ->label('Itens Verificados')
+                    ->sortable(),
+                TextColumn::make('pendencias_count')
+                    ->label('Pendências')
+                    ->sortable(),
+                TextColumn::make('itens_corrigidos_count')
+                    ->label('Itens Corrigidos')
+                    ->sortable(),
                 TextColumn::make('creator.name')
                     ->label('Criado por')
                     ->sortable(),

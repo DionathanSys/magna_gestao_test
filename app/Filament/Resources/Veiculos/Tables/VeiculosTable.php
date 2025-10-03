@@ -100,6 +100,18 @@ class VeiculosTable
                             : 'Sem data'
                     )
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('informacoes_complementares.data_ultimo_checklist')
+                    ->label('Dt. Último Checklist')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->badge()
+                    ->color('info')
+                    ->formatStateUsing(
+                        fn($state) => $state
+                            ? \Carbon\Carbon::parse($state)->format('d/m/Y') . ' (' . number_format(\Carbon\Carbon::parse($state)->diffInDays(now()), 0) . ' dias atrás)'
+                            : 'Sem data'
+                    )
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('informacoes_complementares.codigo_imobilizado')
                     ->label('Código Imobilizado')
                     ->sortable()
@@ -135,6 +147,15 @@ class VeiculosTable
                     ->default(true)
                     ->query(fn($query) => $query->where('is_active', true)),
                 TrashedFilter::make(),
+                Filter::make('checklist')
+                    ->label('Sem Checklist no Mês')
+                    ->query(function ($query) {
+                        $query->where(function ($query) {
+                            $query->whereNull('informacoes_complementares->data_ultimo_checklist')
+                                ->orWhere('informacoes_complementares->data_ultimo_checklist', '<', now()->startOfMonth()->format('Y-m-d'));
+                        });
+                    })
+                    ->toggle(),
             ])
             ->paginated(false)
             ->recordActions([

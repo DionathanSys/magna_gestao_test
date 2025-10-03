@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Checklists\Schemas;
 
 use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -12,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Text;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
@@ -37,20 +40,19 @@ class ChecklistForm
                                 DatePicker::make('data_referencia')
                                     ->label('Data Realização')
                                     ->columnSpan(3)
+                                    ->default(now())
                                     ->required(),
                                 TextInput::make('quilometragem')
                                     ->columnSpan(3)
                                     ->required()
                                     ->numeric()
                                     ->default(0),
-                                FileUpload::make('anexos')
-                                    ->columnSpanFull(),
                             ]),
                         Tabs\Tab::make('Checklist')
                             ->columns(12)
                             ->schema([
-                                Repeater::make('itens_verificados')
-                                    ->label('Itens Verificados')
+                                Repeater::make('itens')
+                                    ->label('Itens')
                                     ->columns(12)
                                     ->columnSpan(6)
                                     ->defaultItems(self::getCountItens())
@@ -62,19 +64,20 @@ class ChecklistForm
                                             ->required()
                                             ->columnSpan(4),
                                         Select::make('status')
-                                            ->label('Status')
-                                            ->columnSpan(1)
+                                            ->label('OK')
+                                            ->columnSpan(2)
                                             ->placeholder('Selecione')
-                                            ->options([
-                                                'OK' => 'OK',
-                                                'NOK' => 'NOK',
-                                            ]),
-                                        Toggle::make('obrigatorio')
-                                            ->label('Obrigatório')
-                                            ->columnSpan(1)
-                                            ->default(true)
+                                            ->selectablePlaceholder(false)
+                                            ->requiredIf('obrigatorio', true)
+                                            ->boolean(trueLabel: 'OK', falseLabel: 'NOK'),
+                                        Toggle::make('corrigido')
+                                            ->label('Corrigido')
                                             ->inline(false)
-                                            ->disabled(),
+                                            ->default(false)
+                                            ->columnSpan(1),
+                                        Hidden::make('obrigatorio')
+                                            ->label('Obrigatório')
+                                            ->columnSpan(1),
                                         Textarea::make('observacoes')
                                             ->label('Observações')
                                             ->columnSpanFull()
@@ -104,11 +107,18 @@ class ChecklistForm
                                                 $component->state($state);
                                             }),
                                     ]),
+                            ]),
+                        Tabs\Tab::make('Anexos')
+                            ->schema([
+                                FileUpload::make('anexos')
+                                    ->label('Anexos')
+                                    ->multiple()
+                                    ->disk('public')
+                                    ->directory('checklists')
+                                    ->columnSpanFull(),
                             ])
-
                     ])
-            ])
-        ;
+            ]);;
     }
 
     public static function getCountItens(): int

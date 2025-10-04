@@ -15,12 +15,13 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AgendamentoResource extends Resource
 {
     protected static ?string $model = Agendamento::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
 
     protected static ?string $recordTitleAttribute = 'id';
 
@@ -50,7 +51,7 @@ class AgendamentoResource extends Resource
     {
         return [
             'index' => ListAgendamentos::route('/'),
-            'create' => CreateAgendamento::route('/create'),
+            // 'create' => CreateAgendamento::route('/create'),
             'view' => ViewAgendamento::route('/{record}'),
             'edit' => EditAgendamento::route('/{record}/edit'),
         ];

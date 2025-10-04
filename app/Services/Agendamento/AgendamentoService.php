@@ -2,7 +2,7 @@
 
 namespace App\Services\Agendamento;
 
-use App\Models;
+use App\{Models, Services, Enum};
 use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\OrdemServico\OrdemServicoService;
 use App\Traits\ServiceResponseTrait;
@@ -65,6 +65,12 @@ class AgendamentoService
             $this->setError($e->getMessage());
             return null;
         }
+    }
+
+    public function getPlanosPreventivosByVeiculo(int $veiculoId): array
+    {
+        $service = new Services\PlanoManutencao\Queries\GetPlanos();
+        return $service->handle($veiculoId);
     }
 
 }

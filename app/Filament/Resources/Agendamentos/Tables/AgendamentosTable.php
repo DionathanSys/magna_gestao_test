@@ -27,13 +27,16 @@ class AgendamentosTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
+                    ->width('1%')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->width('1%')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ordem_servico_id')
                     ->label('OS')
+                    ->width('1%')
                     ->searchable()
                     ->numeric()
                     ->sortable()
@@ -74,19 +77,21 @@ class AgendamentosTable
                 TextColumn::make('observacao')
                     ->label('Observação')
                     ->width('1%')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('Não informado'),
                 TextColumn::make('parceiro.nome')
                     ->label('Fornecedor')
-                    ->width('1%')
                     ->placeholder('Não definido'),
                 TextColumn::make('creator.name')
                     ->label('Criado Por')
                     ->width('1%')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updater.name')
                     ->label('Atualizado Por')
                     ->width('1%')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')
@@ -147,7 +152,8 @@ class AgendamentosTable
             ->defaultGroup('veiculo.placa')
             ->defaultSort('data_agendamento', 'asc')
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->iconButton(),
                 EditAction::make()
                     ->iconButton()
                     ->mutateDataUsing(function (array $data): array {
@@ -156,12 +162,15 @@ class AgendamentosTable
                     }),
             ])
             ->toolbarActions([
+                BulkActionGroup::make([
+                    Actions\CancelarAgendamentoAction::make()
+                        ->visible(fn(): bool => Auth::user()->is_admin),
+                    DeleteBulkAction::make()
+                        ->visible(fn(): bool => Auth::user()->is_admin),
+                ]),
                 Actions\EncerrarAgendamentoAction::make(),
-                Actions\CancelarAgendamentoAction::make()
-                    ->visible(fn(): bool => Auth::user()->is_admin),
                 Actions\VincularOrdemServicoAction::make(),
-                DeleteBulkAction::make()
-                    ->visible(fn(): bool => Auth::user()->is_admin),
+
             ])
             ->poll('5s');
     }

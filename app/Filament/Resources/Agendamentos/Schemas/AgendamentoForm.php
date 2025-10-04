@@ -8,6 +8,7 @@ use App\Filament\Resources\Servicos\ServicoResource;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -28,19 +29,26 @@ class AgendamentoForm
                     ->schema([
                         Select::make('veiculo_id')
                             ->label('Veículo')
+                            ->autofocus()
+                            ->native(false)
                             ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2])
                             ->relationship('veiculo', 'placa')
+                            ->searchable()
+                            ->searchPrompt('Buscar Veículo')
+                            ->placeholder('Buscar ...')
                             ->required(),
                         DatePicker::make('data_agendamento')
                             ->label('Agendado Para')
                             ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2])
-                            ->default(now()),
+                            ->minDate(now()),
                         DatePicker::make('data_limite')
                             ->label('Dt. Limite')
+                            ->after('data_agendamento')
                             ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2]),
                         DatePicker::make('data_realizado')
                             ->label('Realizado Em')
                             ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2])
+                            ->afterOrEqual('data_agendamento')
                             ->maxDate(now()),
                     ]),
                 Section::make('Detalhes do Agendamento')
@@ -56,7 +64,6 @@ class AgendamentoForm
                             ->createOptionForm(fn(Schema $schema) => ServicoResource::form($schema))
                             ->editOptionForm(fn(Schema $schema) => ServicoResource::form($schema))
                             ->searchable()
-                            ->preload()
                             ->live()
                             ->afterStateUpdated(function (Set $set, $state) {
                                 if ($state) {
@@ -80,6 +87,7 @@ class AgendamentoForm
                             ->maxLength(8),
                         Select::make('plano_preventivo_id')
                             ->label('Plano Preventivo')
+                            ->native(false)
                             ->columnStart(1)
                             ->columnSpanFull()
                             ->options(function (Get $get) {
@@ -90,9 +98,10 @@ class AgendamentoForm
                             })
                             ->preload()
                             ->live(),
-                        RichEditor::make('observacao')
+                        Textarea::make('observacao')
                             ->label('Observação')
                             ->columnSpanFull()
+                            ->rows(3)
                             ->maxLength(255),
                         Select::make('parceiro_id')
                             ->label('Parceiro')

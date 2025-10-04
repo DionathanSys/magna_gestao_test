@@ -32,6 +32,7 @@ class CriarAgendamento
                 'plano_preventivo_id'   => $data['plano_preventivo_id'] ?? null,
                 'posicao'               => $data['posicao'] ?? null,
                 'status'                => StatusOrdemServicoEnum::PENDENTE,
+                'observacao'            => $data['observacao'] ?? null,
             ]
             , $data);
 

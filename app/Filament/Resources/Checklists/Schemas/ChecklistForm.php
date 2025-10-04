@@ -56,52 +56,31 @@ class ChecklistForm
                                     ->columns(12)
                                     ->columnSpan(6)
                                     ->defaultItems(self::getCountItens())
-                                    ->collapsed()
                                     ->collapsible()
-                                    ->itemLabel(fn(array $state): ?string => $state['status'] . ' ' . $state['item'])
+                                    ->itemLabel(fn(array $state): ?string => $state['item'])
                                     ->schema([
-                                        TextInput::make('item')
-                                            ->label('Item')
-                                            ->required()
-                                            ->columnSpan(4),
                                         Toggle::make('status')
                                             ->label('OK')
+                                            ->inline(false)
+                                            ->default(false)
                                             ->columnSpan(2),
                                         Toggle::make('corrigido')
                                             ->label('Corrigido')
                                             ->inline(false)
                                             ->default(false)
-                                            ->columnSpan(1),
+                                            ->columnSpan(2),
                                         Hidden::make('obrigatorio')
                                             ->label('Obrigatório')
                                             ->columnSpan(1),
                                         Textarea::make('observacoes')
                                             ->label('Observações')
-                                            ->columnSpanFull()
-                                            ->rows(2),
+                                            ->columnSpan(6)
+                                            ->rows(1),
 
                                     ])
                                     ->default(fn() => self::getItens())
                                     ->deletable(false)
-                                    ->addable(false)
-                                    ->extraItemActions([
-                                        // Action::make('ok')
-                                        //     ->icon(Heroicon::CheckCircle)
-                                        //     ->color('info')
-                                        //     ->action(function (array $arguments, Repeater $component): void {
-                                        //         $state = $component->getState();
-                                        //         $state[$arguments['item']]['status'] = 'OK';
-                                        //         $component->state($state);
-                                        //     }),
-                                        // Action::make('nok')
-                                        //     ->icon(Heroicon::XCircle)
-                                        //     ->color('danger')
-                                        //     ->action(function (array $arguments, Repeater $component): void {
-                                        //         $state = $component->getState();
-                                        //         $state[$arguments['item']]['status'] = 'NOK';
-                                        //         $component->state($state);
-                                        //     }),
-                                    ]),
+                                    ->addable(false),
                             ]),
                         Tabs\Tab::make('Anexos')
                             ->schema([
@@ -126,7 +105,7 @@ class ChecklistForm
         $itens = collect(db_config('config-checklist.itens', []))
             ->map(fn($item) => [
                 'item' => $item['item'] ?? 'Erro ao carregar item',
-                'status' => $item['obrigatorio'] ? 'NOK' : null,
+                'status' => false,
                 'obrigatorio' => $item['obrigatorio'] ?? true,
                 'observacoes' => null,
             ])

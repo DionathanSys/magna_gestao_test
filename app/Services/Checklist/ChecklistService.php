@@ -25,6 +25,13 @@ class ChecklistService
             $service = new Services\Veiculo\VeiculoService();
             $service->setDataUltimoChecklist($data['veiculo_id'], $data['data_referencia']);
 
+            if ($checklist->pendencias_count > 0) {
+                $action = new Actions\AgendarPendenciasChecklist();
+                $action->handle($checklist->id, $checklist->veiculo_id, $checklist->pendencias);
+            }
+
+
+
             $this->setSuccess('Data do último checklist atualizada com sucesso.');
 
             DB::commit();

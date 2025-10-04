@@ -7,7 +7,6 @@ use Filament\Actions\Action;
 use App\Models;
 use App\Services;
 use App\Services\NotificacaoService as notify;
-use Closure;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 

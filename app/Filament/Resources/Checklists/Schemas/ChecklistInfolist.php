@@ -71,13 +71,13 @@ class ChecklistInfolist
                             ->formatStateUsing(fn ($state) => $state ? 'OK' : 'NOK')
                             ->badge()
                             ->color(fn(string $state): string => match ($state) {
-                                true => 'success',
-                                false => 'danger',
+                                'OK' => 'info',
+                                'NOK' => 'danger',
                                 default => 'gray',
                             }),
                         TextEntry::make('corrigido')
                             ->columnSpan(2)
-                            ->formatStateUsing(fn ($state) => $state ? 'Sim' : ''),
+                            ->formatStateUsing(fn ($state) => $state ? 'Sim' : '-'),
                         TextEntry::make('observacoes')
                             ->columnSpan(6)
                             ->placeholder('Sem observações'),

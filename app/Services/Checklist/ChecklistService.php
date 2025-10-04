@@ -20,17 +20,23 @@ class ChecklistService
             $action = new Actions\CriarChecklist();
             $checklist = $action->handle($data);
 
+            Log::debug(__METHOD__. ' - ' . __LINE__, [
+                'checklist' => $checklist,
+            ]);
+
             $this->setSuccess('Checklist registrado com sucesso.');
 
             $service = new Services\Veiculo\VeiculoService();
             $service->setDataUltimoChecklist($data['veiculo_id'], $data['data_referencia']);
 
+            Log::debug("Atualizado data do último checklist");
+            Log::debug("Pendencias encontradas: " . $checklist->pendencias_count);
+
             if ($checklist->pendencias_count > 0) {
                 $action = new Actions\AgendarPendenciasChecklist();
                 $action->handle($checklist->id, $checklist->veiculo_id, $checklist->pendencias);
+                
             }
-
-
 
             $this->setSuccess('Data do último checklist atualizada com sucesso.');
 

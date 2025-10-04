@@ -16,6 +16,10 @@ class CreateChecklist extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
+        Log::debug(__METHOD__. ' - ' . __LINE__, [
+            'data' => $data,
+        ]);
+        
         $service = new Services\Checklist\ChecklistService();
         $checklist = $service->registrarChecklist($data);
         if($service->hasError()) {

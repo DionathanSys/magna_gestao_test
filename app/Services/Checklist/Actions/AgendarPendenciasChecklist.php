@@ -3,6 +3,7 @@
 namespace App\Services\Checklist\Actions;
 
 use App\{Services, Models, Enum};
+use Illuminate\Support\Facades\Log;
 
 class AgendarPendenciasChecklist
 {
@@ -13,10 +14,13 @@ class AgendarPendenciasChecklist
         $service = new Services\Agendamento\AgendamentoService();
 
         foreach ($data as $key => $pendencia) {
+            Log::debug(__METHOD__. ' - ' . __LINE__, [
+                'pendencia' => $pendencia,
+            ]);
             $service->create([
                 'veiculo_id' => $veiculoId,
                 'servico_id' => 184,
-                'observacao' => "Pendência do checklist ID: {$checklistId}, Item: {$pendencia['item']}",
+                'observacao' => "Pendência do checklist ID: {$checklistId}, Item: {$pendencia['item']}, Obs.: {$pendencia['observacoes']}",
             ]);
         }
 

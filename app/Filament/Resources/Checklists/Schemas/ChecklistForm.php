@@ -62,12 +62,10 @@ class ChecklistForm
                                         Toggle::make('status')
                                             ->label('OK')
                                             ->inline(false)
-                                            ->default(false)
                                             ->columnSpan(2),
                                         Toggle::make('corrigido')
                                             ->label('Corrigido')
                                             ->inline(false)
-                                            ->default(false)
                                             ->columnSpan(2),
                                         Hidden::make('obrigatorio')
                                             ->label('Obrigatório')
@@ -105,7 +103,7 @@ class ChecklistForm
         $itens = collect(db_config('config-checklist.itens', []))
             ->map(fn($item) => [
                 'item' => $item['item'] ?? 'Erro ao carregar item',
-                'status' => false,
+                'status' => true,
                 'obrigatorio' => $item['obrigatorio'] ?? true,
                 'observacoes' => null,
             ])

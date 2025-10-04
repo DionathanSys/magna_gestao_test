@@ -17,12 +17,10 @@ class CriarChecklist
             ->filter(fn($item) => $item['corrigido'])
             ->toArray();
 
-        $data['itens_verificados'] = collect($data['itens'] ?? [])
-            ->filter(fn($item) => isset($item['status']))
-            ->toArray();
+        $data['itens_verificados'] = $data['itens'];
 
         $data['pendencias'] = collect($data['itens'] ?? [])
-            ->filter(fn($item) => ($item['status'] ?? null) === 'NOK' && empty($item['corrigido']))
+            ->filter(fn($item) => $item['status'] == false && $item['corrigido'] == false)
             ->toArray();
 
         $data['created_by'] = Auth::id();

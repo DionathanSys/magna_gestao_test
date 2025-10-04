@@ -57,19 +57,16 @@ class ChecklistForm
                                     ->columnSpan(6)
                                     ->defaultItems(self::getCountItens())
                                     ->collapsed()
+                                    ->collapsible()
                                     ->itemLabel(fn(array $state): ?string => $state['status'] . ' ' . $state['item'])
                                     ->schema([
                                         TextInput::make('item')
                                             ->label('Item')
                                             ->required()
                                             ->columnSpan(4),
-                                        Select::make('status')
+                                        Toggle::make('status')
                                             ->label('OK')
-                                            ->columnSpan(2)
-                                            ->placeholder('Selecione')
-                                            ->selectablePlaceholder(false)
-                                            ->requiredIf('obrigatorio', true)
-                                            ->boolean(trueLabel: 'OK', falseLabel: 'NOK'),
+                                            ->columnSpan(2),
                                         Toggle::make('corrigido')
                                             ->label('Corrigido')
                                             ->inline(false)
@@ -88,24 +85,22 @@ class ChecklistForm
                                     ->deletable(false)
                                     ->addable(false)
                                     ->extraItemActions([
-                                        Action::make('ok')
-                                            ->icon(Heroicon::CheckCircle)
-                                            ->color('info')
-                                            // ->visible(fn(array $arguments): bool => $arguments['item']['status'] !== 'OK')
-                                            ->action(function (array $arguments, Repeater $component): void {
-                                                $state = $component->getState();
-                                                $state[$arguments['item']]['status'] = 'OK';
-                                                $component->state($state);
-                                            }),
-                                        Action::make('nok')
-                                            ->icon(Heroicon::XCircle)
-                                            ->color('danger')
-                                            // ->visible(fn(array $item): bool => $item['status'] !== 'NOK')
-                                            ->action(function (array $arguments, Repeater $component): void {
-                                                $state = $component->getState();
-                                                $state[$arguments['item']]['status'] = 'NOK';
-                                                $component->state($state);
-                                            }),
+                                        // Action::make('ok')
+                                        //     ->icon(Heroicon::CheckCircle)
+                                        //     ->color('info')
+                                        //     ->action(function (array $arguments, Repeater $component): void {
+                                        //         $state = $component->getState();
+                                        //         $state[$arguments['item']]['status'] = 'OK';
+                                        //         $component->state($state);
+                                        //     }),
+                                        // Action::make('nok')
+                                        //     ->icon(Heroicon::XCircle)
+                                        //     ->color('danger')
+                                        //     ->action(function (array $arguments, Repeater $component): void {
+                                        //         $state = $component->getState();
+                                        //         $state[$arguments['item']]['status'] = 'NOK';
+                                        //         $component->state($state);
+                                        //     }),
                                     ]),
                             ]),
                         Tabs\Tab::make('Anexos')
@@ -118,7 +113,7 @@ class ChecklistForm
                                     ->columnSpanFull(),
                             ])
                     ])
-            ]);;
+            ]);
     }
 
     public static function getCountItens(): int

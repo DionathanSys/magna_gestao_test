@@ -70,7 +70,7 @@ class AgendamentoService
     public function getPlanosPreventivosByVeiculo(int $veiculoId): array
     {
         $service = new Services\PlanoManutencao\Queries\GetPlanos();
-        return $service->handle($veiculoId);
+        return $service->handle($veiculoId)->toArray();
     }
 
 }

@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Agendamentos\Schemas;
 
 use App\{Models, Services, Enum};
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
+use App\Filament\Resources\Parceiros\ParceiroResource;
 use App\Filament\Resources\Servicos\ServicoResource;
+use App\Models\Parceiro;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -31,7 +33,7 @@ class AgendamentoForm
                             ->label('Veículo')
                             ->autofocus()
                             ->native(false)
-                            ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2])
+                            ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2])
                             ->relationship('veiculo', 'placa')
                             ->searchable()
                             ->searchPrompt('Buscar Veículo')
@@ -39,15 +41,15 @@ class AgendamentoForm
                             ->required(),
                         DatePicker::make('data_agendamento')
                             ->label('Agendado Para')
-                            ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2])
+                            ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2])
                             ->minDate(now()),
                         DatePicker::make('data_limite')
                             ->label('Dt. Limite')
                             ->after('data_agendamento')
-                            ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2]),
+                            ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2]),
                         DatePicker::make('data_realizado')
                             ->label('Realizado Em')
-                            ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 2])
+                            ->columnSpan(['sm' => 1, 'md' => 1  , 'lg' => 2, 'xl' => 2])
                             ->afterOrEqual('data_agendamento')
                             ->maxDate(now()),
                     ]),
@@ -107,6 +109,8 @@ class AgendamentoForm
                             ->label('Parceiro')
                             ->columnSpanFull()
                             ->relationship('parceiro', 'nome')
+                            ->createOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
+                            ->editOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
                             ->searchable()
                             ->preload()
                             ->searchPrompt('Buscar Parceiro')

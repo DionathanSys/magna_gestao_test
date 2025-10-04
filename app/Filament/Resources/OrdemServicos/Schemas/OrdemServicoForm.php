@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use App\Enum;
+use App\Filament\Resources\Parceiros\ParceiroResource;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater\TableColumn;
@@ -187,8 +188,10 @@ class OrdemServicoForm
     {
         return Select::make('parceiro_id')
             ->label('Parceiro')
-            ->columnSpan(2)
+            ->columnSpanFull()
             ->relationship('parceiro', 'nome')
+            ->createOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
+            ->editOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
             ->searchable()
             ->preload()
             ->searchPrompt('Buscar Parceiro')

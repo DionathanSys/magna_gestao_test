@@ -152,8 +152,6 @@ class AgendamentosTable
             ->defaultGroup('veiculo.placa')
             ->defaultSort('data_agendamento', 'asc')
             ->recordActions([
-                ViewAction::make()
-                    ->iconButton(),
                 EditAction::make()
                     ->iconButton()
                     ->mutateDataUsing(function (array $data): array {

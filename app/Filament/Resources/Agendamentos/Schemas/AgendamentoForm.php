@@ -42,10 +42,8 @@ class AgendamentoForm
                             ->placeholder('Buscar ...')
                             ->required()
                             ->afterStateUpdated(function (Set $set, $state) {
-                                if (!$state) {
                                     $set('plano_preventivo_id', null);
                                     $set('ordem_servico_id', null);
-                                }
                             }),
                         DatePicker::make('data_agendamento')
                             ->label('Agendado Para')

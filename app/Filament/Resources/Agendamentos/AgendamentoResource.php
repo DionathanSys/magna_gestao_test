@@ -52,8 +52,8 @@ class AgendamentoResource extends Resource
         return [
             'index' => ListAgendamentos::route('/'),
             // 'create' => CreateAgendamento::route('/create'),
-            'view' => ViewAgendamento::route('/{record}'),
-            'edit' => EditAgendamento::route('/{record}/edit'),
+            // 'view' => ViewAgendamento::route('/{record}'),
+            // 'edit' => EditAgendamento::route('/{record}/edit'),
         ];
     }
 }

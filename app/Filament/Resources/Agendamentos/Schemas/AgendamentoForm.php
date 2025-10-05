@@ -127,21 +127,10 @@ class AgendamentoForm
                             ->tableArguments(function (Get $get) {
                                 if ($get('veiculo_id')) {
                                     return [
-                                        'query' => \App\Models\OrdemServico::where('veiculo_id', $get('veiculo_id'))
-                                            ->whereIn('status', [
-                                                Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
-                                                Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
-                                            ]),
-                                    ];
-                                } else {
-                                    return [
-                                        'query' => \App\Models\OrdemServico::query()
-                                            ->whereIn('status', [
-                                                Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
-                                                Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
-                                            ]),
+                                        'veiculo_id' => $get('veiculo_id')
                                     ];
                                 }
+                                return [];
                             })
 
                     ]),

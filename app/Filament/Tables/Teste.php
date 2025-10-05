@@ -2,7 +2,8 @@
 
 namespace App\Filament\Tables;
 
-use App\Models\OrdemServico;
+
+use App\{Models, Enum, Services};
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -13,7 +14,18 @@ class Teste
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => OrdemServico::query())
+            ->query(fn(): Builder => Models\OrdemServico::query())
+            ->modifyQueryUsing(function(Builder $query) use ($table): Builder {
+                $arguments = $table->getArguments();
+                $query->whereIn('status', [
+                    Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
+                    Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
+                ]);
+                if (isset($arguments['veiculo_id'])){
+                    $query->where('veiculo_id', $arguments['veiculo_id']);
+                }
+                return $query;
+            })
             ->columns([
                 TextColumn::make('veiculo.placa')
                     ->searchable(isIndividual: true),

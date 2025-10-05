@@ -31,6 +31,7 @@ class OrdemServicoForm
                                 'md' => 4,
                                 'lg' => 10,
                             ])
+                            ->columnSpanFull()
                             ->schema([
                                 Components\OrdemServicoVeiculoInput::make(),
                                 static::getQuilometragemFormField()

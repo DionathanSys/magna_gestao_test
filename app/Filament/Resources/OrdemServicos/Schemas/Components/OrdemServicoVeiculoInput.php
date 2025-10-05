@@ -6,6 +6,7 @@ use App\Services\Veiculo\VeiculoService;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Icon;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 
@@ -29,12 +30,12 @@ class OrdemServicoVeiculoInput
                     if ((new VeiculoService())->hasAgendamentoAberto($state)) {
                         $component->afterLabel([
                             Icon::make(Heroicon::ExclamationTriangle),
-                            'Veículo possui agendamento aberto']);
-                    } else {
-                        $component->afterLabel('');
+                            Text::make('Veículo possui agendamento aberto')->color('yellow'),
+                        ]);
                     }
                 } else {
                     $set('quilometragem', null);
+                    $component->afterLabel(null);
                 }
             })
             ->columnSpan([

@@ -6,8 +6,10 @@ use App\{Models, Services, Enum};
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Parceiros\ParceiroResource;
 use App\Filament\Resources\Servicos\ServicoResource;
+use App\Filament\Tables\Teste;
 use App\Models\Parceiro;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\ModalTableSelect;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -38,7 +40,10 @@ class AgendamentoForm
                             ->searchable()
                             ->searchPrompt('Buscar Veículo')
                             ->placeholder('Buscar ...')
-                            ->required(),
+                            ->required()
+                            ->afterStateUpdatedJs(<<<'JS'
+                                $set('ordem_servico_id', (null))
+                            JS),
                         DatePicker::make('data_agendamento')
                             ->label('Agendado Para')
                             ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2])
@@ -49,7 +54,7 @@ class AgendamentoForm
                             ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2]),
                         DatePicker::make('data_realizado')
                             ->label('Realizado Em')
-                            ->columnSpan(['sm' => 1, 'md' => 1  , 'lg' => 2, 'xl' => 2])
+                            ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2])
                             ->afterOrEqual('data_agendamento')
                             ->maxDate(now()),
                     ]),
@@ -114,8 +119,30 @@ class AgendamentoForm
                             ->searchable()
                             ->preload()
                             ->searchPrompt('Buscar Parceiro')
-                            ->placeholder('Buscar ...')
-
+                            ->placeholder('Buscar ...'),
+                        ModalTableSelect::make('ordem_servico_id')
+                            ->relationship('ordemServico', 'id')
+                            ->columnSpan(6)
+                            ->tableConfiguration(Teste::class)
+                            ->tableArguments(function (Get $get) {
+                                if ($get('veiculo_id')) {
+                                    return [
+                                        'query' => \App\Models\OrdemServico::where('veiculo_id', $get('veiculo_id'))
+                                            ->whereIn('status', [
+                                                Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
+                                                Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
+                                            ]),
+                                    ];
+                                } else {
+                                    return [
+                                        'query' => \App\Models\OrdemServico::query()
+                                            ->whereIn('status', [
+                                                Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
+                                                Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
+                                            ]),
+                                    ];
+                                }
+                            })
 
                     ]),
             ]);

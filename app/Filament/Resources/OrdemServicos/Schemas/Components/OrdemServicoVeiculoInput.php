@@ -5,7 +5,9 @@ namespace App\Filament\Resources\OrdemServicos\Schemas\Components;
 use App\Services\Veiculo\VeiculoService;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Icon;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Support\Icons\Heroicon;
 
 class OrdemServicoVeiculoInput
 {

@@ -41,9 +41,12 @@ class AgendamentoForm
                             ->searchPrompt('Buscar Veículo')
                             ->placeholder('Buscar ...')
                             ->required()
-                            ->afterStateUpdatedJs(<<<'JS'
-                                $set('ordem_servico_id', (null))
-                            JS),
+                            ->afterStateUpdated(function (Set $set, $state) {
+                                if (!$state) {
+                                    $set('plano_preventivo_id', null);
+                                    $set('ordem_servico_id', null);
+                                }
+                            }),
                         DatePicker::make('data_agendamento')
                             ->label('Agendado Para')
                             ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2])

@@ -6,6 +6,7 @@ use App\{Models, Services, Enum};
 use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\OrdemServico\OrdemServicoService;
 use App\Traits\ServiceResponseTrait;
+use Illuminate\Database\Eloquent\Collection;
 
 class AgendamentoService
 {
@@ -73,4 +74,10 @@ class AgendamentoService
         return $service->handle($veiculoId)->toArray();
     }
 
+    public function getAgendamentoAbertoByVeiculo(int $veiculoId): ?Collection
+    {
+        $querie = new Queries\GetAgendamentoAberto();
+        return $querie->handle(array($veiculoId));
+    }
+    
 }

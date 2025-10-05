@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Schemas\Components;
 
 use App\Services\Veiculo\VeiculoService;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Set;
 
@@ -20,9 +21,16 @@ class OrdemServicoVeiculoInput
             ->searchable()
             ->preload()
             ->live(onBlur: true)
-            ->afterStateUpdated(function (Set $set, $state) {
+            ->afterStateUpdated(function (Set $set, Field $component, $state) {
                 if ($state) {
                     $set('quilometragem', VeiculoService::getQuilometragemAtualByVeiculoId($state));
+                    if ((new VeiculoService())->hasAgendamentoAberto($state)) {
+                        $component->afterLabel([
+                            Icon::make(Heroicon::ExclamationTriangle),
+                            'Veículo possui agendamento aberto']);
+                    } else {
+                        $component->afterLabel('');
+                    }
                 } else {
                     $set('quilometragem', null);
                 }

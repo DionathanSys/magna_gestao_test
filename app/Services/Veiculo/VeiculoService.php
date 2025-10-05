@@ -88,4 +88,10 @@ class VeiculoService
             ->where('id', $veiculoId)
             ->update(['informacoes_complementares' => $informacoesComplementares]);
     }
+
+    //possui agendamento aberto
+    public function hasAgendamentoAberto(int $veiculoId): bool
+    {
+        return (new Queries\GetAgendamentoAberto())->handle($veiculoId);
+    }
 }

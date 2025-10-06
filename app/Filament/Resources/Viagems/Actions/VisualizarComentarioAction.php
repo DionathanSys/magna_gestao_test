@@ -28,6 +28,8 @@ class VisualizarComentarioAction
                         \Filament\Infolists\Components\TextEntry::make('created_at')
                             ->label('Criado em')
                             ->dateTime('d/m/Y H:i'),
+                        \Filament\Infolists\Components\TextEntry::make('creator.name')
+                            ->label('Criado por'),
                     ])
             ])->icon('heroicon-o-chat-bubble-left-ellipsis');
     }

@@ -32,7 +32,7 @@ class OrdemServicoVeiculoInput
                     Log::debug('Veículo selecionado: ' . $state);
                     $set('quilometragem', VeiculoService::getQuilometragemAtualByVeiculoId($state));
                     $possuiAgendamento = (new VeiculoService())->hasAgendamentoAberto($state);
-                    Log::debug('Possui agendamento aberto: ' . ($possuiAgendamento ? 'Sim' : 'Não'));
+                    Log::debug('Possui agendamento aberto: ' . $possuiAgendamento);
                     if ($possuiAgendamento) {
                         $component->belowContent([
                             Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),

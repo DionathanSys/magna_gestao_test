@@ -11,6 +11,7 @@ class GetAgendamentoAberto
     {
         Log::debug('Consultando agendamento aberto para o veículo ID: ' . $veiculoId);
         $service = new Services\Agendamento\AgendamentoService();
-        return $service->getAgendamentoAbertoByVeiculo($veiculoId) !== null;
+        $agendamentos = $service->getAgendamentoAbertoByVeiculo($veiculoId);
+        return $agendamentos->isNotEmpty();
     }
 }

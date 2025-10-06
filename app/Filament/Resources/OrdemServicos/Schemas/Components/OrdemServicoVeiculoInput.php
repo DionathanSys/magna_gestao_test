@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Icon;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Log;
 
 class OrdemServicoVeiculoInput
 {
@@ -26,14 +27,18 @@ class OrdemServicoVeiculoInput
             ->live(onBlur: true)
             ->afterStateUpdated(function (Set $set, Field $component, $state) {
                 if ($state) {
+                    Log::debug('Veículo selecionado: ' . $state);
                     $set('quilometragem', VeiculoService::getQuilometragemAtualByVeiculoId($state));
-                    if ((new VeiculoService())->hasAgendamentoAberto($state)) {
+                    $possuiAgendamento = (new VeiculoService())->hasAgendamentoAberto($state);
+                    Log::debug('Possui agendamento aberto: ' . ($possuiAgendamento ? 'Sim' : 'Não'));
+                    if ($possuiAgendamento) {
                         $component->afterLabel([
                             Icon::make(Heroicon::ExclamationTriangle),
                             Text::make('Veículo possui agendamento aberto')->color('yellow'),
                         ]);
                     }
                 } else {
+                    Log::debug('Nenhum veículo selecionado.');
                     $set('quilometragem', null);
                     $component->afterLabel(null);
                 }

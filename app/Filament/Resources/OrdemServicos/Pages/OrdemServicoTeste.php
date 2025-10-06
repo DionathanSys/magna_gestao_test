@@ -4,9 +4,11 @@ namespace App\Filament\Resources\OrdemServicos\Pages;
 
 
 use App\Filament\Resources\OrdemServicos\{OrdemServicoResource, Actions};
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
+use Filament\Support\Enums\Size;
 use Illuminate\Database\Eloquent\Model;
 
 class OrdemServicoTeste extends Page
@@ -27,12 +29,16 @@ class OrdemServicoTeste extends Page
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make('delete')
+            ActionGroup::make([
+                DeleteAction::make('delete')
                 ->requiresConfirmation()
                 ->action(fn () => $this->record->delete()),
+                Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id),
+            ])->label('Ações')->button()->size(Size::ExtraSmall),
+
             Actions\EncerrarOrdemServicoAction::make($this->record->id)
                 ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl()),
-            Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id),
+
             Actions\PdfOrdemServicoAction::make(),
         ];
     }

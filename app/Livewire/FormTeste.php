@@ -68,7 +68,8 @@ class FormTeste extends Component implements HasSchemas
                                             ->columnSpan([
                                                 'default' => 2,
                                                 'xl' => 2
-                                            ]),
+                                            ])
+                                            ->columnStart(1),
                                     ]),
                                 Tabs\Tab::make('Info. OS')
                                     ->columns(['default' => 2,'xl' => 4,'2xl' => 6,])

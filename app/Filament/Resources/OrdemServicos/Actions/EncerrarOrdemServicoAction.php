@@ -12,6 +12,7 @@ use App\Models;
 use App\Services\NotificacaoService as notify;
 
 use Filament\Forms\Components\Select;
+use Filament\Support\Enums\Size;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
@@ -20,9 +21,10 @@ class EncerrarOrdemServicoAction
     public static function make(): Action
     {
         return Action::make('encerrar')
-            ->label('Encerrar OS')
+            ->label('Encerrar')
             ->icon('heroicon-o-check-circle')
             ->color('success')
+            ->size(Size::ExtraSmall)
             ->action(function (Models\OrdemServico $record, Action $action) {
                 $service = new Services\OrdemServico\OrdemServicoService();
                 $service->encerrarOrdemServico($record);

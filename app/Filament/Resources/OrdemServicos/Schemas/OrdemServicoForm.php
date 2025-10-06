@@ -13,6 +13,7 @@ use App\Filament\Resources\Parceiros\ParceiroResource;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater\TableColumn;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Set;
 
 class OrdemServicoForm
@@ -20,81 +21,137 @@ class OrdemServicoForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(['md' => 2, 'xl' => 4])
+            ->columns([
+                'default' => 1,
+                'md' => 6,
+                'lg' => 9,
+                'xl' => 12,
+            ])
             ->components([
-                Tabs::make()
-                    ->columnSpanFull()
-                    ->tabs([
-                        Tabs\Tab::make('Informações')
-                            ->columns([
-                                'sm' => 1,
-                                'md' => 4,
-                                'lg' => 10,
-                            ])
-                            ->columnSpanFull()
-                            ->schema([
-                                Components\OrdemServicoVeiculoInput::make(),
-                                static::getQuilometragemFormField()
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 2,
-                                        'lg' => 3,
-                                    ]),
-                                Components\OrdemServicoTipoManutencaoInput::make(),
-                                Components\OrdemServicoDataAberturaInput::make()
-                                    ->columnStart(1),
-                                static::getDataFimFormField()
-                                    ->visibleOn('edit')
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 2,
-                                        'lg' => 3,
-                                    ]),
-                                static::getStatusFormField()
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 2,
-                                        'lg' => 3,
-                                    ]),
-                                static::getStatusSankhyaFormField()
-                                    ->columnSpan([
-                                        'sm' => 1,
-                                        'md' => 2,
-                                        'lg' => 3,
-                                    ]),
-                                static::getParceiroIdFormField()
-                                    ->columnSpan(4),
-
-                            ]),
-                        Tabs\Tab::make('Ordens Sankhya')
-                            ->columns(3)
-                            ->visibleOn('edit')
-                            ->schema([
-                                Repeater::make('sankhyaId')
-                                    // ->relationship()
-                                    ->table([
-                                        TableColumn::make('Nro. OS')->width('100px'),
-                                        TableColumn::make('Nro. OS Sankhya')->width('100px'),
-                                        TableColumn::make('Data de Criação')->width('150px'),
-                                    ])
-                                    ->columns(10)
-                                    ->schema([
-                                        TextInput::make('ordem_servico_id')
-                                            ->label('Nro. OS')
-                                            ->columnSpan(1)
-                                            ->required(),
-                                        TextInput::make('ordem_sankhya_id')
-                                            ->label('Nro. OS Sankhya')
-                                            ->columnSpan(1)
-                                            ->required(),
-                                        DatePicker::make('created_at')
-                                            ->label('Data de Criação')
-                                            ->columnSpan(1)
-                                            ->date('d/m/Y')
-                                            ->readOnly(),
-                                    ]),
-                            ]),
+                Components\OrdemServicoVeiculoInput::make()
+                    ->columnSpan([
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
                     ]),
+                static::getQuilometragemFormField()
+                    ->columnSpan([
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ]),
+                Components\OrdemServicoTipoManutencaoInput::make()
+                    ->columnSpan([
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ]),
+                Components\OrdemServicoDataAberturaInput::make()
+                    ->columnSpan([
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ]),
+                static::getDataFimFormField()
+                    ->columnSpan([
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ])
+                    ->visibleOn('edit'),
+                static::getStatusFormField()
+                    ->columnSpan([
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ]),
+                static::getStatusSankhyaFormField()
+                    ->columnSpan([
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ]),
+                static::getParceiroIdFormField()
+                    ->columnSpan([
+                        'md' => 3,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ]),
+
+
+                // Tabs::make()
+                // ->columns(12)
+                // ->columnSpanFull()
+                // ->tabs([
+                //     Tabs\Tab::make('Informações')
+                //         ->columns(12)
+                //         ->columnSpanFull()
+                //         ->schema([
+                //             Components\OrdemServicoVeiculoInput::make()->columnSpan(1),
+                //             static::getQuilometragemFormField()
+                //                 // ->columnSpan([
+                //                 //     'sm' => 1,
+                //                 //     'md' => 2,
+                //                 //     'lg' => 3,
+                //                 // ])
+                //                 ->columnSpan(1),
+                //             Components\OrdemServicoTipoManutencaoInput::make()
+                //                 ->columnSpan(2),
+                //             Components\OrdemServicoDataAberturaInput::make()
+                //                 // ->columnStart(1)
+                //                 ->columnSpan(2),
+                //             static::getDataFimFormField()
+                //                 ->visibleOn('edit')
+                //                 ->columnSpan([
+                //                     'sm' => 1,
+                //                     'md' => 2,
+                //                     'lg' => 3,
+                //                 ]),
+                //             static::getStatusFormField()
+                //                 ->columnSpan([
+                //                     'sm' => 1,
+                //                     'md' => 2,
+                //                     'lg' => 3,
+                //                 ]),
+                //             static::getStatusSankhyaFormField()
+                //                 ->columnSpan([
+                //                     'sm' => 1,
+                //                     'md' => 2,
+                //                     'lg' => 3,
+                //                 ]),
+                //             static::getParceiroIdFormField()
+                //                 ->columnSpan(4),
+
+                //         ]),
+                //     Tabs\Tab::make('Ordens Sankhya')
+                //         ->columns(3)
+                //         ->visibleOn('edit')
+                //         ->schema([
+                //             Repeater::make('sankhyaId')
+                //                 // ->relationship()
+                //                 ->table([
+                //                     TableColumn::make('Nro. OS')->width('100px'),
+                //                     TableColumn::make('Nro. OS Sankhya')->width('100px'),
+                //                     TableColumn::make('Data de Criação')->width('150px'),
+                //                 ])
+                //                 ->columns(10)
+                //                 ->schema([
+                //                     TextInput::make('ordem_servico_id')
+                //                         ->label('Nro. OS')
+                //                         ->columnSpan(1)
+                //                         ->required(),
+                //                     TextInput::make('ordem_sankhya_id')
+                //                         ->label('Nro. OS Sankhya')
+                //                         ->columnSpan(1)
+                //                         ->required(),
+                //                     DatePicker::make('created_at')
+                //                         ->label('Data de Criação')
+                //                         ->columnSpan(1)
+                //                         ->date('d/m/Y')
+                //                         ->readOnly(),
+                //                 ]),
+                //         ]),
+                // ]),
             ]);
     }
 

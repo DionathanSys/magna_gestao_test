@@ -327,6 +327,7 @@ class ViagemsTable
                         ->label('Atualizar')
                         ->icon('heroicon-o-arrow-path')
                         ->action(function (Models\Viagem $record) {}),
+                    Viagems\Actions\AdicionarComentarioAction::make(),
                     EditAction::make()
                         ->visible(fn(Models\Viagem $record) => ! $record->conferido)
                         ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),

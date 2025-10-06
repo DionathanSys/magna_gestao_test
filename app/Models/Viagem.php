@@ -6,7 +6,9 @@ use App\Enum\MotivoDivergenciaViagem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Viagem extends Model
 {
@@ -26,6 +28,18 @@ class Viagem extends Model
     public function carga(): HasOne
     {
         return $this->hasOne(CargaViagem::class, 'viagem_id');
+    }
+
+    public function integrados(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Integrado::class,
+            CargaViagem::class,
+            'viagem_id', // Foreign key on CargaViagem table
+            'id', // Foreign key on Integrado table
+            'id', // Local key on Viagem table
+            'integrado_id' // Local key on CargaViagem table
+        );
     }
 
     public function documentos(): HasMany
@@ -51,6 +65,11 @@ class Viagem extends Model
     public function divergencias(): HasMany
     {
         return $this->hasMany(DivergenciaViagem::class, 'viagem_id');
+    }
+
+    public function comentarios(): MorphMany
+    {
+        return $this->morphMany(Comentario::class, 'comentavel');
     }
 
     public function creator(): BelongsTo

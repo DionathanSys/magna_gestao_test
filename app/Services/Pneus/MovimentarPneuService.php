@@ -9,6 +9,7 @@ use App\Models\HistoricoMovimentoPneu;
 use App\Models\PneuPosicaoVeiculo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class MovimentarPneuService
@@ -23,6 +24,15 @@ class MovimentarPneuService
 
     public function inverterPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
+        Log::debug(__METHOD__ . ' - Iniciando inversão do pneu.', [
+            'pneu_veiculo_id'   => $pneuVeiculo->id,
+            'pneu_id'           => $pneuVeiculo->pneu_id,
+            'veiculo_id'        => $pneuVeiculo->veiculo_id,
+            'posicao'           => $pneuVeiculo->posicao,
+            'eixo'              => $pneuVeiculo->eixo,
+            'data'              => $data,
+        ]);
+
         $this->removerPneu($pneuVeiculo, [
             'data_final' => $data['data_movimento'],
             'km_final'   => $data['km_movimento'],
@@ -37,11 +47,25 @@ class MovimentarPneuService
             'data_inicial'  => $data['data_movimento'],
             'km_inicial'    => $data['km_movimento'],
         ]);
+
+        Log::info(__METHOD__ . ' - Inversão do pneu finalizada.', [
+            'pneu_veiculo'   => $pneuVeiculo,
+            'pneu'           => $pneuVeiculo->pneu,
+        ]);
+        
     }
 
 
     public function removerPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
+        Log::info(__METHOD__ . ' - Removendo pneu.', [
+            'pneu_veiculo_id'   => $pneuVeiculo->id,
+            'pneu_id'           => $pneuVeiculo->pneu_id,
+            'veiculo_id'        => $pneuVeiculo->veiculo_id,
+            'posicao'           => $pneuVeiculo->posicao,
+            'eixo'              => $pneuVeiculo->eixo,
+            'data'              => $data,
+        ]);
 
         if ($pneuVeiculo->km_inicial > $data['km_final']) {
             throw new \Exception('A KM final não pode ser menor que a KM inicial.');
@@ -97,10 +121,25 @@ class MovimentarPneuService
                 ]);
                 break;
         }
+
+        Log::info(__METHOD__ . ' - Pneus após remoção.', [
+            'pneu_veiculo'   => $pneuVeiculo,
+            'pneu'           => $pneuVeiculo->pneu,
+        ]);
+
     }
 
     public function aplicarPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
+        Log::info(__METHOD__ . ' - Aplicando pneu.', [
+            'pneu_veiculo_id'   => $pneuVeiculo->id,
+            'pneu_id'           => $data['pneu_id'],
+            'veiculo_id'        => $pneuVeiculo->veiculo_id,
+            'posicao'           => $pneuVeiculo->posicao,
+            'eixo'              => $pneuVeiculo->eixo,
+            'data'              => $data,
+        ]);
+
         $pneuVeiculo->update([
             'pneu_id'       => $data['pneu_id'],
             'data_inicial'  => $data['data_inicial'],
@@ -110,6 +149,11 @@ class MovimentarPneuService
         $pneuVeiculo->pneu()->update([
             'status' => StatusPneuEnum::EM_USO,
             'local'  => LocalPneuEnum::FROTA,
+        ]);
+
+        Log::info(__METHOD__ . ' - Pneus após aplicação.', [
+            'pneu_veiculo'   => $pneuVeiculo,
+            'pneu'           => $pneuVeiculo->pneu,
         ]);
 
     }

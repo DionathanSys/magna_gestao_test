@@ -7,6 +7,7 @@ use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\OrdemServico\OrdemServicoService;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 
 class AgendamentoService
 {
@@ -76,8 +77,9 @@ class AgendamentoService
 
     public function getAgendamentoAbertoByVeiculo(int $veiculoId): ?Collection
     {
+        Log::debug('Consultando agendamento aberto para o veículo ID: ' . $veiculoId);
         $querie = new Queries\GetAgendamentoAberto();
         return $querie->handle(array($veiculoId));
     }
-    
+
 }

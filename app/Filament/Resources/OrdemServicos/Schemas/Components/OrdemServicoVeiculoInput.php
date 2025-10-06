@@ -35,8 +35,8 @@ class OrdemServicoVeiculoInput
                     Log::debug('Possui agendamento aberto: ' . ($possuiAgendamento ? 'Sim' : 'Não'));
                     if ($possuiAgendamento) {
                         $component->belowContent([
-                            Icon::make(Heroicon::ExclamationTriangle),
-                            Text::make('Veículo possui agendamento aberto')->weight(FontWeight::Bold)->color(Color::Amber),
+                            Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
+                            Text::make('Possui agendamento em aberto.')->weight(FontWeight::Bold)->color(Color::Amber),
                         ]);
                     }
                 } else {

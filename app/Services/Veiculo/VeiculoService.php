@@ -5,6 +5,7 @@ namespace App\Services\Veiculo;
 use App\{Models, Services, Enum};
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class VeiculoService
 {
@@ -92,6 +93,7 @@ class VeiculoService
     //possui agendamento aberto
     public function hasAgendamentoAberto(int $veiculoId): bool
     {
+        Log::debug('Verificando agendamento aberto para o veículo ID: ' . $veiculoId);
         return (new Queries\GetAgendamentoAberto())->handle($veiculoId);
     }
 }

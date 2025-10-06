@@ -8,6 +8,8 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Icon;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Log;
 
@@ -32,15 +34,15 @@ class OrdemServicoVeiculoInput
                     $possuiAgendamento = (new VeiculoService())->hasAgendamentoAberto($state);
                     Log::debug('Possui agendamento aberto: ' . ($possuiAgendamento ? 'Sim' : 'Não'));
                     if ($possuiAgendamento) {
-                        $component->afterLabel([
+                        $component->belowContent([
                             Icon::make(Heroicon::ExclamationTriangle),
-                            Text::make('Veículo possui agendamento aberto')->color('yellow'),
+                            Text::make('Veículo possui agendamento aberto')->weight(FontWeight::Bold)->color(Color::Amber),
                         ]);
                     }
                 } else {
                     Log::debug('Nenhum veículo selecionado.');
                     $set('quilometragem', null);
-                    $component->afterLabel(null);
+                    // $component->afterLabel(null);
                 }
             })
             ->columnSpan([

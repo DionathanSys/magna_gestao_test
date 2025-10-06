@@ -26,7 +26,7 @@ class OrdemServicoVeiculoInput
             ->required()
             ->searchable()
             ->preload()
-            ->live(onBlur: true)
+            ->live(debounce: 700)
             ->afterStateUpdated(function (Set $set, Field $component, $state) {
                 if ($state) {
                     Log::debug('Veículo selecionado: ' . $state);

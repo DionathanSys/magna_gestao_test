@@ -18,7 +18,7 @@ class GetAgendamentoAberto
                 Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
             ])
             ->get();
-        Log::debug('Agendamentos encontrados: ' . $agendamentos->count());
+        Log::debug('Agendamentos encontrados: ' . $agendamentos->count(), ['agendamentos' => $agendamentos->toArray()]);
         return $agendamentos;
     }
 }

@@ -18,5 +18,15 @@ class EditIntegrado extends EditRecord
         ];
     }
 
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return 'Geral';
+    }
+
 
 }

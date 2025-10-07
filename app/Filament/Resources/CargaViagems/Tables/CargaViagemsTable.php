@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -103,6 +104,14 @@ class CargaViagemsTable
                         ->label('Conferido')
                         ->boolean(),
                 ]),
+                TextColumn::make('comentarios.conteudo')
+                    ->label('Comentários')
+                    ->html()
+                    ->wrap()
+                    ->size(TextSize::ExtraSmall)
+                    ->listWithLineBreaks()
+                    ->limitList(1)
+                    ->expandableLimitedList(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

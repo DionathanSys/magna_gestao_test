@@ -6,6 +6,7 @@ use App\Filament\Resources\Integrados\Pages\CreateIntegrado;
 use App\Filament\Resources\Integrados\Pages\EditIntegrado;
 use App\Filament\Resources\Integrados\Pages\ListIntegrados;
 use App\Filament\Resources\Integrados\Pages\ViewIntegrado;
+use App\Filament\Resources\Integrados\RelationManagers\ComentariosRelationManager;
 use App\Filament\Resources\Integrados\Schemas\IntegradoForm;
 use App\Filament\Resources\Integrados\Tables\IntegradosTable;
 use App\Models\Integrado;
@@ -43,7 +44,7 @@ class IntegradoResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ComentariosRelationManager::class,
         ];
     }
 

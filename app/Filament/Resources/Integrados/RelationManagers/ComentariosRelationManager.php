@@ -25,17 +25,6 @@ class ComentariosRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                // Textarea::make('conteudo')
-                //     ->columnSpanFull(),
-                // TextInput::make('veiculo.placa')
-                //     ->numeric(),
-                // TextInput::make('comentavel_type')
-                //     ->required(),
-                // TextInput::make('comentavel_id')
-                //     ->required()
-                //     ->numeric(),
-                // TextInput::make('created_by')
-                //     ->numeric(),
             ]);
     }
 
@@ -43,6 +32,7 @@ class ComentariosRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('id')
+            ->heading('Comentários')
             ->description('Comentários relacionados à viagem do integrado')
             ->columns([
                 TextColumn::make('veiculo.placa')
@@ -68,22 +58,16 @@ class ComentariosRelationManager extends RelationManager
 
             ])
             ->filters([
-                //
+                
             ])
             ->headerActions([
-                CreateAction::make(),
-                AssociateAction::make(),
+
             ])
             ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
-                DeleteAction::make(),
+
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DissociateBulkAction::make(),
-                    DeleteBulkAction::make(),
-                ]),
+
             ]);
     }
 }

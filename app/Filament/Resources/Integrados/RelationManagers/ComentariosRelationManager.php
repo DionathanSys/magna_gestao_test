@@ -43,29 +43,29 @@ class ComentariosRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('id')
+            ->description('Comentários relacionados à viagem do integrado')
             ->columns([
                 TextColumn::make('veiculo.placa')
-                    ->numeric()
+                    ->label('Placa')
                     ->sortable(),
                 TextColumn::make('conteudo')
+                    ->label('Comentário')
                     ->wrap()
                     ->sortable(),
-                // TextColumn::make('comentavel_type')
-                //     ->searchable(),
-                // TextColumn::make('comentavel_id')
-                //     ->numeric()
-                //     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_by')
-                    ->numeric()
+                TextColumn::make('creator.name')
+                    ->label('Criador')
                     ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('updated_at')
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
                 //

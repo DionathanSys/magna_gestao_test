@@ -104,7 +104,7 @@ class CargaViagemsTable
                         ->label('Conferido')
                         ->boolean(),
                 ]),
-                TextColumn::make('comentarios.conteudo')
+                TextColumn::make('viagem.comentarios.conteudo')
                     ->label('Comentários')
                     ->html()
                     ->wrap()

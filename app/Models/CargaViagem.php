@@ -25,9 +25,4 @@ class CargaViagem extends Model
         return $this->belongsTo(ViagemComplemento::class, 'documento_transporte', 'documento_transporte');
     }
 
-    public function comentarios(): HasManyThrough
-    {
-        return $this->hasManyThrough(Comentario::class, Viagem::class, 'id', 'viagem_id', 'viagem_id', 'id');
-    }
-
 }

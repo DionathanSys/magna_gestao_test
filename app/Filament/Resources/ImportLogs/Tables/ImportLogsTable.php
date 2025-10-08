@@ -108,7 +108,7 @@ class ImportLogsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->sortable('id', 'desc')
+            ->defaultSort('id', direction: 'desc')
             ->reorderableColumns()
             ->filters([
                 //

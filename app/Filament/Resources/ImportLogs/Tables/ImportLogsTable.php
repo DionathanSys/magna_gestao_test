@@ -108,6 +108,7 @@ class ImportLogsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->sortable('id', 'desc')
             ->reorderableColumns()
             ->filters([
                 //
@@ -120,6 +121,7 @@ class ImportLogsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->poll('10s');
     }
 }

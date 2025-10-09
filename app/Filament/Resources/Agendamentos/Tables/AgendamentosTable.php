@@ -141,7 +141,11 @@ class AgendamentosTable
                 TernaryFilter::make('data_agenda')
                     ->label('Possui Dt. Agendada')
                     ->nullable()
-                    ->attribute('data_agendamento')
+                    ->attribute('data_agendamento'),
+                Filter::make('nao-e-checklist')
+                    ->label('Não é Checklist')
+                    ->query(fn (Builder $query): Builder => $query->where('servico_id', '!=', 184)),
+
             ])
             ->groups([
                 Group::make('veiculo.placa')

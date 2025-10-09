@@ -122,6 +122,6 @@ class ImportLogsTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->poll('10s');
+            ->poll('3s');
     }
 }

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Services\NotificacaoService as notify;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\TextSize;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -173,6 +174,16 @@ class ViagemsTable
                         '1' => 'info',
                         default => 'danger',
                     }),
+                TextColumn::make('comentarios.conteudo')
+                    ->label('Comentários')
+                    ->html()
+                    ->wrap()
+                    ->size(TextSize::ExtraSmall)
+                    ->listWithLineBreaks()
+                    ->limitList(1)
+                    ->expandableLimitedList()
+                    ->visibleFrom('xl')
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('complementos_exists')
                     ->label('Complementos')
                     ->width('1%')

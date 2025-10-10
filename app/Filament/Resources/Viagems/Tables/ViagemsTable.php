@@ -183,7 +183,7 @@ class ViagemsTable
                     ->listWithLineBreaks()
                     ->limitList(1)
                     ->expandableLimitedList()
-                    ->limit(7, end: ' (mais)')
+                    ->words(7, end: ' (mais)')
                     ->visibleFrom('xl')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('complementos_exists')

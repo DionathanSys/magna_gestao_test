@@ -43,7 +43,7 @@ class ViagemsTable
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
-                    ->numeric()
+                    ->copyable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('numero_viagem')
@@ -184,7 +184,6 @@ class ViagemsTable
                     ->listWithLineBreaks()
                     ->limitList(1)
                     ->expandableLimitedList()
-                    // ->words(7, end: ' (mais)')
                     ->visibleFrom('xl')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('complementos_exists')

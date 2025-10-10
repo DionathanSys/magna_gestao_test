@@ -31,7 +31,6 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearchKeyBindings(['command+s', 'ctrl+s'])
             ->brandName('Magna Gestão')
             ->default()
-            // ->topbar(false)
             ->id('admin')
             ->path('admin')
             ->login()

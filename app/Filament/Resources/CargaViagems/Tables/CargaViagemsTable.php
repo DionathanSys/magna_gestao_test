@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CargaViagems\Tables;
 
+use App\Filament\Resources\Viagems\ViagemResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -47,6 +48,8 @@ class CargaViagemsTable
                     ->label('Nº Viagem')
                     ->width('1%')
                     ->numeric(0, '', '')
+                    ->url(fn($record) => ViagemResource::getUrl('edit', ['record' => $record->viagem_id]))
+                    ->openUrlInNewTab()
                     ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('integrado.codigo')

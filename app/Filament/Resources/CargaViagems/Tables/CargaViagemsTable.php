@@ -48,7 +48,7 @@ class CargaViagemsTable
                     ->label('Nº Viagem')
                     ->width('1%')
                     ->numeric(0, '', '')
-                    ->url(fn($record) => dd(ViagemResource::getUrl('edit', ['record' => $record->viagem_id])))
+                    ->url(fn(Models\CargaViagem $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id]))
                     ->openUrlInNewTab()
                     ->searchable(isIndividual: true)
                     ->sortable(),

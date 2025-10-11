@@ -7,6 +7,9 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
@@ -20,15 +23,20 @@ class VisualizarComentarioAction
             ->slideOver()
             ->modalSubmitAction(false)
             ->schema([
-                \Filament\Infolists\Components\RepeatableEntry::make('comentarios')
+                RepeatableEntry::make('comentarios')
+                    ->table([
+                        TableColumn::make('conteudo'),
+                        TableColumn::make('criado_em'),
+                        TableColumn::make('criado_por'),
+                    ])
                     ->schema([
-                        \Filament\Infolists\Components\TextEntry::make('conteudo')
+                        TextEntry::make('conteudo')
                             ->label('Comentário')
                             ->html(),
-                        \Filament\Infolists\Components\TextEntry::make('created_at')
+                        TextEntry::make('created_at')
                             ->label('Criado em')
                             ->dateTime('d/m/Y H:i'),
-                        \Filament\Infolists\Components\TextEntry::make('creator.name')
+                        TextEntry::make('creator.name')
                             ->label('Criado por'),
                     ])
             ])->icon('heroicon-o-chat-bubble-left-ellipsis');

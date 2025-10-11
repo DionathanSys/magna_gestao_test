@@ -12,9 +12,10 @@ use App\Enum;
 use App\Models;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
+
 use Filament\Schemas\Components\Utilities\Set;
 
 class OrdemServicoInfolist
@@ -57,27 +58,43 @@ class OrdemServicoInfolist
                     ->label('Serviços')
                     ->columnSpanFull()
                     ->columns(12)
+                    ->table([
+                        TableColumn::make('Código')->hiddenHeaderLabel(),
+                        TableColumn::make('Serviço'),
+                        TableColumn::make('Posição'),
+                        TableColumn::make('Observação'),
+                        TableColumn::make('Status'),
+                    ])
                     ->schema([
                         TextEntry::make('servico.codigo')
-                            ->label('Código')
                             ->columnSpan(1),
                         TextEntry::make('servico.descricao')
-                            ->label('Serviço')
                             ->columnSpan(4)
                             ->formatStateUsing(fn(Models\ItemOrdemServico $item) => $item->servico->descricao),
                         TextEntry::make('posicao')
-                            ->label('Posição')
                             ->columnSpan(1)
-                            ->placeholder('N/A'),
+                            ->placeholder(''),
                         TextEntry::make('observacao')
-                            ->label('Observação')
                             ->columnSpan(4)
+                            ->prefix('Obs: ')
                             ->placeholder('Sem observações'),
                         TextEntry::make('status')
-                            ->label('Status')
                             ->columnSpan(2)
                             ->badge()
                             ->color('primary'),
+                    ]),
+                RepeatableEntry::make('sankhyaId')
+                    ->label('Ordens Sankhya')
+                    ->columnSpanFull()
+                    ->table([
+                        TableColumn::make('Id'),
+                        TableColumn::make('Número'),
+                    ])
+                    ->schema([
+                        TextEntry::make('id')
+                            ->columnSpan(4),
+                        TextEntry::make('ordem_sankhya_id')
+                            ->columnSpan(4),
                     ]),
             ]);
     }

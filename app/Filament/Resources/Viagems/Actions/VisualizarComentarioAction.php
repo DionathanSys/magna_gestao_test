@@ -25,9 +25,10 @@ class VisualizarComentarioAction
             ->schema([
                 RepeatableEntry::make('comentarios')
                     ->table([
-                        TableColumn::make('conteudo'),
-                        TableColumn::make('criado_em'),
-                        TableColumn::make('criado_por'),
+                        TableColumn::make('Conteúdo')
+                         ->wrapHeader(),
+                        TableColumn::make('Criado Em'),
+                        TableColumn::make('Criado Por'),
                     ])
                     ->schema([
                         TextEntry::make('conteudo')

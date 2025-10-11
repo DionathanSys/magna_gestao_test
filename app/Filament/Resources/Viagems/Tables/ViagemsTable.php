@@ -43,7 +43,7 @@ class ViagemsTable
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
-                    ->copyable()
+                    ->disabledClick()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('numero_viagem')
@@ -51,7 +51,7 @@ class ViagemsTable
                     ->width('1%')
                     ->sortable()
                     ->weight(FontWeight::Bold)
-                    ->copyable(),
+                    ->disabledClick(),
                 TextColumn::make('integrados_codigos')
                     ->label('Cód. Integrado')
                     ->width('1%')

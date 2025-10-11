@@ -10,6 +10,7 @@ use App\Services;
 use App\Enum;
 use App\Filament\Imports\ViagemImporter;
 use App\Filament\Resources\Viagems;
+use App\Models\Viagem;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -355,6 +356,7 @@ class ViagemsTable
             ->toolbarActions([
                 CreateAction::make(),
                 Viagems\Actions\RegistrarComplementoViagem::make(),
+                Viagems\Actions\MarcarViagemConferidaAction::make(),
                 DeleteBulkAction::make(),
 
 

@@ -38,9 +38,11 @@ class MarcarViagemConferidaAction
 
                 if($errors > 0){
                     notify::error("{$errors} viagem(ns) não foi(ram) marcada(s) como conferida(s). Favor tentar novamente.");
+                    Log::info("{$errors} viagem(ns) não foi(ram) marcada(s) como conferida(s). Favor tentar novamente.");
                 }
                 if($success > 0){
                     notify::success("{$success} viagem(ns) marcada(s) como conferida(s) com sucesso!");
+                    Log::info("{$success} viagem(ns) marcada(s) como conferida(s) com sucesso!");
                 }
             })
             ->deselectRecordsAfterCompletion();

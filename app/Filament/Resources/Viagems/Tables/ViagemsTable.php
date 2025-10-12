@@ -192,6 +192,11 @@ class ViagemsTable
                     ->width('1%')
                     ->exists('complementos')
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('documentos_exists')
+                    ->label('Documentos')
+                    ->width('1%')
+                    ->exists('documentos')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('Users', [
                     TextColumn::make('creator.name')
                         ->label('Criado Por')
@@ -358,9 +363,6 @@ class ViagemsTable
                 Viagems\Actions\RegistrarComplementoViagem::make(),
                 Viagems\Actions\MarcarViagemConferidaAction::make(),
                 DeleteBulkAction::make(),
-
-
-
             ]);
     }
 }

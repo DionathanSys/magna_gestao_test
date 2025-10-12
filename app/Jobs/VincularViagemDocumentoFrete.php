@@ -26,10 +26,6 @@ class VincularViagemDocumentoFrete implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::debug('Iniciando vinculação de documento de frete à viagem', [
-            'documento_transporte'  => $this->documentoTransporte,
-        ]);
-        
         $documentoFreteService = new Services\DocumentoFrete\DocumentoFreteService();
         $documentoFreteService->vincularDocumentoFrete($this->documentoTransporte);
 

@@ -15,6 +15,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class DocumentoFretesTable
 {
@@ -38,6 +39,8 @@ class DocumentoFretesTable
                     ->label('Tipo Documento')
                     ->width('1%')
                     ->searchable(isIndividual: true),
+                TextColumn::make('viagem_id')
+                    ->label("viagem ID"),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->width('1%')
@@ -83,24 +86,13 @@ class DocumentoFretesTable
                     ->multiple()
                     ->searchable()
                     ->preload(),
-                Filter::make('data_inicio')
-                    ->schema([
-                        DatePicker::make('data_inicio')
-                            ->label('Dt. Emissão de'),
-                        DatePicker::make('data_fim')
-                            ->label('Dt. Emissão até'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['data_inicio'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('data_emissao', '>=', $date),
-                            )
-                            ->when(
-                                $data['data_fim'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('data_emissao', '<=', $date),
-                            );
-                    }),
+                DateRangeFilter::make('data_emissao')
+                    ->label('Dt. Emissão')
+                    ->alwaysShowCalendar(),
+                Filter::make('sem_vinculo_viagem')
+                    ->label('Sem Viagem')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->whereNull('viagem_id')),
             ])
             ->recordActions([
                 ViewAction::make(),

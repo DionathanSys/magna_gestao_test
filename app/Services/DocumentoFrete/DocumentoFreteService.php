@@ -184,11 +184,6 @@ class DocumentoFreteService
                 return null;
             }
 
-            Log::debug('Documento de frete encontrado para vinculação', [
-                'documento_frete_id' => $documentoFrete->id,
-                'documento_transporte' => $documentoTransporte,
-            ]);
-
             $queriesViagem = new \App\Services\Viagem\Queries\GetViagem();
             $viagem = $queriesViagem->byDocumentoTransporte($documentoTransporte);
 
@@ -197,11 +192,6 @@ class DocumentoFreteService
                 Log::warning("Viagem não encontrada", ['documento_transporte' => $documentoTransporte]);
                 return null;
             }
-
-            Log::debug('Viagem encontrada para vinculação', [
-                'viagem_id' => $viagem->id,
-                'documento_transporte' => $documentoTransporte,
-            ]);
 
             $action = new Actions\VincularViagemDocumento();
             $documentoFrete = $action->handle($documentoFrete, $viagem);

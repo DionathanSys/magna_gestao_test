@@ -26,13 +26,6 @@ class GetViagem
 
     public function byDocumentoTransporte(int $documentoTransporte): ?Models\Viagem
     {
-        Log::debug("Query byDocumentoTransporte", [
-            'query' => $this->query(),
-            'filters' => $this->filters,
-            'documentoTransporte' => $documentoTransporte,
-
-        ]);
-
         return $this->query()
             ->where('documento_transporte', $documentoTransporte)
             ->first();

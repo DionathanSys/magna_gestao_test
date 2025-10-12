@@ -4,6 +4,7 @@ namespace App\Services\DocumentoFrete\Queries;
 
 use App\Models;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class GetDocumentoFrete
 {
@@ -30,6 +31,13 @@ class GetDocumentoFrete
 
     public function byDocumentoTransporte(int $documentoTransporte): ?Models\DocumentoFrete
     {
+        Log::debug("Query byDocumentoTransporte", [
+            'query' => $this->query(),
+            'filters' => $this->filters,
+            'documentoTransporte' => $documentoTransporte,
+
+        ]);
+        
         return $this->query()
             ->where('documento_transporte', $documentoTransporte)
             ->first();

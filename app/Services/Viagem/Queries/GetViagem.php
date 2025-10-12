@@ -4,6 +4,7 @@ namespace App\Services\Viagem\Queries;
 
 use App\Models;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class GetViagem
 {
@@ -25,6 +26,13 @@ class GetViagem
 
     public function byDocumentoTransporte(int $documentoTransporte): ?Models\Viagem
     {
+        Log::debug("Query byDocumentoTransporte", [
+            'query' => $this->query(),
+            'filters' => $this->filters,
+            'documentoTransporte' => $documentoTransporte,
+
+        ]);
+
         return $this->query()
             ->where('documento_transporte', $documentoTransporte)
             ->first();

@@ -31,15 +31,13 @@ class DocumentoFreteService
 
             if (!$documentoFrete){
                 $this->setWarning('Documento de frete não foi registrado.');
+                VincularViagemDocumentoFrete::dispatch($dados['documento_transporte']);
                 return;
             }
 
             $this->setSuccess('Documento registrado com sucesso.');
 
-            Log::debug('Documento de frete criado', [
-                'documento_frete' => $documentoFrete,
-            ]);
-            VincularViagemDocumentoFrete::dispatch($documentoFrete->documento_transporte);
+            VincularViagemDocumentoFrete::dispatch($dados['documento_transporte']);
 
         } catch (\Exception $e) {
 

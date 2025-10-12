@@ -12,6 +12,14 @@ class RegistrarDocumentoFrete
     public function handle(array $data): ?Models\DocumentoFrete
     {
         $this->validate($data);
+
+        if ($this->existsDocumento($data)) {
+            Log::alert('Documento de frete nº '. $data['numero_documento'] . ' já cadastrado.', [
+                'data' => $data,
+            ]);
+            return null;
+        }
+
         return Models\DocumentoFrete::create($data);
     }
 
@@ -57,14 +65,6 @@ class RegistrarDocumentoFrete
                 'data' => $data
             ]);
             throw new \InvalidArgumentException($validate->errors()->first());
-        }
-
-        if ($this->existsDocumento($data)) {
-            Log::error('Documento de frete já cadastrado.', [
-                'metodo' => __METHOD__.'@'.__LINE__,
-                'data' => $data,
-            ]);
-            throw new \InvalidArgumentException('Documento de frete já cadastrado para este veículo e parceiro de origem.');
         }
 
     }

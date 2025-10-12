@@ -29,6 +29,11 @@ class DocumentoFreteService
             $action = new Actions\RegistrarDocumentoFrete();
             $documentoFrete = $action->handle($dados);
 
+            if (!$documentoFrete){
+                $this->setWarning('Documento de frete não foi registrado.');
+                return;
+            }
+
             $this->setSuccess('Documento registrado com sucesso.');
 
             Log::debug('Documento de frete criado', [

@@ -184,6 +184,11 @@ class DocumentoFreteService
                 return null;
             }
 
+            Log::debug('Documento de frete encontrado para vinculação', [
+                'documento_frete_id' => $documentoFrete->id,
+                'documento_transporte' => $documentoTransporte,
+            ]);
+
             $queriesViagem = new \App\Services\Viagem\Queries\GetViagem();
             $viagem = $queriesViagem->byDocumentoTransporte($documentoTransporte);
 
@@ -193,11 +198,16 @@ class DocumentoFreteService
                 return null;
             }
 
+            Log::debug('Viagem encontrada para vinculação', [
+                'viagem_id' => $viagem->id,
+                'documento_transporte' => $documentoTransporte,
+            ]);
+
             $action = new Actions\VincularViagemDocumento();
             $documentoFrete = $action->handle($documentoFrete, $viagem);
 
             if (!$documentoFrete) {
-                $this->setError("Falha ao vincular documento de frete à viagem {$viagem->id}.");
+                $this->setError("Falha ao vincular documento de frete à viagem {$viagem->numero_viagem}.");
                 Log::error("Falha ao vincular documento de frete à viagem", [
                     'documento_transporte' => $documentoTransporte,
                     'viagem_id' => $viagem->id,

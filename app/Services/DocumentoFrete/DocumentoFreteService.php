@@ -22,17 +22,26 @@ class DocumentoFreteService
     public function criarDocumentoFrete(array $dados): void
     {
 
-        // $action = new Actions\RegistrarDocumentoFrete();
-        // $documentoFrete = $action->handle($dados);
+        try {
 
-        Log::debug(__METHOD__, ['dados' => $dados]);
-        $documentoFrete = Models\DocumentoFrete::query()->updateOrCreate(
-            [
-                'documento_transporte' => $dados['documento_transporte'],
-                'numero_documento' => $dados['numero_documento']
-            ],
-            $dados
-        );
+            $action = new Actions\RegistrarDocumentoFrete();
+            $documentoFrete = $action->handle($dados);
+
+            $this->setSuccess('Documento registrado com sucesso.');
+
+        } catch (\Exception $e) {
+
+            Log::error('Erro ao criar documento de frete.', [
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'dados' => $dados,
+                'error' => $e->getMessage()
+            ]);
+
+            $this->setError('Erro ao criar documento de frete', [
+                'error' => $this->getData(),
+            ]);
+        }
+
     }
 
     public function importarRelatorioDocumentoFrete(XlsxImportInterface $importer, string $fileName): void

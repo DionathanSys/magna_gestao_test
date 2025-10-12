@@ -31,6 +31,9 @@ class DocumentoFreteService
 
             $this->setSuccess('Documento registrado com sucesso.');
 
+            Log::debug('Documento de frete criado', [
+                'documento_frete' => $documentoFrete,
+            ]);
             VincularViagemDocumentoFrete::dispatch($documentoFrete->documento_transporte);
 
         } catch (\Exception $e) {

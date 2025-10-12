@@ -7,7 +7,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Throwable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ProcessXlsxRowJob implements ShouldQueue
 {
@@ -21,5 +23,14 @@ class ProcessXlsxRowJob implements ShouldQueue
     {
         $importer = new $this->importerClass();
         $importer->processRow($this->row);
+    }
+
+    public function failed(?Throwable $exception): void
+    {
+        Log::error('Falha ao processar Job ProcessXlsxRowJob', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'data' => $this->row,
+            'exception' => $exception?->getMessage()
+        ]);
     }
 }

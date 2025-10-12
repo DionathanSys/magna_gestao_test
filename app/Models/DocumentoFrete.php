@@ -35,6 +35,6 @@ class DocumentoFrete extends Model
 
     public function scopeSemVinculoViagem(Builder $query): Builder
     {
-        return $query->whereDoesntHave('viagem');
+        return $query->where('viagem_id', null);
     }
 }

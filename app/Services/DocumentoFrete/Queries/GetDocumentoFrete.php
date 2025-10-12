@@ -32,12 +32,12 @@ class GetDocumentoFrete
     public function byDocumentoTransporte(int $documentoTransporte): ?Models\DocumentoFrete
     {
         Log::debug("Query byDocumentoTransporte", [
-            'query' => $this->query(),
+            'query' => $this->query()->toSql(),
             'filters' => $this->filters,
             'documentoTransporte' => $documentoTransporte,
 
         ]);
-        
+
         return $this->query()
             ->where('documento_transporte', $documentoTransporte)
             ->first();

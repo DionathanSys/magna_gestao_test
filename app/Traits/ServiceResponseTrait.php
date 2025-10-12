@@ -10,6 +10,11 @@ trait ServiceResponseTrait
     protected bool $hasError = false;
 
     /**
+     * Indica se houve alertas registrados
+     */
+    protected bool $hasWarning = false;
+
+    /**
      * Mensagem para exibir no front-end
      */
     protected string $message = '';
@@ -56,6 +61,7 @@ trait ServiceResponseTrait
     public function setWarning(string $message, array $data = []): self
     {
         $this->hasError = false;
+        $this->hasWarning = true;
         $this->message = $message;
         $this->messageType = 'warning';
         $this->data = $data;

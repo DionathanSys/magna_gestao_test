@@ -73,9 +73,12 @@ class ViagemForm
                             ->default(Enum\MotivoDivergenciaViagem::DESLOCAMENTO_OUTROS->value),
                     ]),
                 Section::make('Documentos')
+                ->columns(12)
+                    ->columnStart(1)
+                    ->columnSpan(12)
                     ->schema([
                         RepeatableEntry::make('documentos')
-                            
+
                             ->table([
                                 TableColumn::make('Destino'),
                                 TableColumn::make('Nº Doc.'),

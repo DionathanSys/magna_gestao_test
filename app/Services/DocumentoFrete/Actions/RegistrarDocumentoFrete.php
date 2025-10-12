@@ -17,8 +17,6 @@ class RegistrarDocumentoFrete
 
     private function validate(array $data): void
     {
-        $tipoDocumentoEnum = Enum\Frete\TipoDocumentoEnum::cases();
-        Log::debug($tipoDocumentoEnum);
 
         $validate = Validator::make($data, [
             'veiculo_id'            => 'required|exists:veiculos,id',
@@ -29,7 +27,7 @@ class RegistrarDocumentoFrete
             'data_emissao'          => 'required|date',
             'valor_total'           => 'required|numeric|min:0',
             'valor_icms'            => 'nullable|numeric|min:0',
-            'tipo_documento'        => 'required|in:' . implode(',', $tipoDocumentoEnum)
+            'tipo_documento'        => 'required',
         ],[
             'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
             'veiculo_id.exists'             => 'O veículo informado não existe.',
@@ -51,8 +49,6 @@ class RegistrarDocumentoFrete
             'valor_total.min'               => 'O campo Valor Total deve ser no mínimo 0.',
             'valor_icms.numeric'            => 'O campo Valor do ICMS deve ser um número.',
             'valor_icms.min'                => 'O campo Valor do ICMS deve ser no mínimo 0.',
-            'tipo_documento.required'       => 'O campo Tipo de Documento é obrigatório.',
-            'tipo_documento.in'             => 'O campo Tipo de Documento deve ser um dos seguintes valores: ' . implode(', ', array_map(fn($e) =>  $e->value, $tipoDocumentoEnum)) . '.',
         ]);
 
         if($validate->fails()) {

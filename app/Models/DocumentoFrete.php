@@ -6,6 +6,7 @@ use App\Casts\MoneyCast;
 use App\Enum\Frete\TipoDocumentoEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class DocumentoFrete extends Model
 {
@@ -30,5 +31,10 @@ class DocumentoFrete extends Model
     public function integrado(): BelongsTo
     {
         return $this->belongsTo(Integrado::class, 'integrado_id');
+    }
+
+    public function scopeSemVinculoViagem(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('viagem');
     }
 }

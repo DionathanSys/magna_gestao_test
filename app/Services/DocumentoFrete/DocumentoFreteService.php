@@ -4,7 +4,7 @@ namespace App\Services\DocumentoFrete;
 
 use App\Contracts\XlsxImportInterface;
 use App\Jobs\ProcessXlsxRowJob;
-use App\Models;
+use App\{Models, Services};
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -17,13 +17,15 @@ class DocumentoFreteService
 
     protected array $firstRowData = [];
 
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     public function criarDocumentoFrete(array $dados): void
     {
+
+        // $action = new Actions\RegistrarDocumentoFrete();
+        // $documentoFrete = $action->handle($dados);
+
+        Log::debug(__METHOD__, ['dados' => $dados]);
         $documentoFrete = Models\DocumentoFrete::query()->updateOrCreate(
             [
                 'documento_transporte' => $dados['documento_transporte'],
@@ -134,7 +136,6 @@ class DocumentoFreteService
                 $linhaCount++;
                 $rowIterator->next();
             }
-
         } catch (\Exception $e) {
             Log::error(__METHOD__, [
                 'error' => $e->getMessage(),
@@ -146,6 +147,59 @@ class DocumentoFreteService
 
         $this->setSuccess('Registrado arquivo para importação.');
         return;
+    }
+
+    public function vincularDocumentoFrete(int $documentoTransporte): ?Models\DocumentoFrete
+    {
+        try {
+
+            $queries = new \App\Services\DocumentoFrete\Queries\GetDocumentoFrete([
+                'sem_vinculo_viagem' => true
+            ]);
+
+            $documentoFrete = $queries->byDocumentoTransporte($documentoTransporte);
+
+            if (!$documentoFrete) {
+                $this->setError("Documento de frete com número de transporte {$documentoTransporte} não encontrado ou já vinculado a uma viagem.");
+                Log::warning("Documento de frete não encontrado", ['documento_transporte' => $documentoTransporte]);
+                return null;
+            }
+
+            $queriesViagem = new \App\Services\Viagem\Queries\GetViagem();
+            $viagem = $queriesViagem->byDocumentoTransporte($documentoTransporte);
+
+            if (!$viagem) {
+                $this->setError("Viagem com número de transporte {$documentoTransporte} não encontrada.");
+                Log::warning("Viagem não encontrada", ['documento_transporte' => $documentoTransporte]);
+                return null;
+            }
+
+            $action = new Actions\VincularViagemDocumento();
+            $documentoFrete = $action->handle($documentoFrete, $viagem);
+
+            if (!$documentoFrete) {
+                $this->setError("Falha ao vincular documento de frete à viagem {$viagem->id}.");
+                Log::error("Falha ao vincular documento de frete à viagem", [
+                    'documento_transporte' => $documentoTransporte,
+                    'viagem_id' => $viagem->id,
+                ]);
+                return null;
+            }
+
+            $this->setSuccess("Documento de frete vinculado à viagem {$viagem->id} com sucesso.");
+            return $documentoFrete;
+
+        } catch (\Exception $e) {
+            Log::error(__METHOD__, [
+                'error' => $e->getMessage(),
+                'documento_transporte' => $documentoTransporte,
+            ]);
+            $this->setError('Falha ao vincular documento de frete à viagem', [
+                'metodo' => __METHOD__,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
 
     }
 }

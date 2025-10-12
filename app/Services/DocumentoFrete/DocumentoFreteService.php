@@ -5,6 +5,8 @@ namespace App\Services\DocumentoFrete;
 use App\Contracts\XlsxImportInterface;
 use App\Jobs\ProcessXlsxRowJob;
 use App\{Models, Services};
+use App\Jobs\VincularViagemDocumentoFrete;
+use App\Services\DocumentoFrete\Actions\VincularViagemDocumento;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -28,6 +30,8 @@ class DocumentoFreteService
             $documentoFrete = $action->handle($dados);
 
             $this->setSuccess('Documento registrado com sucesso.');
+
+            VincularViagemDocumentoFrete::dispatch($documentoFrete->documento_transporte);
 
         } catch (\Exception $e) {
 

@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\DocumentoFretes\Tables;
 
+use App\{Models};
 use App\Filament\Resources\DocumentoFretes\Actions;
+use App\Filament\Resources\Viagems\ViagemResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
@@ -29,10 +31,12 @@ class DocumentoFretesTable
                     ->searchable(isIndividual: true),
                 TextColumn::make('numero_documento')
                     ->label('Nro. Documento')
+                    ->disabledClick()
                     ->width('1%')
                     ->searchable(isIndividual: true),
                 TextColumn::make('documento_transporte')
                     ->label('Nro. Doc. Transp.')
+                    ->disabledClick()
                     ->width('1%')
                     ->searchable(isIndividual: true),
                 TextColumn::make('tipo_documento')
@@ -40,7 +44,10 @@ class DocumentoFretesTable
                     ->width('1%')
                     ->searchable(isIndividual: true),
                 TextColumn::make('viagem_id')
-                    ->label("viagem ID"),
+                    ->label("viagem ID")
+                    ->width('1%')
+                    ->url(fn(Models\DocumentoFrete $record): string => ViagemResource::getUrl('edit', ['record' => $record->viagem_id ?? 0]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->width('1%')

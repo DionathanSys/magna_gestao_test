@@ -37,11 +37,13 @@ class OrdemServicosTable
                     ->label('ID')
                     ->sortable()
                     ->width('1%')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('sankhyaId.ordem_sankhya_id')
                     ->label('OS Sankhya')
                     ->width('1%')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->sortable()

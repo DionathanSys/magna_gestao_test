@@ -105,10 +105,12 @@ class DocumentoFretesTable
                 ViewAction::make(),
                 EditAction::make(),
             ])
-            ->headerActions([])
+            ->headerActions([
+                Actions\ImportarDocumentoFreteAction::make(),
+            ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    Actions\ImportarDocumentoFreteAction::make(),
+
                     Actions\VincularViagemDocumentoBulkAction::make(),
                     CreateAction::make(),
                     DeleteBulkAction::make(),

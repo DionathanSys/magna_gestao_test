@@ -46,7 +46,7 @@ class DocumentoFretesTable
                 TextColumn::make('viagem_id')
                     ->label("viagem ID")
                     ->width('1%')
-                    ->url(fn(Models\DocumentoFrete $record): string => ViagemResource::getUrl('edit', ['record' => $record->viagem_id ?? 0]))
+                    ->url(fn(Models\DocumentoFrete $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id ?? 0]))
                     ->openUrlInNewTab(),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')

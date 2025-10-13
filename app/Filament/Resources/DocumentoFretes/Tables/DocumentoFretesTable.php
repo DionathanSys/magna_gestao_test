@@ -92,18 +92,18 @@ class DocumentoFretesTable
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')
                     ->toggle()
-                    ->query(fn (Builder $query): Builder => $query->whereNull('viagem_id')),
+                    ->query(fn(Builder $query): Builder => $query->whereNull('viagem_id')),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
             ])
-            ->headerActions([
-                Actions\ImportarDocumentoFreteAction::make(),
-                CreateAction::make(),
-            ])
+            ->headerActions([])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    Actions\ImportarDocumentoFreteAction::make(),
+                    Actions\VincularViagemDocumentoBulkAction::make(),
+                    CreateAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

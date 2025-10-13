@@ -360,6 +360,7 @@ class ViagemsTable
             ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 CreateAction::make(),
+                Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                 Viagems\Actions\RegistrarComplementoViagem::make(),
                 Viagems\Actions\MarcarViagemConferidaAction::make(),
                 DeleteBulkAction::make(),

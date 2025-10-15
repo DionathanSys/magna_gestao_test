@@ -347,7 +347,7 @@ class ViagemsTable
                         ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),
                     Action::make('buscar_documentos')
                         ->label('Buscar Documentos')
-                        ->icon('heroicon-o-cloud-arrow-down')
+                        ->icon('heroicon-o-document-magnifying-glass')
                         ->action(function ($record) {
                             return redirect(
                                 DocumentoFretes\DocumentoFreteResource::getUrl('index', [
@@ -364,6 +364,7 @@ class ViagemsTable
                                 ])
                             );
                         })
+                        ->openurlInNewTab()
                         ->color('secondary'),
                     DeleteAction::make(),
                 ])->link()

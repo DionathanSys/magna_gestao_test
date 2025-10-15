@@ -352,9 +352,9 @@ class ViagemsTable
                             return redirect(
                                 DocumentoFretes\DocumentoFreteResource::getUrl('index', [
                                     'filters' => [
-                                        'viagem_id' => [
+                                        'veiculo_id' => [
                                             'values' => [
-                                                0 => $record->id,
+                                                0 => $record->veiculo_id,
                                             ]
                                         ],
                                         'sem_vinculo_viagem' => [

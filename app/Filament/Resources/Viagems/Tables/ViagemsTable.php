@@ -364,7 +364,7 @@ class ViagemsTable
                                 ])
                             );
                         })
-                        ->openurlInNewTab()
+                        ->openUrlInNewTab()
                         ->color('secondary'),
                     DeleteAction::make(),
                 ])->link()

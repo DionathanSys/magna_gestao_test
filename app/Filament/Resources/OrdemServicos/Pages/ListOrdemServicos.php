@@ -82,7 +82,7 @@ class ListOrdemServicos extends ListRecords
         // Verifica se há uma aba salva na sessão
         $lastActiveTab = session('ordem_servicos_last_active_tab');
         
-        if ($lastActiveTab && $this->hasTabs() && array_key_exists($lastActiveTab, $this->getTabs())) {
+        if ($lastActiveTab && array_key_exists($lastActiveTab, $this->getTabs())) {
             Log::debug('Restaurando aba ativa da sessão: ' . $lastActiveTab);
             return $lastActiveTab;
         }

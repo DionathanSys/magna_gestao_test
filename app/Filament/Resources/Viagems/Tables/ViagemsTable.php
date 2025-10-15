@@ -348,9 +348,7 @@ class ViagemsTable
                     Action::make('buscar_documentos')
                         ->label('Buscar Documentos')
                         ->icon('heroicon-o-document-magnifying-glass')
-                        ->action(function ($record) {
-                            return redirect(
-                                DocumentoFretes\DocumentoFreteResource::getUrl('index', [
+                        ->url(fn(Models\Viagem $record) => DocumentoFretes\DocumentoFreteResource::getUrl('index', [
                                     'filters' => [
                                         'veiculo_id' => [
                                             'values' => [
@@ -361,9 +359,7 @@ class ViagemsTable
                                             'isActive' => true
                                         ]
                                     ],
-                                ])
-                            );
-                        })
+                                ]))
                         ->openUrlInNewTab()
                         ->color('secondary'),
                     DeleteAction::make(),

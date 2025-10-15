@@ -361,7 +361,7 @@ class ViagemsTable
                                     ],
                                 ]))
                         ->openUrlInNewTab()
-                        ->color('secondary'),
+                        ->color('info'),
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),

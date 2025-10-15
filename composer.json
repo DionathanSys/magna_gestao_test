@@ -8,14 +8,14 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
-        "filament/filament": "^4.0",
+        "filament/filament": "^4.1",
         "inerba/filament-db-config": "^1.1",
         "laravel/framework": "^12.0",
         "laravel/pulse": "^1.4",
         "laravel/tinker": "^2.10.1",
         "malzariey/filament-daterangepicker-filter": "^4.0",
         "opcodesio/log-viewer": "^3.19",
-        "pepperfm/filament-json": "4.0",
+        "pepperfm/filament-json": "^4.0",
         "phpoffice/phpspreadsheet": "^5.0",
         "predis/predis": "^3.2"
     },

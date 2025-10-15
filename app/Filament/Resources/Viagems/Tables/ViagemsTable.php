@@ -5,12 +5,8 @@ namespace App\Filament\Resources\Viagems\Tables;
 use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction,};
 use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn,};
 use Filament\Tables\Table;
-use App\Models;
-use App\Services;
-use App\Enum;
-use App\Filament\Imports\ViagemImporter;
-use App\Filament\Resources\Viagems;
-use App\Models\Viagem;
+use App\{Models, Services, Enum};
+use App\Filament\Resources\{DocumentoFretes, Viagems};
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -20,12 +16,10 @@ use Filament\Tables\Filters\{Filter, SelectFilter, TernaryFilter};
 use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use App\Services\NotificacaoService as notify;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
-use Symfony\Component\Mailer\Transport\Dsn;
 
 class ViagemsTable
 {
@@ -351,6 +345,26 @@ class ViagemsTable
                     EditAction::make()
                         ->visible(fn(Models\Viagem $record) => ! $record->conferido)
                         ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),
+                    Action::make('buscar_documentos')
+                        ->label('Buscar Documentos')
+                        ->icon('heroicon-o-cloud-arrow-down')
+                        ->action(function ($record) {
+                            return redirect(
+                                DocumentoFretes\DocumentoFreteResource::getUrl('index', [
+                                    'filters' => [
+                                        'viagem_id' => [
+                                            'values' => [
+                                                0 => $record->id,
+                                            ]
+                                        ],
+                                        'sem_vinculo_viagem' => [
+                                            'isActive' => true
+                                        ]
+                                    ],
+                                ])
+                            );
+                        })
+                        ->color('secondary'),
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),

@@ -79,19 +79,11 @@ class ListOrdemServicos extends ListRecords
 
     public function getDefaultActiveTab(): string | int | null
     {
-        // Verifica se há uma aba salva na sessão
         $lastActiveTab = session('ordem_servicos_last_active_tab');
         
         if ($lastActiveTab && array_key_exists($lastActiveTab, $this->getTabs())) {
-            Log::debug('Restaurando aba ativa da sessão: ' . $lastActiveTab);
             return $lastActiveTab;
-        }
-        
-        // // Fallback para regras específicas
-        // if(Auth::user()->name == 'Angelica'){
-        //     return 'abrir_ordem';
-        // }
-
+        } 
         return 'pendente';
     }
 
@@ -102,8 +94,6 @@ class ListOrdemServicos extends ListRecords
 
     public function updatedActiveTab(): void
     {
-        // Salva a aba ativa na sessão sempre que mudar
-        Log::debug('Aba ativa mudou para: ' . $this->activeTab);
         session(['ordem_servicos_last_active_tab' => $this->activeTab]);
     }
 }

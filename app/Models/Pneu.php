@@ -40,6 +40,16 @@ class Pneu extends Model
         ]);
     }
 
+    public function posicaoVeiculo(): HasOne
+    {
+        return $this->hasOne(PneuPosicaoVeiculo::class, 'pneu_id')
+            ->withDefault([
+                'id' => 0,
+                'posicao' => 'N/A',
+                'eixo' => 'N/A',
+            ]);
+    }
+
     public function ultimoRecap()
     {
         return $this->hasOne(Recapagem::class, 'pneu_id')->latestOfMany();
@@ -66,5 +76,4 @@ class Pneu extends Model
                 ->sum('km_percorrido'),
         );
     }
-
 }

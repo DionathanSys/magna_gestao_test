@@ -89,6 +89,7 @@ class HistoricoMovimentoPneusTable
                     ->searchable(),
                 TextColumn::make('observacao')
                     ->label('Observação')
+                    ->html()
                     ->width('1%')
                     ->searchable(),
                 TextColumn::make('created_at')

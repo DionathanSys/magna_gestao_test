@@ -20,8 +20,13 @@ class PneuInfolist
                     ->columns(12)
                     ->columnSpan(12)
                     ->components([
-                        TextEntry::make('id')
-                            ->label('ID')
+                        TextEntry::make('posicao_eixo')
+                            ->label('Posição/Eixo')
+                            ->state(function (Models\Pneu $record) {
+                                $ultMov = $record->posicaoVeiculo();
+                                return $ultMov->exists() ? $ultMov->value('eixo') . '° Eixo ' . $ultMov->value('posicao'): 'Não informado';
+                            })
+                            ->placeholder('Não informado')
                             ->columnSpan(2),
                         TextEntry::make('ciclo_vida')
                             ->label('Ciclo de Vida Atual')
@@ -46,6 +51,7 @@ class PneuInfolist
                         TextEntry::make('ultimoRecap.desenhoPneu.descricao')
                             ->label('Borracha Recap')
                             ->weight(FontWeight::Bold)
+                            ->placeholder('Não Recapado')
                             ->columnSpan(2),
                         TextEntry::make('veiculo.placa')
                             ->label('Veículo')
@@ -141,6 +147,7 @@ class PneuInfolist
                             ->columnSpan(2),
                         TextEntry::make('observacao')
                             ->label('Observação')
+                            ->html()
                             ->state(
                                 fn(Models\Pneu $record) => $record->historicoMovimentacao()
                                     ->latest()

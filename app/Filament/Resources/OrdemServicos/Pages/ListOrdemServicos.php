@@ -12,10 +12,14 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ListOrdemServicos extends ListRecords
 {
     protected static string $resource = OrdemServicoResource::class;
+
+    // Habilita a persistência da aba ativa no localStorage
+    protected bool $persistTabInLocalStorage = true;
 
      protected function getHeaderActions(): array
     {
@@ -56,10 +60,12 @@ class ListOrdemServicos extends ListRecords
                 ->badgeColor('info'),
             'encerrar_ordem' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                                                            ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO))
+                                                            ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
+                                                            ->where('parceiro_id', null))
                                                             ->badge(Models\OrdemServico::query()
                                                                 ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                                                                ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)->count())
+                                                                ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
+                                                                ->where('parceiro_id', null)->count())
                                                             ->badgeColor('info'),
             'Terceiros' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
@@ -73,11 +79,31 @@ class ListOrdemServicos extends ListRecords
 
     public function getDefaultActiveTab(): string | int | null
     {
-        if(Auth::user()->name == 'Angelica'){
-            return 'abrir_ordem';
+        // Verifica se há uma aba salva na sessão
+        $lastActiveTab = session('ordem_servicos_last_active_tab');
+        
+        if ($lastActiveTab && $this->hasTabs() && array_key_exists($lastActiveTab, $this->getTabs())) {
+            Log::debug('Restaurando aba ativa da sessão: ' . $lastActiveTab);
+            return $lastActiveTab;
         }
+        
+        // // Fallback para regras específicas
+        // if(Auth::user()->name == 'Angelica'){
+        //     return 'abrir_ordem';
+        // }
 
         return 'pendente';
+    }
 
+    protected function getHeaderWidgets(): array
+    {
+        return [];
+    }
+
+    public function updatedActiveTab(): void
+    {
+        // Salva a aba ativa na sessão sempre que mudar
+        Log::debug('Aba ativa mudou para: ' . $this->activeTab);
+        session(['ordem_servicos_last_active_tab' => $this->activeTab]);
     }
 }

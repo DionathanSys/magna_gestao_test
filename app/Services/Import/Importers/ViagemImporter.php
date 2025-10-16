@@ -147,10 +147,11 @@ class ViagemImporter implements ExcelImportInterface
 
         if ($this->viagemService->hasError()) {
             Log::error('Erro ao importar viagem', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
                 'data' => $transformedData,
-                'errors' => $this->viagemService->getMessage()
+                'errors' => $this->viagemService->getErrors()
             ]);
-            $this->setError("Erro na linha {$rowNumber}.", [$this->viagemService->getMessage()]);
+            $this->setError("Erro na linha {$rowNumber}.", $this->viagemService->getErrors());
             return null;
         }
 

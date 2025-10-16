@@ -47,9 +47,9 @@ class ProcessImportRowJob implements ShouldQueue
                     Log::error("Linha {$rowNumber} falhou ao processar", [
                         'metodo' => __METHOD__ . '@' . __LINE__,
                         'row' => $rowData,
-                        'errors' => $importer->getData(),
+                        'errors' => $importer->getErrors(),
                     ]);
-                    $this->importLogService->incrementErrorRows($importer->getData());
+                    $this->importLogService->incrementErrorRows($importer->getErrors());
                     continue;
                 }
 

@@ -76,6 +76,7 @@ class CriarViagem
             'veiculo_id.exists'             => 'Veículo não encontrado.',
             'numero_viagem.required'        => 'O campo Viagem é obrigatório.',
             'numero_viagem.string'          => 'O campo Viagem deve ser um texto válido.',
+            'numero_viagem.unique'          => 'O número da Viagem já está em uso.',
             'km_rodado.required'            => 'O campo Km Rodado é obrigatório.',
             'km_rodado.numeric'             => 'O campo Km Rodado deve ser um número válido.',
             'km_rodado.min'                 => 'O campo Km Rodado deve ser maior ou igual a 0.',

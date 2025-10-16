@@ -65,7 +65,7 @@ class ViagemImporter implements ExcelImportInterface
             'Inicio.required'           => 'A Data de Início é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Fim.required'              => 'A Data de Fim é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Fim.date_format'         => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Fim.date_format'           => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
         ]);
 
         if ($validator->fails()) {
@@ -88,7 +88,6 @@ class ViagemImporter implements ExcelImportInterface
         try {
 
             $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
-
 
             $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino'] ?? '');
 
@@ -132,7 +131,7 @@ class ViagemImporter implements ExcelImportInterface
         $errors = $this->validate($data, $rowNumber);
 
         if (!empty($errors)) {
-            Log::alert('Erros de validação na importação de viagem', [
+            Log::error('Erros de validação na importação de viagem', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'row' => $rowNumber,
                 'data' => $data,
@@ -144,7 +143,7 @@ class ViagemImporter implements ExcelImportInterface
 
         $transformedData = $this->transform($data);
 
-        $viagem = $this->viagemService->updateOrCreate($transformedData);
+        $viagem = $this->viagemService->create($transformedData);
 
         if ($this->viagemService->hasError()) {
             Log::error('Erro ao importar viagem', [

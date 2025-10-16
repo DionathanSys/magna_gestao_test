@@ -4,12 +4,17 @@ namespace App\Services\Viagem\Actions;
 
 use App\Models;
 use App\Traits\UserCheckTrait;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CriarViagem
 {
     use UserCheckTrait;
+
+    public array $errors = [];
+
+    public bool $hasError = false;
 
     protected array $allowedFields = [
         'veiculo_id',
@@ -32,25 +37,27 @@ class CriarViagem
     public function handle(array $data): ?Models\Viagem
     {
         // Filtra apenas campos permitidos
-        $filteredData = collect($data)->only($this->allowedFields)->toArray();
+        $filteredData = Arr::only($data, $this->allowedFields);
 
         $this->validate($filteredData);
 
-        $data = array_merge($filteredData, [
-            'created_by' => $this->getUserIdChecked(),
-            'updated_by' => $this->getUserIdChecked(),
-        ]);
+        if ($this->hasError === false) {
 
-        $viagem = Models\Viagem::create(
-            $data
-        );
+            $data = [
+                ...$filteredData,
+                'created_by' => $this->getUserIdChecked(),
+                'updated_by' => $this->getUserIdChecked(),
+            ];
 
-        return $viagem;
+            $viagem = Models\Viagem::create($data);
+            return $viagem;
+        }
+        return null;
     }
 
-    private function validate(array $data): bool
+    private function validate(array $data): void
     {
-        Validator::make($data, [
+        $validator = Validator::make($data, [
             'veiculo_id'            => 'required|exists:veiculos,id',
             'numero_viagem'         => 'required|string|unique:viagens,numero_viagem',
             'documento_transporte'  => 'nullable|string',
@@ -64,7 +71,7 @@ class CriarViagem
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
             'condutor'              => 'nullable|string',
-        ],[
+        ], [
             'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
             'veiculo_id.exists'             => 'Veículo não encontrado.',
             'numero_viagem.required'        => 'O campo Viagem é obrigatório.',
@@ -96,8 +103,18 @@ class CriarViagem
             'updated_by.required'           => 'O campo Atualizado Por é obrigatório.',
             'updated_by.exists'             => 'Usuário Atualizador não encontrado.',
             'condutor.string'              => 'O campo Condutor deve ser um texto válido.',
-        ])->validate();
+        ]);
 
-        return true;
+        if ($validator->fails()) {
+            $this->errors = $validator->errors()->all();
+            $this->hasError = true;
+            Log::error(__METHOD__, [
+                'errors' => $this->errors,
+                'data'   => $data,
+            ]);
+            return;
+        }
+
+        return;
     }
 }

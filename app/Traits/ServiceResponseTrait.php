@@ -28,16 +28,22 @@ trait ServiceResponseTrait
      * Dados adicionais para retornar
      */
     protected array $data = [];
+    
+    /**
+     * Erros adicionais (validação, etc.)
+     */
+    protected array $errors = [];
 
     /**
      * Define um erro
      */
     public function setError(string $message, array $data = []): self
     {
-        $this->hasError = true;
-        $this->message = $message;
-        $this->messageType = 'error';
-        $this->data = $data;
+        $this->hasError     = true;
+        $this->message      = $message;
+        $this->messageType  = 'error';
+        $this->data         = $data;
+        $this->errors       = $data;
 
         return $this;
     }
@@ -112,6 +118,14 @@ trait ServiceResponseTrait
     public function getData(): array
     {
         return $this->data;
+    }
+    /**
+    /**
+     * Retorna os erros adicionais
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
     }
 
     /**

@@ -30,6 +30,7 @@ class CargaService
          *
          * 01 viagem pode ter 1 ou mais integrados (cargas)
          */
+        
         try {
 
             $cargaViagem = $this->cargaViagem

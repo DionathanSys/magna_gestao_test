@@ -29,7 +29,21 @@ class ViagemService
 
             $action = new Actions\CriarViagem();
             $viagem = $action->handle($data);
-            $this->setSuccess('Viagem criada com sucesso!');
+
+            if ($action->hasError) {
+                $this->setError("Erro no processo de criação da viagem", $action->errors);
+                return null;
+            }
+
+            if ($viagem) {
+                $this->setSuccess('Viagem criada com sucesso!');
+            }
+
+            Log::debug("Verificando Destino para criar carga da viagem Nº " . $data['numero_viagem'], [
+                'destino'    => $data['destino'] ?? null,
+                'isset'      => isset($data['destino']),
+                'instanceof' => ($data['destino'] instanceof Models\Integrado) ? 'true' : 'false',
+            ]);
 
             if (isset($data['destino']) && ($data['destino'] instanceof Models\Integrado)) {
                 $integrado = $data['destino'];

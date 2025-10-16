@@ -20,7 +20,6 @@ class ImportDocumentosAction
                     ->label('Relatório Excel')
                     ->disk('public')
                     ->required(),
-
                 Toggle::make('usar_fila')
                     ->label('Processar em segundo plano')
                     ->default(true),

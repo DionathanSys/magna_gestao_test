@@ -82,7 +82,6 @@ class ChecklistForm
                                             ->label('Item'),
                                         Toggle::make('status')
                                             ->label('OK')
-                                            ->inline(false)
                                             ->onColor('info')
                                             ->offColor('danger')
                                             ->columnSpan(1),

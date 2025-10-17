@@ -65,7 +65,8 @@ class ChecklistForm
                                     ->table([
                                         TableColumn::make('Item')
                                             ->alignment(Alignment::Left)
-                                            ->width('65%'),
+                                            
+                                            ->width('40%'),
                                         TableColumn::make('Status')
                                             ->alignment(Alignment::Center)
                                             ->width('1%'),

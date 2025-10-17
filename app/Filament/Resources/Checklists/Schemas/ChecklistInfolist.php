@@ -41,16 +41,20 @@ class ChecklistInfolist
                     ->columns(7)
                     ->grid(3)
                     ->table([
-                        TableColumn::make('Item'),
-                        TableColumn::make('Status'),
-                        TableColumn::make('Corrigido'),
-                        TableColumn::make('Observações'),
+                        TableColumn::make('Item')
+                            ->width('40%'),
+                        TableColumn::make('Status')
+                            ->width('10%'),
+                        TableColumn::make('Corrigido')
+                            ->width('10%'),
+                        TableColumn::make('Observações')
+                            ->width('40%'),
                     ])
                     ->schema([
                         TextEntry::make('item')
-                            ->columnSpan(3),
+                            ,
                         TextEntry::make('status')
-                            ->columnSpan(2)
+                            
                             ->formatStateUsing(fn ($state) => $state ? 'OK' : 'NOK')
                             ->badge()
                             ->color(fn(string $state): string => match ($state) {
@@ -59,10 +63,10 @@ class ChecklistInfolist
                                 default => 'gray',
                             }),
                         TextEntry::make('corrigido')
-                            ->columnSpan(2)
+                            
                             ->formatStateUsing(fn ($state) => $state ? 'Sim' : ''),
                         TextEntry::make('observacoes')
-                            ->columnSpan(6)
+                            
                             ->placeholder('Sem observações'),
                     ])
                     ->columnSpanFull(),

@@ -83,10 +83,14 @@ class ChecklistForm
                                         Toggle::make('status')
                                             ->label('OK')
                                             ->inline(false)
+                                            ->onColor('info')
+                                            ->offColor('danger')
                                             ->columnSpan(1),
                                         Toggle::make('corrigido')
                                             ->label('Corrigido')
                                             ->inline(false)
+                                            ->onColor('info')
+                                            ->offColor('danger')
                                             ->columnSpan(1),
                                         Textarea::make('observacoes')
                                             ->label('Observações')

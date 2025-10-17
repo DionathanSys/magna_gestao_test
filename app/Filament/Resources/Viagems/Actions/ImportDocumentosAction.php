@@ -20,14 +20,11 @@ class ImportDocumentosAction
                     ->label('Relatório Excel')
                     ->disk('public')
                     ->required(),
-                Toggle::make('usar_fila')
-                    ->label('Processar em segundo plano')
-                    ->default(true),
             ])
             ->action(function (array $data, ViagemImportService $importService): void {
                 $filePath = $data['arquivo'];
                 $options = [
-                    'use_queue' => $data['usar_fila'],
+                    'use_queue' => true,
                     'descricao' => 'Importação de Viagens Softlog - BRF',
                     'batch_size' => 15,
                 ];

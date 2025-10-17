@@ -109,10 +109,6 @@ class CriarViagem
         if ($validator->fails()) {
             $this->errors = $validator->errors()->all();
             $this->hasError = true;
-            Log::error(__METHOD__, [
-                'errors' => $this->errors,
-                'data'   => $data,
-            ]);
             return;
         }
 

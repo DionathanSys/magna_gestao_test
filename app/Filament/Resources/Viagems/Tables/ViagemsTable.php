@@ -348,6 +348,7 @@ class ViagemsTable
                     Action::make('buscar_documentos')
                         ->label('Buscar Documentos')
                         ->icon('heroicon-o-document-magnifying-glass')
+                        
                         ->url(fn(Models\Viagem $record) => DocumentoFretes\DocumentoFreteResource::getUrl('index', [
                                     'filters' => [
                                         'veiculo_id' => [

@@ -8,14 +8,17 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
 
@@ -54,26 +57,43 @@ class ChecklistForm
                                 Repeater::make('itens')
                                     ->label('Itens')
                                     ->columns(12)
-                                    ->columnSpan(6)
+                                    ->columnSpan(12)
                                     ->defaultItems(self::getCountItens())
                                     ->collapsible()
                                     ->itemLabel(fn(array $state): ?string => $state['item'])
+                                    ->table([
+                                        TableColumn::make('Status')
+                                            ->alignment(Alignment::Center)
+                                            ->width('1%'),
+                                        TableColumn::make('Corrigido')
+                                            ->width('2%'),
+                                        TableColumn::make('Observações'),
+                                        TableColumn::make('Obrigatório')
+                                            ->width('2%'),
+                                    ])
+                                    ->compact()
                                     ->schema([
                                         Toggle::make('status')
                                             ->label('OK')
                                             ->inline(false)
-                                            ->columnSpan(2),
+                                            ->columnSpan(1),
                                         Toggle::make('corrigido')
                                             ->label('Corrigido')
                                             ->inline(false)
-                                            ->columnSpan(2),
-                                        Hidden::make('obrigatorio')
-                                            ->label('Obrigatório')
                                             ->columnSpan(1),
                                         Textarea::make('observacoes')
                                             ->label('Observações')
-                                            ->columnSpan(6)
+                                            ->columnSpan(9)
                                             ->rows(1),
+                                        IconEntry::make('obrigatorio')
+                                            ->label('Obrigatório')
+                                            ->icon(fn(string $state): Heroicon => match ($state) {
+                                                "1" => Heroicon::CheckCircle,
+                                                "0" => Heroicon::XCircle,
+                                            })
+                                            ->color('info')
+                                            ->columnSpan(1),
+                                        
 
                                     ])
                                     ->default(fn() => self::getItens())
@@ -103,7 +123,7 @@ class ChecklistForm
         $itens = collect(db_config('config-checklist.itens', []))
             ->map(fn($item) => [
                 'item' => $item['item'] ?? 'Erro ao carregar item',
-                'status' => true,
+                'status' => false,
                 'obrigatorio' => $item['obrigatorio'] ?? true,
                 'observacoes' => null,
             ])

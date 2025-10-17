@@ -78,7 +78,7 @@ class ChecklistForm
                                     ])
                                     ->compact()
                                     ->schema([
-                                        TextEntry::make('item')
+                                        TextInput::make('item')
                                             ->label('Item'),
                                         Toggle::make('status')
                                             ->label('OK')

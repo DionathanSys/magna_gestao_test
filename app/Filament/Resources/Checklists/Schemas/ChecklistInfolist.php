@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Checklists\Schemas;
 
 // use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -39,6 +40,12 @@ class ChecklistInfolist
                     ->label('Itens Verificados')
                     ->columns(7)
                     ->grid(3)
+                    ->table([
+                        TableColumn::make('Item'),
+                        TableColumn::make('Status'),
+                        TableColumn::make('Corrigido'),
+                        TableColumn::make('Observações'),
+                    ])
                     ->schema([
                         TextEntry::make('item')
                             ->columnSpan(3),

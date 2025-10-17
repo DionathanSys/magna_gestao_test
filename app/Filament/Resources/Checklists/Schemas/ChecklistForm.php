@@ -64,7 +64,6 @@ class ChecklistForm
                                     ->itemLabel(fn(array $state): ?string => $state['item'])
                                     ->table([
                                         TableColumn::make('Item')
-                                            ->weight(FontWeight::Bold)
                                             ->alignment(Alignment::Left)
                                             ->width('65%'),
                                         TableColumn::make('Status')

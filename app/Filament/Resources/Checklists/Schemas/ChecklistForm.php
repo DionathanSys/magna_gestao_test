@@ -14,6 +14,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
@@ -62,6 +63,10 @@ class ChecklistForm
                                     ->collapsible()
                                     ->itemLabel(fn(array $state): ?string => $state['item'])
                                     ->table([
+                                        TableColumn::make('Item')
+                                            ->weight(FontWeight::Bold)
+                                            ->alignment(Alignment::Left)
+                                            ->width('65%'),
                                         TableColumn::make('Status')
                                             ->alignment(Alignment::Center)
                                             ->width('1%'),
@@ -73,6 +78,8 @@ class ChecklistForm
                                     ])
                                     ->compact()
                                     ->schema([
+                                        TextEntry::make('item')
+                                            ->label('Item'),
                                         Toggle::make('status')
                                             ->label('OK')
                                             ->inline(false)

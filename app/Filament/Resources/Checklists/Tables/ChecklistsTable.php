@@ -7,7 +7,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ChecklistsTable
 {
@@ -53,6 +55,19 @@ class ChecklistsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->groups([
+                Group::make('veiculo.placa')
+                    ->label('Veículo'),
+                Group::make('periodo')
+                    ->label('Período')
+                    ->date()
+                    ->orderQueryUsing(fn (Builder $query, string $direction) => $query->orderBy('created_at', $direction)),
+
+            ])
+            ->paginated([30])
+            ->defaultPaginationPageOption(30)
+            ->defaultGroup('periodo')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])

@@ -17,7 +17,8 @@
         "opcodesio/log-viewer": "^3.19",
         "pepperfm/filament-json": "^4.0",
         "phpoffice/phpspreadsheet": "^5.0",
-        "predis/predis": "^3.2"
+        "predis/predis": "^3.2",
+        "spatie/pdf-to-text": "^1.54"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

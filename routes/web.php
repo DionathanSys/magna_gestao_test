@@ -22,10 +22,7 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServi
 
 Route::get('/teste', function () {
 
-   Log::debug('TesteCommand executado com sucesso!');
 
-   ProcessImportRowJob::dispatch();
-   TesteJob::dispatch();
 
 });
 

@@ -7,7 +7,7 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\Layout\Grid;
+use Filament\Schemas\Components\Grid;
 
 class ChecklistInfolist
 {
@@ -38,11 +38,12 @@ class ChecklistInfolist
                     ->label('Criado por')
                     ->columnSpan(2),
                 Grid::make(3)
+                    ->columnSpanFull()
+                    // ->columns(3)
                     ->schema([
                         RepeatableEntry::make('itens_verificados')
                             ->label('Itens Verificados')
-                            ->columns(7)
-                            ->grid(3)
+                            // ->columns(7)
                             ->table([
                                 TableColumn::make('Item')
                                     ->width('40%'),
@@ -71,11 +72,21 @@ class ChecklistInfolist
 
                                     ->placeholder('Sem observações'),
                             ])
-                            ->columnSpanFull(),
+                            // ->columnSpanFull()
+                            ,
                         RepeatableEntry::make('itens_corrigidos')
                             ->label('Itens Corrigidos')
-                            ->columns(7)
-                            ->grid(3)
+                            // ->columns(7)
+                            ->table([
+                                TableColumn::make('Item')
+                                    ->width('40%'),
+                                TableColumn::make('Status')
+                                    ->width('10%'),
+                                TableColumn::make('Corrigido')
+                                    ->width('10%'),
+                                TableColumn::make('Observações')
+                                    ->width('40%'),
+                            ])
                             ->schema([
                                 TextEntry::make('item')
                                     ->columnSpan(3),
@@ -96,12 +107,21 @@ class ChecklistInfolist
                                     ->placeholder('Sem observações'),
                             ])
                             ->placeholder('Nenhum item foi corrigido neste checklist')
-                            ->columnSpanFull(),
+                            ,
                         RepeatableEntry::make('pendencias')
                             ->label('Pendências')
                             ->placeholder('Nenhuma pendência encontrada! ✅')
-                            ->columns(7)
-                            ->grid(3)
+                            // ->columns(7)
+                            ->table([
+                                TableColumn::make('Item')
+                                    ->width('40%'),
+                                TableColumn::make('Status')
+                                    ->width('10%'),
+                                TableColumn::make('Corrigido')
+                                    ->width('10%'),
+                                TableColumn::make('Observações')
+                                    ->width('40%'),
+                            ])
                             ->schema([
                                 TextEntry::make('item')
                                     ->columnSpan(3),
@@ -121,7 +141,7 @@ class ChecklistInfolist
                                     ->columnSpan(6)
                                     ->placeholder('Sem observações'),
                             ])
-                            ->columnSpanFull(),
+                            ,
                     ]),
 
             ]);

@@ -54,6 +54,7 @@ class ChecklistForm
                             ]),
                         Tabs\Tab::make('Checklist')
                             ->columns(12)
+                            ->visibleOn('create')
                             ->schema([
                                 Repeater::make('itens')
                                     ->label('Itens')
@@ -111,6 +112,7 @@ class ChecklistForm
                                     ->addable(false),
                             ]),
                         Tabs\Tab::make('Anexos')
+                            ->visibleOn('create')
                             ->schema([
                                 FileUpload::make('anexos')
                                     ->label('Anexos')

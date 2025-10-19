@@ -5,6 +5,7 @@ use App\Jobs\ProcessImportRowJob;
 use App\Jobs\TesteJob;
 use App\Models\Pneu;
 use App\Services\DocumentoFrete\DocumentoFreteService;
+use App\Traits\PdfExtractorTrait;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Spatie\PdfToText\Pdf as PdfToTextPdf;
@@ -30,31 +31,20 @@ Route::get('/import-pdf', function () {
 
 Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
+    
+
     $request->validate([
         'pdfFile' => 'required|file|mimes:pdf|max:2048',
     ]);
 
     $file = $request->file('pdfFile');
 
-    // Detectar ambiente e definir caminho do pdftotext
-    $pdftoTextPath = null;
-    if (PHP_OS_FAMILY === 'Windows') {
-        $pdftoTextPath = "C:\\tools\\xpdf-tool\\xpdf-tools-win-4.05\\bin64\\pdftotext.exe";
-    }
+    // Criar uma classe anônima que usa a trait
+    $extractor = new class {use PdfExtractorTrait;};
     
-    try {
-        $text = PdfToTextPdf::getText($file->getRealPath(), $pdftoTextPath);
-    } catch (\Exception $e) {
-        return back()->withErrors(['error' => 'Erro ao processar PDF: ' . $e->getMessage()]);
-    }
+    $text = $extractor->extractPdfData($file);
 
-    // Garantir codificação UTF-8 correta
-    $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
-    $text = mb_check_encoding($text, 'UTF-8') ? $text : utf8_encode($text);
-    
-    // Remover caracteres de controle problemáticos
-    $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
-
+    ds($text);
     // Separar linhas
     $lines = explode("\r\n", $text);
 
@@ -71,6 +61,9 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
         'Placa:' => '#PLACA#',
         'R$' => '#VALOR#',
     ];
+
+    dump($substituicoes);
+    dd($lines);
 
     // Fazendo substituições no texto
     foreach ($substituicoes as $original => $replace) {
@@ -122,11 +115,6 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     }
 
     $data = collect($data);
-    
-    // Verificar se há dados para processar
-    if ($data->isEmpty()) {
-        return back()->withErrors(['error' => 'Nenhum dado foi encontrado no PDF. Verifique o formato do arquivo.']);
-    }
 
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
@@ -163,6 +151,12 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     return $response;
 
 })->name('upload.pdf');
+
+Route::get('/teste-job', function () {
+    ds('teste job');
+});
+
+
 
 
         

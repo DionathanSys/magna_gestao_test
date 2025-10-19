@@ -31,7 +31,7 @@ Route::get('/import-pdf', function () {
 
 Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
-    
+
 
     $request->validate([
         'pdfFile' => 'required|file|mimes:pdf|max:2048',
@@ -40,11 +40,16 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     $file = $request->file('pdfFile');
 
     // Criar uma classe anônima que usa a trait
-    $extractor = new class {use PdfExtractorTrait;};
-    
+    $extractor = new class {
+        use PdfExtractorTrait;
+    };
+
     $text = $extractor->extractPdfData($file);
 
-    ds($text);
+    // Processar o texto e extrair dados estruturados
+    $data = $extractor->processPdfText($text);
+
+    dd($data);
     // Separar linhas
     $lines = explode("\r\n", $text);
 
@@ -63,8 +68,8 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     ];
 
     dump($substituicoes);
-    dd($lines);
-
+    dump($lines);
+    dd($text);
     // Fazendo substituições no texto
     foreach ($substituicoes as $original => $replace) {
         $text = str_replace($original, $replace, $text);
@@ -93,24 +98,23 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
         if (strpos($line, '#DOC#') !== false) {
             preg_match('/#DOC#\s*(\d+)/', $line, $matches);
             $current['doc_transporte'] = $matches[1] ?? null;
-            $current['valor'] = (float) str_replace(',','.', $lines[$i + 2]) ?? 0;
+            $current['valor'] = (float) str_replace(',', '.', $lines[$i + 2]) ?? 0;
         }
 
         if (strpos($line, '#PLACA#') !== false) {
             preg_match('/#PLACA#\s*(\w+)/', $line, $matches);
             $current['placa'] = $matches[1] ?? null;
 
-            if (key_exists($current['doc_transporte'].'-1', $data)) {
-                if($data[$current['doc_transporte'].'-1']['valor'] == $current['valor']) {
+            if (key_exists($current['doc_transporte'] . '-1', $data)) {
+                if ($data[$current['doc_transporte'] . '-1']['valor'] == $current['valor']) {
                     $current['valor'] = 0;
                 }
-                $data[$current['doc_transporte'].'-2'] = $current;
+                $data[$current['doc_transporte'] . '-2'] = $current;
             } else {
-                $data[$current['doc_transporte'].'-1'] = $current;
+                $data[$current['doc_transporte'] . '-1'] = $current;
             }
 
             $current = [];
-
         }
     }
 
@@ -149,14 +153,9 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     $response->headers->set('Cache-Control', 'max-age=0');
 
     return $response;
-
 })->name('upload.pdf');
 
 Route::get('/teste-job', function () {
     ds('teste job');
+    return;
 });
-
-
-
-
-        

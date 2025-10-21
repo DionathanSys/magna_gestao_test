@@ -57,7 +57,7 @@ class ProcessImportRowJob implements ShouldQueue
             } catch (\Exception $e) {
                 Log::error("Erro ao processar linha {$rowNumber}", [
                     'metodo' => __METHOD__ . '@' . __LINE__,
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                     'row' => $rowData
                 ]);
                 $this->importLogService->incrementErrorRows([

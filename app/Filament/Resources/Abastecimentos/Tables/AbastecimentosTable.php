@@ -72,9 +72,10 @@ class AbastecimentosTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    Abastecimentos\Actions\ImportAbastecimentoAction::make(),
+                    
                     DeleteBulkAction::make(),
                 ]),
+                Abastecimentos\Actions\ImportAbastecimentoAction::make(),
             ]);
     }
 }

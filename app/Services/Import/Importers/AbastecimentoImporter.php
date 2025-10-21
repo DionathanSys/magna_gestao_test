@@ -31,8 +31,8 @@ class AbastecimentoImporter implements ExcelImportInterface
             'DtAbastecimento',
             'Placa',
             'Km',
-            'Qtd Litros',
-            'VlrUnitário',
+            'QtdLitros',
+            'VlrUnitrio',
             'VlrTotal',
         ];
     }
@@ -70,7 +70,7 @@ class AbastecimentoImporter implements ExcelImportInterface
         ]);
 
         if ($validator->fails()) {
-            dd('debug_validation', [$validator->errors()->all()]);
+            dd('debug_validation', [$validator->errors()->all(), $row]);
             $errors = array_merge($errors, $validator->errors()->all());
         }
 

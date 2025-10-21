@@ -88,8 +88,12 @@ abstract class BaseImportService
         $requiredColumns = $importer->getRequiredColumns();
         $missingColumns = [];
 
+        foreach ($headers as $key => $value) {
+            $value = preg_replace('/[^a-zA-Z0-9_]/', '', $value);
+            $headers[$key] = $value;
+        }
+        
         foreach ($requiredColumns as $column) {
-            $column = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
             if (!in_array($column, $headers)) {
                 $missingColumns[] = $column;
             }
@@ -106,6 +110,12 @@ abstract class BaseImportService
     protected function processRows(array $rows, ExcelImportInterface $importer, int $importLogId, array $options): void
     {
         $headers = array_shift($rows); // Remove cabeçalho
+
+        foreach ($headers as $key => $value) {
+            $value = preg_replace('/[^a-zA-Z0-9_]/', '', $value);
+            $headers[$key] = $value;
+        }
+
         $batchSize = $options['batch_size'] ?? 50;
 
         $batches = array_chunk($rows, $batchSize);

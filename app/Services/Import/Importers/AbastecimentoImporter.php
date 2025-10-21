@@ -18,7 +18,7 @@ class AbastecimentoImporter implements ExcelImportInterface
 
     public function __construct(
         private Services\Abastecimento\AbastecimentoService $abastecimentoService,
-        private Services\Veiculo\VeiculoService     $veiculoService
+        private Services\Veiculo\VeiculoService             $veiculoService
 
     ) {}
 
@@ -81,6 +81,11 @@ class AbastecimentoImporter implements ExcelImportInterface
             }
         }
 
+        Log::debug('Validação de linha de importação de abastecimento', [
+            'rowNumber' => $rowNumber,
+            'data' => $row,
+        ]);
+
         return $errors;
     }
 
@@ -99,6 +104,12 @@ class AbastecimentoImporter implements ExcelImportInterface
             ]);
         }
 
+        Log::debug('Transformação de linha de importação de abastecimento', [
+            'data' => $row,
+            'veiculo_id' => $veiculo_id ?? null,
+            'tipo_combustivel' => $tipo_combustivel?->value ?? null,
+        ]);
+
         return [
             'veiculo_id'            => $veiculo_id,
             'id_abastecimento'      => $row['Abastecimento'],
@@ -112,7 +123,7 @@ class AbastecimentoImporter implements ExcelImportInterface
         ];
     }
 
-    public function process(array $data, int $rowNumber): ?Models\Viagem
+    public function process(array $data, int $rowNumber): ?Models\Abastecimento
     {
         $errors = $this->validate($data, $rowNumber);
 
@@ -140,6 +151,11 @@ class AbastecimentoImporter implements ExcelImportInterface
             $this->setError("Erro na linha {$rowNumber}.", $this->abastecimentoService->getErrors());
             return null;
         }
+
+        Log::debug('Processamento de linha de importação de abastecimento concluído com sucesso', [
+            'rowNumber' => $rowNumber,
+            'abastecimento_id' => $abastecimento->id,
+        ]);
 
         return $abastecimento;
     }

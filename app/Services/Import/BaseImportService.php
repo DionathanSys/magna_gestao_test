@@ -105,6 +105,7 @@ abstract class BaseImportService
             );
         }
 
+        Log::info('Cabeçalho validado com sucesso.');
     }
 
     protected function processRows(array $rows, ExcelImportInterface $importer, int $importLogId, array $options): void
@@ -142,6 +143,8 @@ abstract class BaseImportService
         }
 
         FinalizeImportJob::dispatch($importLogId);
+
+        Log::info("Todos os lotes foram enfileirados para import_log_id: " . $importLogId);
     }
 
 }

@@ -34,6 +34,11 @@ class ProcessImportRowJob implements ShouldQueue
     public function handle(): void
     {
 
+        Log::debug("Iniciando processamento do lote para import_log_id: " . $this->importLogId, [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'batch_size' => count($this->batch)
+        ]);
+        
         $importer = app($this->importerClass);
 
         foreach ($this->batch as $index => $row) {

@@ -13,6 +13,7 @@ class CriarAbastecimento
 
     public function handle(array $data): ?Models\Abastecimento
     {
+        Log::debug('Criando abastecimento', ['data' => $data]);
         $this->validate($data);
 
         if (!$this->hasErrors) {

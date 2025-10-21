@@ -54,7 +54,7 @@ class AbastecimentoImporter implements ExcelImportInterface
             'Placa'                 => 'required|string',
             'Km'                    => 'required|numeric|min:0',
             'QtdLitros'             => 'required|numeric|min:0',
-            'VlrUnitário'           => 'required|numeric|min:0',
+            'VlrUnitrio'           => 'required|numeric|min:0',
             'VlrTotal'              => 'required|numeric|min:0',
         ], [
             'CdPrd.required'                => "A coluna 'Cód Prd' é obrigatória na linha {$rowNumber}.",
@@ -65,7 +65,7 @@ class AbastecimentoImporter implements ExcelImportInterface
             'Placa.required'                => "A coluna 'Placa' é obrigatória na linha {$rowNumber}.",
             'Km.required'                   => "A coluna 'Km' é obrigatória na linha {$rowNumber}.",
             'QtdLitros.required'            => "A coluna 'Qtd Litros' é obrigatória na linha {$rowNumber}.",
-            'VlrUnitário.required'          => "A coluna 'Vlr Unitário' é obrigatória na linha {$rowNumber}.",
+            'VlrUnitrio.required'          => "A coluna 'Vlr Unitário' é obrigatória na linha {$rowNumber}.",
             'VlrTotal.required'             => "A coluna 'Vlr Total' é obrigatória na linha {$rowNumber}.",
         ]);
 

@@ -70,7 +70,7 @@ class AbastecimentoImporter implements ExcelImportInterface
             'Vlr. Total.required'           => "A coluna 'Vlr. Total' é obrigatória na linha {$rowNumber}.",
         ]);
 
-        dd($validator->errors()->all(), $row, $rowNumber);
+        Log::debug('debug', [$validator->errors()->all(), $row, $rowNumber]);
 
         if ($validator->fails()) {
             $errors = array_merge($errors, $validator->errors()->all());

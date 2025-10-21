@@ -17,7 +17,8 @@ class Abastecimento extends Model
         'data_abastecimento'    => 'datetime',
         'quilometragem'         => 'integer',
         'litros'                => 'decimal:2',
-        'valor'                 => MoneyCast::class,
+        'preco_por_litro'       => MoneyCast::class,
+        'preco_total'           => MoneyCast::class,
         'tipo_combustivel'      => TipoCombustivelEnum::class,
     ];
 

@@ -25,15 +25,15 @@ class AbastecimentoImporter implements ExcelImportInterface
     public function getRequiredColumns(): array
     {
         return [
-            'Cód. Prd',
+            'CdPrd',
             'Abastecimento',
-            'Forn. Abastecimento',
-            'Dt Abastecimento',
+            'FornAbastecimento',
+            'DtAbastecimento',
             'Placa',
             'Km',
             'Qtd Litros',
-            'Vlr. Unitário',
-            'Vlr. Total',
+            'VlrUnitário',
+            'VlrTotal',
         ];
     }
 
@@ -46,33 +46,31 @@ class AbastecimentoImporter implements ExcelImportInterface
     {
         $errors = [];
 
-        // Validação básica
         $validator = Validator::make($row, [
-            'Cód. Prd'              => 'required|string',
-            'Abastecimento'         => 'required|string',
-            'Forn. Abastecimento'   => 'required|string',
-            'Dt Abastecimento'      => 'required|date_format:d/m/Y H:i:s',
+            'CdPrd'                 => 'required',
+            'Abastecimento'         => 'required',
+            'FornAbastecimento'     => 'required',
+            'DtAbastecimento'       => 'required|date_format:d/m/Y H:i:s',
             'Placa'                 => 'required|string',
             'Km'                    => 'required|numeric|min:0',
-            'Qtd Litros'            => 'required|numeric|min:0',
-            'Vlr. Unitário'         => 'required|numeric|min:0',
-            'Vlr. Total'            => 'required|numeric|min:0',
+            'QtdLitros'             => 'required|decimal|min:0',
+            'VlrUnitário'           => 'required|numeric|min:0',
+            'VlrTotal'              => 'required|numeric|min:0',
         ], [
-            'Cód. Prd.required'             => "A coluna 'Cód. Prd' é obrigatória na linha {$rowNumber}.",
+            'CdPrd.required'                => "A coluna 'Cód Prd' é obrigatória na linha {$rowNumber}.",
             'Abastecimento.required'        => "A coluna 'Abastecimento' é obrigatória na linha {$rowNumber}.",
-            'Forn. Abastecimento.required'  => "A coluna 'Forn. Abastecimento' é obrigatória na linha {$rowNumber}.",
-            'Dt Abastecimento.required'     => "A coluna 'Dt Abastecimento' é obrigatória na linha {$rowNumber}.",
-            'Dt Abastecimento.date_format'  => "A coluna 'Dt Abastecimento' deve estar no formato 'd/m/Y H:i:s' na linha {$rowNumber}.",
+            'FornAbastecimento.required'    => "A coluna 'Forn. Abastecimento' é obrigatória na linha {$rowNumber}.",
+            'DtAbastecimento.required'      => "A coluna 'Dt. Abastecimento' é obrigatória na linha {$rowNumber}.",
+            'DtAbastecimento.date_format'   => "A coluna 'Dt. Abastecimento' deve estar no formato 'd/m/Y H:i:s' na linha {$rowNumber}.",
             'Placa.required'                => "A coluna 'Placa' é obrigatória na linha {$rowNumber}.",
             'Km.required'                   => "A coluna 'Km' é obrigatória na linha {$rowNumber}.",
-            'Qtd Litros.required'           => "A coluna 'Qtd Litros' é obrigatória na linha {$rowNumber}.",
-            'Vlr. Unitário.required'        => "A coluna 'Vlr. Unitário' é obrigatória na linha {$rowNumber}.",
-            'Vlr. Total.required'           => "A coluna 'Vlr. Total' é obrigatória na linha {$rowNumber}.",
+            'QtdLitros.required'            => "A coluna 'Qtd Litros' é obrigatória na linha {$rowNumber}.",
+            'VlrUnitário.required'          => "A coluna 'Vlr Unitário' é obrigatória na linha {$rowNumber}.",
+            'VlrTotal.required'             => "A coluna 'Vlr Total' é obrigatória na linha {$rowNumber}.",
         ]);
 
-        Log::debug('debug', [$validator->errors()->all(), $row, $rowNumber]);
-
         if ($validator->fails()) {
+            dd('debug_validation', [$validator->errors()->all()]);
             $errors = array_merge($errors, $validator->errors()->all());
         }
 
@@ -101,8 +99,6 @@ class AbastecimentoImporter implements ExcelImportInterface
                 'data' => $row
             ]);
         }
-
-        $km_pago = (float) str_replace(',', '.', $row['Km Sugerida']);
 
         return [
             'veiculo_id'            => $veiculo_id,

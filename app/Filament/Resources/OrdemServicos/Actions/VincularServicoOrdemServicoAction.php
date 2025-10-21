@@ -33,7 +33,7 @@ class VincularServicoOrdemServicoAction
                 return $data;
             })
             ->action(function (array $data, string $model, Action $action): ?Model {
-                ds($data);
+                
                 $service = new Services\ItemOrdemServico\ItemOrdemServicoService();
                 $itemOrdemServico = $service->create($data);
 

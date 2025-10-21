@@ -155,7 +155,3 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     return $response;
 })->name('upload.pdf');
 
-Route::get('/teste-job', function () {
-    ds('teste job');
-    return;
-});

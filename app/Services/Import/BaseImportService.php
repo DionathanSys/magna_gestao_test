@@ -89,6 +89,7 @@ abstract class BaseImportService
         $missingColumns = [];
 
         foreach ($requiredColumns as $column) {
+            $column = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
             if (!in_array($column, $headers)) {
                 $missingColumns[] = $column;
             }

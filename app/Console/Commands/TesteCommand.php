@@ -30,7 +30,6 @@ class TesteCommand extends Command
     public function handle()
     {
         Log::debug('TesteCommand executado com sucesso!');
-        ds('TesteCommand executado com sucesso!');
         $this->info('TesteCommand executado com sucesso!');
     }
 }

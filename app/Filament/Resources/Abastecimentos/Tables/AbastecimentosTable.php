@@ -31,7 +31,7 @@ class AbastecimentosTable
                 TextColumn::make('tipo_combustivel')
                     ->label('Tipo de Combustível'),
                 TextColumn::make('quantidade')
-                    ->numeric(0, ',', '.')
+                    ->numeric(2, ',', '.')
                     ->sortable(),
                 TextColumn::make('preco_por_litro')
                     ->label('Preço por Litro')

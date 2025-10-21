@@ -53,7 +53,7 @@ class AbastecimentoImporter implements ExcelImportInterface
             'DtAbastecimento'       => 'required|date_format:d/m/Y H:i:s',
             'Placa'                 => 'required|string',
             'Km'                    => 'required|numeric|min:0',
-            'QtdLitros'             => 'required|decimal|min:0',
+            'QtdLitros'             => 'required|numeric|min:0',
             'VlrUnitário'           => 'required|numeric|min:0',
             'VlrTotal'              => 'required|numeric|min:0',
         ], [

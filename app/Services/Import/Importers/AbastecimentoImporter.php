@@ -70,7 +70,6 @@ class AbastecimentoImporter implements ExcelImportInterface
         ]);
 
         if ($validator->fails()) {
-            dd('debug_validation', [$validator->errors()->all(), $row]);
             $errors = array_merge($errors, $validator->errors()->all());
         }
 

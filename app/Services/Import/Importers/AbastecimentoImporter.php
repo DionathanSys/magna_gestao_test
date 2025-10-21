@@ -89,7 +89,7 @@ class AbastecimentoImporter implements ExcelImportInterface
         try {
 
             $veiculo_id = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
-            $tipo_combustivel = Enum\Abastecimento\TipoCombustivelEnum::fromProductCode($row['Cód. Prd']);
+            $tipo_combustivel = Enum\Abastecimento\TipoCombustivelEnum::fromProductCode($row['CdPrd']);
 
         } catch (\Exception $e) {
             Log::error("Erro ao transformar dados", [
@@ -103,11 +103,11 @@ class AbastecimentoImporter implements ExcelImportInterface
             'veiculo_id'            => $veiculo_id,
             'id_abastecimento'      => $row['Abastecimento'],
             'quilometragem'         => $row['Km'] ?? 0,
-            'posto_combustivel'     => Str::upper($row['Forn. Abastecimento']),
+            'posto_combustivel'     => Str::upper($row['FornAbastecimento']),
             'tipo_combustivel'      => $tipo_combustivel?->value,
-            'data_abastecimento'    => Carbon::createFromFormat('d/m/Y H:i:s', $row['Dt Abastecimento'])->toDateTimeString(),
-            'quantidade'            => (float) str_replace(',', '.', $row['Qtd Litros']),
-            'preco_por_litro'       => (float) str_replace(',', '.', $row['Vlr. Unitário']),
+            'data_abastecimento'    => Carbon::createFromFormat('d/m/Y H:i:s', $row['DtAbastecimento'])->toDateTimeString(),
+            'quantidade'            => (float) str_replace(',', '.', $row['QtdLitros']),
+            'preco_por_litro'       => (float) str_replace(',', '.', $row['VlrUnitrio']),
 
         ];
     }

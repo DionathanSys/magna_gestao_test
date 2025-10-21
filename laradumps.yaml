@@ -4,7 +4,7 @@ app:
   secondary_host: host.docker.internal
   port: 9191
   workdir: /var/www/html/
-  project_path: C:\Users\dionathan.silva\Documents\magna_gestao_test\
+  project_path: C:\laragon\www\magna_gestao_test\
   wsl_config: wsl+Ubuntu/
 config:
   sleep: 0

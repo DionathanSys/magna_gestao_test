@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Filament\Resources\Abastecimentos;
+
+use App\Filament\Resources\Abastecimentos\Pages\CreateAbastecimento;
+use App\Filament\Resources\Abastecimentos\Pages\EditAbastecimento;
+use App\Filament\Resources\Abastecimentos\Pages\ListAbastecimentos;
+use App\Filament\Resources\Abastecimentos\Schemas\AbastecimentoForm;
+use App\Filament\Resources\Abastecimentos\Tables\AbastecimentosTable;
+use App\Models\Abastecimento;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+
+class AbastecimentoResource extends Resource
+{
+    protected static ?string $model = Abastecimento::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static ?string $recordTitleAttribute = 'id_abastecimento';
+
+    public static function form(Schema $schema): Schema
+    {
+        return AbastecimentoForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return AbastecimentosTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListAbastecimentos::route('/'),
+            // 'create' => CreateAbastecimento::route('/create'),
+            // 'edit' => EditAbastecimento::route('/{record}/edit'),
+        ];
+    }
+}

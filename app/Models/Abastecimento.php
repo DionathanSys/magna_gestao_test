@@ -9,9 +9,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class Abastecimento extends Model
 {
+
+    protected $appends = [
+        'quilometragem_percorrida',
+        'consumo_medio',
+        'custo_por_km',
+        'is_primeiro_abastecimento',
+        'dias_desde_ultimo_abastecimento',
+    ];
 
     protected $casts = [
         'data_abastecimento'    => 'datetime',
@@ -148,12 +157,12 @@ class Abastecimento extends Model
         return Attribute::make(
             get: function () {
                 $quilometragemPercorrida = $this->quilometragem_percorrida;
-                
-                if (!$quilometragemPercorrida || $this->litros <= 0) {
+
+                if (!$quilometragemPercorrida || $this->quantidade <= 0) {
                     return null;
                 }
                 
-                return round($quilometragemPercorrida / $this->litros, 4);
+                return round($quilometragemPercorrida / $this->quantidade, 4);
             }
         );
     }

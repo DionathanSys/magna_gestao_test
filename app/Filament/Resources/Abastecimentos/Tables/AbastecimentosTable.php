@@ -7,8 +7,14 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Date;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class AbastecimentosTable
 {
@@ -17,33 +23,53 @@ class AbastecimentosTable
         return $table
             ->columns([
                 TextColumn::make('id_abastecimento')
-                    ->numeric()
+                    ->numeric(0, '', '')
+                    ->width('1%')
+                    ->disabledClick()
                     ->sortable(),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
-                    ->searchable(),
+                    ->width('1%'),
                 TextColumn::make('quilometragem')
-                    ->numeric(0, ',', '.')
-                    ->searchable(),
+                    ->width('1%')
+                    ->numeric(0, ',', '.'),
                 TextColumn::make('posto_combustivel')
                     ->label('Posto de Combustível')
-                    ->searchable(),
+                    ->width('1%')
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('tipo_combustivel')
-                    ->label('Tipo de Combustível'),
+                    ->label('Tipo de Combustível')
+                    ->width('1%'),
                 TextColumn::make('quantidade')
+                    ->width('1%')
                     ->numeric(2, ',', '.')
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->label('Total Lts.')),
                 TextColumn::make('preco_por_litro')
                     ->label('Preço por Litro')
+                    ->width('1%')
                     ->money('BRL', true)
                     ->sortable(),
                 TextColumn::make('preco_total')
                     ->label('Preço Total')
+                    ->width('1%')
                     ->money('BRL', true)
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()->money('BRL', 100)->label('Vlr. Total')),
                 TextColumn::make('data_abastecimento')
                     ->label('Dt. Abastecimento')
                     ->dateTime('d/m/Y H:i:s')
+                    ->sortable(),
+                TextColumn::make('quilometragem_percorrida')
+                    ->label('Km Percorridos')
+                    ->width('1%')
+                    ->numeric(0, ',', '.')
+                    ->sortable(),
+                TextColumn::make('consumo_medio')
+                    ->label('Consumo Médio')
+                    ->suffix(' Km/L')
+                    ->numeric(4, ',', '.')
                     ->sortable(),
                 IconColumn::make('considerar_fechamento')
                     ->label('Considerar Fechamento')
@@ -65,7 +91,19 @@ class AbastecimentosTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('veiculo_id')
+                    ->label('Veículo')
+                    ->relationship('veiculo', 'placa')
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
+                DateRangeFilter::make('data_abastecimento')
+                    ->label('Dt. Abastecimento')
+                    ->alwaysShowCalendar()
+                    ->default([
+                        'start' => Date::now()->startOfWeek(),
+                        'end' => Date::now()->endOfWeek(),
+                    ]),
             ])
             ->recordActions([
                 EditAction::make(),

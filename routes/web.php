@@ -13,13 +13,6 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-Route::get('/teste', function () {
-    $file = "01K3GQ73RG5NV1D35A0A4PJ7G2.xls";
-    $importer = new DocumentoFreteImport();
-    $service = new DocumentoFreteService();
-    $service->importarRelatorioDocumentoFrete($importer, $file);
-});
-
 Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServico $ordemServico) {
     $service = new \App\Services\OrdemServico\OrdemServicoPdfService();
     return $service->visualizarPdfOrdemServico($ordemServico);
@@ -40,102 +33,77 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     $importer = new \App\Services\Import\Importers\ViagemEspelhoFreteImporter();
 
     $data = $importer->handle($file->getRealPath());
-    $data[0] = 1;
-    dd($data);
-    $current = [];
-
-    // 1. Substituir os padrões pelo que quisermos
-    $substituicoes = [
-        'NFE:' => '#NFE#',
-        'Chave de acesso:' => '#CHAVE#',
-        'Doc.Transporte:' => '#DOC#',
-        'Placa:' => '#PLACA#',
-        'R$' => '#VALOR#',
-    ];
-
-
-    // Fazendo substituições no texto
-    foreach ($substituicoes as $original => $replace) {
-        $text = str_replace($original, $replace, $text);
-    }
-
-    // 2. Separar em linhas
-    $lines = array_map('trim', explode("\n", $text));
-
-    // 3. Preparar array
-    $data = [];
-    $current = [];
-
-    for ($i = 0; $i < count($lines); $i++) {
-        $line = $lines[$i];
-
-        if (strpos($line, '#NFE#') !== false) {
-            preg_match('/#NFE#\s*(\d+)/', $line, $matches);
-            $current['nfe'] = $matches[1] ?? null;
-        }
-
-        if (strpos($line, '#CHAVE#') !== false) {
-            preg_match('/#CHAVE#\s*(\d+)/', $line, $matches);
-            $current['chave_acesso'] = $matches[1] ?? null;
-        }
-
-        if (strpos($line, '#DOC#') !== false) {
-            preg_match('/#DOC#\s*(\d+)/', $line, $matches);
-            $current['doc_transporte'] = $matches[1] ?? null;
-            $current['valor'] = (float) str_replace(',', '.', $lines[$i + 2]) ?? 0;
-        }
-
-        if (strpos($line, '#PLACA#') !== false) {
-            preg_match('/#PLACA#\s*(\w+)/', $line, $matches);
-            $current['placa'] = $matches[1] ?? null;
-
-            if (key_exists($current['doc_transporte'] . '-1', $data)) {
-                if ($data[$current['doc_transporte'] . '-1']['valor'] == $current['valor']) {
-                    $current['valor'] = 0;
-                }
-                $data[$current['doc_transporte'] . '-2'] = $current;
-            } else {
-                $data[$current['doc_transporte'] . '-1'] = $current;
-            }
-
-            $current = [];
-        }
-    }
 
     $data = collect($data);
 
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
+    $data->each(function ($frete) {
+        Log::debug('Frete importado', [
+            'data' => $frete
+        ]);
 
-    // Definir cabeçalhos
-    $sheet->setCellValue('A1', 'NFE');
-    $sheet->setCellValue('B1', 'Chave de Acesso');
-    $sheet->setCellValue('C1', 'Doc Transporte');
-    $sheet->setCellValue('D1', 'Placa');
-    $sheet->setCellValue('E1', 'Valor');
+        if(!($veiculo_id = \App\Models\Veiculo::where('placa', $frete['placa'])->first()?->id)) {
+            Log::warning('Veículo não encontrado para a placa informada.', [
+                'placa' => $frete['placa']
+            ]);
+            return;
+        }
 
-    // Preencher dados
-    $row = 2;
-    foreach ($data as $item) {
-        $sheet->setCellValue('A' . $row, $item['nfe']);
-        $sheet->setCellValue('B' . $row, $item['chave_acesso']);
-        $sheet->setCellValue('C' . $row, $item['doc_transporte']);
-        $sheet->setCellValue('D' . $row, $item['placa']);
-        $sheet->setCellValue('E' . $row, $item['valor']);
-        $row++;
-    }
+        $docFrete = [
+            'veiculo_id'           => $veiculo_id,
+            'parceiro_destino'     => 'BRF S.A. CHAPECO/SC',
+            'parceiro_origem'      => trim(preg_replace('/^\d+\s*-\s*/', '', $frete['destino'])),
+            'documento_transporte' => $frete['doc_transporte'],
+            'numero_documento'     => $frete['nfe'],
+            'data_emissao'         => $frete['data_emissao'],
+            'valor_total'          => $frete['valor'],
+            'valor_icms'           => 0,
+            'tipo_documento'       => \App\Enum\Frete\TipoRelatorioDocumentoFreteEnum::ESPELHO_FRETE_NFS_BRF,
+        ];
 
-    // Criar arquivo para download
-    $response = new StreamedResponse(function () use ($spreadsheet) {
-        $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
+        try {
+            $documentoFreteService = new DocumentoFreteService();
+            $documentoFreteService->criarDocumentoFrete($docFrete);
+        } catch (\Exception $e) {
+            Log::error('Erro ao criar documento de frete', [
+                'error' => $e->getMessage(),
+                'data' => $docFrete
+            ]);
+        }
+
     });
 
-    // Configurar cabeçalhos para download
-    $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    $response->headers->set('Content-Disposition', 'attachment;filename="espelho frete.xlsx"');
-    $response->headers->set('Cache-Control', 'max-age=0');
+    // $spreadsheet = new Spreadsheet();
+    // $sheet = $spreadsheet->getActiveSheet();
 
-    return $response;
+    // // Definir cabeçalhos
+    // $sheet->setCellValue('A1', 'NFE');
+    // $sheet->setCellValue('B1', 'Chave de Acesso');
+    // $sheet->setCellValue('C1', 'Doc Transporte');
+    // $sheet->setCellValue('D1', 'Placa');
+    // $sheet->setCellValue('E1', 'Valor');
+
+    // // Preencher dados
+    // $row = 2;
+    // foreach ($data as $item) {
+    //     $sheet->setCellValue('A' . $row, $item['nfe']);
+    //     $sheet->setCellValue('B' . $row, $item['chave_acesso']);
+    //     $sheet->setCellValue('C' . $row, $item['doc_transporte']);
+    //     $sheet->setCellValue('D' . $row, $item['placa']);
+    //     $sheet->setCellValue('E' . $row, $item['valor']);
+    //     $row++;
+    // }
+
+    // // Criar arquivo para download
+    // $response = new StreamedResponse(function () use ($spreadsheet) {
+    //     $writer = new Xlsx($spreadsheet);
+    //     $writer->save('php://output');
+    // });
+
+    // // Configurar cabeçalhos para download
+    // $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    // $response->headers->set('Content-Disposition', 'attachment;filename="espelho frete.xlsx"');
+    // $response->headers->set('Cache-Control', 'max-age=0');
+
+    // return $response;
 })->name('upload.pdf');
 

@@ -4,6 +4,7 @@ namespace App\Services\Import\Importers;
 
 use App\{Models, Enum, Services};
 use App\Traits\PdfExtractorTrait;
+use Carbon\Carbon;
 
 class ViagemEspelhoFreteImporter
 {
@@ -40,6 +41,9 @@ class ViagemEspelhoFreteImporter
             return preg_replace('/[\x00-\x1F\x7F]/', '', $line);
         }, $lines);
 
+        // Primeiro, extrair a data de emissão do cabeçalho
+        $dataEmissao = $this->extrairDataEmissao($lines);
+
         for ($i = 0; $i < count($lines); $i++) {
             $line = trim($lines[$i]);
             
@@ -52,7 +56,7 @@ class ViagemEspelhoFreteImporter
             if (preg_match('/^NFE:\s*(\d+)$/', $line, $matches)) {
                 // Se já temos dados acumulados, salvar antes de iniciar novo
                 if (!empty($current) && isset($current['doc_transporte'])) {
-                    $this->addToDataArray($data, $current);
+                    $this->addToDataArray($data, $current, $dataEmissao);
                 }
                 
                 $current = ['nfe' => $matches[1]];
@@ -108,7 +112,7 @@ class ViagemEspelhoFreteImporter
                 
                 // Se encontrou o valor, adicionar aos dados
                 if ($valorEncontrado && isset($current['nfe'])) {
-                    $this->addToDataArray($data, $current);
+                    $this->addToDataArray($data, $current, $dataEmissao);
                     $current = []; // Reset para próximo registro
                 }
                 
@@ -118,7 +122,7 @@ class ViagemEspelhoFreteImporter
         
         // Adicionar último registro se existir
         if (!empty($current) && isset($current['doc_transporte']) && isset($current['valor'])) {
-            $this->addToDataArray($data, $current);
+            $this->addToDataArray($data, $current, $dataEmissao);
         }
         
         return $data;
@@ -129,8 +133,9 @@ class ViagemEspelhoFreteImporter
      *
      * @param array &$data
      * @param array $current
+     * @param Carbon|null $dataEmissao
      */
-    protected function addToDataArray(array &$data, array $current): void
+    protected function addToDataArray(array &$data, array $current, ?Carbon $dataEmissao): void
     {
         // Validar se tem todos os campos obrigatórios
         $requiredFields = ['nfe', 'chave_acesso', 'destino', 'doc_transporte', 'placa', 'valor'];
@@ -141,6 +146,9 @@ class ViagemEspelhoFreteImporter
                 return;
             }
         }
+        
+        // Adicionar data de emissão
+        $current['data_emissao'] = $dataEmissao ? $dataEmissao->format('Y-m-d') : Carbon::now()->format('Y-m-d');
         
         $docTransporte = $current['doc_transporte'];
         $key1 = $docTransporte . '-1';
@@ -155,6 +163,34 @@ class ViagemEspelhoFreteImporter
         } else {
             $data[$key1] = $current;
         }
+    }
+
+    /**
+     * Extrai a data de emissão do cabeçalho do PDF
+     *
+     * @param array $lines
+     * @return Carbon|null
+     */
+    private function extrairDataEmissao(array $lines): ?Carbon
+    {
+        foreach ($lines as $line) {
+            // Buscar por padrão: "de DD.MM.YYYY à DD.MM.YYYY"
+            if (preg_match('/de\s+(\d{2})\.(\d{2})\.(\d{4})\s+à\s+(\d{2})\.(\d{2})\.(\d{4})/', $line, $matches)) {
+                // Usar a data final do período (segunda data)
+                $dia = $matches[4];
+                $mes = $matches[5];
+                $ano = $matches[6];
+                
+                try {
+                    return Carbon::createFromFormat('d/m/Y', "{$dia}/{$mes}/{$ano}");
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning("Erro ao parsear data de emissão: {$line}", ['error' => $e->getMessage()]);
+                }
+            }
+        }
+        
+        // Se não encontrou, usar data atual
+        return Carbon::now();
     }
 
 }

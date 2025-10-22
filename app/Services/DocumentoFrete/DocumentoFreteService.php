@@ -62,12 +62,6 @@ class DocumentoFreteService
             $dir = $isWindows ? 'app\\private\\' : 'app/private/';
             $filePath = storage_path($dir . $fileName);
 
-            Log::debug('File path ' . $filePath, [
-                'file_path' => $filePath,
-                'SO' => env('SO'),
-                'teste' => 'teste',
-            ]);
-
             $reader = IOFactory::createReaderForFile($filePath);
             $reader->setReadDataOnly(true);
             $spreadsheet = $reader->load($filePath);

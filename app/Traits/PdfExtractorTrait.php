@@ -33,7 +33,8 @@ trait PdfExtractorTrait
     {
         // Detectar sistema operacional
         if (PHP_OS_FAMILY === 'Windows') {
-            $windowsPaths = "C:\\Program Files\\xpdf-tool\\xpdf-tools-win-4.05\\bin64\\pdftotext.exe";
+            $windowsPaths = "C:\\xpdf-tool\\xpdf-tools-win-4.05\\bin64\\pdftotext.exe";
+            // $windowsPaths = "C:\\Program Files\\xpdf-tool\\xpdf-tools-win-4.05\\bin64\\pdftotext.exe";
             if (file_exists($windowsPaths)) {
                 return $windowsPaths;
             }

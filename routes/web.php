@@ -40,6 +40,7 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     $importer = new \App\Services\Import\Importers\ViagemEspelhoFreteImporter();
 
     $data = $importer->handle($file->getRealPath());
+    $data[0] = 1;
     dd($data);
     $current = [];
 

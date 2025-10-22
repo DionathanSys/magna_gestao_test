@@ -17,7 +17,7 @@ class ViagemEspelhoFreteImporter
 
         // Processar o texto e extrair dados estruturados
         $data = $this->processPdfText($text);
-
+ 
         return $data;
     }
 

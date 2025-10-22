@@ -75,9 +75,10 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
             ]);
         }
 
-        echo '<a href="' . DocumentoFreteResource::getUrl() . '">Acessar Documentos de Frete</a>';
     });
-
+    
+    echo '<h2>Importação concluída!</h2>';
+    echo '<a href="' . DocumentoFreteResource::getUrl() . '">Acessar Documentos de Frete</a>';
     // $spreadsheet = new Spreadsheet();
     // $sheet = $spreadsheet->getActiveSheet();
 

@@ -37,7 +37,7 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     $data = collect($data);
 
     $data->each(function ($frete) {
-        Log::debug('Frete importado', [
+        Log::debug('Frete ', [
             'data' => $frete
         ]);
 
@@ -57,12 +57,15 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
             'data_emissao'         => $frete['data_emissao'],
             'valor_total'          => $frete['valor'],
             'valor_icms'           => 0,
-            'tipo_documento'       => \App\Enum\Frete\TipoRelatorioDocumentoFreteEnum::ESPELHO_FRETE_NFS_BRF,
+            'tipo_documento'       => \App\Enum\Frete\TipoRelatorioDocumentoFreteEnum::ESPELHO_FRETE_NFS_BRF->value,
         ];
 
         try {
             $documentoFreteService = new DocumentoFreteService();
             $documentoFreteService->criarDocumentoFrete($docFrete);
+            Log::info('Documento de frete criado com sucesso.', [
+                'data' => $docFrete
+            ]);
         } catch (\Exception $e) {
             Log::error('Erro ao criar documento de frete', [
                 'error' => $e->getMessage(),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\Frete\TipoDocumentoEnum;
 use App\Imports\DocumentoFreteImport;
 use App\Jobs\ProcessImportRowJob;
 use App\Jobs\TesteJob;
@@ -57,7 +58,7 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
             'data_emissao'         => $frete['data_emissao'],
             'valor_total'          => $frete['valor'],
             'valor_icms'           => 0,
-            'tipo_documento'       => \App\Enum\Frete\TipoRelatorioDocumentoFreteEnum::ESPELHO_FRETE_NFS_BRF->value,
+            'tipo_documento'       => TipoDocumentoEnum::NFS,
         ];
 
         try {

@@ -52,8 +52,8 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
         $docFrete = [
             'veiculo_id'           => $veiculo_id,
-            'parceiro_destino'     => 'BRF S.A. CHAPECO/SC',
-            'parceiro_origem'      => trim(preg_replace('/^\d+\s*-\s*/', '', $frete['destino'])),
+            'parceiro_origem'      => 'BRF S.A. CHAPECO/SC',
+            'parceiro_destino'     => trim(preg_replace('/^\d+\s*-\s*/', '', $frete['destino'])),
             'documento_transporte' => $frete['doc_transporte'],
             'numero_documento'     => $frete['nfe'],
             'data_emissao'         => $frete['data_emissao'],

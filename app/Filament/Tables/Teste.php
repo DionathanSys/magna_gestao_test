@@ -23,6 +23,8 @@ class Teste
                 return $query;
             })
             ->columns([
+                TextColumn::make('id')
+                    ->searchable(isIndividual: true),
                 TextColumn::make('veiculo.placa')
                     ->searchable(isIndividual: true),
                 TextColumn::make('tipo_manutencao'),
@@ -31,6 +33,12 @@ class Teste
                     ->sortable(),
                 TextColumn::make('status'),
                 TextColumn::make('status_sankhya'),
+                TextColumn::make('itens.descricao')
+                    ->label('Itens')
+                    ->bulleted()
+                    ->listWithLineBreaks()
+                    ->limitList(2)
+                    ->expandableLimitedList(),
                 TextColumn::make('parceiro.nome'),
                 TextColumn::make('created_at')
                     ->label('Criado Em')

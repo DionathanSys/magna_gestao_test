@@ -30,8 +30,8 @@ class EncerrarAgendamento
 
     public function validate(): void
     {
-        if ($this->agendamento->status != StatusOrdemServicoEnum::EXECUCAO) {
-            throw new \InvalidArgumentException('Agendamento deve estar em execução.');
+        if (in_array($this->agendamento->status, [StatusOrdemServicoEnum::CONCLUIDO, StatusOrdemServicoEnum::CANCELADO])) {
+            throw new \InvalidArgumentException('Agendamento pode estar com status Concluído ou Cancelado.');
         }
 
     }

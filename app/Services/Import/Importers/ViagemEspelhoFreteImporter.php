@@ -35,7 +35,7 @@ class ViagemEspelhoFreteImporter
         // Separar em linhas
         $lines = array_map('trim', explode("\n", $text));
 
-        dump($lines);
+        // dump($lines);
 
         for ($i = 0; $i < count($lines); $i++) {
             $line = $lines[$i];
@@ -73,7 +73,7 @@ class ViagemEspelhoFreteImporter
                 
                 // Reset para próximo registro
                 $current = [];
-                dd($current);
+                // dd($current);
             }
         }
         

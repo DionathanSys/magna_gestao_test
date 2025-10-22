@@ -31,8 +31,6 @@ Route::get('/import-pdf', function () {
 
 Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
-
-
     $request->validate([
         'pdfFile' => 'required|file|mimes:pdf|max:2048',
     ]);
@@ -41,15 +39,8 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
     $importer = new \App\Services\Import\Importers\ViagemEspelhoFreteImporter();
 
-    $importer->handle($file->getRealPath());
-
+    $data = $importer->handle($file->getRealPath());
     dd($data);
-    // Separar linhas
-    $lines = explode("\r\n", $text);
-
-    // Preparar array para armazenar os dados
-    $data = [];
-
     $current = [];
 
     // 1. Substituir os padrões pelo que quisermos
@@ -61,9 +52,7 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
         'R$' => '#VALOR#',
     ];
 
-    dump($substituicoes);
-    dump($lines);
-    dd($text);
+
     // Fazendo substituições no texto
     foreach ($substituicoes as $original => $replace) {
         $text = str_replace($original, $replace, $text);

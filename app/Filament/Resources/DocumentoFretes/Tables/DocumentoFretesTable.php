@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\DocumentoFretes\Tables;
 
 use App\{Models};
+use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Filament\Actions\BulkActionGroup;
@@ -93,6 +94,9 @@ class DocumentoFretesTable
                     ->multiple()
                     ->searchable()
                     ->preload(),
+                SelectFilter::make('tipo_documento')
+                    ->multiple()
+                    ->options(TipoDocumentoEnum::toSelectArray()),
                 DateRangeFilter::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->autoApply()
@@ -112,7 +116,6 @@ class DocumentoFretesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-
                     Actions\VincularViagemDocumentoBulkAction::make(),
                     CreateAction::make(),
                     DeleteBulkAction::make(),

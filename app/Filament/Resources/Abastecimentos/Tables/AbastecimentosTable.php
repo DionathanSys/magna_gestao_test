@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Abastecimentos\Tables;
 
 use App\Filament\Resources\Abastecimentos;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -125,7 +127,10 @@ class AbastecimentosTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-                Abastecimentos\Actions\ImportAbastecimentoAction::make(),
+                ActionGroup::make([
+                    Abastecimentos\Actions\ImportAbastecimentoAction::make(),
+                    CreateAction::make(),
+                ])->button()
             ]);
     }
 }

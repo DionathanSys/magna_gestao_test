@@ -60,7 +60,7 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
             : 0;
 
         return [
-            Stat::make('Consumo Médio', number_format($consumoMedio, 2, ',', '.') . 'Km/L')
+            Stat::make('Consumo Médio', number_format($consumoMedio, 2, ',', '.') . ' Km/L')
                 ->description("Baseado em {$abastecimentosValidos->count()} abastecimentos válidos")
                 ->descriptionIcon(Heroicon::ChartBar)
                 ->color('success'),

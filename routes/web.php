@@ -39,15 +39,14 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
     $file = $request->file('pdfFile');
 
-    // Criar uma classe anônima que usa a trait
-    $extractor = new class {
-        use PdfExtractorTrait;
-    };
+    $importer = new \App\Services\Import\Importers\ViagemEspelhoFreteImporter();
 
-    $text = $extractor->extractPdfData($file);
+    $importer->handle($file->getRealPath());
+
+    $text = $importer->extractPdfData($file);
 
     // Processar o texto e extrair dados estruturados
-    $data = $extractor->processPdfText($text);
+    $data = $importer->processPdfText($text);
 
     dd($data);
     // Separar linhas

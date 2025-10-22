@@ -38,28 +38,23 @@ class ViagemEspelhoFreteImporter
         for ($i = 0; $i < count($lines); $i++) {
             $line = $lines[$i];
             
-            ds($line)->label('Processing line ' . ($i + 1));
             // Buscar por NFE
             if (preg_match('/NFE:\s*(\d+)/', $line, $matches)) {
-                ds($matches)->label('NFE matches');
                 $current['nfe'] = $matches[1];
             }
             
             // Buscar por Chave de acesso
             if (preg_match('/Chave de acesso:\s*(\d+)/', $line, $matches)) {
-                ds($matches)->label('Chave de acesso matches');
                 $current['chave_acesso'] = $matches[1];
             }
             
             // Buscar por Destino
             if (preg_match('/Destino:\s*(.+)/', $line, $matches)) {
-                ds($matches)->label('Destino matches');
                 $current['destino'] = trim($matches[1]);
             }
             
             // Buscar por Doc.Transporte e Placa na mesma linha
             if (preg_match('/Doc\.Transporte:\s*(\d+)\s*-\s*Placa:\s*(\w+)\s*-\s*R\$/', $line, $matches)) {
-                ds($matches)->label('Doc.Transporte and Placa matches');
                 $current['doc_transporte'] = $matches[1];
                 $current['placa'] = $matches[2];
                 

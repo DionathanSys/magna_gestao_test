@@ -59,12 +59,14 @@ class ViagemEspelhoFreteImporter
             if (preg_match('/Doc\.Transporte:\s*(\d+)\s*-\s*Placa:\s*(\w+)\s*-\s*R\$/', $line, $matches)) {
                 $current['doc_transporte'] = $matches[1];
                 $current['placa'] = $matches[2];
-                
+                dump($lines[$i + 2]);
                 // O valor está na próxima linha
                 if (isset($lines[$i + 2])) {
                     $valorLine = trim($lines[$i + 2]);
+                    dump($valorLine);
                     // Remover vírgulas e converter para float
                     $valor = (float) str_replace(',', '.', $valorLine);
+                    dd($valor);
                     $current['valor'] = $valor;
                 }
                 

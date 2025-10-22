@@ -29,7 +29,17 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        Log::debug('TesteCommand executado com sucesso!');
-        $this->info('TesteCommand executado com sucesso!');
+        $abastecimentos = Models\Abastecimento::query()
+            ->where('veiculo_id', 31)
+            ->orderBy('data_abastecimento', 'desc')
+            ->get();
+
+            $abastecimentos->each(function($abastecimento) {
+                dump($abastecimento->quilometragem_percorrida);
+                dump($abastecimento->consumo_medio);
+                dd($abastecimento->custo_por_km);
+            });
+
+            dd($abastecimentos)->label('Abastecimentos do Veículo');
     }
 }

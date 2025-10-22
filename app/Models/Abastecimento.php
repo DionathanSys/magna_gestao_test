@@ -139,7 +139,7 @@ class Abastecimento extends Model
                 $ultimoAbastecimento = $this->ultimo_abastecimento_anterior;
                 
                 if (!$ultimoAbastecimento) {
-                    return null;
+                    return 0;
                 }
                 
                 return $this->quilometragem - $ultimoAbastecimento->quilometragem;

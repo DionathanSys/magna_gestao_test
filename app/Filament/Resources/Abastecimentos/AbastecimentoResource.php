@@ -7,6 +7,7 @@ use App\Filament\Resources\Abastecimentos\Pages\EditAbastecimento;
 use App\Filament\Resources\Abastecimentos\Pages\ListAbastecimentos;
 use App\Filament\Resources\Abastecimentos\Schemas\AbastecimentoForm;
 use App\Filament\Resources\Abastecimentos\Tables\AbastecimentosTable;
+use App\Filament\Resources\Abastecimentos\Widgets\ConsumoMedioDiesel;
 use App\Models\Abastecimento;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -17,8 +18,6 @@ use Filament\Tables\Table;
 class AbastecimentoResource extends Resource
 {
     protected static ?string $model = Abastecimento::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'id_abastecimento';
 
@@ -47,4 +46,11 @@ class AbastecimentoResource extends Resource
             // 'edit' => EditAbastecimento::route('/{record}/edit'),
         ];
     }
+
+    public static function getWidgets(): array
+{
+    return [
+        ConsumoMedioDiesel::class,
+    ];
+}
 }

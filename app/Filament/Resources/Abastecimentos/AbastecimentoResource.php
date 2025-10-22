@@ -48,9 +48,9 @@ class AbastecimentoResource extends Resource
     }
 
     public static function getWidgets(): array
-{
-    return [
-        ConsumoMedioDiesel::class,
-    ];
-}
+    {
+        return [
+            ConsumoMedioDiesel::class,
+        ];
+    }
 }

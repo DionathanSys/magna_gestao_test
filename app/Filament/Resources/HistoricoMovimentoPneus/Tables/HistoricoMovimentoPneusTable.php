@@ -116,12 +116,18 @@ class HistoricoMovimentoPneusTable
                     ->searchable(),
                 DateRangeFilter::make('data_inicial')
                     ->label('Dt. Aplicação')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 DateRangeFilter::make('data_final')
                     ->label('Dt. Remoção')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 DateRangeFilter::make('created_at')
                     ->label('Dt. Registro')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar()
             ])
             ->defaultSort('id', 'desc')

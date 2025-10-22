@@ -281,12 +281,18 @@ class ViagemsTable
 
                 DateRangeFilter::make('data_competencia')
                     ->label('Dt. Competência')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 DateRangeFilter::make('data_inicio')
                     ->label('Dt. Inicio')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 DateRangeFilter::make('data_fim')
                     ->label('Dt. Fim')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 TernaryFilter::make('possui_documento')
                     ->label('Possui Doc. Transp.?')

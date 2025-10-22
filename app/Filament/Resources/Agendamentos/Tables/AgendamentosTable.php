@@ -137,6 +137,8 @@ class AgendamentosTable
                     ->attribute('ordem_servico_id'),
                 DateRangeFilter::make('data_agendamento')
                     ->label('Dt. Agendamento')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 TernaryFilter::make('data_agenda')
                     ->label('Possui Dt. Agendada')

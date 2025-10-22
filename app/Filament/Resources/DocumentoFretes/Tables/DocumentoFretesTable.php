@@ -95,6 +95,8 @@ class DocumentoFretesTable
                     ->preload(),
                 DateRangeFilter::make('data_emissao')
                     ->label('Dt. Emissão')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')

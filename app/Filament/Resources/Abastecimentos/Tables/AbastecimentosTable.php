@@ -15,6 +15,7 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Date;
+use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class AbastecimentosTable
@@ -109,11 +110,12 @@ class AbastecimentosTable
                     ->preload(),
                 DateRangeFilter::make('data_abastecimento')
                     ->label('Dt. Abastecimento')
+                    ->drops(DropDirection::AUTO)
+                    ->icon('heroicon-o-backspace')
                     ->alwaysShowCalendar()
-                    ->default([
-                        'start' => Date::now()->startOfWeek(),
-                        'end' => Date::now()->endOfWeek(),
-                    ]),
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->defaultLast7Days(),
             ])
             ->recordActions([
                 EditAction::make()

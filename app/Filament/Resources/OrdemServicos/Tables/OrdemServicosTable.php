@@ -129,12 +129,18 @@ class OrdemServicosTable
                     ->multiple(),
                 DateRangeFilter::make('data_inicio')
                     ->label('Dt. Abertura')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 DateRangeFilter::make('data_fim')
                     ->label('Dt. Fechamento')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
                 DateRangeFilter::make('created_at')
-                    ->label('Dt. Registro'),
+                    ->label('Dt. Registro')
+                    ->autoApply()
+                    ->firstDayOfWeek(0),
             ])
             ->recordActions([
                 ActionGroup::make([

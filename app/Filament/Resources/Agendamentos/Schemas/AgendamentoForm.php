@@ -47,8 +47,7 @@ class AgendamentoForm
                             }),
                         DatePicker::make('data_agendamento')
                             ->label('Agendado Para')
-                            ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2])
-                            ->minDate(now()),
+                            ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 2, 'xl' => 2]),
                         DatePicker::make('data_limite')
                             ->label('Dt. Limite')
                             ->after('data_agendamento')

@@ -43,11 +43,6 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
     $importer->handle($file->getRealPath());
 
-    $text = $importer->extractPdfData($file);
-
-    // Processar o texto e extrair dados estruturados
-    $data = $importer->processPdfText($text);
-
     dd($data);
     // Separar linhas
     $lines = explode("\r\n", $text);

@@ -33,6 +33,7 @@
                 Processar PDF
             </button>
         </form>
+        <?php echo '<a href="' . App\Filament\Resources\DocumentoFretes\DocumentoFreteResource::getUrl() . '">Acessar Documentos de Frete</a>'; ?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

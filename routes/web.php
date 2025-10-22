@@ -1,6 +1,7 @@
 <?php
 
 use App\Enum\Frete\TipoDocumentoEnum;
+use App\Filament\Resources\DocumentoFretes\DocumentoFreteResource;
 use App\Imports\DocumentoFreteImport;
 use App\Jobs\ProcessImportRowJob;
 use App\Jobs\TesteJob;
@@ -74,6 +75,7 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
             ]);
         }
 
+        echo '<a href="' . DocumentoFreteResource::getUrl() . '">Acessar Documentos de Frete</a>';
     });
 
     // $spreadsheet = new Spreadsheet();

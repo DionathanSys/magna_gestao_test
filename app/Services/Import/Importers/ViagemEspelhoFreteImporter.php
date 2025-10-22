@@ -66,7 +66,7 @@ class ViagemEspelhoFreteImporter
                     dump($valorLine);
                     // Remover vírgulas e converter para float
                     $valor = (float) str_replace(',', '.', $valorLine);
-                    dd($valor);
+                    dd($valor, $lines);
                     $current['valor'] = $valor;
                 }
                 

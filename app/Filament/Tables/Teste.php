@@ -17,10 +17,6 @@ class Teste
             ->query(fn(): Builder => Models\OrdemServico::query())
             ->modifyQueryUsing(function(Builder $query) use ($table): Builder {
                 $arguments = $table->getArguments();
-                $query->whereIn('status', [
-                    Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
-                    Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
-                ]);
                 if (isset($arguments['veiculo_id'])){
                     $query->where('veiculo_id', $arguments['veiculo_id']);
                 }

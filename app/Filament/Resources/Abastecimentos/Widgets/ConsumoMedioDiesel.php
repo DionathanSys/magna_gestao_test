@@ -8,6 +8,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Log;
 
 class ConsumoMedioDiesel extends StatsOverviewWidget
 {
@@ -58,6 +59,17 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
         $percentualDieselFrete = $freteTotal['valor'] > 0 
             ? ($totalValor / $freteTotal['valor']) * 100 
             : 0;
+
+        Log::debug('Cálculo do widget Consumo Médio Diesel', [
+            'consumo_medio' => $consumoMedio,
+            'total_km_percorrido' => $totalKmPercorrido,
+            'custo_por_km' => $custoPorKm,
+            'total_litros' => $totalLitros,
+            'total_abastecimentos' => $totalAbastecimentos,
+            'total_valor' => $totalValor,
+            'frete_total_valor' => $freteTotal['valor'],
+            'percentual_diesel_frete' => $percentualDieselFrete,
+        ]);
 
         return [
             Stat::make('Consumo Médio', number_format($consumoMedio, 2, ',', '.') . ' Km/L')
@@ -123,6 +135,14 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
 
             // Formatar período para exibição
             $periodoFormatado = $dataInicio->format('d/m/Y') . ' a ' . $dataFim->format('d/m/Y');
+
+            Log::debug('Cálculo do frete total no período', [
+                'data_inicio' => $dataInicio,
+                'data_fim' => $dataFim,
+                'veiculos_ids' => $veiculosIds,
+                'valor_total' => $valorTotal,
+                'total_documentos' => $totalDocumentos,
+            ]);
 
             return [
                 'valor' => $valorTotal,

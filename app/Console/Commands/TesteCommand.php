@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models;
+use App\Models\ImportLog;
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use App\Services\Veiculo\VeiculoService;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -30,22 +32,8 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $data = [
-            'placa' => $this->option('placa') ?? null,
-        ];
-
-        $validate = Validator::make($data, [
-            'placa' => ['required', 'string', 'exists:veiculos,placa'],
-            // 'placa' => ['required', 'string', new \App\Rules\VeiculoExistsRule()],
-        ], [
-            'placa' => 'placa do veículo',
-        ]);
-
-        if ($validate->fails()) {
-            $this->error("Validação falhou: " . implode(", ", $validate->errors()->all()));
-            return;
-        }
-
-        $this->info("Validação bem-sucedida!");
+        $log = ImportLog::find(130);
+        ds('Log de Importação');
+        ds()->table(Json::decode($log->error_rows))->label('Error Rows');
     }
 }

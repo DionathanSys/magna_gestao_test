@@ -98,32 +98,11 @@ class AbastecimentosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->recordClasses(fn (Abastecimento $record) => match (true) {
-    // Destacar registros com consumo muito baixo (abaixo de 2 km/l)
-    $record->consumo_medio !== null && $record->consumo_medio < 2 => 'bg-red-50 border-l-4 border-red-500 hover:bg-red-100',
-    
-    // Destacar registros com consumo baixo (entre 2 e 4 km/l)
-    $record->consumo_medio !== null && $record->consumo_medio >= 2 && $record->consumo_medio < 4 => 'bg-yellow-50 border-l-4 border-yellow-500 hover:bg-yellow-100',
-    
-    // Destacar registros com consumo bom (acima de 8 km/l)
-    $record->consumo_medio !== null && $record->consumo_medio > 8 => 'bg-green-50 border-l-4 border-green-500 hover:bg-green-100',
-    
-    // Destacar registros sem cálculo de consumo
-    $record->consumo_medio === null => 'bg-gray-50 border-l-4 border-gray-400 hover:bg-gray-100 opacity-75',
-    
-    // Destacar abastecimentos muito recentes (últimas 24h)
-    $record->data_abastecimento && $record->data_abastecimento->diffInHours(now()) < 24 => 'bg-blue-50 border-l-4 border-blue-500 hover:bg-blue-100',
-    
-    // Destacar abastecimentos com valores altos (acima de R$ 500)
-    $record->preco_total > 50000 => 'bg-purple-50 border-l-4 border-purple-500 hover:bg-purple-100', // valor em centavos
-    
-    // Padrão para registros normais
-    default => 'hover:bg-gray-50 transition-colors duration-200',
-})
             ->defaultSort('data_abastecimento', 'desc')
             ->groups([
                 Group::make('veiculo.placa')
-                    ->label('Veículo'),
+                    ->label('Veículo')
+                    ->collapsible(),
             ])
             ->striped()
             ->filters([

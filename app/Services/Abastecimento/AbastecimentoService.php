@@ -25,7 +25,10 @@ class AbastecimentoService
             return $abastecimento;
 
          } catch (\Exception $e) {
-            Log::error('Erro ao criar abastecimento: ' . $e->getMessage());
+            Log::error('Erro ao criar abastecimento: ' . $e->getMessage(), [
+                'metodo' => __METHOD__,
+                'data'   => $data,
+            ]);
             $this->setError('Erro interno ao criar abastecimento');
             return null;
          }

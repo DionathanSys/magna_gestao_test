@@ -7,6 +7,7 @@ use App\Models;
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use App\Services\Veiculo\VeiculoService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class TesteCommand extends Command
 {
@@ -15,7 +16,7 @@ class TesteCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'teste-command {--id= : id do Modelo}';
+    protected $signature = 'teste-command {--placa= : Placa do Veículo}';
 
     /**
      * The console command description.
@@ -29,17 +30,22 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $abastecimentos = Models\Abastecimento::query()
-            ->where('veiculo_id', 31)
-            ->orderBy('data_abastecimento', 'desc')
-            ->get();
+        $data = [
+            'placa' => $this->option('placa') ?? null,
+        ];
 
-            $abastecimentos->each(function($abastecimento) {
-                dump($abastecimento->quilometragem_percorrida);
-                dump($abastecimento->consumo_medio);
-                dd($abastecimento->custo_por_km);
-            });
+        $validate = Validator::make($data, [
+            'placa' => ['required', 'string', 'exists:veiculos,placa'],
+            // 'placa' => ['required', 'string', new \App\Rules\VeiculoExistsRule()],
+        ], [
+            'placa' => 'placa do veículo',
+        ]);
 
-            dd($abastecimentos)->label('Abastecimentos do Veículo');
+        if ($validate->fails()) {
+            $this->error("Validação falhou: " . implode(", ", $validate->errors()->all()));
+            return;
+        }
+
+        $this->info("Validação bem-sucedida!");
     }
 }

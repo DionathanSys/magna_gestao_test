@@ -17,9 +17,9 @@ abstract class BaseImportService
 
     protected array $errors = [];
     protected array $warnings = [];
-    protected int $processedRows = 0;
-    protected int $successRows = 0;
-    protected int $errorRows = 0;
+    protected int   $processedRows = 0;
+    protected int   $successRows = 0;
+    protected int   $errorRows = 0;
     protected Services\Import\ImportLogService $importLogService;
 
     public function __construct()
@@ -112,6 +112,7 @@ abstract class BaseImportService
     {
         $headers = array_shift($rows); // Remove cabeçalho
 
+        //Remove caracteres especiais dos cabeçalhos
         foreach ($headers as $key => $value) {
             $value = preg_replace('/[^a-zA-Z0-9_]/', '', $value);
             $headers[$key] = $value;

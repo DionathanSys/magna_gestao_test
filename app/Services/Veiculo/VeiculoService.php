@@ -19,6 +19,7 @@ class VeiculoService
 
         return $veiculo?->id;
     }
+
     public function getKmMedio(int $veiculoId): float
     {
         $veiculo = \App\Models\Veiculo::query()
@@ -90,10 +91,10 @@ class VeiculoService
             ->update(['informacoes_complementares' => $informacoesComplementares]);
     }
 
-    //possui agendamento aberto
     public function hasAgendamentoAberto(int $veiculoId): bool
     {
         Log::debug('Verificando agendamento aberto para o veículo ID: ' . $veiculoId);
         return (new Queries\GetAgendamentoAberto())->handle($veiculoId);
     }
+
 }

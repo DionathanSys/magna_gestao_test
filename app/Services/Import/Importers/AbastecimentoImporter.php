@@ -95,6 +95,7 @@ class AbastecimentoImporter implements ExcelImportInterface
             $dataAbastecimento = Carbon::createFromFormat('d/m/Y H:i:s', $row['DtAbastecimento'])->toDateTimeString();
 
             //TODO: Utilizar quantidade de casas decimais através de configuração
+            //Ajusta o moneycast tb
             $precoLitroCalculado = $quantidade > 0 ? round($precoTotal / $quantidade, 4) : 0;
 
             Log::debug('Transformação da linha de importação de abastecimento', [
@@ -111,15 +112,7 @@ class AbastecimentoImporter implements ExcelImportInterface
             ]);
         }
 
-        Log::info('Ajuste de dados extraídos - Abastecimento ID: ' . ($row['id_abastecimento'] ?? 'N/A'), [
-            'metodo'            => __METHOD__ . '@' . __LINE__,
-            'data'              => $row,
-            'id_abastecimento'  => $row['Abastecimento'],
-            'veiculo_id'        => $veiculo_id ?? null,
-            'tipo_combustivel'  => $tipo_combustivel?->value ?? null,
-        ]);
-
-        return [
+        $data = [
             'veiculo_id'            => $veiculo_id,
             'id_abastecimento'      => $row['Abastecimento'],
             'quilometragem'         => $row['Km'] ?? 0,
@@ -129,6 +122,17 @@ class AbastecimentoImporter implements ExcelImportInterface
             'quantidade'            => $quantidade,
             'preco_por_litro'       => $precoLitroCalculado,
         ];
+
+        Log::info('Ajuste de dados extraídos - Abastecimento ID: ' . ($row['id_abastecimento'] ?? 'N/A'), [
+            'metodo'            => __METHOD__ . '@' . __LINE__,
+            'dadosRecebidos'    => $row,
+            'dadosAjustados'    => $data,
+            'id_abastecimento'  => $row['Abastecimento'],
+            'veiculo_id'        => $veiculo_id ?? null,
+            'tipo_combustivel'  => $tipo_combustivel?->value ?? null,
+        ]);
+
+        return $data;
     }
 
     public function process(array $data, int $rowNumber): ?Models\Abastecimento

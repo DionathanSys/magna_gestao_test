@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\MoneyCast;
+use App\Casts\MoneyCastDiesel;
 use App\Enum\Abastecimento\TipoCombustivelEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,7 +27,7 @@ class Abastecimento extends Model
         'data_abastecimento'    => 'datetime',
         'quilometragem'         => 'integer',
         'litros'                => 'decimal:2',
-        'preco_por_litro'       => MoneyCast::class,
+        'preco_por_litro'       => MoneyCastDiesel::class,
         'preco_total'           => MoneyCast::class,
         'tipo_combustivel'      => TipoCombustivelEnum::class,
     ];

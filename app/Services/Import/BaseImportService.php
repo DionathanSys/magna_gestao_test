@@ -124,7 +124,6 @@ abstract class BaseImportService
         $totalBatches = count($batches);
 
         Log::debug("Iniciando processamento de importação em " . ($options['use_queue'] ? 'fila' : 'síncrono') . ".", [
-            'rows' => $rows,
             'total_rows' => count($rows),
             'batch_size' => $batchSize,
             'total_batches' => $totalBatches,

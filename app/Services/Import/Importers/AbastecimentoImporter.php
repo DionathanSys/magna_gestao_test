@@ -104,7 +104,6 @@ class AbastecimentoImporter implements ExcelImportInterface
                 'quantidade'        => $quantidade,
                 'preco_por_litro_calculado' => $precoLitroCalculado,
             ]);
-
         } catch (\Exception $e) {
             Log::error(__METHOD__ . '@' . __LINE__, [
                 'error' => $e->getMessage(),
@@ -137,6 +136,9 @@ class AbastecimentoImporter implements ExcelImportInterface
 
     public function process(array $data, int $rowNumber): ?Models\Abastecimento
     {
+        $data['QtdLitros'] = $this->sanitizeNumericValue($data['QtdLitros']);
+        $data['VlrTotal'] = $this->sanitizeNumericValue($data['VlrTotal']);
+
         $errors = $this->validate($data, $rowNumber);
 
         if (!empty($errors)) {
@@ -169,5 +171,52 @@ class AbastecimentoImporter implements ExcelImportInterface
         ]);
 
         return $abastecimento;
+    }
+
+    /**
+     * Sanitiza valores monetários para formato numérico
+     * Converte formatos como "1,282.55" ou "1.282,55" para "1282.55"
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private function sanitizeNumericValue($value): string
+    {
+        if (!is_string($value)) {
+            return (string) $value;
+        }
+
+        // Remove espaços
+        $value = trim($value);
+
+        // Se contém vírgula e ponto, determinar qual é o separador decimal
+        if (strpos($value, ',') !== false && strpos($value, '.') !== false) {
+            // Se a vírgula vem depois do ponto, é formato americano: 1,282.55
+            if (strrpos($value, ',') < strrpos($value, '.')) {
+                // Formato americano: remover vírgulas (separadores de milhares)
+                $value = str_replace(',', '', $value);
+            } else {
+                // Formato brasileiro: 1.282,55 -> remover pontos e trocar vírgula por ponto
+                $value = str_replace('.', '', $value);
+                $value = str_replace(',', '.', $value);
+            }
+        }
+        // Se contém apenas vírgula, assumir formato brasileiro
+        elseif (strpos($value, ',') !== false) {
+            $value = str_replace(',', '.', $value);
+        }
+        // Se contém apenas ponto, pode ser decimal ou separador de milhares
+        elseif (strpos($value, '.') !== false) {
+            // Se há apenas um ponto e menos de 4 dígitos após ele, é decimal
+            $parts = explode('.', $value);
+            if (count($parts) == 2 && strlen($parts[1]) <= 3) {
+                // É decimal, manter como está
+            } else {
+                // Pode ser separador de milhares, remover
+                $value = str_replace('.', '', $value);
+            }
+        }
+
+        return $value;
     }
 }

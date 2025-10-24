@@ -76,6 +76,11 @@ class VeiculoForm
                                 DatePicker::make('informacoes_complementares.teste_fumaca')
                                     ->label('Dt. Teste de Fumaça')
                                     ->columnSpan(3),
+                                Select::make('tipo_veiculo_id')
+                                    ->label('Tipo de Veículo')
+                                    ->columnSpan(6)
+                                    ->relationship('tipoVeiculo', 'descricao')
+                                    ->required(),
                             ])
                     ])
                     ->columnSpanFull(),

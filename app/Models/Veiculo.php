@@ -51,6 +51,11 @@ class Veiculo extends Model
         );
     }
 
+    public function tipoVeiculo(): BelongsTo
+    {
+        return $this->belongsTo(TipoVeiculo::class, 'tipo_veiculo_id');
+    }
+
 
     /**
      * Accessor: retorna a quilometragem atual (numero) via relação kmAtual().

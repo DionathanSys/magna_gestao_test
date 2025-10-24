@@ -34,12 +34,10 @@ class DocumentoFretesTable
                 TextColumn::make('numero_documento')
                     ->label('Nro. Documento')
                     ->disabledClick()
-                    ->disabledClick()
                     ->width('1%')
                     ->searchable(isIndividual: true),
                 TextColumn::make('documento_transporte')
                     ->label('Nro. Doc. Transp.')
-                    ->disabledClick()
                     ->disabledClick()
                     ->width('1%')
                     ->searchable(isIndividual: true),
@@ -71,14 +69,16 @@ class DocumentoFretesTable
                     ->summarize(Sum::make()->money('BRL', 100)),
                 TextColumn::make('parceiro_origem')
                     ->label('Parceiro Origem')
+                    ->disabledClick()
                     ->width('1%')
                     ->searchable(isIndividual: true)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('parceiro_destino')
                     ->label('Parceiro Destino')
+                    ->disabledClick()
                     ->width('1%')
                     ->searchable(isIndividual: true)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->dateTime('d/m/Y H:i')

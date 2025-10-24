@@ -89,6 +89,9 @@ class DocumentoFretesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->searchDebounce(850)
+            ->persistSortInSession()
+            ->defaultSortOptionLabel('created_at')
+            ->persistFiltersInSession()
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')

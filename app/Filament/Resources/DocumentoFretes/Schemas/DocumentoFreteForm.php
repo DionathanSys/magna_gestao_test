@@ -26,9 +26,11 @@ class DocumentoFreteForm
                     ->required(),
                 TextInput::make('parceiro_origem')
                     ->label('Parceiro Origem')
+                    ->autocomplete(false)
                     ->required(),
                 TextInput::make('parceiro_destino')
                     ->label('Parceiro Destino')
+                    ->autocomplete(false)
                     ->required(),
                 TextInput::make('numero_documento')
                     ->label('Nro. Documento')

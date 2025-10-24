@@ -57,9 +57,7 @@ class DocumentoFreteResource extends Resource
     {
         return [
             'index' => ListDocumentoFretes::route('/'),
-            'create' => CreateDocumentoFrete::route('/create'),
             'view' => ViewDocumentoFrete::route('/{record}'),
-            'edit' => EditDocumentoFrete::route('/{record}/edit'),
         ];
     }
 

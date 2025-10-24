@@ -6,6 +6,7 @@ use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\Viagems\ViagemResource;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
@@ -87,6 +88,7 @@ class DocumentoFretesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->searchDebounce(850)
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
@@ -116,9 +118,12 @@ class DocumentoFretesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    
+                    DeleteBulkAction::make(),
+                ]),
+                ActionGroup::make([
                     Actions\VincularViagemDocumentoBulkAction::make(),
                     CreateAction::make(),
-                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Abastecimentos\Tables;
 
+use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Filament\Resources\Abastecimentos;
 use App\Models\Abastecimento;
 use Filament\Actions\ActionGroup;
@@ -78,7 +79,8 @@ class AbastecimentosTable
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('tipo_combustivel')
-                    ->label('Tipo de Combustível'),
+                    ->label('Tipo de Combustível')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('considerar_fechamento')
                     ->label('Considerar Fechamento')
                     ->boolean()
@@ -127,6 +129,7 @@ class AbastecimentosTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    FilamentExportBulkAction::make('export'),
                     DeleteBulkAction::make(),
                 ]),
                 ActionGroup::make([

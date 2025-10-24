@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DocumentoFretes\Schemas;
 
+use App\Enum\Frete\TipoDocumentoEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,20 +15,39 @@ class DocumentoFreteForm
         return $schema
             ->components([
                 Select::make('veiculo_id')
-                    ->relationship('veiculo', 'id')
+                    ->relationship('veiculo', 'placa')
+                    ->searchable()
                     ->required(),
-                Select::make('integrado_id')
-                    ->relationship('integrado', 'id'),
-                TextInput::make('numero_documento'),
-                TextInput::make('documento_transporte'),
-                TextInput::make('tipo_documento'),
+                TextInput::make('parceiro_origem')
+                    ->label('Parceiro Origem')
+                    ->required(),
+                TextInput::make('parceiro_destino')
+                    ->label('Parceiro Destino')
+                    ->required(),
+                TextInput::make('numero_documento')
+                    ->label('Nro. Documento')
+                    ->required(),
+                TextInput::make('documento_transporte')
+                    ->label('Nro. Doc. Transp.'),
+                Select::make('tipo_documento')
+                    ->label('Tipo Documento')
+                    ->options(TipoDocumentoEnum::toSelectArray()),
                 DatePicker::make('data_emissao')
-                    ->required(),
+                    ->label('Dt. Emissão')
+                    ->prefix('R$')
+                    ->required()
+                    ->maxDate(now())
+                    ->default(now()),
                 TextInput::make('valor_total')
+                    ->label('Vlr. Total')
+                    ->prefix('R$')
+                    ->minValue(0.01)
                     ->required()
                     ->numeric()
+                    ->minValue(0)
                     ->default(0.0),
                 TextInput::make('valor_icms')
+                    ->label('Vlr. ICMS')
                     ->required()
                     ->numeric()
                     ->default(0.0),

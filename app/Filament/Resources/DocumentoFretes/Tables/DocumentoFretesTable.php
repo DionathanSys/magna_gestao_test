@@ -121,13 +121,13 @@ class DocumentoFretesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    
                     DeleteBulkAction::make(),
                 ]),
                 ActionGroup::make([
                     Actions\VincularViagemDocumentoBulkAction::make(),
-                    CreateAction::make(),
-                ]),
+                    CreateAction::make()
+                        ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'parceiro_origem', 'documento_transporte', 'tipo_documento', 'data_emissao', 'valor_total']),
+                ])->button(),
             ]);
     }
 }

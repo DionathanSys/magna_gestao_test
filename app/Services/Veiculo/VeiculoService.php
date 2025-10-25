@@ -79,14 +79,14 @@ class VeiculoService
     {
         $veiculo = Models\Veiculo::query()
             ->where('id', $veiculoId)
-            ->select('placa', 'informacoes_complementares')
+            ->select('informacoes_complementares')
             ->first();
 
         if (!$veiculo) {
             Log::error('Veículo não encontrado ao tentar atualizar data do último checklist', [
-                'metodo' => __METHOD__.'@'.__LINE__,
-                'veiculo_id' => $veiculoId,
-                'data' => $data,
+                'metodo'        => __METHOD__.'@'.__LINE__,
+                'veiculo_id'    => $veiculoId,
+                'data'          => $data,
             ]);
             throw new \InvalidArgumentException("Veículo com ID {$veiculoId} não encontrado");
         }
@@ -96,21 +96,24 @@ class VeiculoService
         $informacoesComplementares['data_ultimo_checklist'] = $data;
 
         Log::debug('Atualizando data do último checklist para o veículo ID: ' . $veiculoId . ' para ' . $data, [
-            'veiculo_id' => $veiculoId,
-            'data' => $data,
-            'informacoes_antes' => $veiculo->getOriginal('informacoes_complementares'),
-            'informacoes_depois' => $informacoesComplementares,
+            'metodo'                => __METHOD__ . '@' . __LINE__,
+            'veiculo_id'            => $veiculoId,
+            'data'                  => $data,
+            'informacoes_antes'     => $veiculo->getOriginal('informacoes_complementares'),
+            'informacoes_depois'    => $informacoesComplementares,
         ]);
 
-        $veiculo->update([
-            'informacoes_complementares' => $informacoesComplementares
+        $resultado = Models\Veiculo::query()
+            ->where('id', $veiculoId)
+            ->update([
+                'informacoes_complementares' => $informacoesComplementares
+            ]);
+
+        Log::debug('Resultado do update - ' . __METHOD__ . '@' . __LINE__, [
+            'sucesso'    => $resultado,
+            'veiculo_id' => $veiculoId,
         ]);
 
-        Log::debug('Data do último checklist atualizada com sucesso para o veículo ID: ' . $veiculoId, [
-            'data_ultimo_checklist' => $data,
-            'veiculo_id' => $veiculoId,
-            'informacoes_salvas' => $veiculo->fresh()->informacoes_complementares,
-        ]);
     }
 
     public function hasAgendamentoAberto(int $veiculoId): bool

@@ -44,10 +44,9 @@ class VeiculosTable
                     ->label('Modelo')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                Select::make('tipoVeiculo.descricao')
+                Select::make('tipo_veiculo_id')
                     ->label('Tipo de Veículo')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->relationship('tipoVeiculo', 'descricao'),
                 TextColumn::make('chassis')
                     ->label('Chassi')
                     ->searchable()

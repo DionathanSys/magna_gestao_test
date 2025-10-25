@@ -10,7 +10,9 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Schemas\Components\Text;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
@@ -103,7 +105,7 @@ class AbastecimentosTable
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => Color::Violet,    // Dobrou a meta - Verde escuro
+                            $consumo >= ($meta * 1.39) => Color::Yellow,    // Dobrou a meta - Verde escuro
                             $consumo >= $meta => Color::Blue,               // Atingiu a meta - Verde
                             $consumo >= ($meta * 0.5) => Color::Orange,   // Abaixo da meta - Amarelo
                             default => Color::Red,                        // Metade da meta - Vermelho
@@ -144,12 +146,21 @@ class AbastecimentosTable
                 Group::make('veiculo.placa')
                     ->label('Veículo')
                     ->collapsible(),
+                Group::make('veiculo.tipoVeiculo.descricao')
+                    ->label('Tipo de Veículo')
+                    ->collapsible(),
             ])
             ->striped()
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
                     ->relationship('veiculo', 'placa')
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('tipo_veiculo')
+                    ->label('Tipo de Veículo')
+                    ->relationship('veiculo.tipoVeiculo', 'descricao')
                     ->multiple()
                     ->searchable()
                     ->preload(),

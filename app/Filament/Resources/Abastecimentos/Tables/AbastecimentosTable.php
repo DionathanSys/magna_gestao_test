@@ -90,11 +90,11 @@ class AbastecimentosTable
                         }
 
                         $percentual = round(($consumo / $meta) * 100);
-                        
+
                         return match (true) {
                             $consumo >= ($meta * 1.39) => "Excelente! {$percentual}% da meta 🚀",           // ≥ 139% - Amarelo
-                            $consumo >= ($meta * 0.85) => "Normal: {$percentual}% da meta ✅",              // 85% - 138% - Cinza
-                            $consumo >= ($meta * 0.5) => "Abaixo da meta: {$percentual}% ⚠️",             // 50% - 84% - Laranja
+                            $consumo >= ($meta * 0.85) => "{$percentual}% da meta ✅",              // 85% - 138% - Cinza
+                            $consumo >= ($meta * 0.5) => "Muito abaixo da meta: {$percentual}% ⚠️",             // 50% - 84% - Laranja
                             default => "Crítico: {$percentual}% da meta ❌",                               // < 50% - Vermelho
                         };
                     })

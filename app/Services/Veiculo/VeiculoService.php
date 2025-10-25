@@ -79,24 +79,22 @@ class VeiculoService
 
     public function setDataUltimoChecklist(int $veiculoId, string $data): void
     {
-        $informacoesComplementares = Models\Veiculo::query()
-            ->where('id', $veiculoId)
-            ->select('informacoes_complementares')
-            ->first();
-
-        $informacoesComplementares['data_ultimo_checklist'] = $data;
-
-        Log::debug('Atualizando data do último checklist para o veículo ID: ' . $veiculoId . ' para ' . $data, [
-            'informacoes_complementares' => $informacoesComplementares,
-        ]);
-
         $veiculo = Models\Veiculo::query()
             ->where('id', $veiculoId)
-            ->update(['informacoes_complementares' => $informacoesComplementares]);
+            ->select('placa', 'informacoes_complementares')
+            ->first();
+
+        $veiculo->informacoes_complementares['data_ultimo_checklist'] = $data;
+
+        Log::debug('Atualizando data do último checklist para o veículo ID: ' . $veiculoId . ' para ' . $data, [
+            'veiculo' => $veiculo,
+        ]);
+
+        $veiculo->save();
     
         Log::debug('Data do último checklist atualizada com sucesso para o veículo ID: ' . $veiculoId, [
             'data_ultimo_checklist' => $data,
-            'veiculo' => $veiculo,
+            'veiculo'               => $veiculo,
         ]);    
     }
 

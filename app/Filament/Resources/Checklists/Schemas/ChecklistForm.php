@@ -40,6 +40,7 @@ class ChecklistForm
                                 Select::make('veiculo_id')
                                     ->required()
                                     ->relationship('veiculo', 'placa')
+                                    ->searchable()
                                     ->columnSpan(3),
                                 DatePicker::make('data_referencia')
                                     ->label('Data Realização')

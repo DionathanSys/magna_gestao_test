@@ -66,6 +66,7 @@ class AbastecimentosTable
                     ->summarize(Sum::make()->money('BRL', 100)->label('Vlr. Total')),
                 TextColumn::make('data_abastecimento')
                     ->label('Dt. Abastecimento')
+                    ->disabledClick()
                     ->width('1%')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
@@ -77,7 +78,6 @@ class AbastecimentosTable
                 TextColumn::make('consumo_medio')
                     ->label('Consumo Médio')
                     ->width('1%')
-                    ->suffix(' Km/L')
                     ->numeric(2, ',', '.')
                     ->sortable()
                     ->badge()
@@ -105,10 +105,10 @@ class AbastecimentosTable
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => Color::Yellow,    
-                            $consumo >= $meta => Color::Gray,               
-                            $consumo >= ($meta * 0.5) => Color::Orange,   
-                            default => Color::Red,                        
+                            $consumo >= ($meta * 1.39) => Color::Yellow,
+                            $consumo >= $meta => Color::Gray,
+                            $consumo >= ($meta * 0.5) => Color::Orange,
+                            default => Color::Red,
                         };
                     })
                     ->formatStateUsing(function ($state, Abastecimento $record) {
@@ -121,7 +121,7 @@ class AbastecimentosTable
 
                         if ($meta) {
                             $percentual = round(($state / $meta) * 100);
-                            return Text::make("{$formatted} ({$percentual}%)")->weight(FontWeight::Black);
+                            return "{$formatted} Km/L ({$percentual}%)";
                         }
 
                         return $formatted;

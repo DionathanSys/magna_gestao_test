@@ -84,18 +84,27 @@ class VeiculoService
             ->select('placa', 'informacoes_complementares')
             ->first();
 
-        $veiculo->informacoes_complementares['data_ultimo_checklist'] = $data;
+        // Buscar o array atual, modificar e reassinar completamente
+        $informacoesComplementares = $veiculo->informacoes_complementares ?? [];
+        $informacoesComplementares['data_ultimo_checklist'] = $data;
+
+        // Reassinar o array completo
+        $veiculo->informacoes_complementares = $informacoesComplementares;
 
         Log::debug('Atualizando data do último checklist para o veículo ID: ' . $veiculoId . ' para ' . $data, [
-            'veiculo' => $veiculo,
+            'veiculo_id' => $veiculoId,
+            'data' => $data,
+            'informacoes_antes' => $veiculo->getOriginal('informacoes_complementares'),
+            'informacoes_depois' => $informacoesComplementares,
         ]);
 
         $veiculo->save();
     
         Log::debug('Data do último checklist atualizada com sucesso para o veículo ID: ' . $veiculoId, [
             'data_ultimo_checklist' => $data,
-            'veiculo'               => $veiculo,
-        ]);    
+            'veiculo_id' => $veiculoId,
+            'informacoes_salvas' => $veiculo->fresh()->informacoes_complementares,
+        ]);      
     }
 
     public function hasAgendamentoAberto(int $veiculoId): bool

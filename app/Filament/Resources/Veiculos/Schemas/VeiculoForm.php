@@ -81,6 +81,7 @@ class VeiculoForm
                                     ->columnSpan(2),
                                 Select::make('tipo_veiculo_id')
                                     ->label('Tipo de Veículo')
+                                    ->columnStart(1)
                                     ->columnSpan(2)
                                     ->searchable()
                                     ->relationship('tipoVeiculo', 'descricao')

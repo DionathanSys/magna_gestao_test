@@ -10,6 +10,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
@@ -81,7 +82,7 @@ class AbastecimentosTable
                     ->tooltip(function (Abastecimento $record): string {
                         $consumo = $record->consumo_medio;
                         $meta = $record->veiculo?->tipoVeiculo?->meta_media ?? 0;
-                        
+
                         if ($consumo === null || $meta === 0) {
                             return 'gray';
                         }
@@ -90,38 +91,23 @@ class AbastecimentosTable
                             $consumo >= ($meta * 1.1) => '110%+ da meta',
                             $consumo >= ($meta * 0.9) => '90%+ da meta',
                             $consumo >= ($meta * 0.7) => '70%+ da meta',
-                            default => '70% da meta',
+                            default => '< 70% da meta',
                         };
                     })
-                    ->color(function (Abastecimento $record): string {
+                    ->color(function (Abastecimento $record) {
                         $consumo = $record->consumo_medio;
                         $meta = $record->veiculo?->tipo_veiculo?->meta_media ?? 0;
                         
                         if ($consumo === null || $meta === 0) {
-                            return 'gray';
+                            return Color::Gray;
                         }
                         
                         return match (true) {
-                            $consumo >= ($meta * 1.1) => 'success',  // 110%+ da meta
-                            $consumo >= ($meta * 0.9) => 'primary',  // 90%+ da meta
-                            $consumo >= ($meta * 0.7) => 'warning',  // 70%+ da meta
-                            default => 'danger',                     // < 70% da meta
+                            $consumo >= ($meta * 1.1) => Color::Blue,  // 110%+ da meta
+                            $consumo >= ($meta * 0.9) => Color::Yellow,  // 90%+ da meta
+                            $consumo >= ($meta * 0.7) => Color::Indigo,  // 70%+ da meta
+                            default => Color::Red,                     // < 70% da meta
                         };
-                    })
-                    ->formatStateUsing(function ($state, Abastecimento $record): string {
-                        if ($state === null) {
-                            return 'N/D';
-                        }
-                        
-                        $meta = $record->veiculo?->tipo_veiculo?->meta_media;
-                        $formatted = number_format($state, 2, ',', '.');
-                        
-                        if ($meta) {
-                            $percentual = round(($state / $meta) * 100);
-                            return "{$formatted} ({$percentual}%)";
-                        }
-                        
-                        return $formatted;
                     }),
                 TextColumn::make('veiculo.tipoVeiculo.meta_media')
                     ->label('Meta Média')

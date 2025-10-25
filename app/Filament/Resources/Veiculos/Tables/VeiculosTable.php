@@ -27,7 +27,8 @@ class VeiculosTable
         return $table
             ->columns([
                 TextColumn::make('placa')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('filial')
                     ->label('Filial'),
                 TextColumn::make('kmAtual.quilometragem')

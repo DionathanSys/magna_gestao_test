@@ -39,6 +39,7 @@ class TipoVeiculoResource extends Resource
                     ->label('Meta Média')
                     ->required()
                     ->numeric()
+
                     ->minValue(0.01),
                 Toggle::make('is_active')
                     ->label('Ativo')
@@ -54,7 +55,7 @@ class TipoVeiculoResource extends Resource
             ->columns([
                 TextColumn::make('descricao')
                     ->label('Descrição')
-                    ->searchable(),
+                    ->searchable(isIndividual: true, isGlobal: false),
                 TextColumn::make('meta_media')
                     ->label('Meta Média')
                     ->numeric(2, ','),

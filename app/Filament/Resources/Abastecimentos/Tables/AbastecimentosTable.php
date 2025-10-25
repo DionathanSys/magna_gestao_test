@@ -89,11 +89,13 @@ class AbastecimentosTable
                             return 'Sem dados para comparação';
                         }
 
+                        $percentual = round(($consumo / $meta) * 100);
+                        
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => 'Meta atingida ✅✅',
-                            $consumo >= $meta => 'Meta atingida ✅',
-                            $consumo >= ($meta * 0.5) => 'Abaixo da meta ⚠️',
-                            default => 'Abaixo da meta ⚠️⚠️',
+                            $consumo >= ($meta * 1.39) => "Excelente! {$percentual}% da meta 🚀",           // ≥ 139% - Amarelo
+                            $consumo >= ($meta * 0.85) => "Normal: {$percentual}% da meta ✅",              // 85% - 138% - Cinza
+                            $consumo >= ($meta * 0.5) => "Abaixo da meta: {$percentual}% ⚠️",             // 50% - 84% - Laranja
+                            default => "Crítico: {$percentual}% da meta ❌",                               // < 50% - Vermelho
                         };
                     })
                     ->color(function (Abastecimento $record) {
@@ -105,10 +107,10 @@ class AbastecimentosTable
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => Color::Yellow,
-                            $consumo >= $meta => Color::Gray,
-                            $consumo >= ($meta * 0.5) => Color::Orange,
-                            default => Color::Red,
+                            $consumo >= ($meta * 1.39) => Color::Yellow,        // ≥ 139% da meta - Amarelo
+                            $consumo >= ($meta * 0.85) => Color::Gray,          // Entre 85% e 138% da meta - Cinza
+                            $consumo >= ($meta * 0.5) => Color::Orange,         // Entre 50% e 84% da meta - Laranja
+                            default => Color::Red,                              // < 50% da meta - Vermelho
                         };
                     })
                     ->formatStateUsing(function ($state, Abastecimento $record) {

@@ -84,29 +84,29 @@ class AbastecimentosTable
                         $meta = $record->veiculo?->tipoVeiculo?->meta_media ?? 0;
 
                         if ($consumo === null || $meta === 0) {
-                            return 'gray';
+                            return 'Sem dados para comparação';
                         }
-                        
+
                         return match (true) {
-                            $consumo >= ($meta * 1.1) => '110%+ da meta',
-                            $consumo >= ($meta * 0.9) => '90%+ da meta',
-                            $consumo >= ($meta * 0.7) => '70%+ da meta',
-                            default => '< 70% da meta',
+                            $consumo >= ($meta * 2) => 'Dobrou a meta! 🚀',
+                            $consumo >= $meta => 'Meta atingida ✅',
+                            $consumo >= ($meta * 0.5) => 'Abaixo da meta ⚠️',
+                            default => 'Metade da meta ❌',
                         };
                     })
                     ->color(function (Abastecimento $record) {
                         $consumo = $record->consumo_medio;
-                        $meta = $record->veiculo?->tipo_veiculo?->meta_media ?? 0;
-                        
+                        $meta = $record->veiculo?->tipoVeiculo?->meta_media ?? 0;
+
                         if ($consumo === null || $meta === 0) {
-                            return Color::Gray;
+                            return Color::Indigo;
                         }
-                        
+
                         return match (true) {
-                            $consumo >= ($meta * 1.1) => Color::Blue,  // 110%+ da meta
-                            $consumo >= ($meta * 0.9) => Color::Yellow,  // 90%+ da meta
-                            $consumo >= ($meta * 0.7) => Color::Indigo,  // 70%+ da meta
-                            default => Color::Red,                     // < 70% da meta
+                            $consumo >= ($meta * 2) => Color::Yellow,    // Dobrou a meta - Verde escuro
+                            $consumo >= $meta => Color::Blue,            // Atingiu a meta - Verde
+                            $consumo >= ($meta * 0.5) => Color::Red,   // Abaixo da meta - Amarelo
+                            default => Color::Gray,                        // Metade da meta - Vermelho
                         };
                     }),
                 TextColumn::make('veiculo.tipoVeiculo.meta_media')

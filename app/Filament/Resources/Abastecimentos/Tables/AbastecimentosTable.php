@@ -105,8 +105,8 @@ class AbastecimentosTable
                         return match (true) {
                             $consumo >= ($meta * 2) => Color::Yellow,    // Dobrou a meta - Verde escuro
                             $consumo >= $meta => Color::Blue,            // Atingiu a meta - Verde
-                            $consumo >= ($meta * 0.5) => Color::Red,   // Abaixo da meta - Amarelo
-                            default => Color::Gray,                        // Metade da meta - Vermelho
+                            $consumo >= ($meta * 0.5) => Color::Orange,   // Abaixo da meta - Amarelo
+                            default => Color::Red,                        // Metade da meta - Vermelho
                         };
                     }),
                 TextColumn::make('veiculo.tipoVeiculo.meta_media')

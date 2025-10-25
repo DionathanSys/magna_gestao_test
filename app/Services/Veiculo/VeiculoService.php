@@ -89,21 +89,11 @@ class VeiculoService
                 'data' => $data,
             ]);
             throw new \InvalidArgumentException("Veículo com ID {$veiculoId} não encontrado");
-        } else {
-            Log::debug('Veículo encontrado para atualizar data do último checklist', [
-                'metodo' => __METHOD__.'@'.__LINE__,
-                'veiculo_id' => $veiculoId,
-                'placa' => $veiculo->placa,
-                'informacoes_complementares_antes' => $veiculo->informacoes_complementares,
-            ]);
         }
 
         // Buscar o array atual, modificar e reassinar completamente
         $informacoesComplementares = $veiculo->informacoes_complementares ?? [];
         $informacoesComplementares['data_ultimo_checklist'] = $data;
-
-        // Reassinar o array completo
-        $veiculo->informacoes_complementares = $informacoesComplementares;
 
         Log::debug('Atualizando data do último checklist para o veículo ID: ' . $veiculoId . ' para ' . $data, [
             'veiculo_id' => $veiculoId,
@@ -112,7 +102,9 @@ class VeiculoService
             'informacoes_depois' => $informacoesComplementares,
         ]);
 
-        $veiculo->save();
+        $veiculo->update([
+            'informacoes_complementares' => $informacoesComplementares
+        ]);
 
         Log::debug('Data do último checklist atualizada com sucesso para o veículo ID: ' . $veiculoId, [
             'data_ultimo_checklist' => $data,

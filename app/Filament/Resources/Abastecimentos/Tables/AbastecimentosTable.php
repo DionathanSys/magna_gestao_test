@@ -27,6 +27,9 @@ class AbastecimentosTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query): void {
+                $query->with(['veiculo.tipoVeiculo']);
+            })
             ->columns([
                 TextColumn::make('id_abastecimento')
                     ->numeric(0, '', '')
@@ -77,7 +80,7 @@ class AbastecimentosTable
                     ->badge()
                     ->tooltip(function (Abastecimento $record): string {
                         $consumo = $record->consumo_medio;
-                        $meta = $record->veiculo?->tipo_veiculo?->meta_media ?? 0;
+                        $meta = $record->veiculo?->tipoVeiculo?->meta_media ?? 0;
                         
                         if ($consumo === null || $meta === 0) {
                             return 'gray';

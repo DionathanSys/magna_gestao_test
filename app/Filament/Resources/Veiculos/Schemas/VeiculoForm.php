@@ -61,10 +61,10 @@ class VeiculoForm
                             ->schema([
                                 TextInput::make('informacoes_complementares.codigo_imobilizado')
                                     ->label('Código Imobilizado')
-                                    ->columnSpan(3),
+                                    ->columnSpan(2),
                                 Select::make('informacoes_complementares.bloqueador_silo')
                                     ->label('Tipo Bloqueador de Silo')
-                                    ->columnSpan(3)
+                                    ->columnSpan(2)
                                     ->options([
                                         'NENHUM'     => 'Nenhum',
                                         'HOMOLOGADO' => 'Homologado',
@@ -72,13 +72,16 @@ class VeiculoForm
                                     ]),
                                 DatePicker::make('informacoes_complementares.afericao_tacografo')
                                     ->label('Dt. Próx. Aferição Tacógrafo')
-                                    ->columnSpan(3),
+                                    ->columnSpan(2),
                                 DatePicker::make('informacoes_complementares.teste_fumaca')
                                     ->label('Dt. Teste de Fumaça')
-                                    ->columnSpan(3),
+                                    ->columnSpan(2),
+                                DatePicker::make('informacoes_complementares.data_ultimo_checklist')
+                                    ->label('Dt. Último Checklist')
+                                    ->columnSpan(2),
                                 Select::make('tipo_veiculo_id')
                                     ->label('Tipo de Veículo')
-                                    ->columnSpan(3)
+                                    ->columnSpan(2)
                                     ->searchable()
                                     ->relationship('tipoVeiculo', 'descricao')
                                     ->required(),

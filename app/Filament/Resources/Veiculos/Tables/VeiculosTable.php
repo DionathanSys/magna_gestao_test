@@ -9,6 +9,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -44,7 +45,7 @@ class VeiculosTable
                     ->label('Modelo')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                Select::make('tipo_veiculo_id')
+                SelectColumn::make('tipo_veiculo_id')
                     ->label('Tipo de Veículo')
                     ->relationship('tipoVeiculo', 'descricao'),
                 TextColumn::make('chassis')

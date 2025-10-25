@@ -88,10 +88,10 @@ class AbastecimentosTable
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => 'Dobrou a meta! 🚀',
+                            $consumo >= ($meta * 1.39) => 'Meta atingida ✅✅',
                             $consumo >= $meta => 'Meta atingida ✅',
                             $consumo >= ($meta * 0.5) => 'Abaixo da meta ⚠️',
-                            default => 'Metade da meta ❌',
+                            default => 'Abaixo da meta ⚠️⚠️',
                         };
                     })
                     ->color(function (Abastecimento $record) {
@@ -99,12 +99,12 @@ class AbastecimentosTable
                         $meta = $record->veiculo?->tipoVeiculo?->meta_media ?? 0;
 
                         if ($consumo === null || $meta === 0) {
-                            return Color::Indigo;
+                            return Color::Gray;
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => Color::Yellow,    // Dobrou a meta - Verde escuro
-                            $consumo >= $meta => Color::Blue,            // Atingiu a meta - Verde
+                            $consumo >= ($meta * 1.39) => Color::Violet,    // Dobrou a meta - Verde escuro
+                            $consumo >= $meta => Color::Blue,               // Atingiu a meta - Verde
                             $consumo >= ($meta * 0.5) => Color::Orange,   // Abaixo da meta - Amarelo
                             default => Color::Red,                        // Metade da meta - Vermelho
                         };

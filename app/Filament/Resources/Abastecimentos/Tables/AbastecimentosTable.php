@@ -88,7 +88,7 @@ class AbastecimentosTable
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 2) => 'Dobrou a meta! 🚀',
+                            $consumo >= ($meta * 1.7) => 'Dobrou a meta! 🚀',
                             $consumo >= $meta => 'Meta atingida ✅',
                             $consumo >= ($meta * 0.5) => 'Abaixo da meta ⚠️',
                             default => 'Metade da meta ❌',
@@ -103,7 +103,7 @@ class AbastecimentosTable
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 2) => Color::Yellow,    // Dobrou a meta - Verde escuro
+                            $consumo >= ($meta * 1.7) => Color::Yellow,    // Dobrou a meta - Verde escuro
                             $consumo >= $meta => Color::Blue,            // Atingiu a meta - Verde
                             $consumo >= ($meta * 0.5) => Color::Orange,   // Abaixo da meta - Amarelo
                             default => Color::Red,                        // Metade da meta - Vermelho

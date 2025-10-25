@@ -78,7 +78,7 @@ class AbastecimentosTable
                     ->label('Consumo Médio')
                     ->width('1%')
                     ->suffix(' Km/L')
-                    ->numeric(4, ',', '.')
+                    ->numeric(2, ',', '.')
                     ->sortable()
                     ->badge()
                     ->tooltip(function (Abastecimento $record): string {
@@ -105,11 +105,26 @@ class AbastecimentosTable
                         }
 
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => Color::Yellow,    // Dobrou a meta - Verde escuro
-                            $consumo >= $meta => Color::Blue,               // Atingiu a meta - Verde
-                            $consumo >= ($meta * 0.5) => Color::Orange,   // Abaixo da meta - Amarelo
-                            default => Color::Red,                        // Metade da meta - Vermelho
+                            $consumo >= ($meta * 1.39) => Color::Yellow,    
+                            $consumo >= $meta => Color::Gray,               
+                            $consumo >= ($meta * 0.5) => Color::Orange,   
+                            default => Color::Red,                        
                         };
+                    })
+                    ->formatStateUsing(function ($state, Abastecimento $record) {
+                        if ($state === null) {
+                            return 'N/D';
+                        }
+
+                        $meta = $record->veiculo?->tipoVeiculo?->meta_media;
+                        $formatted = number_format($state, 2, ',', '.');
+
+                        if ($meta) {
+                            $percentual = round(($state / $meta) * 100);
+                            return Text::make("{$formatted} ({$percentual}%)")->weight(FontWeight::Black);
+                        }
+
+                        return $formatted;
                     }),
                 TextColumn::make('veiculo.tipoVeiculo.meta_media')
                     ->label('Meta Média')

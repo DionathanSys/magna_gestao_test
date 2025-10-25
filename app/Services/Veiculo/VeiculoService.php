@@ -89,6 +89,13 @@ class VeiculoService
                 'data' => $data,
             ]);
             throw new \InvalidArgumentException("Veículo com ID {$veiculoId} não encontrado");
+        } else {
+            Log::debug('Veículo encontrado para atualizar data do último checklist', [
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'veiculo_id' => $veiculoId,
+                'placa' => $veiculo->placa,
+                'informacoes_complementares_antes' => $veiculo->informacoes_complementares,
+            ]);
         }
 
         // Buscar o array atual, modificar e reassinar completamente

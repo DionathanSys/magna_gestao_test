@@ -86,9 +86,18 @@ class VeiculoService
 
         $informacoesComplementares['data_ultimo_checklist'] = $data;
 
-        Models\Veiculo::query()
+        Log::debug('Atualizando data do último checklist para o veículo ID: ' . $veiculoId . ' para ' . $data, [
+            'informacoes_complementares' => $informacoesComplementares,
+        ]);
+
+        $veiculo = Models\Veiculo::query()
             ->where('id', $veiculoId)
             ->update(['informacoes_complementares' => $informacoesComplementares]);
+    
+        Log::debug('Data do último checklist atualizada com sucesso para o veículo ID: ' . $veiculoId, [
+            'data_ultimo_checklist' => $data,
+            'veiculo' => $veiculo,
+        ]);    
     }
 
     public function hasAgendamentoAberto(int $veiculoId): bool

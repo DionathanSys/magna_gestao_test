@@ -57,9 +57,7 @@ class VeiculoService
                 ->findOrFail($veiculoId);
 
             return $veiculo->kmAtual?->quilometragem ?? 0;
-
         });
-
     }
 
     public static function getQuilometragemUltimoMovimento(int $veiculoId): int
@@ -84,6 +82,15 @@ class VeiculoService
             ->select('placa', 'informacoes_complementares')
             ->first();
 
+        if (!$veiculo) {
+            Log::error('Veículo não encontrado ao tentar atualizar data do último checklist', [
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'veiculo_id' => $veiculoId,
+                'data' => $data,
+            ]);
+            throw new \InvalidArgumentException("Veículo com ID {$veiculoId} não encontrado");
+        }
+
         // Buscar o array atual, modificar e reassinar completamente
         $informacoesComplementares = $veiculo->informacoes_complementares ?? [];
         $informacoesComplementares['data_ultimo_checklist'] = $data;
@@ -99,12 +106,12 @@ class VeiculoService
         ]);
 
         $veiculo->save();
-    
+
         Log::debug('Data do último checklist atualizada com sucesso para o veículo ID: ' . $veiculoId, [
             'data_ultimo_checklist' => $data,
             'veiculo_id' => $veiculoId,
             'informacoes_salvas' => $veiculo->fresh()->informacoes_complementares,
-        ]);      
+        ]);
     }
 
     public function hasAgendamentoAberto(int $veiculoId): bool
@@ -112,5 +119,4 @@ class VeiculoService
         Log::debug('Verificando agendamento aberto para o veículo ID: ' . $veiculoId);
         return (new Queries\GetAgendamentoAberto())->handle($veiculoId);
     }
-
 }

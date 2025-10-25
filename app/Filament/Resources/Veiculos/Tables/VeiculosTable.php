@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Veiculos\Tables;
 
+use App\Models\TipoVeiculo;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -45,8 +46,10 @@ class VeiculosTable
                     ->label('Modelo')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                SelectColumn::make('tipoVeiculo.descricao')
-                    ->label('Tipo de Veículo'),
+                SelectColumn::make('tipo_veiculo_id')
+                    ->label('Tipo de Veículo')
+                    ->options(TipoVeiculo::query()->pluck('descricao', 'id'))
+                    ->searchableOptions(),
                 TextColumn::make('chassis')
                     ->label('Chassi')
                     ->searchable()

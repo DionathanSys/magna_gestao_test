@@ -54,6 +54,13 @@ class VeiculoForm
                                     ->columnSpan(2)
                                     ->maxLength(50)
                                     ->placeholder('Chassi do veículo'),
+                                Select::make('tipo_veiculo_id')
+                                    ->label('Tipo de Veículo')
+                                    ->columnStart(1)
+                                    ->columnSpan(3)
+                                    ->searchable()
+                                    ->relationship('tipoVeiculo', 'descricao')
+                                    ->required(),
                             ])
                             ->icon('heroicon-o-information-circle'),
                         Tabs\Tab::make('Info Complementares')
@@ -79,13 +86,7 @@ class VeiculoForm
                                 DatePicker::make('informacoes_complementares.data_ultimo_checklist')
                                     ->label('Dt. Último Checklist')
                                     ->columnSpan(2),
-                                Select::make('tipo_veiculo_id')
-                                    ->label('Tipo de Veículo')
-                                    ->columnStart(1)
-                                    ->columnSpan(2)
-                                    ->searchable()
-                                    ->relationship('tipoVeiculo', 'descricao')
-                                    ->required(),
+                                
                             ])
                     ])
                     ->columnSpanFull(),

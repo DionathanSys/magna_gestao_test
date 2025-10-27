@@ -10,13 +10,6 @@ class AbastecimentoService
 {
     use ServiceResponseTrait;
 
-    protected Services\HistoricoQuilometragem\HistoricoQuilometragemService $historicoQuilometragemService;
-
-    public function __construct() 
-    {
-        $this->historicoQuilometragemService =  new Services\HistoricoQuilometragem\HistoricoQuilometragemService();
-    }
-
     public function criar(array $data): ?Models\Abastecimento
     {
          try {
@@ -35,19 +28,6 @@ class AbastecimentoService
             ]);
 
             $this->setSuccess('Abastecimento criado com sucesso');
-
-            //TODO: Mover para Evento e Listener
-            $dataQuilometragem = [
-                'veiculo_id'        => $abastecimento->veiculo_id,
-                'data_referencia'   => $abastecimento->data_abastecimento,
-                'quilometragem'     => $abastecimento->quilometragem,
-            ];
-            
-            Log::debug('Registrando histórico de quilometragem após abastecimento', [
-                'dataQuilometragem' => $dataQuilometragem,
-            ]);
-
-            $this->historicoQuilometragemService->registrar($dataQuilometragem);
 
             return $abastecimento;
 

@@ -13,7 +13,10 @@ class CriarAbastecimento
 
     public function handle(array $data): ?Models\Abastecimento
     {
-        Log::debug('Criando abastecimento', ['data' => $data]);
+        Log::debug('Iniciando criação de abastecimento', [
+            'data' => $data,
+        ]);
+        
         $this->validate($data);
 
         if (!$this->hasErrors) {
@@ -74,13 +77,6 @@ class CriarAbastecimento
         $ultimoAbastecimento = Models\Abastecimento::query()
             ->anterioresAData($dataAbastecimento, $veiculoId)
             ->first();
-
-        Log::debug('Último abastecimento', [
-            'veiculo_id'    => $veiculoId,
-            'quilometragem' => $quilometragem,
-            'data_abastecimento' => $dataAbastecimento,
-            'abastecimento' => $ultimoAbastecimento
-        ]);
 
         if ($ultimoAbastecimento && $quilometragem < $ultimoAbastecimento->quilometragem) {
             return false;

@@ -4,6 +4,7 @@ namespace App\Services\HistoricoQuilometragem\Action;
 
 use Illuminate\Support\Facades\Validator;
 use App\Models;
+use Illuminate\Support\Facades\Log;
 
 class RegistrarQuilometragem
 {
@@ -38,6 +39,10 @@ class RegistrarQuilometragem
         ]);
 
         if ($validator->fails()) {
+            Log::warning('Validação falhou ao registrar quilometragem', [
+                'errors' => $validator->errors()->all(),
+                'data'   => $data,
+            ]);
             $this->hasErrors = true;
             $this->errors = $validator->errors()->all();
         }

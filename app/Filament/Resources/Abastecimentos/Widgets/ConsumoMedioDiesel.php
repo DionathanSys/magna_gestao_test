@@ -60,17 +60,6 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
             ? ($totalValor / $freteTotal['valor']) * 100 
             : 0;
 
-        Log::debug('Cálculo do widget Consumo Médio Diesel', [
-            'consumo_medio' => $consumoMedio,
-            'total_km_percorrido' => $totalKmPercorrido,
-            'custo_por_km' => $custoPorKm,
-            'total_litros' => $totalLitros,
-            'total_abastecimentos' => $totalAbastecimentos,
-            'total_valor' => $totalValor,
-            'frete_total_valor' => $freteTotal['valor'],
-            'percentual_diesel_frete' => $percentualDieselFrete,
-        ]);
-
         return [
             Stat::make('Consumo Médio', number_format($consumoMedio, 2, ',', '.') . ' Km/L')
                 ->description("Baseado em {$abastecimentosValidos->count()} abastecimentos válidos")
@@ -135,14 +124,6 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
 
             // Formatar período para exibição
             $periodoFormatado = $dataInicio->format('d/m/Y') . ' a ' . $dataFim->format('d/m/Y');
-
-            Log::debug('Cálculo do frete total no período', [
-                'data_inicio' => $dataInicio,
-                'data_fim' => $dataFim,
-                'veiculos_ids' => $veiculosIds,
-                'valor_total' => $valorTotal,
-                'total_documentos' => $totalDocumentos,
-            ]);
 
             return [
                 'valor' => $valorTotal,

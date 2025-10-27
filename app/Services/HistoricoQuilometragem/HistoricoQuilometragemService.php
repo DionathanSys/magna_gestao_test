@@ -21,6 +21,11 @@ class HistoricoQuilometragemService
                 return null;
             }
 
+            Log::info('Quilometragem registrada com sucesso ID: ' . $quilometragem->id ?? 'null', [
+                'metodo'        => __METHOD__ . '@' . __LINE__,
+                'quilometragem' => $quilometragem,
+            ]);
+            
             $this->setSuccess('Quilometragem registrada com sucesso');
 
             return $quilometragem;

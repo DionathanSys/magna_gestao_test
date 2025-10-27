@@ -42,7 +42,8 @@ class AbastecimentoService
                 'dataQuilometragem' => $dataQuilometragem,
             ]);
 
-            $this->historicoQuilometragemService->registrar($dataQuilometragem);
+            $historicoQuilometragemService = app(Services\HistoricoQuilometragem\HistoricoQuilometragemService::class);
+            $historicoQuilometragemService->registrar($dataQuilometragem);
 
             return $abastecimento;
 

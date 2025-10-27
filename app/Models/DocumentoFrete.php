@@ -16,6 +16,7 @@ class DocumentoFrete extends Model
         'tipo_documento' => TipoDocumentoEnum::class,
         'valor_total' => MoneyCast::class,
         'valor_icms' => MoneyCast::class,
+        'valor_liquido' => MoneyCast::class,
     ];
 
     public function viagem(): BelongsTo

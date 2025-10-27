@@ -19,6 +19,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class DocumentoFretesTable
@@ -63,6 +64,12 @@ class DocumentoFretesTable
                     ->summarize(Sum::make()->money('BRL', 100)),
                 TextColumn::make('valor_icms')
                     ->label('Vlr. ICMS')
+                    ->width('1%')
+                    ->money('BRL')
+                    ->sortable()
+                    ->summarize(Sum::make()->money('BRL', 100)),
+                TextColumn::make('valor_liquido')
+                    ->label('Frete Líquido')
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()
@@ -115,20 +122,24 @@ class DocumentoFretesTable
                     ->query(fn(Builder $query): Builder => $query->whereNull('viagem_id')),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->iconButton(),
+                EditAction::make()
+                    ->iconButton(),
             ])
             ->headerActions([
-                Actions\ImportarDocumentoFreteAction::make(),
+                
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()    
+                        ->visible(fn(): bool => Auth::user()->is_admin),
                 ]),
                 ActionGroup::make([
                     Actions\VincularViagemDocumentoBulkAction::make(),
                     CreateAction::make()
                         ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'parceiro_origem', 'documento_transporte', 'tipo_documento', 'data_emissao', 'valor_total']),
+                    Actions\ImportarDocumentoFreteAction::make(),
                 ])->button(),
             ]);
     }

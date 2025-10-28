@@ -88,7 +88,7 @@ class KmRodadoPneu extends BaseWidget
                     ->searchable(isIndividual: true),
             ])
             ->groups([
-                Group::make('Eixo')
+                Group::make('eixo')
                     ->collapsible(),
                 Group::make('posicao')
                     ->label('Posição')

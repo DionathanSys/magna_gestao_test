@@ -44,7 +44,7 @@ class KmRodadoPneu extends BaseWidget
                   ->whereRaw("{$kmTable}.quilometragem - {$pneuTable}.km_inicial > ?", [$threshold]);
             })
             ->aplicados()
-            ->where('veiculo.is_active', true);
+            ->whereVeiculo('is_active', true);
     }
 
     protected function makeTable(): Table

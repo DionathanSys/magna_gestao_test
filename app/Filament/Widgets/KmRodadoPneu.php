@@ -90,6 +90,7 @@ class KmRodadoPneu extends BaseWidget
                     ->collapsible(),
 
             ])
+            ->defaultGroup('veiculo.placa')
             ->paginated([10, 25, 50,])
             ->defaultPaginationPageOption(12)
             ->filters([

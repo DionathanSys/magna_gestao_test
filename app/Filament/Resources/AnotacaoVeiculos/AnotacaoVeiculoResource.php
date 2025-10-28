@@ -23,6 +23,10 @@ class AnotacaoVeiculoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
 
+    protected static ?string $modelLabel = 'Anotações Veiculo';
+
+    protected static ?string $pluralModelLabel = 'Anotações Veículo';
+
     protected static ?string $recordTitleAttribute = 'veiculo_id';
 
     public static function form(Schema $schema): Schema

@@ -37,4 +37,10 @@ class PneuPosicaoVeiculo extends Model
         );
     }
 
+    public function scopeAplicados($query)
+    {
+        return $query->whereNotNull('pneu_id')
+            ->whereNotNull('veiculo_id');
+    }
+
 }

@@ -17,6 +17,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Illuminate\Contracts\View\View;
 use Filament\Schemas\Schema;
+use App\Services\NotificacaoService as notify;
 
 
 class FormTeste extends Component implements HasSchemas
@@ -63,17 +64,6 @@ class FormTeste extends Component implements HasSchemas
                                                 'default' => 2,
                                                 'xl' => 2
                                             ]),
-                                        OrdemServicoForm::getParceiroIdFormField()
-                                            ->label('Parceiro Externo')
-                                            ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2
-                                            ])
-                                            ->columnStart(1),
-                                    ]),
-                                Tabs\Tab::make('Info. OS')
-                                    ->columns(['default' => 2,'xl' => 4,'2xl' => 6,])
-                                    ->schema([
                                         OrdemServicoForm::getTipoManutencaoFormField()
                                             ->columnSpan([
                                                 'default' => 2,
@@ -89,6 +79,12 @@ class FormTeste extends Component implements HasSchemas
                                                 'default' => 2,
                                                 'xl' => 2
                                             ]),
+                                        OrdemServicoForm::getParceiroIdFormField()
+                                            ->label('Parceiro Externo')
+                                            ->columnSpan([
+                                                'default' => 2,
+                                                'xl' => 2
+                                            ]),
                                         OrdemServicoForm::getDataInicioFormField()
                                             ->columnSpan([
                                                 'default' => 2,
@@ -99,9 +95,10 @@ class FormTeste extends Component implements HasSchemas
                                                 'default' => 2,
                                                 'xl' => 2
                                             ]),
+
                                     ]),
                                 Tabs\Tab::make('Agendamentos')
-                                    ->badge(fn (): string => (string) $this->ordemServico->agendamentosPendentes()->count())
+                                    ->badge(fn(): string => (string) $this->ordemServico->agendamentosPendentes()->count())
                                     ->badgeColor('danger')
                                     ->columns(4)
                                     ->schema([
@@ -109,7 +106,7 @@ class FormTeste extends Component implements HasSchemas
                                             ->columnSpanFull(),
                                     ]),
                                 Tabs\Tab::make('Preventivas')
-                                    ->badge(fn (): string => (string) $this->ordemServico->planoPreventivoVinculado()->count())
+                                    ->badge(fn(): string => (string) $this->ordemServico->planoPreventivoVinculado()->count())
                                     ->badgeColor('info')
                                     ->columns(4)
                                     ->schema([
@@ -133,6 +130,7 @@ class FormTeste extends Component implements HasSchemas
     public function edit(): void
     {
         $this->ordemServico->update($this->form->getState());
+        notify::success('Ordem de Serviço atualizada com sucesso!');
     }
 
     public function render()

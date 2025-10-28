@@ -71,7 +71,7 @@ class KmRodadoPneu extends BaseWidget
                     ->width('1%')
                     ->sortable()
                     ->searchable(isIndividual: true)
-                    ->url(fn(Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
+                    ->url(fn(Models\PneuPosicaoVeiculo $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
                     ->openUrlInNewTab(),
                 TextColumn::make('km_inicial')
                     ->label('Km Rodado')

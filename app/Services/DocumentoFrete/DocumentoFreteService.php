@@ -174,7 +174,6 @@ class DocumentoFreteService
 
             if (!$documentoFrete) {
                 $this->setError("Documento de frete com número de transporte {$documentoTransporte} não encontrado ou já vinculado a uma viagem.");
-                Log::warning("Documento de frete não encontrado", ['documento_transporte' => $documentoTransporte]);
                 return null;
             }
 
@@ -183,7 +182,6 @@ class DocumentoFreteService
 
             if (!$viagem) {
                 $this->setError("Viagem com número de transporte {$documentoTransporte} não encontrada.");
-                Log::warning("Viagem não encontrada", ['documento_transporte' => $documentoTransporte]);
                 return null;
             }
 
@@ -192,10 +190,6 @@ class DocumentoFreteService
 
             if (!$documentoFrete) {
                 $this->setError("Falha ao vincular documento de frete à viagem {$viagem->numero_viagem}.");
-                Log::error("Falha ao vincular documento de frete à viagem", [
-                    'documento_transporte' => $documentoTransporte,
-                    'viagem_id' => $viagem->id,
-                ]);
                 return null;
             }
 
@@ -203,7 +197,7 @@ class DocumentoFreteService
             return $documentoFrete;
 
         } catch (\Exception $e) {
-            Log::error(__METHOD__, [
+            Log::error(__METHOD__.'@'.__LINE__, [
                 'error' => $e->getMessage(),
                 'documento_transporte' => $documentoTransporte,
             ]);

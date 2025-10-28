@@ -90,7 +90,8 @@ class KmRodadoPneu extends BaseWidget
             ->groups([
                 Group::make('Eixo')
                     ->collapsible(),
-                Group::make('Posição')
+                Group::make('posicao')
+                    ->label('Posição')
                     ->collapsible(),
                 Group::make('veiculo.placa')
                     ->label('Placa')

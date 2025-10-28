@@ -43,7 +43,8 @@ class KmRodadoPneu extends BaseWidget
                 $q->whereNotNull("{$kmTable}.quilometragem")
                   ->whereRaw("{$kmTable}.quilometragem - {$pneuTable}.km_inicial > ?", [$threshold]);
             })
-            ->aplicados();
+            ->aplicados()
+            ->where('veiculo.is_active', true);
     }
 
     protected function makeTable(): Table
@@ -71,7 +72,10 @@ class KmRodadoPneu extends BaseWidget
                     ->width('1%')
                     ->sortable()
                     ->searchable(isIndividual: true)
-                    ->url(fn($record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
+                    ->url(fn($record): string => VeiculoResource::getUrl('edit', [
+                        'record' => $record->veiculo->id,
+                        'relation' => 0,
+                        ]))
                     ->openUrlInNewTab(),
                 TextColumn::make('km_inicial')
                     ->label('Km Rodado')

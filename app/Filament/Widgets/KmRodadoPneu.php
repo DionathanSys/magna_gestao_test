@@ -2,9 +2,12 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\Pneus\PneuResource;
+use App\Filament\Resources\Veiculos\VeiculoResource;
 use App\Models;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,12 +63,16 @@ class KmRodadoPneu extends BaseWidget
                     ->label('Nº Fogo')
                     ->width('1%')
                     ->numeric('0', '', '')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn(Models\PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->pneu_id ?? 0]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
                     ->sortable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(isIndividual: true)
+                    ->url(fn(Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('km_inicial')
                     ->label('Km Rodado')
                     ->width('1%')
@@ -94,7 +101,6 @@ class KmRodadoPneu extends BaseWidget
             ->paginated([10, 25, 50,])
             ->defaultPaginationPageOption(12)
             ->filters([
-                //
             ])
             ->headerActions([
                 //

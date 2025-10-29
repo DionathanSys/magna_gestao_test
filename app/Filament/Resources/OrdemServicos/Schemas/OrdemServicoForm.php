@@ -29,86 +29,35 @@ class OrdemServicoForm
                         Flex::make([
                             Grid::make(['default' => 1,'sm' => 2, 'md' => 4])
                                 ->schema([
-                                    static::getVeiculoIdFormField()
+                                    Components\OrdemServicoVeiculoInput::make()
                                         ->columnSpan(1),
-                                    static::getTipoManutencaoFormField()
+                                    static::getQuilometragemFormField()
                                         ->columnSpan(1),
-                                    static::getDataInicioFormField()
+                                    Components\OrdemServicoTipoManutencaoInput::make()
                                         ->columnSpan(1),
+                                    Components\OrdemServicoDataAberturaInput::make()
+                                        ->columnSpan(1),
+                                    static::getDataFimFormField()
+                                        ->columnSpan(1)
+                                        ->visibleOn('edit'),
+                                    static::getStatusFormField()
+                                        ->columnSpan(1)
+                                        ->visibleOn('edit'),
+                                    static::getStatusSankhyaFormField()
+                                        ->columnSpan(1)
+                                        ->visibleOn('edit'),
+                                    static::getParceiroIdFormField()
+                                        ->columnSpan(2),
                                 ])->grow(false),
-                            Components\ItensRepeater::make(),
+                            Components\ItensRepeater::make()
+                                ->visibleOn('edit'),
                         ])->columnSpanFull(),
                         ])
                     ->columnSpanFull(),
 
-                // 
-                // Components\OrdemServicoTipoManutencaoInput::make()
-                //     ->columnSpan([
-                //         'md' => 2,
-                //         'lg' => 3,
-                //         'xl' => 4,
-                //     ]),
-                // Components\OrdemServicoDataAberturaInput::make()
-                //     ->columnSpan([
-                //         'md' => 2,
-                //         'lg' => 3,
-                //         'xl' => 4,
-                //     ]),
-                // static::getDataFimFormField()
-                //     ->columnSpan([
-                //         'md' => 2,
-                //         'lg' => 3,
-                //         'xl' => 4,
-                //     ])
-                //     ->visibleOn('edit'),
-                // static::getStatusFormField()
-                //     ->columnSpan([
-                //         'md' => 2,
-                //         'lg' => 3,
-                //         'xl' => 4,
-                //     ]),
-                // static::getStatusSankhyaFormField()
-                //     ->columnSpan([
-                //         'md' => 2,
-                //         'lg' => 3,
-                //         'xl' => 4,
-                //     ]),
-                // static::getParceiroIdFormField()
-                //     ->columnSpan([
-                //         'md' => 3,
-                //         'lg' => 3,
-                //         'xl' => 4,
-                //     ]),
-
-
             ]);
     }
 
-    public static function getVeiculoIdFormField(): Select
-    {
-        return Select::make('veiculo_id')
-            ->label('Veículo')
-            ->searchPrompt('Buscar Placa')
-            ->placeholder('Buscar ...')
-            ->native(true)
-            ->autofocus(true)
-            ->columnSpan(2)
-            ->required()
-            ->relationship('veiculo', 'placa')
-            ->searchable()
-            ->preload()
-            ->live(onBlur: true)
-            ->afterStateUpdated(function (Set $set, $state) {
-                if ($state) {
-                    $veiculo = \App\Models\Veiculo::with('kmAtual')->find($state);
-                    if ($veiculo) {
-                        $set('quilometragem', $veiculo->kmAtual?->quilometragem ?? 0);
-                    }
-                } else {
-                    $set('quilometragem', null);
-                }
-            });
-    }
 
     public static function getQuilometragemFormField(): TextInput
     {
@@ -119,27 +68,6 @@ class OrdemServicoForm
             ->minValue(0)
             ->maxValue(999999)
             ->required();
-    }
-
-    public static function getTipoManutencaoFormField(): Select
-    {
-        return Select::make('tipo_manutencao')
-            ->label('Tipo de Manutenção')
-            ->columnSpan(2)
-            ->options(Enum\OrdemServico\TipoManutencaoEnum::toSelectArray())
-            ->required()
-            ->default(Enum\OrdemServico\TipoManutencaoEnum::CORRETIVA->value);
-    }
-
-    public static function getDataInicioFormField(): DateTimePicker
-    {
-        return DateTimePicker::make('data_inicio')
-            ->label('Dt. Inicio')
-            ->columnSpan(2)
-            ->seconds(false)
-            ->required()
-            ->maxDate(now())
-            ->default(now());
     }
 
     public static function getDataFimFormField(): DateTimePicker

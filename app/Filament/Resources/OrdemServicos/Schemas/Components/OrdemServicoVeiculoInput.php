@@ -42,7 +42,7 @@ class OrdemServicoVeiculoInput
                     return;
                 } 
                 $set('quilometragem', null);
-                $component->afterLabel(null);
+                $component->belowContent(null);
                 
             })
             ->columnSpan([

@@ -27,6 +27,10 @@ class KmVeiculoDesatualizado extends StatsOverviewWidget
             })
             ->count();
 
+            if(!$veiculosDesatualizados){
+                return [];
+            }
+
         return [
             Stat::make('KM desatualizado', $veiculosDesatualizados)
                 ->description('Veículos sem atualização há > 2 dias')

@@ -26,13 +26,11 @@ class OrdemServicoVeiculoInput
             ->required()
             ->searchable()
             ->preload()
-            ->live(debounce: 700)
+            ->live(onBlur: true)
             ->afterStateUpdated(function (Set $set, Field $component, $state) {
                 if ($state) {
-                    Log::debug('Veículo selecionado: ' . $state);
                     $set('quilometragem', VeiculoService::getQuilometragemAtualByVeiculoId($state));
                     $possuiAgendamento = (new VeiculoService())->hasAgendamentoAberto($state);
-                    Log::debug('Possui agendamento aberto: ' . ($possuiAgendamento ? 'Sim' : 'Não'));
                     if ($possuiAgendamento) {
                         $component->belowContent([
                             Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
@@ -42,7 +40,7 @@ class OrdemServicoVeiculoInput
                 } else {
                     Log::debug('Nenhum veículo selecionado.');
                     $set('quilometragem', null);
-                    // $component->afterLabel(null);
+                    $component->afterLabel(null);
                 }
             })
             ->columnSpan([

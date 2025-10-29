@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Integrados\Tables;
 
+use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -34,9 +35,12 @@ class IntegradosTable
                     ->searchable(),
                 TextColumn::make('estado')
                     ->searchable(),
-                TextColumn::make('latitude'),
-                TextColumn::make('longitude'),
-                TextColumn::make('cliente'),
+                TextColumn::make('latitude')
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('longitude')
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('cliente')
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')
@@ -65,6 +69,7 @@ class IntegradosTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    FilamentExportBulkAction::make('export'),
                     DeleteBulkAction::make(),
                 ]),
             ]);

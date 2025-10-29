@@ -28,7 +28,6 @@ class OrdemServicoVeiculoInput
             })
             ->required()
             ->searchable()
-            ->preload()
             ->live(onBlur: true)
             ->afterStateUpdated(function (Set $set, Field $component, $state) {
                 if ($state) {
@@ -40,11 +39,11 @@ class OrdemServicoVeiculoInput
                             Text::make('Possui agendamento em aberto.')->weight(FontWeight::Bold)->color(Color::Amber),
                         ]);
                     }
-                } else {
-                    Log::debug('Nenhum veículo selecionado.');
-                    $set('quilometragem', null);
-                    $component->afterLabel(null);
-                }
+                    return;
+                } 
+                $set('quilometragem', null);
+                $component->afterLabel(null);
+                
             })
             ->columnSpan([
                 'sm' => 1,

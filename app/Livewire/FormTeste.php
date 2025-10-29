@@ -3,6 +3,9 @@
 namespace App\Livewire;
 
 use App\Filament\Resources\OrdemServicos\Schemas\{OrdemServicoForm, Components};
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoDataAberturaInput;
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
 use App\Models\OrdemServico;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Concerns\InteractsWithRecord;
@@ -53,7 +56,7 @@ class FormTeste extends Component implements HasSchemas
                                         '2xl' => 6,
                                     ])
                                     ->schema([
-                                        OrdemServicoForm::getVeiculoIdFormField()
+                                        OrdemServicoVeiculoInput::make()
                                             ->columnSpan([
                                                 'default' => 2,
                                                 'xl' => 2
@@ -64,7 +67,7 @@ class FormTeste extends Component implements HasSchemas
                                                 'default' => 2,
                                                 'xl' => 2
                                             ]),
-                                        OrdemServicoForm::getTipoManutencaoFormField()
+                                        OrdemServicoTipoManutencaoInput::make()
                                             ->columnSpan([
                                                 'default' => 2,
                                                 'xl' => 2
@@ -85,7 +88,7 @@ class FormTeste extends Component implements HasSchemas
                                                 'default' => 2,
                                                 'xl' => 2
                                             ]),
-                                        OrdemServicoForm::getDataInicioFormField()
+                                        OrdemServicoDataAberturaInput::make()
                                             ->columnSpan([
                                                 'default' => 2,
                                                 'xl' => 2

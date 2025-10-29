@@ -9,6 +9,10 @@ class HistoricoQuilometragem extends Model
 {
     protected $table = 'historico_quilometragens';
 
+    protected $casts = [
+        'data_referencia' => 'datetime',
+    ];
+
     public function veiculo(): BelongsTo
     {
         return $this->belongsTo(Veiculo::class);

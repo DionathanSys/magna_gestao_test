@@ -46,7 +46,7 @@ class FormTeste extends Component implements HasSchemas
                         ->columnSpanFull()
                         ->tabs(
                             [
-                                Tabs\Tab::make('Inicio')
+                                Tabs\Tab::make('Informações Gerais')
                                     ->columns([
                                         'default' => 2,
                                         'xl' => 4,

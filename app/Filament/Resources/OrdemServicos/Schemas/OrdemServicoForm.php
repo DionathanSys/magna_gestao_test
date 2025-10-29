@@ -41,9 +41,11 @@ class OrdemServicoForm
                                         ->columnSpan(1)
                                         ->visibleOn('edit'),
                                     static::getStatusFormField()
-                                        ->columnSpan(1),
+                                        ->columnSpan(1)
+                                        ->visibleOn('edit'),
                                     static::getStatusSankhyaFormField()
-                                        ->columnSpan(1),
+                                        ->columnSpan(1)
+                                        ->visibleOn('edit'),
                                     static::getParceiroIdFormField()
                                         ->columnSpan(2),
                                 ])->grow(false),

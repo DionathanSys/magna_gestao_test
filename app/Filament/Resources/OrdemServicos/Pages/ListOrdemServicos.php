@@ -38,7 +38,8 @@ class ListOrdemServicos extends ListRecords
                 })
                 ->mutateDataUsing(function (array $data): array {
                     $data['created_by'] = Auth::user()->id;
-                dd($data);
+                    $data['status'] = Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE;
+                    $data['status_sankhya'] = Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE;
                     return $data;
                 }),
         ];

@@ -22,7 +22,10 @@ class OrdemServicoVeiculoInput
             ->searchPrompt('Buscar Veículo')
             ->placeholder('Buscar ...')
             ->autofocus(true)
-            ->relationship('veiculo', 'placa')
+            ->relationship('veiculo', 'placa', function ($query) {
+                $query->where('is_active', true)
+                    ->orderBy('placa', 'asc');
+            })
             ->required()
             ->searchable()
             ->preload()

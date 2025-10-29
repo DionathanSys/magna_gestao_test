@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -25,7 +26,7 @@ class KmVeiculoDesatualizado extends StatsOverviewWidget
         return [
             Stat::make('KM desatualizado', $veiculosDesatualizados)
                 ->description('Veículos sem atualização há > 2 dias')
-                ->descriptionIcon('heroicon-o-clock')
+                ->descriptionIcon(Heroicon::Clock)
                 ->color($veiculosDesatualizados > 0 ? 'danger' : 'success'),
         ];
     }

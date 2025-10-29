@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models\HistoricoQuilometragem;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Auth;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
@@ -72,6 +73,20 @@ class HistoricoQuilometragemResource extends Resource
                     ->autoApply()
                     ->firstDayOfWeek(0)
                     ->defaultYesterday(),
+                Filter::make('veiculo_desatualizado')
+                    ->label('Veículos com KM desatualizado')
+                    ->query(
+                        fn($query) =>
+                        $query->whereHas('veiculo', function ($veiculoQuery) {
+                            $veiculoQuery
+                                ->where('is_active', true)
+                                ->whereHas('kmAtual', function ($kmQuery) {
+                                    $kmQuery->where('data_referencia', '<', now()->subDays(2));
+                                })
+                                ->orWhereDoesntHave('kmAtual');
+                        })
+                    )
+                    ->toggle()
             ])
             ->recordActions([
                 EditAction::make(),

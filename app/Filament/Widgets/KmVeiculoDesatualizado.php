@@ -8,6 +8,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class KmVeiculoDesatualizado extends StatsOverviewWidget
 {
+    protected int | string | array $columnSpan = 'full';
+
+    protected static ?int $sort = 1;
+
     protected function getStats(): array
     {
         $veiculosDesatualizados = \App\Models\Veiculo::query()

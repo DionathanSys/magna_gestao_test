@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\KmRodadoPneu;
+use App\Filament\Widgets\KmVeiculoDesatualizado;
 use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Illuminate\Contracts\Support\Htmlable;
@@ -21,4 +23,18 @@ class DashboardPneus extends BaseDashboard
     protected static ?string $title = 'Dashboard Pneus';
 
     protected static ?int $navigationSort = -2;
+
+    public function getColumns(): int | array
+    {
+        return 2;
+    }
+
+    public function getWidgets(): array
+    {
+        return [
+            KmVeiculoDesatualizado::class,
+            KmRodadoPneu::class,
+        ];
+    }
+
 }

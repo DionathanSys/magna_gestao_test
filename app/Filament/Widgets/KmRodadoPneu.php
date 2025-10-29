@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 
 class KmRodadoPneu extends BaseWidget
 {
+    protected static ?int $sort = 2;
+
     protected string $view = 'filament.widgets.km-rodado-pneu';
 
     protected int $queryCount;

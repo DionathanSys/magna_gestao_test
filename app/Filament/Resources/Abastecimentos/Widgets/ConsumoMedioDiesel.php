@@ -19,8 +19,8 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
     public function getColumns(): int | array
     {
         return [
-            'sm' => 2,
-            'md' => 3,
+            'md' => 2,
+            'lg' => 3,
             'xl' => 5,
         ];
     }

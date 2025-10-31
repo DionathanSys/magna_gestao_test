@@ -123,6 +123,7 @@ class Abastecimento extends Model
         return Attribute::make(
             get: fn () => static::where('veiculo_id', $this->veiculo_id)
                 ->where('data_abastecimento', '<', $this->data_abastecimento)
+                ->where('considerar_calculo_medio', true)
                 ->orderBy('data_abastecimento', 'desc')
                 ->first()
         );

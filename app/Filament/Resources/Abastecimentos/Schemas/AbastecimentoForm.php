@@ -34,8 +34,6 @@ class AbastecimentoForm
                 TextInput::make('preco_por_litro')
                     ->required()
                     ->numeric(),
-                TextInput::make('preco_total')
-                    ->numeric(),
                 DateTimePicker::make('data_abastecimento')
                     ->required(),
                 Toggle::make('considerar_fechamento')

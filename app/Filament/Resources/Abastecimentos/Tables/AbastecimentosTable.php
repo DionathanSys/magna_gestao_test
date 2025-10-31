@@ -194,7 +194,6 @@ class AbastecimentosTable
                     ->defaultLast7Days(),
                 Filter::make('considera_no_calculo_media')
                     ->label('Abastecidas p/ cálculo médio')
-                    ->toggle()
                     ->query(fn (Builder $query): Builder => $query->where('considerar_calculo_medio', true)),
             ])
             ->recordActions([

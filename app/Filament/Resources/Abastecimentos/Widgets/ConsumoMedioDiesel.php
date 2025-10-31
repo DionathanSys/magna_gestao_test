@@ -42,8 +42,10 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
 
         $totalValor = $abastecimentosValidos->sum('preco_total');
 
+        $precoMedio = $abastecimentosValidos->avg('preco_por_litro');
+
         // Calcular consumo médio geral
-        $consumoMedio = $totalKmPercorrido > 0 ? round($totalKmPercorrido / $totalLitros, 2) : 0;
+        $consumoMedio = $totalKmPercorrido > 0 ? round($totalKmPercorrido / $totalLitros, 4) : 0;
 
         // Calcular custo médio por KM
         $custoPorKm = $totalValor > 0 ? round($totalValor / $totalKmPercorrido, 4) : 0;
@@ -61,12 +63,17 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
 
         return [
             Stat::make('Consumo Médio', number_format($consumoMedio, 2, ',', '.') . ' Km/L')
-                ->description("Baseado em {$totalAbastecimentosValidos} abastecimentos válidos")
+                ->description("Baseado em {$totalAbastecimentosValidos} de {$totalAbastecimentos} abastecimentos")
                 ->descriptionIcon(Heroicon::ChartBar)
                 ->color('success'),
 
             Stat::make('KM Total Percorrido', number_format($totalKmPercorrido, 0, ',', '.'))
-                ->description("Em {$totalAbastecimentosValidos} de {$totalAbastecimentos} abastecimentos")
+                ->description("Total Lts. {$totalLitros}")
+                ->descriptionIcon(Heroicon::ChartBarSquare)
+                ->color('info'),
+
+            Stat::make('Preço Médio', number_format($precoMedio, 4, ',', '.'))
+                ->description("{($totalValor/$totalLitros)} ")
                 ->descriptionIcon(Heroicon::ChartBarSquare)
                 ->color('info'),
 

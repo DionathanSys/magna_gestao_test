@@ -144,11 +144,9 @@ class AbastecimentosTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 ToggleColumn::make('considerar_fechamento')
                     ->label('Considerar Fechamento')
-                    ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
                 ToggleColumn::make('considerar_calculo_medio')
                     ->label('Considerar Cálculo Médio')
-                    ->boolean()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->label('Criado em')
@@ -194,6 +192,7 @@ class AbastecimentosTable
                     ->defaultLast7Days(),
                 Filter::make('considera_no_calculo_media')
                     ->label('Abastecidas p/ cálculo médio')
+                    ->toggle()
                     ->query(fn (Builder $query): Builder => $query->where('considerar_calculo_medio', true)),
             ])
             ->recordActions([

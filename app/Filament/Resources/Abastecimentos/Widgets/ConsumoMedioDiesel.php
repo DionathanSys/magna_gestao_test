@@ -16,6 +16,14 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
 
     protected ?string $pollingInterval = null;
 
+    public function getColumns(): int | array
+    {
+        return [
+            'md' => 4,
+            'xl' => 5,
+        ];
+    }
+
     protected function getTablePage(): string
     {
         return ListAbastecimentos::class;

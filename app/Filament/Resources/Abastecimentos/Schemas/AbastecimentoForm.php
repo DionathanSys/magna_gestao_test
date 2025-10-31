@@ -20,6 +20,7 @@ class AbastecimentoForm
                     ->numeric(),
                 Select::make('veiculo_id')
                     ->relationship('veiculo', 'placa')
+                    ->searchable()
                     ->required(),
                 TextInput::make('quilometragem')
                     ->required(),

@@ -32,27 +32,26 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
                    $abastecimento->quilometragem_percorrida !== null;
         });
 
-        // Calcular consumo médio geral
-        $consumoMedio = $abastecimentosValidos->isNotEmpty() 
-            ? round($abastecimentosValidos->avg('consumo_medio'), 2)
-            : 0;
-
         // Calcular total de KM percorrido
-        $totalKmPercorrido = $abastecimentos->sum(function ($abastecimento) {
+        $totalKmPercorrido = $abastecimentosValidos->sum(function ($abastecimento) {
             return $abastecimento->quilometragem_percorrida ?? 0;
         });
 
+        //Calcular total de Lts utilizado
+        $totalLitros = $abastecimentosValidos->sum('quantidade');
+
+        $totalValor = $abastecimentosValidos->sum('preco_total');
+
+        // Calcular consumo médio geral
+        $consumoMedio = $totalKmPercorrido > 0 ? round($totalKmPercorrido / $totalLitros, 2) : 0;
+
         // Calcular custo médio por KM
-        $custoPorKm = $abastecimentosValidos->isNotEmpty()
-            ? round($abastecimentosValidos->avg('custo_por_km'), 4)
-            : 0;
+        $custoPorKm = $totalValor > 0 ? round($totalValor / $totalKmPercorrido, 4) : 0;
 
         // Calcular totais para descrições adicionais
-        $totalLitros = $abastecimentos->sum('quantidade');
         $totalAbastecimentos = $abastecimentos->count();
-        $totalValor = $abastecimentos->sum(function ($abastecimento) {
-            return $abastecimento->valor_total ?? $abastecimento->preco_total ?? 0;
-        });
+        $totalAbastecimentosValidos = $abastecimentosValidos->count();
+        
 
         // Calcular frete total do período
         $freteTotal = $this->calcularFreteTotalPeriodo();
@@ -62,12 +61,12 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
 
         return [
             Stat::make('Consumo Médio', number_format($consumoMedio, 2, ',', '.') . ' Km/L')
-                ->description("Baseado em {$abastecimentosValidos->count()} abastecimentos válidos")
+                ->description("Baseado em {$totalAbastecimentosValidos} abastecimentos válidos")
                 ->descriptionIcon(Heroicon::ChartBar)
                 ->color('success'),
 
             Stat::make('KM Total Percorrido', number_format($totalKmPercorrido, 0, ',', '.'))
-                ->description("Em {$totalAbastecimentos} abastecimentos")
+                ->description("Em {$totalAbastecimentosValidos} de {$totalAbastecimentos} abastecimentos")
                 ->descriptionIcon(Heroicon::ChartBarSquare)
                 ->color('info'),
 

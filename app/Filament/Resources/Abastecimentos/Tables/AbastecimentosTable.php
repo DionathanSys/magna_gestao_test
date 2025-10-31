@@ -174,8 +174,7 @@ class AbastecimentosTable
                     ->label('Veículo')
                     ->relationship('veiculo', 'placa')
                     ->multiple()
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 SelectFilter::make('tipo_veiculo')
                     ->label('Tipo de Veículo')
                     ->relationship('veiculo.tipoVeiculo', 'descricao')

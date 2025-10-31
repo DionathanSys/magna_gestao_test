@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Abastecimentos\Widgets;
 
 use App\Models;
 use App\Filament\Resources\Abastecimentos\Pages\ListAbastecimentos;
+use Filament\Support\Enums\IconPosition;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget;
@@ -75,26 +76,27 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
         return [
             Stat::make('Consumo Médio', number_format($consumoMedio, 2, ',', '.') . ' Km/L')
                 ->description("Baseado em {$totalAbastecimentosValidos} de {$totalAbastecimentos} abastecimentos")
-                ->descriptionIcon(Heroicon::ChartBar)
+                ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),
 
             Stat::make('KM Total Percorrido', number_format($totalKmPercorrido, 0, ',', '.'))
                 ->description("Total Lts. " . number_format($totalLitros, 2, ',', '.'))
-                ->descriptionIcon(Heroicon::ChartBarSquare)
+                ->descriptionIcon(Heroicon::ChartBarSquare, IconPosition::Before)
                 ->color('info'),
 
             Stat::make('Preço Médio', "R$ ".number_format($precoMedio, 4, ',', '.'))
                 ->description("Faixa de Preço: R$ ". number_format($precoMinimo, 2, ',', '.') . " - R$ ". number_format($precoMaximo, 2, ',', '.'))
+                ->descriptionIcon(Heroicon::CurrencyDollar, IconPosition::Before)
                 ->color('info'),
 
             Stat::make('Custo por KM', 'R$ ' . number_format($custoPorKm, 4, ',', '.'))
                 ->description("Valor total: R$ " . number_format($totalValor, 2, ',', '.'))
-                ->descriptionIcon(Heroicon::CurrencyDollar)
+                ->descriptionIcon(Heroicon::CurrencyDollar, IconPosition::Before)
                 ->color('warning'),
 
             Stat::make('%/Faturamento', number_format($percentualDieselFrete, 2, ',', '.') . ' %')
                 ->description("Vlr. Frete: R$ " . number_format($freteTotal['valor'], 2, ',', '.') . " | {$freteTotal['documentos']} documentos")
-                ->descriptionIcon(Heroicon::Truck)
+                ->descriptionIcon(Heroicon::Truck, IconPosition::Before)
                 ->color('primary'),
         ];
     }

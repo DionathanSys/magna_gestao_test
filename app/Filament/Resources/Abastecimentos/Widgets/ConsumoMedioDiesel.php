@@ -84,7 +84,7 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
                 ->color('info'),
 
             Stat::make('Preço Médio', "R$ ".number_format($precoMedio, 4, ',', '.'))
-                ->description("Preço Mín. R$ ". number_format($precoMinimo, 2, ',', '.') . " Preço Máx. R$ ". number_format($precoMaximo, 2, ',', '.'))
+                ->description("Faixa de Preço: R$ ". number_format($precoMinimo, 2, ',', '.') . " - R$ ". number_format($precoMaximo, 2, ',', '.'))
                 ->color('info'),
 
             Stat::make('Custo por KM', 'R$ ' . number_format($custoPorKm, 4, ',', '.'))

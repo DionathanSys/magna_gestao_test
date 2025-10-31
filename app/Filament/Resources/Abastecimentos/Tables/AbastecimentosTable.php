@@ -17,6 +17,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
@@ -140,14 +142,14 @@ class AbastecimentosTable
                 TextColumn::make('tipo_combustivel')
                     ->label('Tipo de Combustível')
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('considerar_fechamento')
+                ToggleColumn::make('considerar_fechamento')
                     ->label('Considerar Fechamento')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('considerar_calculo_medio')
+                ToggleColumn::make('considerar_calculo_medio')
                     ->label('Considerar Cálculo Médio')
                     ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i:s')
@@ -190,6 +192,10 @@ class AbastecimentosTable
                     ->autoApply()
                     ->firstDayOfWeek(0)
                     ->defaultLast7Days(),
+                Filter::make('considera_no_calculo_media')
+                    ->label('Abastecidas p/ cálculo médio')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->where('considerar_calculo_medio', true)),
             ])
             ->recordActions([
                 EditAction::make()

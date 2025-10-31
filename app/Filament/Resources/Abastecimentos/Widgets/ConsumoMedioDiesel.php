@@ -52,6 +52,8 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
         $totalValor = $abastecimentosValidos->sum('preco_total');
 
         $precoMedio = $totalValor > 0 ? round($totalValor/$totalLitros, 4) : 0;
+        $precoMaximo = $abastecimentosValidos->max('preco_por_litro');
+        $precoMinimo = $abastecimentosValidos->min('preco_por_litro');
         
         // Calcular consumo médio geral
         $consumoMedio = $totalKmPercorrido > 0 ? round($totalKmPercorrido / $totalLitros, 4) : 0;
@@ -82,6 +84,7 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
                 ->color('info'),
 
             Stat::make('Preço Médio', "R$ ".number_format($precoMedio, 4, ',', '.'))
+                ->description("Preço Mín. R$ ". number_format($precoMinimo, 2, ',', '.') . " Preço Máx. R$ ". number_format($precoMaximo, 2, ',', '.'))
                 ->color('info'),
 
             Stat::make('Custo por KM', 'R$ ' . number_format($custoPorKm, 4, ',', '.'))

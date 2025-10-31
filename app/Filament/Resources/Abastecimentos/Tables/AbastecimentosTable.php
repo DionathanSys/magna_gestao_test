@@ -33,7 +33,7 @@ class AbastecimentosTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query): void {
-                $query->with(['veiculo.tipoVeiculo']);
+                $query->with(['veiculo:id,placa,tipo_veiculo_id','veiculo.tipoVeiculo:id,meta_media']);
             })
             ->columns([
                 TextColumn::make('id_abastecimento')

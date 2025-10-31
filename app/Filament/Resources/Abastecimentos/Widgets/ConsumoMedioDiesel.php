@@ -19,7 +19,8 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
     public function getColumns(): int | array
     {
         return [
-            'md' => 4,
+            'sm' => 2,
+            'md' => 3,
             'xl' => 5,
         ];
     }
@@ -81,8 +82,6 @@ class ConsumoMedioDiesel extends StatsOverviewWidget
                 ->color('info'),
 
             Stat::make('Preço Médio', "R$ ".number_format($precoMedio, 4, ',', '.'))
-                ->description("{()} ")
-                ->descriptionIcon(Heroicon::ChartBarSquare)
                 ->color('info'),
 
             Stat::make('Custo por KM', 'R$ ' . number_format($custoPorKm, 4, ',', '.'))

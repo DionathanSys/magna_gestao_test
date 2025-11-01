@@ -25,6 +25,8 @@ class IntegradoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
+
     protected static ?string $modelLabel = 'Integrado';
 
     protected static ?string $pluralModelLabel = 'Integrados';

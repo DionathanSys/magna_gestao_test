@@ -21,6 +21,8 @@ class CargaViagemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-square-3-stack-3d';
+
     protected static ?string $modelLabel = 'Carga Viagem';
 
     protected static ?string $pluralModelLabel = 'Cargas Viagem';

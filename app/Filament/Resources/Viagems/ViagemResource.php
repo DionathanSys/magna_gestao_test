@@ -24,6 +24,8 @@ class ViagemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-map';
+
     protected static ?string $modelLabel = 'Viagem';
 
     protected static ?string $pluralModelLabel = 'Viagens';

@@ -23,6 +23,12 @@ class AgendamentoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-clock';
+
+    protected static ?string $modelLabel = 'Agendamento';
+
+    protected static ?string $pluralModelLabel = 'Agendamentos';
+
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema

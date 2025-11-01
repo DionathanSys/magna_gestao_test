@@ -25,6 +25,8 @@ class DocumentoFreteResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-newspaper';
+
     protected static ?string $modelLabel = 'Documento Frete';
 
     protected static ?string $pluralModelLabel = 'Documentos Frete';

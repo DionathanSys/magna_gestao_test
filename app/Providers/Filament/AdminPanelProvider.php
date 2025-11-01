@@ -27,7 +27,17 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             // ->topNavigation()
-            ->sidebarCollapsibleOnDesktop()
+            ->sidebarFullyCollapsibleOnDesktop()
+            ->navigationGroups([
+                'Manutenção',
+                'Pneus',
+                'Viagens',
+                'Veículos',
+                'Inspeções',
+                'Cadastros',
+                'Configurações',
+            ])
+            ->topbar(false)
             ->maxContentWidth(Width::Full)
             ->globalSearchKeyBindings(['command+s', 'ctrl+s'])
             ->brandName('Magna Gestão')
@@ -41,12 +51,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-            ])
+            ->pages([])
             // ->discoverWidgets(in: app_path(''), for: '')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

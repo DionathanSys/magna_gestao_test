@@ -24,7 +24,13 @@ class VeiculoResource extends Resource
 {
     protected static ?string $model = Veiculo::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
+    protected static string|UnitEnum|null $navigationGroup = 'Veículos';
+
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-truck';
+
+    protected static ?string $modelLabel = 'Veículos';
+
+    protected static ?string $pluralModelLabel = 'Veículos';
 
     protected static ?string $recordTitleAttribute = 'placa';
 

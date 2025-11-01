@@ -22,10 +22,19 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Auth;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
+use UnitEnum;
 
 class HistoricoQuilometragemResource extends Resource
 {
     protected static ?string $model = HistoricoQuilometragem::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Veículos';
+
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
+
+    protected static ?string $modelLabel = 'Hit. Quilometragem';
+
+    protected static ?string $pluralModelLabel = 'Hist. Quilometragens';
 
     public static function form(Schema $schema): Schema
     {

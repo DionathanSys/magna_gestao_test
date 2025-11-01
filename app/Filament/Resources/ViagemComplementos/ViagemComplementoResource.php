@@ -21,9 +21,11 @@ class ViagemComplementoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-document-plus';
+
     protected static ?string $modelLabel = 'Complemento Viagem';
 
-    protected static ?string $pluralModelLabel = 'Complementos Viagem';
+    protected static ?string $pluralModelLabel = 'Complemento Viagens';
 
     protected static ?string $recordTitleAttribute = 'numero_viagem';
 

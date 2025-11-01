@@ -24,6 +24,8 @@ class ParceiroResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $recordTitleAttribute = 'nome';
 
     public static function form(Schema $schema): Schema

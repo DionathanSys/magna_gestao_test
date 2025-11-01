@@ -23,6 +23,12 @@ class ServicoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-wrench';
+
+    protected static ?string $modelLabel = 'Serviços';
+
+    protected static ?string $pluralModelLabel = 'Serviços';
+
     protected static ?string $recordTitleAttribute = 'descricao';
 
     public static function form(Schema $schema): Schema

@@ -28,6 +28,8 @@ class OrdemServicoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    
     protected static ?string $modelLabel = 'Ordem Serviço';
 
     protected static ?string $pluralModelLabel = 'Ordens Serviço';

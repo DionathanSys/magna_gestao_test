@@ -23,6 +23,8 @@ class ChecklistResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
 
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-numbered-list';
+
     public static function form(Schema $schema): Schema
     {
         return ChecklistForm::configure($schema);

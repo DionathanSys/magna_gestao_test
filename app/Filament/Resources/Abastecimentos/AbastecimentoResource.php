@@ -14,10 +14,19 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AbastecimentoResource extends Resource
 {
     protected static ?string $model = Abastecimento::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Veículos';
+
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-inbox';
+
+    protected static ?string $modelLabel = 'Abastecimento';
+
+    protected static ?string $pluralModelLabel = 'Abastecimentos';
 
     protected static ?string $recordTitleAttribute = 'id_abastecimento';
 

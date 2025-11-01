@@ -73,6 +73,12 @@ class PneuForm
                     ->visibleOn('create')
                     ->columns(12)
                     ->columnSpanFull()
+                    ->footer([
+                        Action::make('test')
+                            ->action(function (array $data, Get $get) {
+                                dd($data, $get('numero_fogo'));
+                            })->label('Registrar Recapagem'),
+                    ])
                     ->schema([
                         TextInput::make('recap.pneu_id')
                             ->label('Pneu')

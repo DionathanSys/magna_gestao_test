@@ -75,8 +75,8 @@ class PneuForm
                     ->columnSpanFull()
                     ->footer([
                         Action::make('test')
-                            ->action(function (array $data, Get $get) {
-                                dd($data, $get('numero_fogo'));
+                            ->action(function (array $data, Get $get, \Filament\Schemas\Components\Component $component) {
+                                dd($get(), $component);
                             })->label('Registrar Recapagem'),
                     ])
                     ->schema([

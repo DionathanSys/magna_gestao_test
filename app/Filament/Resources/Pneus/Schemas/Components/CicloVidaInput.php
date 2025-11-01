@@ -7,7 +7,7 @@ use App\Services\NotificacaoService as notify;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 
-class CicloVidaPneuInput
+class CicloVidaInput
 {
     public static function make(): TextInput
     {

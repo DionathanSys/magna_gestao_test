@@ -28,8 +28,8 @@ class PneuForm
             ->components([
                 Components\NumeroFogoInput::make()
                     ->columnSpan(5),
-                Components\CicloVidaPneuInput::make()
-                    ->columnSpan(2),
+                // Components\CicloVidaPneuInput::make()
+                //     ->columnSpan(2),
                 TextInput::make('valor')
                     ->columnSpan(3)
                     ->numeric()

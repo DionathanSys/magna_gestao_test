@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Icon;
 use Filament\Support\Icons\Heroicon;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Wizard;
 
 class NumeroFogoInput
 {
@@ -20,7 +21,7 @@ class NumeroFogoInput
             ->numeric()
             ->maxLength(255)
             ->live(onBlur: true)
-            ->afterStateUpdated(function (Set $set, Field $component, $state) {
+            ->afterStateUpdated(function (Set $set, Field $component, Wizard $w, $state) {
                 if ($state) {
                     $pneu = Models\Pneu::query()
                         ->where('numero_fogo', $state)
@@ -32,9 +33,10 @@ class NumeroFogoInput
                             titulo: 'Atenção',
                             mensagem: "Já existe um pneu cadastrado com o Nº de Fogo: {$state}",
                         );
+                        $w->nextStep($w->getCurrentStepIndex());
                         return;
                     }
-                    $component->afterLabel([Icon::make(Heroicon::CheckBadge),'Pneu sem cadastrado']);
+                    $component->afterLabel([Icon::make(Heroicon::CheckCircle),'Pneu sem cadastrado']);
                     $set('recap.pneu_id', null);
                 }
             });

@@ -8,9 +8,16 @@ use App\Filament\Resources\Pneus\Actions;
 use App\Enum;
 use App\Services\NotificacaoService as notify;
 use App\Filament\Resources\Pneus\PneuResource;
+use App\Filament\Resources\Pneus\Schemas\Components;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -78,6 +85,46 @@ class ListPneus extends ListRecords
                     ];
                 })
                 ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),
+            Action::make('teste')
+                ->label('C/ Assistente')
+                ->schema([
+                    Wizard::make([
+                        Step::make('Pneu')
+                            ->columns(12)
+                            ->schema([
+                                Components\NumeroFogoInput::make()
+                                    ->columnSpan(['md' => 5]),
+
+                            ]),
+                        Step::make('recap')
+                            ->schema([
+                                DatePicker::make('recap.data_recapagem')
+                                    ->date('d/m/Y')
+                                    ->columnSpan(3)
+                                    ->displayFormat('d/m/Y')
+                                    ->closeOnDateSelection()
+                                    ->default(now())
+                                    ->maxDate(now()),
+                                
+                                Select::make('recap.desenho_pneu_id_recapagem')
+                                    ->label('Desenho Borracha')
+                                    ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', 'RECAPADO'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->columnSpan(4),
+                            ]),
+                        Step::make('teste')
+                            ->schema([
+                                TextInput::make('recap.valor_recapagem')
+                                    ->label('Valor')
+                                    ->columnSpan(3)
+                                    ->numeric()
+                                    ->default(0)
+                                    ->prefix('R$'),
+                            ])
+                    ])->skippable()
+                ])
+
         ];
     }
 

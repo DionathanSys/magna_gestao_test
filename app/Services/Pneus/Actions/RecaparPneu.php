@@ -16,6 +16,11 @@ class RecaparPneu
     public function handle(array $data): ?Models\Recapagem
     {
         $this->validate($data);
+        
+        if ($this->hasError) {
+            return null;
+        }
+
         return Models\Recapagem::create($data);
     }
 

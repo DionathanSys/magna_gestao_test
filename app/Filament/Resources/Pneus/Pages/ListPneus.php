@@ -33,7 +33,7 @@ class ListPneus extends ListRecords
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
                 ->using(function (array $data, array $arguments): ?Models\Pneu {
-                    dd($data, $arguments);
+                    
                     $dataRecap = $data['recap'];
                     unset($data['recap']);
 
@@ -41,15 +41,17 @@ class ListPneus extends ListRecords
                     $pneu = $service->create($data);
 
                     if ($service->hasError()) {
-                        notify::error(titulo: 'Erro ao criar pneu', mensagem: $service->getMessage());
+                        notify::error(titulo: 'Erro ao cadastrar pneu', mensagem: $service->getMessage());
                         $this->halt();
                     }
 
-                    notify::success('Pneu criado com sucesso.');
+                    notify::success('Pneu cadastrado com sucesso.');
 
                     if ($arguments['recapar'] ?? false) {
 
-                        $dataRecap = $this->mutateDataRecap(array_merge($dataRecap, ['pneu_id' => $pneu->id]));
+                        $dataRecap = $this->mutateDataRecap(
+                            array_merge($dataRecap, ['pneu_id' => $pneu->id])
+                        );
 
                         Log::debug(__METHOD__ . ' - Iniciando recapagem após criação do pneu', ['data_recap' => $dataRecap]);
 
@@ -83,8 +85,8 @@ class ListPneus extends ListRecords
                     return [
                         $action->makeModalSubmitAction('criarERecapar', arguments: ['recapar' => true]),
                         $action->makeModalSubmitAction('salvarECriarOutro', arguments: ['another' => true]),
-                        Actions\RecaparPneuAction::make()
-                            ->fillForm(fn(array $mountedActions) => ['pneu_id' => $mountedActions[0]->getRawData()['recap']['pneu_id'] ?? null]),
+                        // Actions\RecaparPneuAction::make()
+                        //     ->fillForm(fn(array $mountedActions) => ['pneu_id' => $mountedActions[0]->getRawData()['recap']['pneu_id'] ?? null]),
 
                     ];
                 })

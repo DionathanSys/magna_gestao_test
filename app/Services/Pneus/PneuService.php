@@ -17,17 +17,22 @@ class PneuService
 
             $action = new Actions\CreatePneu();
             $pneu = $action->handle($data);
+
+            if ($pneu === null || $action->hasError) {
+                $this->setError($action->message, $action->errors);
+                return null;
+            }
+
             $this->setSuccess('Pneu criado com sucesso.');
             return $pneu;
         } catch (\Exception $e) {
-
-            Log::error('Erro ao criar pneu', [
+            Log::error('Erro ao cadastrar pneu', [
                 'metodo' => __METHOD__ . '-' . __LINE__,
                 'error' => $e->getMessage(),
                 'data' => $data
             ]);
 
-            $this->setError('Erro ao criar pneu: ' . $e->getMessage());
+            $this->setError('Erro ao cadastrar pneu. ' . $e->getMessage());
             return null;
         }
     }

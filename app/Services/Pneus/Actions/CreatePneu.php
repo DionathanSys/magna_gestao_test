@@ -9,27 +9,26 @@ use Illuminate\Support\Facades\Validator;
 
 class CreatePneu
 {
+
+    public $message     = '';
+    public $hasError    = false;
+    public $errors      = [];
+    
     public function handle(array $data): ?Models\Pneu
     {
-        Log::debug(__METHOD__ . ' - Dados recebidos para criação de pneu', ['data' => $data]);
-        
         $this->validate($data);
-        return Models\Pneu::create($data);
-    }
 
-    private function exists(int $numeroFogoPneu): bool
-    {
-        if (Models\Pneu::where('numero_fogo', $numeroFogoPneu)->exists()) {
-            return true;
+        if ($this->hasError) {
+            return null;
         }
 
-        return false;
+        return Models\Pneu::create($data);
     }
 
     private function validate(array $data): void
     {
-        Validator::make($data, [
-            'numero_fogo'       => 'required|integer',
+        $validator = Validator::make($data, [
+            'numero_fogo'       => 'required|integer|unique:pneus,numero_fogo',
             'medida'            => 'required',
             'marca'             => 'required',
             'modelo'            => 'nullable',
@@ -39,10 +38,18 @@ class CreatePneu
             'status'            => 'required|in:' . implode(',', array_column(Enum\Pneu\StatusPneuEnum::cases(), 'value')),
             'ciclo_vida'        => 'required|integer|min:0',
             'data_aquisicao'    => 'required|date',
-        ])->validate();
+        ]);
 
-        if ($this->exists($data['numero_fogo'])) {
-            throw new \InvalidArgumentException("Pneu nº de fogo {$data['numero_fogo']} já existe.");
+        if($validator->fails()) {
+            $this->hasError = true;
+            $this->message = 'Erro de validação ao criar pneu.';
+            $this->errors = $validator->errors()->all();
+
+            Log::error('Erro de validação ao criar pneu', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'data' => $data,
+                'errors' => $this->errors
+            ]);
         }
     }
 }

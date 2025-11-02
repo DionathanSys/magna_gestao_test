@@ -36,6 +36,15 @@ class RecaparPneu
             'valor'             => 'nullable|numeric|min:0',
             'desenho_pneu_id'   => 'required|exists:desenhos_pneu,id',
             'data_recapagem'    => 'required|date',
+        ], [
+            'pneu_id.required'          => 'O campo Pneu é obrigatório.',
+            'pneu_id.exists'            => 'O Pneu informado não existe.',
+            'valor.numeric'             => 'O campo Valor deve ser um número válido.',
+            'valor.min'                 => 'O campo Valor deve ser maior ou igual a 0.',
+            'desenho_pneu_id.required'  => 'O campo Desenho do Pneu é obrigatório.',
+            'desenho_pneu_id.exists'    => 'O Desenho do Pneu informado não existe.',
+            'data_recapagem.required'   => 'O campo Data da Recapagem é obrigatório.',
+            'data_recapagem.date'       => 'O campo Data da Recapagem deve ser uma data válida.',
         ]);
 
         if ($validator->fails()) {
@@ -52,10 +61,6 @@ class RecaparPneu
         }
 
         if ($this->validarStatusPneu($data['pneu_id']) === false) {
-            Log::error('Erro ao validar status do pneu para recapagem', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
-                'pneu_id' => $data['pneu_id']
-            ]);
             return;
         }
     }
@@ -69,6 +74,12 @@ class RecaparPneu
         if (in_array($pneu->status->value, [Enum\Pneu\StatusPneuEnum::EM_USO, Enum\Pneu\StatusPneuEnum::SUCATA])) {
             $this->hasError = true;
             $this->message  = 'Status do pneu inválido para recapagem. Status atual: ' . $pneu->status->label;
+
+            Log::error('Erro ao validar status do pneu para recapagem', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'pneu'   => $pneu,
+            ]);
+
             return false;
         }
 

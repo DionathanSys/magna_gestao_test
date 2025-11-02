@@ -26,6 +26,11 @@ class RecaparPneu
 
     private function validate(array $data): void
     {
+        Log::debug('Validando dados para recapagem de pneu', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'data'   => $data
+        ]);
+        
         $validator = Validator::make($data, [
             'pneu_id'           => 'required|exists:pneus,id',
             'valor'             => 'nullable|numeric|min:0',

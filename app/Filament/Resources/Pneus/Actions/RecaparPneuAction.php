@@ -24,12 +24,12 @@ class RecaparPneuAction
             ->label('Registrar Recapagem')
             ->color('info')
             ->action(function (Action $action, Get $get) {
-                dd($get('recap'));
+                
                 $service = new Services\Pneus\PneuService();
                 $service->recapar($get('recap'));
 
                 if ($service->hasError()) {
-                    notify::error(titulo: 'Erro ao recapar pneu', mensagem: $service->getMessage());
+                    notify::error(titulo: 'Falha no processo de recapagem', mensagem: $service->getMessage());
                     $action->halt();
                 }
 

@@ -4,6 +4,7 @@ namespace App\Services\Pneus;
 
 use App\Models;
 use App\Traits\ServiceResponseTrait;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PneuService
@@ -18,55 +19,67 @@ class PneuService
             $pneu = $action->handle($data);
             $this->setSuccess('Pneu criado com sucesso.');
             return $pneu;
-
         } catch (\Exception $e) {
 
             Log::error('Erro ao criar pneu', [
-                'metodo' => __METHOD__.'-'.__LINE__,
+                'metodo' => __METHOD__ . '-' . __LINE__,
                 'error' => $e->getMessage(),
-                'data' => $data]);
+                'data' => $data
+            ]);
 
             $this->setError('Erro ao criar pneu: ' . $e->getMessage());
             return null;
         }
-
     }
 
     public function recapar(array $data): ?Models\Recapagem
     {
         try {
+            return DB::transaction(function () use ($data) {
+                $action = new Actions\RecaparPneu();
+                $recapagem = $action->handle($data);
 
-            Log::debug(__METHOD__ . ' - Iniciando recapagem do pneu', ['data' => $data]);
+                if ($recapagem === null || $action->hasError) {
+                    $this->setError($action->message, $action->errors);
+                    return null;
+                }
 
-            $action = new Actions\RecaparPneu();
-            $recapagem = $action->handle($data);
+                if (! self::atualizarCicloVida($recapagem->pneu_id)) {
+                    throw new \RuntimeException('Falha ao atualizar ciclo de vida do pneu');
+                }
 
-            self::atualizarCicloVida($recapagem);
-            $this->setSuccess('Recapagem realizada com sucesso.');
-            return $recapagem;
+                Log::info(__METHOD__ . ' - Recapagem realizada com sucesso', [
+                    'recapagem_id' => $recapagem->id,
+                    'pneu_id' => $recapagem->pneu_id,
+                ]);
 
+                $this->setSuccess('Recapagem realizada com sucesso.');
+                return $recapagem;
+            });
         } catch (\Exception $e) {
-
             Log::error('Erro ao recapar pneu', [
-                'metodo' => __METHOD__.'-'.__LINE__,
-                'error' => $e->getMessage(),
-                'data' => $data]);
-
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'error'  => $e->getMessage(),
+                'data'   => $data
+            ]);
             $this->setError('Erro ao recapar pneu: ' . $e->getMessage());
             return null;
         }
-
     }
 
-    public static function atualizarCicloVida(Models\Recapagem $recapagem)
+    public static function atualizarCicloVida(int $pneuId): bool
     {
-        Log::debug('Atualizando ciclo de vida do pneu', [
-            'pneu_id' => $recapagem->pneu_id,
-            'recapagem_id' => $recapagem->id,
-        ]);
-        $pneu = Models\Pneu::find($recapagem->pneu_id);
-        $pneu->ciclo_vida = $pneu->ciclo_vida + 1;
-        $pneu->save();
+        try {
+            $action = new Actions\IncrementCicloVidaPneu();
+            return $action->handle($pneuId);
+        } catch (\Exception $e) {
+            Log::error('Erro ao atualizar ciclo de vida do pneu', [
+                'metodo'    => __METHOD__ . '-' . __LINE__,
+                'error'     => $e->getMessage(),
+                'pneu_id'   => $pneuId
+            ]);
+            return false;
+        }
     }
 
     public function getPneusDisponiveis(): array
@@ -74,8 +87,4 @@ class PneuService
         $query = new Queries\GetPneuDisponivel();
         return $query->handle();
     }
-
-
-
-
 }

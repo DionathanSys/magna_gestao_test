@@ -17,6 +17,7 @@ class NumeroFogoInput
     {
         return TextInput::make('numero_fogo')
             ->label('Nº de Fogo')
+            ->reactive()
             ->required()
             ->numeric()
             ->maxLength(255)

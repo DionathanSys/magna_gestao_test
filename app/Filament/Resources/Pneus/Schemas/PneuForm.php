@@ -84,6 +84,8 @@ class PneuForm
                     ->columnSpanFull()
                     ->afterHeader([
                         Actions\RecaparPneuAction::make('recapar')
+                            ->tooltip('Apenas para uso de pneus já cadastrados')
+                            ->disabled(fn (Get $get) => empty($get('numero_fogo'))),
                     ])
                     ->schema([
                         Hidden::make('recap.pneu_id'),

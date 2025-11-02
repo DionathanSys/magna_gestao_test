@@ -23,9 +23,9 @@ class PneuService
                 return null;
             }
 
-            $this->setSuccess('Pneu criado com sucesso.');
+            $this->setSuccess('Pneu cadastrado com sucesso.');
             return $pneu;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Erro ao cadastrar pneu', [
                 'metodo' => __METHOD__ . '-' . __LINE__,
                 'error' => $e->getMessage(),
@@ -61,7 +61,7 @@ class PneuService
                 $this->setSuccess('Recapagem realizada com sucesso.');
                 return $recapagem;
             });
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Erro ao recapar pneu', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'error'  => $e->getMessage(),

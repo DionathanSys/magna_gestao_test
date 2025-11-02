@@ -48,7 +48,7 @@ class RecaparPneu
                 'errors' => $this->errors,
                 'data'   => $data
             ]);
-            return;
+            // return;
         }
 
         if ($this->validarStatusPneu($data['pneu_id']) === false) {

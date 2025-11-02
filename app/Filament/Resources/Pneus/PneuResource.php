@@ -8,6 +8,7 @@ use App\Filament\Resources\Pneus\Pages\ListPneus;
 use App\Filament\Resources\Pneus\Pages\ViewPneu;
 use App\Filament\Resources\Pneus\RelationManagers\ConsertosRelationManager;
 use App\Filament\Resources\Pneus\RelationManagers\HistoricoMovimentacaoRelationManager;
+use App\Filament\Resources\Pneus\RelationManagers\RecapagensRelationManager;
 use App\Filament\Resources\Pneus\Schemas\PneuForm;
 use App\Filament\Resources\Pneus\Schemas\PneuInfolist;
 use App\Filament\Resources\Pneus\Tables\PneusTable;
@@ -51,6 +52,7 @@ class PneuResource extends Resource
         return [
             RelationGroup::make('Grupo de Relações', [
                 HistoricoMovimentacaoRelationManager::class,
+                RecapagensRelationManager::class,
                 ConsertosRelationManager::class,
             ])
         ];

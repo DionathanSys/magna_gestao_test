@@ -25,6 +25,11 @@ class Pneu extends Model
         return $this->hasMany(Conserto::class, 'pneu_id');
     }
 
+    public function recapagens(): HasMany
+    {
+        return $this->hasMany(Recapagem::class, 'pneu_id');
+    }
+
     public function veiculo(): HasOneThrough
     {
         return $this->hasOneThrough(

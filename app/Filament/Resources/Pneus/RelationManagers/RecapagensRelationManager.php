@@ -39,9 +39,9 @@ class RecapagensRelationManager extends RelationManager
                     ->searchable(),
                 TextColumn::make('data_recapagem')
                     ->date('d/m/Y'),
-                TextColumn::make('desenho_pneu_id.descricao')
+                TextColumn::make('desenhoPneu.descricao')
                     ->label('Desenho'),
-                TextColumn::make('desenho_pneu_id.modelo')
+                TextColumn::make('desenhoPneu.modelo')
                     ->label('Modelo'),
                 TextColumn::make('valor')
                     ->money('BRL')

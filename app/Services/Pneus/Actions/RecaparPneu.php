@@ -30,7 +30,7 @@ class RecaparPneu
             'metodo' => __METHOD__ . '@' . __LINE__,
             'data'   => $data
         ]);
-        
+
         $validator = Validator::make($data, [
             'pneu_id'           => 'required|exists:pneus,id',
             'valor'             => 'nullable|numeric|min:0',
@@ -48,6 +48,7 @@ class RecaparPneu
                 'errors' => $this->errors,
                 'data'   => $data
             ]);
+            return;
         }
 
         if ($this->validarStatusPneu($data['pneu_id']) === false) {
@@ -55,6 +56,7 @@ class RecaparPneu
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'pneu_id' => $data['pneu_id']
             ]);
+            return;
         }
     }
 

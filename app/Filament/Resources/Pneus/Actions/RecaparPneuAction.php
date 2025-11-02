@@ -25,8 +25,9 @@ class RecaparPneuAction
             ->color('info')
             ->action(function (Action $action, Get $get) {
                 
+                $data = self::mutateDataRecap($get('recap') ?? []);
                 $service = new Services\Pneus\PneuService();
-                $service->recapar($get('recap'));
+                $service->recapar($data);
 
                 if ($service->hasError()) {
                     notify::error(titulo: 'Falha no processo de recapagem', mensagem: $service->getMessage());
@@ -35,5 +36,17 @@ class RecaparPneuAction
 
                 notify::success('Recapagem realizada com sucesso.');
             });
+    }
+
+    private static function mutateDataRecap(array $data): array
+    {
+        //Normalizar os indices do array, devido conflito de nomes no form
+        //entre os campos do pneu e da recapagem
+        return [
+            'pneu_id'           => $data['pneu_id'],
+            'valor'             => $data['valor_recapagem'],
+            'desenho_pneu_id'   => $data['desenho_pneu_id_recapagem'],
+            'data_recapagem'    => $data['data_recapagem'],
+        ];
     }
 }

@@ -84,7 +84,6 @@ class PneuForm
                     ->columnSpanFull()
                     ->afterHeader([
                         Actions\RecaparPneuAction::make('recapar')
-                            ->mutateDataUsing(fn (array $data) => self::mutateDataRecap($data))
                             ->tooltip('Apenas para uso de pneus já cadastrados')
                             ->disabled(fn (Get $get) => empty($get('recap.pneu_id'))),
                     ])
@@ -116,15 +115,5 @@ class PneuForm
             ]);
     }
 
-    private static function mutateDataRecap(array $data): array
-    {
-        //Normalizar os indices do array, devido conflito de nomes no form
-        //entre os campos do pneu e da recapagem
-        return [
-            'pneu_id'           => $data['pneu_id'],
-            'valor'             => $data['valor_recapagem'],
-            'desenho_pneu_id'   => $data['desenho_pneu_id_recapagem'],
-            'data_recapagem'    => $data['data_recapagem'],
-        ];
-    }
+    
 }

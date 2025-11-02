@@ -33,8 +33,7 @@ class ListPneus extends ListRecords
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
                 ->using(function (array $data, array $arguments): ?Models\Pneu {
-                    Log::debug(__METHOD__ . ' - Dados do formulário de criação de pneu', ['data' => $data, 'arguments' => $arguments]);
-
+                    dd($data, $arguments);
                     $dataRecap = $data['recap'];
                     unset($data['recap']);
 
@@ -48,7 +47,7 @@ class ListPneus extends ListRecords
 
                     notify::success('Pneu criado com sucesso.');
 
-                    if (array_key_exists('recapar', $arguments) && $arguments['recapar']) {
+                    if ($arguments['recapar'] ?? false) {
 
                         $dataRecap = $this->mutateDataRecap(array_merge($dataRecap, ['pneu_id' => $pneu->id]));
 
@@ -67,13 +66,18 @@ class ListPneus extends ListRecords
                         return $pneu;
                     }
 
-                    if ($arguments['another']) {
+                    if ($arguments['another'] ?? false) {
                         $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
                         return $pneu;
                     }
 
                     return $pneu;
                 })
+                ->registerModalActions([
+                    Action::make('report')
+                        ->requiresConfirmation()
+                        ->action(fn($record) => dd($record)),
+                ])
                 ->successNotification(null)
                 ->extraModalFooterActions(function (CreateAction $action, array $data): array {
                     return [
@@ -85,45 +89,6 @@ class ListPneus extends ListRecords
                     ];
                 })
                 ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),
-            Action::make('teste')
-                ->label('C/ Assistente')
-                ->schema([
-                    Wizard::make([
-                        Step::make('Pneu')
-                            ->columns(12)
-                            ->schema([
-                                Components\NumeroFogoInput::make()
-                                    ->columnSpan(['md' => 5]),
-
-                            ]),
-                        Step::make('recap')
-                            ->schema([
-                                DatePicker::make('recap.data_recapagem')
-                                    ->date('d/m/Y')
-                                    ->columnSpan(3)
-                                    ->displayFormat('d/m/Y')
-                                    ->closeOnDateSelection()
-                                    ->default(now())
-                                    ->maxDate(now()),
-                                
-                                Select::make('recap.desenho_pneu_id_recapagem')
-                                    ->label('Desenho Borracha')
-                                    ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', 'RECAPADO'))
-                                    ->searchable()
-                                    ->preload()
-                                    ->columnSpan(4),
-                            ]),
-                        Step::make('teste')
-                            ->schema([
-                                TextInput::make('recap.valor_recapagem')
-                                    ->label('Valor')
-                                    ->columnSpan(3)
-                                    ->numeric()
-                                    ->default(0)
-                                    ->prefix('R$'),
-                            ])
-                    ])->skippable()
-                ])
 
         ];
     }

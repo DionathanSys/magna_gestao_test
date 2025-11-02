@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Enum\Pneu\EstadoPneuEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DesenhoPneu extends Model
 {
     protected $table = 'desenhos_pneu';
+
+    protected $casts = [
+        'estado_pneu' => EstadoPneuEnum::class,
+    ];
 
     public function pneus(): HasMany
     {

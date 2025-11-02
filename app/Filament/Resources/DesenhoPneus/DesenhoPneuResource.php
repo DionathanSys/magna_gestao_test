@@ -2,25 +2,19 @@
 
 namespace App\Filament\Resources\DesenhoPneus;
 
+use App\{Models, Enum};
 use App\Filament\Resources\DesenhoPneus\Pages\ManageDesenhoPneus;
-use App\Models\DesenhoPneu;
-use BackedEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction};
+use Filament\Forms\Components\{Select, TextInput};
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use UnitEnum;
 
 class DesenhoPneuResource extends Resource
 {
-    protected static ?string $model = DesenhoPneu::class;
+    protected static ?string $model = Models\DesenhoPneu::class;
 
     protected static string|UnitEnum|null $navigationGroup = 'Pneus';
 
@@ -41,18 +35,15 @@ class DesenhoPneuResource extends Resource
                 TextInput::make('modelo')
                     ->label('Modelo')
                     ->columnSpan(12)
-                    ->afterLabel('Novo: Modelo da Carcaça - Recapado: Modelo da Banda')
+                    ->afterLabel('Novo: Modelo da Carcaça | Recapado: Modelo da Banda')
                     ->nullable()
                     ->maxLength(100),
                 Select::make('estado_pneu')
                     ->label('Estado do Pneu')
                     ->columnSpan(4)
                     ->native(false)
-                    ->options([
-                        'NOVO'     => 'NOVO',
-                        'RECAPADO' => 'RECAPADO',
-                    ])
-                    ->default('RECAPADO'),
+                    ->options(Enum\Pneu\EstadoPneuEnum::toSelectArray())
+                    ->default(Enum\Pneu\EstadoPneuEnum::RECAPADO->value),
                 TextInput::make('medida')
                     ->label('Medida Borracha')
                     ->columnSpan(2)

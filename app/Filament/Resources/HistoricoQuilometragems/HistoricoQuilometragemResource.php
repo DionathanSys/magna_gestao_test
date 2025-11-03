@@ -19,6 +19,7 @@ use App\Models\HistoricoQuilometragem;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
@@ -59,14 +60,22 @@ class HistoricoQuilometragemResource extends Resource
             ->columns([
                 TextColumn::make('id'),
                 TextColumn::make('veiculo.placa')
-                    ->label('Veículo'),
+                    ->label('Veículo')
+                    ->sortable(),
                 TextColumn::make('quilometragem')
                     ->numeric(0, ',', '.'),
                 TextColumn::make('data_referencia')
                     ->label('Data de Referência')
-                    ->date('d/m/Y'),
+                    ->date('d/m/Y')
+                    ->sortable(),
             ])
             ->defaultSort('data_referencia', 'desc')
+            ->groups([
+                Group::make('veiculo_id')
+                    ->label('Veículo')
+                    ->relationship('veiculo', 'placa')
+                    ->collapsible(),
+            ])
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
@@ -82,20 +91,6 @@ class HistoricoQuilometragemResource extends Resource
                     ->autoApply()
                     ->firstDayOfWeek(0)
                     ->defaultYesterday(),
-                Filter::make('veiculo_desatualizado')
-                    ->label('Veículos com KM desatualizado')
-                    ->query(
-                        fn($query) =>
-                        $query->whereHas('veiculo', function ($veiculoQuery) {
-                            $veiculoQuery
-                                ->where('is_active', true)
-                                ->whereHas('kmAtual', function ($kmQuery) {
-                                    $kmQuery->where('data_referencia', '<', now()->subDays(2));
-                                })
-                                ->orWhereDoesntHave('kmAtual');
-                        })
-                    )
-                    ->toggle()
             ])
             ->recordActions([
                 EditAction::make(),

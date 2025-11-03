@@ -2,19 +2,18 @@
 
 namespace App\Filament\Resources\Pneus\RelationManagers;
 
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
+use App\{Models, Enum};
+use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
+use Filament\Actions\{BulkActionGroup, CreateAction, DeleteAction, EditAction, DeleteBulkAction};
+use Filament\Forms\Components\{DatePicker, Select, TextInput};
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class RecapagensRelationManager extends RelationManager
 {
@@ -24,9 +23,30 @@ class RecapagensRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('pneu_id')
+                DatePicker::make('data_recapagem')
+                    ->date('d/m/Y')
+                    ->displayFormat('d/m/Y')
+                    ->closeOnDateSelection()
+                    ->maxDate(now())
+                    ->required(),
+                Select::make('desenho_pneu_id')
+                    ->label('Desenho do Pneu')
+                    ->relationship('desenhoPneu', 'descricao')
                     ->required()
-                    ->maxLength(255),
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm(fn (Schema $schema) => DesenhoPneuResource::form($schema)),
+                TextInput::make('valor')
+                    ->label('Valor')
+                    ->numeric()
+                    ->default(0)
+                    ->prefix('R$'),
+                TextInput::make('ciclo_vida')
+                    ->label('Ciclo de Vida')
+                    ->numeric()
+                    ->default(1)
+                    ->minValue(1)
+                    ->maxValue(3),
             ]);
     }
 
@@ -36,32 +56,53 @@ class RecapagensRelationManager extends RelationManager
             ->recordTitleAttribute('pneu_id')
             ->columns([
                 TextColumn::make('pneu_id')
-                    ->searchable(),
+                    ->searchable()
+                    ->width('1%'),
                 TextColumn::make('data_recapagem')
-                    ->date('d/m/Y'),
+                    ->date('d/m/Y')
+                    ->width('1%'),
+                TextColumn::make('pneu.modelo')
+                    ->label('Modelo')
+                    ->width('1%'),
                 TextColumn::make('desenhoPneu.descricao')
-                    ->label('Desenho'),
+                    ->label('Desenho')
+                    ->width('1%'),
                 TextColumn::make('desenhoPneu.modelo')
-                    ->label('Modelo'),
+                    ->label('Modelo')
+                    ->width('1%'),
+                TextInputColumn::make('ciclo_vida')
+                    ->label('Ciclo de Vida')
+                    ->width('1%'),
                 TextColumn::make('valor')
                     ->money('BRL')
-                    ->searchable(),
+                    ->searchable()
+                    ->width('1%'),
                 TextColumn::make('created_at')
                     ->date('d/m/Y H:i'),
             ])
+            ->groups([
+                Group::make('pneu_id')
+                    ->label('Pneu')
+                    ->relationship('pneu', 'numero_fogo'),
+            ])
             ->filters([
-                //
+                SelectFilter::make('pneu_id')
+                    ->label('Pneu')
+                    ->relationship('pneu', 'numero_fogo')
+                    ->multiple()
+                    ->searchable(),
             ])
             ->headerActions([
                 CreateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

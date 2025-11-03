@@ -31,7 +31,7 @@ class CreateHistoricoMovimentoPneu
             'veiculo_id'      => 'required|integer|exists:veiculos,id',
             'eixo'            => 'required|numeric|min:1|max:4',
             'posicao'         => 'required|string',
-            'motivo'          => 'required|string|in:' . implode(',', Enum\Pneu\MotivoMovimentoPneuEnum::cases()),
+            'motivo'          => 'required|string',
             'sulco_movimento' => 'required|numeric',
             'ciclo_vida'      => 'required|integer|min:0|max:3',
             'data_inicial'    => 'required|date',

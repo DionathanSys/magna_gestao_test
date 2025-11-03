@@ -111,18 +111,18 @@ class ViagemImporter implements ExcelImportInterface
         return [
             'veiculo_id'            => $veiculo_id,
             'numero_viagem'         => $row['Viagem'],
-            'documento_transporte'  => $row['Carga Cliente'] ?? null,
+            'documento_transporte'  => $row['CargaCliente'] ?? null,
             'data_competencia'      => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d'),
             'data_inicio'           => Carbon::createFromFormat('d/m/Y H:i', $row['Inicio'])->format('Y-m-d H:i'),
             'data_fim'              => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d H:i'),
             'destino'               => $integrado ?? null,
-            'km_rodado'             => is_numeric($row['Km Rodado']) ? (float) $row['Km Rodado'] : 0,
+            'km_rodado'             => is_numeric($row['KmRodado']) ? (float) $row['KmRodado'] : 0,
             'km_pago'               => is_numeric($km_pago) ? (float) $km_pago : 0,
             'km_cadastro'           => $integrado->km_rota ?? 0,
             'km_cobrar'             => 0,
             'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS->value,
             'conferido'             => false,
-            'condutor'              => Str::upper($row['Condutor Viagem'] ?? 'não informado'),
+            'condutor'              => Str::upper($row['CondutorViagem'] ?? 'não informado'),
         ];
     }
 

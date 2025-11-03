@@ -25,37 +25,38 @@ class MovimentarPneuService
 
     public function inverterPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
-        Log::debug(__METHOD__ . ' - Iniciando inversão do pneu.', [
-            'pneu_veiculo_id'   => $pneuVeiculo->id,
-            'pneu_id'           => $pneuVeiculo->pneu_id,
-            'veiculo_id'        => $pneuVeiculo->veiculo_id,
-            'posicao'           => $pneuVeiculo->posicao,
-            'eixo'              => $pneuVeiculo->eixo,
-            'data'              => $data,
-        ]);
+        DB::transaction(function () use ($pneuVeiculo, $data) {
+            Log::debug(__METHOD__ . ' - Iniciando inversão do pneu.', [
+                'pneu_veiculo_id'   => $pneuVeiculo->id,
+                'pneu_id'           => $pneuVeiculo->pneu_id,
+                'veiculo_id'        => $pneuVeiculo->veiculo_id,
+                'posicao'           => $pneuVeiculo->posicao,
+                'eixo'              => $pneuVeiculo->eixo,
+                'data'              => $data,
+            ]);
 
-        $pneuId = $pneuVeiculo->pneu_id;
-        
-        $this->removerPneu($pneuVeiculo, [
-            'data_final' => $data['data_movimento'],
-            'km_final'   => $data['km_movimento'],
-            'sulco'      => $data['sulco'] ?? 0,
-            'motivo'     => MotivoMovimentoPneuEnum::INVERSAO,
-            'observacao' => $data['observacao'] ?? null,
-            'anexos'     => $data['anexos'] ?? null,
-        ]);
+            $pneuId = $pneuVeiculo->pneu_id;
 
-        $this->aplicarPneu($pneuVeiculo, [
-            'pneu_id'       => $pneuId,
-            'data_inicial'  => $data['data_movimento'],
-            'km_inicial'    => $data['km_movimento'],
-        ]);
+            $this->removerPneu($pneuVeiculo, [
+                'data_final' => $data['data_movimento'],
+                'km_final'   => $data['km_movimento'],
+                'sulco'      => $data['sulco'] ?? 0,
+                'motivo'     => MotivoMovimentoPneuEnum::INVERSAO,
+                'observacao' => $data['observacao'] ?? null,
+                'anexos'     => $data['anexos'] ?? null,
+            ]);
 
-        Log::info(__METHOD__ . ' - Inversão do pneu finalizada.', [
-            'pneu_veiculo'   => $pneuVeiculo,
-            'pneu'           => $pneuVeiculo->pneu,
-        ]);
+            $this->aplicarPneu($pneuVeiculo, [
+                'pneu_id'       => $pneuId,
+                'data_inicial'  => $data['data_movimento'],
+                'km_inicial'    => $data['km_movimento'],
+            ]);
 
+            Log::info(__METHOD__ . ' - Inversão do pneu finalizada.', [
+                'pneu_veiculo'   => $pneuVeiculo,
+                'pneu'           => $pneuVeiculo->pneu,
+            ]);
+        }, 3);
     }
 
 
@@ -129,7 +130,6 @@ class MovimentarPneuService
             'pneu_veiculo'   => $pneuVeiculo,
             'pneu'           => $pneuVeiculo->pneu,
         ]);
-
     }
 
     public function aplicarPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
@@ -158,58 +158,61 @@ class MovimentarPneuService
             'pneu_veiculo'   => $pneuVeiculo,
             'pneu'           => $pneuVeiculo->pneu,
         ]);
-
     }
 
     public function trocarPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
 
-        $this->removerPneu($pneuVeiculo, [
-            'data_final' => $data['data_movimento'],
-            'km_final'   => $data['km_movimento'],
-            'sulco'      => $data['sulco'] ?? 0,
-            'motivo'     => $data['motivo'],
-            'observacao' => $data['observacao'] ?? null,
-            'anexos'     => $data['anexos'] ?? null,
-        ]);
-
-        $this->aplicarPneu($pneuVeiculo, [
-            'pneu_id'       => $data['pneu_id'],
-            'data_inicial'  => $data['data_movimento'],
-            'km_inicial'    => $data['km_movimento'],
-        ]);
-    }
-
-    public function rodizioPneu(Collection $pneusVeiculo, array $data)
-    {
-        if ($pneusVeiculo->count() !== 2) {
-            return;
-        }
-
-        $pneusId = $pneusVeiculo->pluck('pneu_id')->toArray();
-
-        $pneusVeiculo->each(function (PneuPosicaoVeiculo $pneuVeiculo) use ($pneusId, $data) {
-
-            $pneuId = Arr::where($pneusId, function ($id) use ($pneuVeiculo) {
-                return $id !== $pneuVeiculo->pneu_id;
-            });
-
-            $pneuId = Arr::first($pneuId);
-
+        DB::transaction(function () use ($pneuVeiculo, $data) {
             $this->removerPneu($pneuVeiculo, [
                 'data_final' => $data['data_movimento'],
                 'km_final'   => $data['km_movimento'],
                 'sulco'      => $data['sulco'] ?? 0,
-                'motivo'     => MotivoMovimentoPneuEnum::RODIZIO->value,
+                'motivo'     => $data['motivo'],
                 'observacao' => $data['observacao'] ?? null,
                 'anexos'     => $data['anexos'] ?? null,
             ]);
 
             $this->aplicarPneu($pneuVeiculo, [
-                'pneu_id'       => $pneuId,
+                'pneu_id'       => $data['pneu_id'],
                 'data_inicial'  => $data['data_movimento'],
                 'km_inicial'    => $data['km_movimento'],
             ]);
-        });
+        }, 3);
+    }
+
+    public function rodizioPneu(Collection $pneusVeiculo, array $data)
+    {
+        DB::transaction(function () use ($pneusVeiculo, $data) {
+            if ($pneusVeiculo->count() !== 2) {
+                return;
+            }
+
+            $pneusId = $pneusVeiculo->pluck('pneu_id')->toArray();
+
+            $pneusVeiculo->each(function (PneuPosicaoVeiculo $pneuVeiculo) use ($pneusId, $data) {
+
+                $pneuId = Arr::where($pneusId, function ($id) use ($pneuVeiculo) {
+                    return $id !== $pneuVeiculo->pneu_id;
+                });
+
+                $pneuId = Arr::first($pneuId);
+
+                $this->removerPneu($pneuVeiculo, [
+                    'data_final' => $data['data_movimento'],
+                    'km_final'   => $data['km_movimento'],
+                    'sulco'      => $data['sulco'] ?? 0,
+                    'motivo'     => MotivoMovimentoPneuEnum::RODIZIO->value,
+                    'observacao' => $data['observacao'] ?? null,
+                    'anexos'     => $data['anexos'] ?? null,
+                ]);
+
+                $this->aplicarPneu($pneuVeiculo, [
+                    'pneu_id'       => $pneuId,
+                    'data_inicial'  => $data['data_movimento'],
+                    'km_inicial'    => $data['km_movimento'],
+                ]);
+            });
+        }, 3);
     }
 }

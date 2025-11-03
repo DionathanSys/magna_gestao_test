@@ -130,36 +130,36 @@ class PneuForm
                             ->minItems(0)
                             ->compact()
                             ->schema([
-                                Select::make('veiculo_id')
+                                Select::make('historico.veiculo_id')
                                     ->label('Veículo')
                                     ->columnSpan(6)
                                     ->relationship('veiculo', 'placa')
                                     ->searchable(),
-                                TextInput::make('eixo')
+                                TextInput::make('historico.eixo')
                                     ->columnSpan(2)
                                     ->numeric()
                                     ->minValue(1)
                                     ->maxValue(4),
-                                TextInput::make('posicao')
+                                TextInput::make('historico.posicao')
                                     ->columnSpan(2),
-                                Select::make('motivo')
+                                Select::make('historico.motivo')
                                     ->columnSpan(4)
                                     ->options(Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray()),
-                                TextInput::make('sulco_movimento')
+                                TextInput::make('historico.sulco_movimento')
                                     ->label('Sulco')
                                     ->columnSpan(2)
                                     ->default(0)
                                     ->numeric(),
-                                TextInput::make('km_inicial')
+                                TextInput::make('historico.km_inicial')
                                     ->label('KM Inicial')
                                     ->columnStart(1)
                                     ->columnSpan(3)
                                     ->numeric(),
-                                TextInput::make('km_final')
+                                TextInput::make('historico.km_final')
                                     ->label('KM Final')
                                     ->columnSpan(3)
                                     ->numeric(),
-                                DatePicker::make('data_inicial')
+                                DatePicker::make('historico.data_inicial')
                                     ->label('Dt. Inicial')
                                     ->columnSpan(4)
                                     ->date('d/m/Y')
@@ -167,7 +167,7 @@ class PneuForm
                                     ->closeOnDateSelection()
                                     ->default(now())
                                     ->maxDate(now()),
-                                DatePicker::make('data_final')
+                                DatePicker::make('historico.data_final')
                                     ->label('Dt. Final')
                                     ->columnSpan(4)
                                     ->date('d/m/Y')
@@ -175,7 +175,7 @@ class PneuForm
                                     ->closeOnDateSelection()
                                     ->default(now())
                                     ->maxDate(now()),
-                                TextInput::make('observacao')
+                                TextInput::make('historico.observacao')
                                     ->columnSpan(12)
                                     ->default('Registro de movimentação ao cadastrar pneu.'),   
                             ]),

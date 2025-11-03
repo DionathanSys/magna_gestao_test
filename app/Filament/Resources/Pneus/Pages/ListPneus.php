@@ -35,7 +35,12 @@ class ListPneus extends ListRecords
                 ->using(function (array $data, array $arguments): ?Models\Pneu {
                     
                     $dataRecap = $data['recap'];
+                    $dataHistoricoMov = $data['historico'] ?? [];
+
+                    dd($dataHistoricoMov);
+                    
                     unset($data['recap']);
+                    unset($data['historico']);
 
                     $service = new Services\Pneus\PneuService();
                     $pneu = $service->create($data);

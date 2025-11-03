@@ -106,7 +106,7 @@ class ViagemImporter implements ExcelImportInterface
             ]);
         }
 
-        $km_pago = (float) str_replace(',', '.', $row['Km Sugerida']);
+        $km_pago = (float) str_replace(',', '.', $row['KmSugerida']);
 
         return [
             'veiculo_id'            => $veiculo_id,

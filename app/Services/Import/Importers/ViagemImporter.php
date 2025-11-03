@@ -27,14 +27,14 @@ class ViagemImporter implements ExcelImportInterface
     {
         return [
             'Viagem',
-            'Carga Cliente',
+            'CargaCliente',
             'Destino',
             'Inicio',
             'Fim',
             'Placa',
-            'Condutor Viagem',
-            'Km Rodado',
-            'Km Sugerida',
+            'CondutorViagem',
+            'KmRodado',
+            'KmSugerida',
         ];
     }
 

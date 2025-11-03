@@ -34,10 +34,10 @@ class ListPneus extends ListRecords
                 ->icon('heroicon-o-plus-circle')
                 ->using(function (array $data, array $arguments): ?Models\Pneu {
                     
-                    dd($data);
                     $dataRecap = $data['recap'];
-                    $dataHistoricoMov = $data['historico'] ?? [];
+                    $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
 
+                    dd($dataHistoricoMov);
                     
                     unset($data['recap']);
                     unset($data['historico']);

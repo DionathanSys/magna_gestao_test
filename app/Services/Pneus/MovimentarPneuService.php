@@ -5,22 +5,21 @@ namespace App\Services\Pneus;
 use App\Enum\Pneu\LocalPneuEnum;
 use App\Enum\Pneu\MotivoMovimentoPneuEnum;
 use App\Enum\Pneu\StatusPneuEnum;
-use App\Models\HistoricoMovimentoPneu;
+use App\Models;
 use App\Models\PneuPosicaoVeiculo;
+use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class MovimentarPneuService
 {
 
-    protected HistoricoMovimentoPneu $historicoMovimentoPneu;
+    use ServiceResponseTrait;
 
     public function __construct()
     {
-        $this->historicoMovimentoPneu = new HistoricoMovimentoPneu();
     }
 
     public function inverterPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
@@ -75,8 +74,7 @@ class MovimentarPneuService
             throw new \Exception('A KM final não pode ser menor que a KM inicial.');
         }
 
-        $action = new Actions\CreateHistoricoMovimentoPneu();
-        $action->handle([
+        $this->registrarHistoricoMovimento([
             'pneu_id'           => $pneuVeiculo->pneu_id,
             'veiculo_id'        => $pneuVeiculo->veiculo_id,
             'data_inicial'      => $pneuVeiculo->data_inicial,
@@ -214,5 +212,27 @@ class MovimentarPneuService
                 ]);
             });
         }, 3);
+    }
+
+    public function registrarHistoricoMovimento(array $data): ?Models\HistoricoMovimentoPneu
+    {
+        try {
+
+            $action = new Actions\CreateHistoricoMovimentoPneu();
+            $historico = $action->handle($data);
+
+            if( $action->hasError ){
+                $this->setError( $action->message, $action->errors);
+                return null;
+            }
+
+            return $historico;
+        } catch (\Exception $e) {
+            Log::error(__METHOD__ . ' - Erro ao registrar histórico de movimento.', [
+                'data' => $data,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 }

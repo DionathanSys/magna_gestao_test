@@ -71,9 +71,8 @@ class HistoricoQuilometragemResource extends Resource
             ])
             ->defaultSort('data_referencia', 'desc')
             ->groups([
-                Group::make('veiculo_id')
+                Group::make('veiculo.placa')
                     ->label('Veículo')
-                    ->relationship('veiculo', 'placa')
                     ->collapsible(),
             ])
             ->filters([

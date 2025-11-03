@@ -81,9 +81,8 @@ class RecapagensRelationManager extends RelationManager
                     ->date('d/m/Y H:i'),
             ])
             ->groups([
-                Group::make('pneu_id')
-                    ->label('Pneu')
-                    ->relationship('pneu', 'numero_fogo'),
+                Group::make('pneu.numero_fogo')
+                ->label('Nº Fogo'),
             ])
             ->filters([
                 SelectFilter::make('pneu_id')

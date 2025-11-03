@@ -50,11 +50,11 @@ class PneuResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationGroup::make('Grupo de Relações', [
+            // RelationGroup::make('Grupo de Relações', [
                 HistoricoMovimentacaoRelationManager::class,
                 RecapagensRelationManager::class,
                 ConsertosRelationManager::class,
-            ])
+            // ])
         ];
     }
 

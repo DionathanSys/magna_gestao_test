@@ -75,8 +75,8 @@ class DocumentoFreteResource extends Resource
     public static function getGlobalSearchResultActions(Model $record): array
     {
         return [
-            Action::make('edit')
-                ->url(static::getUrl('edit', ['record' => $record->id]), shouldOpenInNewTab: true),
+            Action::make('view')
+                ->url(static::getUrl('view', ['record' => $record->id]), shouldOpenInNewTab: true),
         ];
     }
 }

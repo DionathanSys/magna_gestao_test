@@ -9,6 +9,7 @@ use App\Models\HistoricoMovimentoPneu;
 use App\Models\PneuPosicaoVeiculo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -34,6 +35,7 @@ class MovimentarPneuService
         ]);
 
         $pneuId = $pneuVeiculo->pneu_id;
+        
         $this->removerPneu($pneuVeiculo, [
             'data_final' => $data['data_movimento'],
             'km_final'   => $data['km_movimento'],
@@ -72,8 +74,8 @@ class MovimentarPneuService
             throw new \Exception('A KM final não pode ser menor que a KM inicial.');
         }
 
-        //TODO: Separar em outro serviço a criação do histórico
-        $this->historicoMovimentoPneu->create([
+        $action = new Actions\CreateHistoricoMovimentoPneu();
+        $action->handle([
             'pneu_id'           => $pneuVeiculo->pneu_id,
             'veiculo_id'        => $pneuVeiculo->veiculo_id,
             'data_inicial'      => $pneuVeiculo->data_inicial,

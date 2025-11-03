@@ -42,10 +42,10 @@ class CreatePneu
 
         if($validator->fails()) {
             $this->hasError = true;
-            $this->message = 'Erro de validação ao criar pneu.';
+            $this->message = 'Erro de validação ao cadastrar pneu.';
             $this->errors = $validator->errors()->all();
 
-            Log::error('Erro de validação ao criar pneu', [
+            Log::error('Erro de validação ao cadastrar pneu', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'data' => $data,
                 'errors' => $this->errors

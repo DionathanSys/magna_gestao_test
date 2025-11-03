@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
@@ -75,21 +76,23 @@ class PneuForm
                             ->options(Enum\Pneu\LocalPneuEnum::toSelectArray())
                             ->required()
                             ->default(Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value),
-                        
+
                     ]),
                 Section::make('Recapagem')
                     ->description('Registrar recapagem do pneu.')
                     ->visibleOn('create')
                     ->columns(12)
                     ->columnSpanFull()
+                    ->collapsible()
+                    ->collapsed()
                     ->afterHeader([
                         Actions\RecaparPneuAction::make('recapar')
                             ->tooltip('Apenas para uso de pneus já cadastrados')
-                            ->disabled(fn (Get $get) => empty($get('recap.pneu_id'))),
+                            ->disabled(fn(Get $get) => empty($get('recap.pneu_id'))),
                     ])
                     ->schema([
                         Hidden::make('recap.pneu_id'),
-                        DatePicker::make('recap.data_recapagem')    
+                        DatePicker::make('recap.data_recapagem')
                             ->date('d/m/Y')
                             ->columnSpan(3)
                             ->displayFormat('d/m/Y')
@@ -110,10 +113,74 @@ class PneuForm
                             ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
                             ->columnSpan(4),
 
+                    ]),
+                Section::make('Histórico de Movimentações')
+                    ->description('Registrar movimentações do pneu.')
+                    ->visibleOn('create')
+                    ->columns(12)
+                    ->columnSpanFull()
+                    ->collapsible()
+                    ->collapsed()
+                    ->schema([
+                        Repeater::make('historicoMovimentacao')
+                            ->label('Movimentações')
+                            ->columns(12)
+                            ->columnSpanFull()
+                            ->defaultItems(0)
+                            ->minItems(0)
+                            ->compact()
+                            ->schema([
+                                Select::make('veiculo_id')
+                                    ->label('Veículo')
+                                    ->columnSpan(6)
+                                    ->relationship('veiculo', 'placa')
+                                    ->searchable(),
+                                TextInput::make('eixo')
+                                    ->columnSpan(2)
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->maxValue(4),
+                                TextInput::make('posicao')
+                                    ->columnSpan(2),
+                                Select::make('motivo')
+                                    ->columnSpan(4)
+                                    ->options(Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray()),
+                                TextInput::make('sulco_movimento')
+                                    ->label('Sulco')
+                                    ->columnSpan(2)
+                                    ->default(0)
+                                    ->numeric(),
+                                TextInput::make('km_inicial')
+                                    ->label('KM Inicial')
+                                    ->columnStart(1)
+                                    ->columnSpan(3)
+                                    ->numeric(),
+                                TextInput::make('km_final')
+                                    ->label('KM Final')
+                                    ->columnSpan(3)
+                                    ->numeric(),
+                                DatePicker::make('data_inicial')
+                                    ->label('Dt. Inicial')
+                                    ->columnSpan(4)
+                                    ->date('d/m/Y')
+                                    ->displayFormat('d/m/Y')
+                                    ->closeOnDateSelection()
+                                    ->default(now())
+                                    ->maxDate(now()),
+                                DatePicker::make('data_final')
+                                    ->label('Dt. Final')
+                                    ->columnSpan(4)
+                                    ->date('d/m/Y')
+                                    ->displayFormat('d/m/Y')
+                                    ->closeOnDateSelection()
+                                    ->default(now())
+                                    ->maxDate(now()),
+                                TextInput::make('observacao')
+                                    ->columnSpan(12)
+                                    ->default('Registro de movimentação ao cadastrar pneu.'),   
+                            ]),
                     ])
 
             ]);
     }
-
-    
 }

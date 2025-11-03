@@ -41,6 +41,9 @@ class PneuService
     {
         try {
             return DB::transaction(function () use ($data) {
+
+                $data['ciclo_vida'] = self::getCicloVidaPneu($data['pneu_id']) ?? 0;
+
                 $action = new Actions\RecaparPneu();
                 $recapagem = $action->handle($data);
 
@@ -85,6 +88,18 @@ class PneuService
             ]);
             return false;
         }
+    }
+
+    public static function getCicloVidaPneu(int $pneuId): ?int
+    {
+            $query = new Queries\GetCicloVidaPneu();
+            $ciclo_vida = $query->handle($pneuId);
+
+            if ($ciclo_vida === null) {
+                throw new \RuntimeException('Pneu não encontrado para ID: ' . $pneuId);
+            }
+
+            return $ciclo_vida;
     }
 
     public function getPneusDisponiveis(): array

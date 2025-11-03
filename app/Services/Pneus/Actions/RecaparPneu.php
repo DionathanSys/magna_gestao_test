@@ -35,6 +35,7 @@ class RecaparPneu
             'pneu_id'           => 'required|exists:pneus,id',
             'valor'             => 'nullable|numeric|min:0',
             'desenho_pneu_id'   => 'required|exists:desenhos_pneu,id',
+            'ciclo_vida'        => 'integer|min:1|max:3',
             'data_recapagem'    => 'required|date',
         ], [
             'pneu_id.required'          => 'O campo Pneu é obrigatório.',
@@ -43,6 +44,9 @@ class RecaparPneu
             'valor.min'                 => 'O campo Valor deve ser maior ou igual a 0.',
             'desenho_pneu_id.required'  => 'O campo Desenho do Pneu é obrigatório.',
             'desenho_pneu_id.exists'    => 'O Desenho do Pneu informado não existe.',
+            'ciclo_vida.integer'        => 'O campo Ciclo de Vida deve ser um número inteiro.',
+            'ciclo_vida.min'            => 'O campo Ciclo de Vida deve ser no mínimo 1.',
+            'ciclo_vida.max'            => 'O campo Ciclo de Vida deve ser no máximo 3.',
             'data_recapagem.required'   => 'O campo Data da Recapagem é obrigatório.',
             'data_recapagem.date'       => 'O campo Data da Recapagem deve ser uma data válida.',
         ]);

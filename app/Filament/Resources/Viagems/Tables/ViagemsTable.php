@@ -27,7 +27,7 @@ class ViagemsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->with('carga.integrado', 'veiculo');
+                $query->with(['carga.integrado', 'veiculo:id,placa', 'comentarios:id,conteudo', 'checker:id,name', 'creator:id,name', 'updater:id,name']);
             })
             ->poll(null)
             ->columns([
@@ -47,13 +47,13 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
-                TextColumn::make('integrados_codigos')
-                    ->label('Cód. Integrado')
-                    ->width('1%')
-                    ->html()
-                    ->tooltip(fn(Models\Viagem $record) => $record->integrados_codigos)
-                    ->disabledClick()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('integrados_codigos')
+                    //     ->label('Cód. Integrado')
+                    //     ->width('1%')
+                    //     ->html()
+                    //     ->tooltip(fn(Models\Viagem $record) => $record->integrados_codigos)
+                    //     ->disabledClick()
+                    //     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('integrados_nomes')
                     ->label('Integrado')
                     ->width('1%')
@@ -65,7 +65,7 @@ class ViagemsTable
                     ->width('1%')
                     ->disabledClick()
                     ->default('Sem Doc. Transp.')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 ColumnGroup::make('KM', [
                     TextColumn::make('km_rodado')
                         ->width('1%')
@@ -109,13 +109,6 @@ class ViagemsTable
                         ->sortable()
                         ->summarize(Sum::make()->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextInputColumn::make('km_cobrar')
-                        ->width('1%')
-                        ->wrapHeader()
-                        ->type('number')
-                        ->disabled(fn(Models\Viagem $record) => ($record->conferido && !Auth::user()->is_admin))
-                        ->rules(['numeric', 'min:0', 'required'])
-                        ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('km_rota_corrigido')
                         ->wrapHeader()
                         ->width('1%')
@@ -124,8 +117,7 @@ class ViagemsTable
                     SelectColumn::make('motivo_divergencia')
                         ->label('Motivo Divergência')
                         ->wrapHeader()
-                        ->grow()
-                        // ->width('2%')
+                        ->grow(false)
                         ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                         ->default(Enum\MotivoDivergenciaViagem::SEM_OBS->value)
                         ->disabled(fn(Models\Viagem $record) => ($record->conferido && !Auth::user()->is_admin))

@@ -27,6 +27,9 @@ class DocumentoFretesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->with(['veiculo:id,placa']);
+            })
             ->columns([
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
@@ -61,19 +64,22 @@ class DocumentoFretesTable
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()
-                    ->summarize(Sum::make()->money('BRL', 100)),
+                    ->summarize(Sum::make()
+                        ->money('BRL', 100)),
                 TextColumn::make('valor_icms')
                     ->label('Vlr. ICMS')
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()
-                    ->summarize(Sum::make()->money('BRL', 100)),
+                    ->summarize(Sum::make()
+                        ->money('BRL', 100)),
                 TextColumn::make('valor_liquido')
                     ->label('Frete Líquido')
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()
-                    ->summarize(Sum::make()->money('BRL', 100)),
+                    ->summarize(Sum::make()
+                        ->money('BRL', 100)),
                 TextColumn::make('parceiro_origem')
                     ->label('Parceiro Origem')
                     ->disabledClick()
@@ -83,7 +89,6 @@ class DocumentoFretesTable
                 TextColumn::make('parceiro_destino')
                     ->label('Parceiro Destino')
                     ->disabledClick()
-                    ->width('1%')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')

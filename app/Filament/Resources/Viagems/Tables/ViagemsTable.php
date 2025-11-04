@@ -27,7 +27,16 @@ class ViagemsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->with(['carga.integrado', 'veiculo:id,placa', 'comentarios:id,conteudo', 'checker:id,name', 'creator:id,name', 'updater:id,name']);
+                $query->with([
+                    'carga.integrado',
+                    'veiculo:id,placa',
+                    'comentarios:id,conteudo',
+                    'checker:id,name',
+                    'creator:id,name',
+                    'updater:id,name',
+                ])
+                    // antecipa o cálculo de existência para evitar N+1
+                    ->withExists(['complementos', 'documentos']);
             })
             ->poll(null)
             ->columns([
@@ -48,12 +57,12 @@ class ViagemsTable
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
                 // TextColumn::make('integrados_codigos')
-                    //     ->label('Cód. Integrado')
-                    //     ->width('1%')
-                    //     ->html()
-                    //     ->tooltip(fn(Models\Viagem $record) => $record->integrados_codigos)
-                    //     ->disabledClick()
-                    //     ->toggleable(isToggledHiddenByDefault: true),
+                //     ->label('Cód. Integrado')
+                //     ->width('1%')
+                //     ->html()
+                //     ->tooltip(fn(Models\Viagem $record) => $record->integrados_codigos)
+                //     ->disabledClick()
+                //     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('integrados_nomes')
                     ->label('Integrado')
                     ->width('1%')
@@ -346,19 +355,19 @@ class ViagemsTable
                     Action::make('buscar_documentos')
                         ->label('Buscar Documentos')
                         ->icon('heroicon-o-document-magnifying-glass')
-                        
+
                         ->url(fn(Models\Viagem $record) => DocumentoFretes\DocumentoFreteResource::getUrl('index', [
-                                    'filters' => [
-                                        'veiculo_id' => [
-                                            'values' => [
-                                                0 => $record->veiculo_id,
-                                            ]
-                                        ],
-                                        'sem_vinculo_viagem' => [
-                                            'isActive' => true
-                                        ]
-                                    ],
-                                ]))
+                            'filters' => [
+                                'veiculo_id' => [
+                                    'values' => [
+                                        0 => $record->veiculo_id,
+                                    ]
+                                ],
+                                'sem_vinculo_viagem' => [
+                                    'isActive' => true
+                                ]
+                            ],
+                        ]))
                         ->openUrlInNewTab()
                         ->color('info'),
                     DeleteAction::make(),

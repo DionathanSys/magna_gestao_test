@@ -76,6 +76,9 @@ class IntegradoResource extends Resource
             Action::make('maps')
                 ->label('Ver no Maps')
                 ->url("https://www.google.com/maps/search/?api=1&query={$record->latitude},{$record->longitude}", shouldOpenInNewTab: true),
+                Action::make('directions')
++                ->label('Direções (Google Maps)')
++                ->url("https://www.google.com/maps/dir/?api=1&destination={$record->latitude},{$record->longitude}&travelmode=driving", shouldOpenInNewTab: true),
         ];
     }
 

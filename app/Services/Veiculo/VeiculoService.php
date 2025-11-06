@@ -15,6 +15,7 @@ class VeiculoService
         $veiculo = \App\Models\Veiculo::query()
             ->select('id')
             ->where('placa', $placa)
+            ->where('is_active', true)
             ->first();
 
         return $veiculo?->id;

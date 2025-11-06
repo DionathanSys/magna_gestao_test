@@ -73,6 +73,9 @@ class IntegradoResource extends Resource
         return [
             Action::make('edit')
                 ->url(static::getUrl('edit', ['record' => $record]), shouldOpenInNewTab: true),
+            Action::make('maps')
+                ->label('Ver no Maps')
+                ->url("https://www.google.com/maps/search/?api=1&query={$record->latitude},{$record->longitude}", shouldOpenInNewTab: true),
         ];
     }
 

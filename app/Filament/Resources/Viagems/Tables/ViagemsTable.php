@@ -113,11 +113,11 @@ class ViagemsTable
                         ->summarize(
                             Summarizer::make()
                                 ->label('Média %')
-                                ->using(function (QueryBuilder $query) {
+                                ->using(function ( $query) {
                                     // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
                                     return $query->selectRaw("
                                         CASE
-                                            WHEN COALESCE(SUM(km_rodado), 0) = 0 THEN NULL
+                                            WHEN COALESCE(SUM(km_rodado'), 0) = 0 THEN NULL
                                             ELSE (SUM(km_dispersao) / SUM(km_rodado)) * 100
                                         END AS aggregate
                                     ")->value('aggregate');

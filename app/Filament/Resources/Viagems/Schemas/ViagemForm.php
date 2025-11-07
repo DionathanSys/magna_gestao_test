@@ -102,7 +102,6 @@ class ViagemForm
                 Section::make('Comentarios')
                     ->columnStart(1)
                     ->columnSpan(12)
-                    ->emptyStateHeading('Nenhum comentário adicionado.')
                     ->schema([
                         RepeatableEntry::make('comentarios')
                             ->table([

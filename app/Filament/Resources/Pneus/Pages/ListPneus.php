@@ -38,7 +38,7 @@ class ListPneus extends ListRecords
                     $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
 
                     if($dataHistoricoMov){
-                        foreach($dataHistoricoMov as $movimentacao){
+                        foreach($dataHistoricoMov[0] as $movimentacao){
                             dump($movimentacao);
                         }
                         dd(1);

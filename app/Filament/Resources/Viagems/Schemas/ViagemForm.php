@@ -99,17 +99,13 @@ class ViagemForm
 
                             ])
                     ]),
-                // Section::make('Comentarios')
-                //     ->columnStart(1)
-                //     ->columnSpan(12)
-                //     ->schema([
                         RepeatableEntry::make('comentarios')
-                            ->table([
-                                TableColumn::make('Conteúdo')
-                                    ->wrapHeader(),
-                                TableColumn::make('Criado Em'),
-                                TableColumn::make('Criado Por'),
-                            ])
+                            // ->table([
+                            //     TableColumn::make('Conteúdo')
+                            //         ->wrapHeader(),
+                            //     TableColumn::make('Criado Em'),
+                            //     TableColumn::make('Criado Por'),
+                            // ])
                             ->schema([
                                 TextEntry::make('conteudo')
                                     ->label('Comentário')
@@ -120,7 +116,6 @@ class ViagemForm
                                 TextEntry::make('creator.name')
                                     ->label('Criado por'),
                             ])
-                    // ])
 
             ]);
     }

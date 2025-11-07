@@ -99,10 +99,10 @@ class ViagemForm
 
                             ])
                     ]),
-                Section::make('Comentarios')
-                    ->columnStart(1)
-                    ->columnSpan(12)
-                    ->schema([
+                // Section::make('Comentarios')
+                //     ->columnStart(1)
+                //     ->columnSpan(12)
+                //     ->schema([
                         RepeatableEntry::make('comentarios')
                             ->table([
                                 TableColumn::make('Conteúdo')
@@ -120,7 +120,7 @@ class ViagemForm
                                 TextEntry::make('creator.name')
                                     ->label('Criado por'),
                             ])
-                    ])
+                    // ])
 
             ]);
     }

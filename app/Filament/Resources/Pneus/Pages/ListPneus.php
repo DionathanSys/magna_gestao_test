@@ -39,11 +39,10 @@ class ListPneus extends ListRecords
                     $dataRecap = $data['recap'];
                     $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
 
-                    dd($data, $dataRecap, $dataHistoricoMov, $arguments);
                     if ($arguments['apenasRecapar'] ?? false) {
-                        Log::debug(__METHOD__ . ' - Iniciando recapagem apenas via ação de criação rápida', ['data_recap' => $dataRecap]);
-
+                        
                         $data = self::mutateDataRecap($dataRecap ?? []);
+                        dd($data, $dataRecap);
                         $service = new Services\Pneus\PneuService();
                         $service->recapar($data);
 

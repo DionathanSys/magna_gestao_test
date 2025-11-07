@@ -38,15 +38,6 @@ class ListPneus extends ListRecords
                     $dataRecap = $data['recap'];
                     $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
 
-                    if($dataHistoricoMov){
-                        foreach($dataHistoricoMov as $movimentacao){
-                            $dataMovimentacao = $movimentacao['historico'];
-                            dump($dataMovimentacao);
-                            RegistrarHistoricoMovimentacao::dispatch($dataMovimentacao);
-                        }
-                        dd(1);
-                    }
-                    
                     unset($data['recap']);
                     unset($data['historicoMovimentacao']);
 
@@ -81,7 +72,13 @@ class ListPneus extends ListRecords
                         return $pneu;
                     }
 
-                    
+                    if($dataHistoricoMov){
+                        foreach($dataHistoricoMov as $movimentacao){
+                            $movimentacao['historico']['pneu_id'] = $pneu->id;
+                            $dataMovimentacao = $movimentacao['historico'];
+                            RegistrarHistoricoMovimentacao::dispatch($dataMovimentacao);
+                        }
+                    }                    
 
                     if ($arguments['another'] ?? false) {
                         $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));

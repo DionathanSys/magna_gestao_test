@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +14,7 @@ class RegistrarHistoricoMovimentacao implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(protected array $dataMovimentacao)
     {
         //
     }
@@ -23,6 +24,19 @@ class RegistrarHistoricoMovimentacao implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::debug("TesteJob executado com sucesso.");
+        
+        $service = new Services\Pneus\MovimentarPneuService();
+        $service->registrarHistoricoMovimento($this->dataMovimentacao);
+        if ($service->hasError()) {
+            Log::error('Erro ao registrar histórico de movimentação de pneu.', [
+                'metodo'            => __METHOD__ . '@' . __LINE__,
+                'dataMovimentacao'  => $this->dataMovimentacao,
+                'erro'              => $service->getMessage(),
+            ]);
+        }
+        Log::debug("Registrando histórico de movimentação de pneu.", [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'dataMovimentacao' => $this->dataMovimentacao
+        ]);
     }
 }

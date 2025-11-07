@@ -9,6 +9,7 @@ use App\Enum;
 use App\Services\NotificacaoService as notify;
 use App\Filament\Resources\Pneus\PneuResource;
 use App\Filament\Resources\Pneus\Schemas\Components;
+use App\Jobs\RegistrarHistoricoMovimentacao;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\DatePicker;
@@ -39,7 +40,9 @@ class ListPneus extends ListRecords
 
                     if($dataHistoricoMov){
                         foreach($dataHistoricoMov as $movimentacao){
-                            dump($movimentacao);
+                            $dataMovimentacao = $movimentacao['historico'];
+                            dump($dataMovimentacao);
+                            RegistrarHistoricoMovimentacao::dispatch($dataMovimentacao);
                         }
                         dd(1);
                     }

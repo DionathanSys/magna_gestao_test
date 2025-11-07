@@ -73,12 +73,16 @@ class ListPneus extends ListRecords
                     }
 
                     if($dataHistoricoMov){
+                        Log::info(__METHOD__ . ' - Registrando movimentações de histórico após criação do pneu', ['pneu_id' => $pneu->id, 'data_historico_mov' => $dataHistoricoMov]);
                         foreach($dataHistoricoMov as $movimentacao){
                             $movimentacao['historico']['pneu_id'] = $pneu->id;
                             $dataMovimentacao = $movimentacao['historico'];
                             RegistrarHistoricoMovimentacao::dispatch($dataMovimentacao);
                         }
-                    }                    
+                    } else {
+                        Log::warning(__METHOD__ . ' - Nenhuma movimentação de histórico registrada após criação do pneu', ['pneu_id' => $pneu->id]);
+                    }    
+
 
                     if ($arguments['another'] ?? false) {
                         $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));

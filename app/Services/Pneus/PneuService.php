@@ -40,6 +40,7 @@ class PneuService
     public function recapar(array $data): ?Models\Recapagem
     {
         try {
+            dd($data);
             return DB::transaction(function () use ($data) {
 
                 $data['ciclo_vida'] = self::getCicloVidaPneu($data['pneu_id']) ?? 0;

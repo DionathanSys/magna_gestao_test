@@ -42,7 +42,7 @@ class ListPneus extends ListRecords
                     if ($arguments['apenasRecapar'] ?? false) {
                         
                         $data = self::mutateDataRecap($dataRecap ?? []);
-                        dd($data, $dataRecap);
+                        
                         $service = new Services\Pneus\PneuService();
                         $service->recapar($data);
 

@@ -68,17 +68,37 @@ class IntegradoResource extends Resource
         ];
     }
 
+    // public static function getGlobalSearchResultActions(Model $record): array
+    // {
+    //     return [
+    //         Action::make('edit')
+    //             ->url(static::getUrl('edit', ['record' => $record]), shouldOpenInNewTab: true),
+    //         Action::make('maps')
+    //             ->label('Ver no Maps')
+    //             ->url("https://www.google.com/maps/search/?api=1&query={$record->latitude},{$record->longitude}", shouldOpenInNewTab: true),
+    //         Action::make('directions')
+    //             ->label('Direções (Google Maps)')
+    //             ->url("https://www.google.com/maps/dir/?api=1&destination={$record->latitude},{$record->longitude}&travelmode=driving", shouldOpenInNewTab: true),
+    //     ];
+    // }
+
     public static function getGlobalSearchResultActions(Model $record): array
     {
+        // origem fixa e também usada como destino final
+        $origin = '-27.0927894,-52.6491463';
+        $finalDestination = $origin;
+        $firstStop = "{$record->latitude},{$record->longitude}";
+
         return [
             Action::make('edit')
                 ->url(static::getUrl('edit', ['record' => $record]), shouldOpenInNewTab: true),
             Action::make('maps')
                 ->label('Ver no Maps')
                 ->url("https://www.google.com/maps/search/?api=1&query={$record->latitude},{$record->longitude}", shouldOpenInNewTab: true),
+            // rota: origin (fixo) -> primeiro destino (registro) -> segundo destino (fixo, mesmo que a origem)
             Action::make('directions')
                 ->label('Direções (Google Maps)')
-                ->url("https://www.google.com/maps/dir/?api=1&destination={$record->latitude},{$record->longitude}&travelmode=driving", shouldOpenInNewTab: true),
+                ->url("https://www.google.com/maps/dir/?api=1&origin={$origin}&waypoints={$firstStop}&destination={$finalDestination}&travelmode=driving", shouldOpenInNewTab: true),
         ];
     }
 

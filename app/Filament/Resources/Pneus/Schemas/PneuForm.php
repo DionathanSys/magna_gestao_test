@@ -133,35 +133,43 @@ class PneuForm
                                 Select::make('historico.veiculo_id')
                                     ->label('Veículo')
                                     ->columnSpan(6)
+                                    ->required()
                                     ->relationship('veiculo', 'placa')
                                     ->searchable(),
                                 TextInput::make('historico.eixo')
                                     ->columnSpan(2)
                                     ->numeric()
+                                    ->required()
                                     ->minValue(1)
                                     ->maxValue(4),
                                 TextInput::make('historico.posicao')
-                                    ->columnSpan(2),
+                                    ->columnSpan(2)
+                                    ->required(),
                                 Select::make('historico.motivo')
                                     ->columnSpan(4)
+                                    ->required()
                                     ->options(Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray()),
                                 TextInput::make('historico.sulco_movimento')
                                     ->label('Sulco')
                                     ->columnSpan(2)
+                                    ->required()
                                     ->default(0)
                                     ->numeric(),
                                 TextInput::make('historico.km_inicial')
                                     ->label('KM Inicial')
                                     ->columnStart(1)
+                                    ->required()
                                     ->columnSpan(3)
                                     ->numeric(),
                                 TextInput::make('historico.km_final')
                                     ->label('KM Final')
+                                    ->required()
                                     ->columnSpan(3)
                                     ->numeric(),
                                 DatePicker::make('historico.data_inicial')
                                     ->label('Dt. Inicial')
                                     ->columnSpan(4)
+                                    ->required()
                                     ->date('d/m/Y')
                                     ->displayFormat('d/m/Y')
                                     ->closeOnDateSelection()
@@ -170,6 +178,7 @@ class PneuForm
                                 DatePicker::make('historico.data_final')
                                     ->label('Dt. Final')
                                     ->columnSpan(4)
+                                    ->required()
                                     ->date('d/m/Y')
                                     ->displayFormat('d/m/Y')
                                     ->closeOnDateSelection()

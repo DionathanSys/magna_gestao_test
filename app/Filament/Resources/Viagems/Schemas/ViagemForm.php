@@ -104,7 +104,6 @@ class ViagemForm
                 Section::make('Comentarios')
                     ->columnStart(1)
                     ->columnSpan(12)
-
                     ->schema([
                         EmptyState::make('No users yet')
                             ->description('Get started by creating a new user.')

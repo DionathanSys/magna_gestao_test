@@ -52,8 +52,9 @@ class ListPneus extends ListRecords
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
-                        $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
+                        $this->fill(Arr::only($data, ['valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
                         $this->halt();
+                        return null;
                     }
 
                     unset($data['recap']);

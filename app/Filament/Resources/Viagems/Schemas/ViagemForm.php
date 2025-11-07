@@ -61,16 +61,17 @@ class ViagemForm
                             ->columnSpan(2)
                             ->numeric()
                             ->default(0),
+                        TextInput::make('km_cadastro')
+                            ->columnSpan(2)
+                            ->numeric()
+                            ->default(0),
                         Select::make('motivo_divergencia')
                             ->label('Motivo Divergência')
                             ->columnSpan(5)
                             ->native(false)
                             ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                             ->default(Enum\MotivoDivergenciaViagem::DESLOCAMENTO_OUTROS->value),
-                        TextInput::make('km_cadastro')
-                            ->columnSpan(2)
-                            ->numeric()
-                            ->default(0),
+
                     ]),
                 Section::make('Documentos')
                     ->columnStart(1)
@@ -101,25 +102,26 @@ class ViagemForm
                 Section::make('Comentarios')
                     ->columnStart(1)
                     ->columnSpan(12)
+                    ->emptyStateHeading('Nenhum comentário adicionado.')
                     ->schema([
-                RepeatableEntry::make('comentarios')
-                    ->table([
-                        TableColumn::make('Conteúdo')
-                            ->wrapHeader(),
-                        TableColumn::make('Criado Em'),
-                        TableColumn::make('Criado Por'),
+                        RepeatableEntry::make('comentarios')
+                            ->table([
+                                TableColumn::make('Conteúdo')
+                                    ->wrapHeader(),
+                                TableColumn::make('Criado Em'),
+                                TableColumn::make('Criado Por'),
+                            ])
+                            ->schema([
+                                TextEntry::make('conteudo')
+                                    ->label('Comentário')
+                                    ->html(),
+                                TextEntry::make('created_at')
+                                    ->label('Criado em')
+                                    ->dateTime('d/m/Y H:i'),
+                                TextEntry::make('creator.name')
+                                    ->label('Criado por'),
+                            ])
                     ])
-                    ->schema([
-                        TextEntry::make('conteudo')
-                            ->label('Comentário')
-                            ->html(),
-                        TextEntry::make('created_at')
-                            ->label('Criado em')
-                            ->dateTime('d/m/Y H:i'),
-                        TextEntry::make('creator.name')
-                            ->label('Criado por'),
-                    ])
-            ])
 
             ]);
     }

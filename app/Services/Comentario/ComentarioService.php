@@ -5,6 +5,7 @@ namespace App\Services\Comentario;
 use App\Traits\UserCheckTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 class ComentarioService
 {
@@ -18,8 +19,14 @@ class ComentarioService
 
         $data = Arr::only($data, ['conteudo', 'veiculo_id', 'created_by']);
 
-        $modelClass::findOrFail($id)->comentarios()->create($data);
+        $comentario = $modelClass::findOrFail($id)->comentarios()->create($data);
 
+        Log::info('Comentário adicionado.', [
+            'comentavel_type'   => $modelClass,
+            'comentavel_id'     => $id,
+            'comentario_id'     => $comentario->id,
+            'created_by'        => $data['created_by'],
+        ]);
     }
 
 }

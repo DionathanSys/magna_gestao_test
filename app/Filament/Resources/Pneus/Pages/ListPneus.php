@@ -34,7 +34,7 @@ class ListPneus extends ListRecords
             CreateAction::make()
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
-                ->using(function (array $data, array $arguments, Get $get): ?Models\Pneu {
+                ->using(function (array $data, array $arguments): ?Models\Pneu {
 
                     $dataRecap = $data['recap'];
                     $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
@@ -42,7 +42,7 @@ class ListPneus extends ListRecords
                     if ($arguments['apenasRecapar'] ?? false) {
                         Log::debug(__METHOD__ . ' - Iniciando recapagem apenas via ação de criação rápida', ['data_recap' => $dataRecap]);
 
-                        $data = self::mutateDataRecap($get('recap') ?? []);
+                        $data = self::mutateDataRecap($dataRecap ?? []);
                         $service = new Services\Pneus\PneuService();
                         $service->recapar($data);
 
@@ -55,8 +55,6 @@ class ListPneus extends ListRecords
                         $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
                         return null;
                     }
-
-
 
                     unset($data['recap']);
                     unset($data['historicoMovimentacao']);

@@ -107,7 +107,12 @@ class ViagemForm
                     ->schema([
                         EmptyState::make('No users yet')
                             ->description('Get started by creating a new user.')
-                            ->icon(Heroicon::OutlinedUser),
+                            ->icon(Heroicon::ChatBubbleBottomCenterText)
+                            ->visible(fn($record) => (
+                                // se não houver registro (novo), considera sem comentários
+                                $record === null
+                                || (method_exists($record, 'comentarios') && $record->comentarios()->count() === 0)
+                            )),
                         RepeatableEntry::make('comentarios')
                             ->table([
                                 TableColumn::make('Conteúdo')

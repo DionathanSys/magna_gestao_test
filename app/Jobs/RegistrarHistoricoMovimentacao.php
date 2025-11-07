@@ -6,7 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class TesteJob implements ShouldQueue
+class RegistrarHistoricoMovimentacao implements ShouldQueue
 {
     use Queueable;
 

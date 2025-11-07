@@ -37,10 +37,15 @@ class ListPneus extends ListRecords
                     $dataRecap = $data['recap'];
                     $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
 
-                    dd($dataHistoricoMov);
+                    if($dataHistoricoMov){
+                        foreach($dataHistoricoMov as $movimentacao){
+                            dump($movimentacao);
+                        }
+                        dd(1);
+                    }
                     
                     unset($data['recap']);
-                    unset($data['historico']);
+                    unset($data['historicoMovimentacao']);
 
                     $service = new Services\Pneus\PneuService();
                     $pneu = $service->create($data);
@@ -72,6 +77,8 @@ class ListPneus extends ListRecords
                         $this->halt();
                         return $pneu;
                     }
+
+                    
 
                     if ($arguments['another'] ?? false) {
                         $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));

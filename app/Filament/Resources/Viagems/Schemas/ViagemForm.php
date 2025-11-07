@@ -105,7 +105,6 @@ class ViagemForm
                     
                     ->schema([
                         RepeatableEntry::make('comentarios')
-                            ->emptyStateHeading('Nenhum comentário adicionado.')
                             ->table([
                                 TableColumn::make('Conteúdo')
                                     ->wrapHeader(),

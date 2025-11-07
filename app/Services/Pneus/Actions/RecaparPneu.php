@@ -67,7 +67,7 @@ class RecaparPneu
             return;
         }
         dd('validou');
-        if ($this->validarStatusPneu($data['pneu_id']) === false) {
+        if ($this->validarStatusPneu($data['pneu_id'] ?? 0) === false) {
             return;
         }
     }

@@ -107,5 +107,40 @@ class Viagem extends Model
             ->implode(', ');
     }
 
+    public function getMapsIntegradosAttribute(): ?array
+    {
+        $origin = '-27.0927894,-52.6491463';
+
+        // busca integrados com coordenadas (usa relação já definida)
+        $integrados = $this->integrados()->get()
+            ->filter(fn($i) => !empty($i->latitude) && !empty($i->longitude));
+
+        if ($integrados->isEmpty()) {
+            return null;
+        }
+
+        $coords = $integrados->map(fn($i) => "{$i->latitude},{$i->longitude}")->values();
+        $waypoints = $coords->implode('|');
+
+        $originEnc = urlencode($origin);
+        $waypointsEnc = urlencode($waypoints);
+        $destinationEnc = $originEnc; // volta ao ponto inicial
+
+        $directionsUrl = "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&waypoints={$waypointsEnc}&destination={$destinationEnc}&travelmode=driving";
+
+        $items = $integrados->map(fn($i) => [
+            'id' => $i->id,
+            'nome' => $i->nome ?? null,
+            'municipio' => $i->municipio ?? null,
+            'coords' => "{$i->latitude},{$i->longitude}",
+            'url' => "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&destination=" . urlencode("{$i->latitude},{$i->longitude}") . "&travelmode=driving",
+        ])->values()->toArray();
+
+        return [
+            'directions_url' => $directionsUrl,
+            'items' => $items,
+        ];
+    }
+
 
 }

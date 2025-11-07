@@ -51,19 +51,22 @@ class RecaparPneu
             'data_recapagem.date'       => 'O campo Data da Recapagem deve ser uma data válida.',
         ]);
 
+        dump('chegou aqui');
         if ($validator->fails()) {
             $this->hasError = true;
             $this->errors   = $validator->errors()->all();
             $this->message  = 'Dados inválidos para recapagem de pneu.';
 
+            dump('chegou aqui quase log');
             Log::error('Erro ao validar dados para recapagem de pneu', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'errors' => $this->errors,
                 'data'   => $data
             ]);
+            dump('depois do log');
             return;
         }
-
+        dd('validou');
         if ($this->validarStatusPneu($data['pneu_id']) === false) {
             return;
         }

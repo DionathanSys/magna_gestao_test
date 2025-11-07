@@ -36,6 +36,7 @@ class RecaparPneuAction
 
                 notify::success('Recapagem realizada com sucesso.');
                 $action->halt();
+                
             });
     }
 

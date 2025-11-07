@@ -17,6 +17,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -33,10 +34,29 @@ class ListPneus extends ListRecords
             CreateAction::make()
                 ->label('Pneu')
                 ->icon('heroicon-o-plus-circle')
-                ->using(function (array $data, array $arguments): ?Models\Pneu {
-                    
+                ->using(function (array $data, array $arguments, Get $get): ?Models\Pneu {
+
                     $dataRecap = $data['recap'];
                     $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
+
+                    if ($arguments['apenasRecapar'] ?? false) {
+                        Log::debug(__METHOD__ . ' - Iniciando recapagem apenas via ação de criação rápida', ['data_recap' => $dataRecap]);
+
+                        $data = self::mutateDataRecap($get('recap') ?? []);
+                        $service = new Services\Pneus\PneuService();
+                        $service->recapar($data);
+
+                        if ($service->hasError()) {
+                            notify::error(titulo: 'Falha no processo de recapagem', mensagem: $service->getMessage());
+                            $this->halt();
+                        }
+
+                        notify::success('Recapagem realizada com sucesso.');
+                        $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
+                        return null;
+                    }
+
+
 
                     unset($data['recap']);
                     unset($data['historicoMovimentacao']);
@@ -72,16 +92,16 @@ class ListPneus extends ListRecords
                         return $pneu;
                     }
 
-                    if($dataHistoricoMov){
+                    if ($dataHistoricoMov) {
                         Log::info(__METHOD__ . ' - Registrando movimentações de histórico após criação do pneu', ['pneu_id' => $pneu->id, 'data_historico_mov' => $dataHistoricoMov]);
-                        foreach($dataHistoricoMov as $movimentacao){
+                        foreach ($dataHistoricoMov as $movimentacao) {
                             $movimentacao['historico']['pneu_id'] = $pneu->id;
                             $dataMovimentacao = $movimentacao['historico'];
                             RegistrarHistoricoMovimentacao::dispatch($dataMovimentacao);
                         }
                     } else {
                         Log::warning(__METHOD__ . ' - Nenhuma movimentação de histórico registrada após criação do pneu', ['pneu_id' => $pneu->id]);
-                    }    
+                    }
 
 
                     if ($arguments['another'] ?? false) {
@@ -96,6 +116,7 @@ class ListPneus extends ListRecords
                     return [
                         $action->makeModalSubmitAction('criarERecapar', arguments: ['recapar' => true]),
                         $action->makeModalSubmitAction('salvarECriarOutro', arguments: ['another' => true]),
+                        $action->makeModalSubmitAction('apenasRecapar', arguments: ['apenasRecapar' => true]),
                     ];
                 })
                 ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),

@@ -81,12 +81,12 @@ class ViagemsTable
                         ->width('1%')
                         ->wrapHeader()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->summarize(Sum::make()->numeric(decimalPlaces: 2, locale: 'pt-BR')),
+                        ->summarize(Sum::make()->label('TT Km Rodado')->numeric(decimalPlaces: 2, locale: 'pt-BR')),
                     TextColumn::make('km_pago')
                         ->width('1%')
                         ->wrapHeader()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->summarize(Sum::make()->numeric(decimalPlaces: 2, locale: 'pt-BR')),
+                        ->summarize(Sum::make()->label('TT Km Pago')->numeric(decimalPlaces: 2, locale: 'pt-BR')),
                     TextInputColumn::make('km_cadastro')
                         ->label('Km Cadastro')
                         ->wrapHeader()
@@ -108,7 +108,7 @@ class ViagemsTable
                         ->wrapHeader()
                         ->sortable()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->summarize(Sum::make()->numeric(decimalPlaces: 2, locale: 'pt-BR'))
+                        ->summarize(Sum::make()->label('TT Km Dispersão')->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('dispersao_percentual')
                         ->label('Dispersão %')
@@ -120,7 +120,7 @@ class ViagemsTable
                         ->sortable()
                         ->summarize(
                             Summarizer::make()
-                                ->label('Média %')
+                                ->label('Dispersão %')
                                 ->using(function ($query) {
                                     // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
                                     return $query->selectRaw(

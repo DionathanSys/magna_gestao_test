@@ -16,6 +16,8 @@ use App\Enum;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\EmptyState;
+use Filament\Support\Icons\Heroicon;
 
 class ViagemForm
 {
@@ -102,8 +104,11 @@ class ViagemForm
                 Section::make('Comentarios')
                     ->columnStart(1)
                     ->columnSpan(12)
-                    
+
                     ->schema([
+                        EmptyState::make('No users yet')
+                            ->description('Get started by creating a new user.')
+                            ->icon(Heroicon::OutlinedUser),
                         RepeatableEntry::make('comentarios')
                             ->table([
                                 TableColumn::make('Conteúdo')

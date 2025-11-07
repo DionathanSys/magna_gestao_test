@@ -99,7 +99,13 @@ class ViagemForm
 
                             ])
                     ]),
+                Section::make('Comentarios')
+                    ->columnStart(1)
+                    ->columnSpan(12)
+                    
+                    ->schema([
                         RepeatableEntry::make('comentarios')
+                            ->emptyStateHeading('Nenhum comentário adicionado.')
                             ->table([
                                 TableColumn::make('Conteúdo')
                                     ->wrapHeader(),
@@ -116,6 +122,7 @@ class ViagemForm
                                 TextEntry::make('creator.name')
                                     ->label('Criado por'),
                             ])
+                    ])
 
             ]);
     }

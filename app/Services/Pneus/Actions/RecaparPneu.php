@@ -51,7 +51,6 @@ class RecaparPneu
             'data_recapagem.date'       => 'O campo Data da Recapagem deve ser uma data válida.',
         ]);
 
-        dump('chegou aqui');
         if ($validator->fails()) {
             $this->hasError = true;
             $this->errors   = $validator->errors()->all();
@@ -63,10 +62,9 @@ class RecaparPneu
                 'errors' => $this->errors,
                 'data'   => $data
             ]);
-            dump('depois do log');
             return;
         }
-        dd('validou');
+        
         if ($this->validarStatusPneu($data['pneu_id'] ?? 0) === false) {
             return;
         }

@@ -43,8 +43,8 @@ class PneuService
             
             return DB::transaction(function () use ($data) {
 
-                $data['ciclo_vida'] = self::getCicloVidaPneu($data['pneu_id']) ?? 0;
-                
+                $data['ciclo_vida'] = (self::getCicloVidaPneu($data['pneu_id']) ?? 0 ) + 1;
+
                 $action = new Actions\RecaparPneu();
                 $recapagem = $action->handle($data);
 

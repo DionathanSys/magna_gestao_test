@@ -12,12 +12,13 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\{DatePicker, Select, TextInput};
 use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Tables\Filters\{Filter, SelectFilter, TernaryFilter};
+use Filament\Tables\Filters\{Filter, QueryBuilder, SelectFilter, TernaryFilter};
 use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
@@ -107,8 +108,22 @@ class ViagemsTable
                         ->wrapHeader()
                         ->sortable()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->summarize(Sum::make()
-                            ->numeric(decimalPlaces: 2, locale: 'pt-BR'))
+                        // ->summarize(Sum::make()
+                        //     ->numeric(decimalPlaces: 2, locale: 'pt-BR'))
+                        ->summarize(
+                            Summarizer::make()
+                                ->label('Média %')
+                                ->using(function (QueryBuilder $query) {
+                                    // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
+                                    return $query->selectRaw("
+                                        CASE
+                                            WHEN COALESCE(SUM(km_rodado), 0) = 0 THEN NULL
+                                            ELSE (SUM(km_dispersao) / SUM(km_rodado)) * 100
+                                        END AS aggregate
+                                    ")->value('aggregate');
+                                })
+                                ->numeric(decimalPlaces: 2, locale: 'pt-BR')
+                        )
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('dispersao_percentual')
                         ->label('Dispersão %')

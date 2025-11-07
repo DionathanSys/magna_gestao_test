@@ -31,7 +31,7 @@ class ViagemsTable
                 $query->with([
                     'carga.integrado',
                     'veiculo:id,placa',
-                    'comentarios:id,conteudo',
+                    'comentarios',
                     'checker:id,name',
                     'creator:id,name',
                     'updater:id,name',

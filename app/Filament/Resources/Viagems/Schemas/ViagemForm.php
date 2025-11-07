@@ -100,12 +100,12 @@ class ViagemForm
                             ])
                     ]),
                         RepeatableEntry::make('comentarios')
-                            // ->table([
-                            //     TableColumn::make('Conteúdo')
-                            //         ->wrapHeader(),
-                            //     TableColumn::make('Criado Em'),
-                            //     TableColumn::make('Criado Por'),
-                            // ])
+                            ->table([
+                                TableColumn::make('Conteúdo')
+                                    ->wrapHeader(),
+                                TableColumn::make('Criado Em'),
+                                TableColumn::make('Criado Por'),
+                            ])
                             ->schema([
                                 TextEntry::make('conteudo')
                                     ->label('Comentário')

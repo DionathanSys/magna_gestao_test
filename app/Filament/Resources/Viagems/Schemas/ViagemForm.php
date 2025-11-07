@@ -26,22 +26,22 @@ class ViagemForm
             ->components([
                 Section::make('Dados Viagem')
                     ->columns(12)
-                    ->columnSpan(12)
+                    ->columnSpanFull()
                     ->schema([
                         TextInput::make('numero_viagem')
                             ->required()
-                            ->columnSpan(2),
+                            ->columnSpan(6),
                         TextInput::make('documento_transporte')
-                            ->columnSpan(2),
+                            ->columnSpan(6),
                         DatePicker::make('data_competencia')
                             ->columnStart(1)
-                            ->columnSpan(2)
+                            ->columnSpan(4)
                             ->required(),
                         DateTimePicker::make('data_inicio')
-                            ->columnSpan(2)
+                            ->columnSpan(4)
                             ->required(),
                         DateTimePicker::make('data_fim')
-                            ->columnSpan(2)
+                            ->columnSpan(4)
                             ->required(),
                     ]),
                 Section::make('Quilometragens')
@@ -61,24 +61,23 @@ class ViagemForm
                             ->columnSpan(2)
                             ->numeric()
                             ->default(0),
-                        TextInput::make('km_cadastro')
-                            ->columnSpan(2)
-                            ->numeric()
-                            ->default(0),
                         Select::make('motivo_divergencia')
                             ->label('Motivo Divergência')
                             ->columnSpan(5)
                             ->native(false)
                             ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                             ->default(Enum\MotivoDivergenciaViagem::DESLOCAMENTO_OUTROS->value),
+                        TextInput::make('km_cadastro')
+                            ->columnSpan(2)
+                            ->numeric()
+                            ->default(0),
                     ]),
                 Section::make('Documentos')
-
                     ->columnStart(1)
                     ->columnSpan(12)
                     ->schema([
                         RepeatableEntry::make('documentos')
-->columnSpan(12)
+                            ->columnSpan(12)
                             ->table([
                                 TableColumn::make('Destino'),
                                 TableColumn::make('Nº Doc.'),
@@ -92,11 +91,35 @@ class ViagemForm
                                 TextEntry::make('parceiro_destino'),
                                 TextEntry::make('numero_documento'),
                                 TextEntry::make('tipo_documento'),
-                                TextEntry::make('valor_total'),
-                                TextEntry::make('valor_icms'),
+                                TextEntry::make('valor_total')
+                                    ->money('BRL'),
+                                TextEntry::make('valor_icms')
+                                    ->money('BRL'),
 
                             ])
+                    ]),
+                Section::make('Comentarios')
+                    ->columnStart(1)
+                    ->columnSpan(12)
+                    ->schema([
+                RepeatableEntry::make('comentarios')
+                    ->table([
+                        TableColumn::make('Conteúdo')
+                            ->wrapHeader(),
+                        TableColumn::make('Criado Em'),
+                        TableColumn::make('Criado Por'),
                     ])
+                    ->schema([
+                        TextEntry::make('conteudo')
+                            ->label('Comentário')
+                            ->html(),
+                        TextEntry::make('created_at')
+                            ->label('Criado em')
+                            ->dateTime('d/m/Y H:i'),
+                        TextEntry::make('creator.name')
+                            ->label('Criado por'),
+                    ])
+            ])
 
             ]);
     }

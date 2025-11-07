@@ -57,7 +57,7 @@ class RecaparPneu
             $this->errors   = $validator->errors()->all();
             $this->message  = 'Dados inválidos para recapagem de pneu.';
 
-            dump('chegou aqui quase log');
+            dump('chegou aqui quase log', $validator->errors()->all());
             Log::error('Erro ao validar dados para recapagem de pneu', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'errors' => $this->errors,

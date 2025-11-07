@@ -110,20 +110,20 @@ class ViagemsTable
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR')
                         // ->summarize(Sum::make()
                         //     ->numeric(decimalPlaces: 2, locale: 'pt-BR'))
-                        ->summarize(
-                            Summarizer::make()
-                                ->label('Média %')
-                                ->using(function ( $query) {
-                                    // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
-                                    return $query->selectRaw("
-                                        CASE
-                                            WHEN COALESCE(SUM(km_rodado'), 0) = 0 THEN NULL
-                                            ELSE (SUM(km_dispersao) / SUM(km_rodado)) * 100
-                                        END AS aggregate
-                                    ")->value('aggregate');
-                                })
-                                ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        )
+                        // ->summarize(
+                        //     Summarizer::make()
+                        //         ->label('Média %')
+                        //         ->using(function ( $query) {
+                        //             // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
+                        //             return $query->selectRaw("
+                        //                 CASE
+                        //                     WHEN COALESCE(SUM(km_rodado'), 0) = 0 THEN NULL
+                        //                     ELSE (SUM(km_dispersao) / SUM(km_rodado)) * 100
+                        //                 END AS aggregate
+                        //             ")->value('aggregate');
+                        //         })
+                        //         ->numeric(decimalPlaces: 2, locale: 'pt-BR')
+                        // )
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('dispersao_percentual')
                         ->label('Dispersão %')

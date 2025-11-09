@@ -91,12 +91,14 @@ class CargaViagemsTable
                         ->label('Km Rodado')
                         ->width('1%')
                         ->wrapHeader()
+                        ->inverseRelationship('cargas')
                         ->summarize(Sum::make()->label('TT Km Rodado')->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
                     TextColumn::make('viagem.km_pago')
                         ->label('Km Pago')
                         ->width('1%')
                         ->wrapHeader()
+                        ->inverseRelationship('cargas')
                         ->summarize(Sum::make()->label('TT Km Pago')->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
                     TextColumn::make('viagem.km_cadastro')

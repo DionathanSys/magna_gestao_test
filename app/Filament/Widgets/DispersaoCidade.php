@@ -68,6 +68,7 @@ class DispersaoCidade extends TableWidget
                         DB::raw('MIN(cargas_viagem.km_dispersao) as min_km_dispersao'),
                         DB::raw('MAX(cargas_viagem.km_dispersao) as max_km_dispersao'),
                         DB::raw('AVG(cargas_viagem.km_dispersao) as avg_km_dispersao'),
+                        DB::raw('CASE WHEN COUNT(cargas_viagem.id) > 0 THEN COALESCE(SUM(cargas_viagem.km_dispersao), 0) / COUNT(cargas_viagem.id) ELSE 0 END as km_dispersao_per_carga'),
                     )
                     ->join('integrados', 'cargas_viagem.integrado_id', '=', 'integrados.id')
                     ->join('viagens', 'cargas_viagem.viagem_id', '=', 'viagens.id')

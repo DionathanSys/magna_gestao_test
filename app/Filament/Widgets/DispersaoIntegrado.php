@@ -26,7 +26,7 @@ class DispersaoIntegrado extends TableWidget
                 ->select(
                     'integrados.id as integrado_id',
                     'integrados.nome as integrado_nome',
-                    'integrados.cidade as integrado_cidade',
+                    'integrados.municipio as integrado_municipio',
                     DB::raw('COALESCE(SUM(cargas_viagem.km_dispersao), 0) as total_km_dispersao'),
                     DB::raw('COUNT(cargas_viagem.id) as total_cargas')
                 )
@@ -40,6 +40,7 @@ class DispersaoIntegrado extends TableWidget
                     'integrado_' . $row->integrado_id => [
                         'integrado_id' => $row->integrado_id,
                         'integrado_nome' => $row->integrado_nome,
+                        'integrado_municipio' => $row->integrado_municipio,
                         'total_km_dispersao' => (float) $row->total_km_dispersao,
                         'total_cargas' => (int) $row->total_cargas,
                     ],
@@ -49,8 +50,8 @@ class DispersaoIntegrado extends TableWidget
                 TextColumn::make('integrado_nome')
                     ->label('Integrado')
                     ->wrap(),
-                TextColumn::make('integrado_cidade')
-                    ->label('Cidade')
+                TextColumn::make('integrado_municipio')
+                    ->label('Município')
                     ->wrap(),
                 TextColumn::make('total_km_dispersao')
                     ->label('Km Dispersão')

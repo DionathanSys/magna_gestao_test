@@ -41,6 +41,7 @@ class DispersaoIntegrado extends TableWidget
                     )
                     ->join('integrados', 'cargas_viagem.integrado_id', '=', 'integrados.id')
                     ->join('viagens', 'cargas_viagem.viagem_id', '=', 'viagens.id')
+                    ->where('viagens.considerar_relatorio', true)
                     ->when($veiculoId, function ($query, $veiculoId) {
                         return $query->where('viagens.veiculo_id', $veiculoId);
                     })

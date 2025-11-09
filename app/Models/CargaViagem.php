@@ -37,6 +37,11 @@ class CargaViagem extends Model
         static::updated(function (self $model) {
             Log::info('CargaViagem atualizada', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'integrado_id' => $model->integrado_id]);
         });
+
+        static::deleted(function (self $model) {
+            Log::info('CargaViagem removida (deleted)', ['id' => $model->id, 'viagem_id' => $model->viagem_id]);
+            (new CargaService())->atualizarKmDispersao($model->viagem_id);
+        });
     }
 
 }

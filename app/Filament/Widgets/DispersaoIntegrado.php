@@ -118,7 +118,7 @@ class DispersaoIntegrado extends TableWidget
                     ->limit(20)
                     ->get();
 
-                return $results->mapWithKeys(fn ($row) => [
+                return $results->mapWithKeys(fn($row) => [
                     'integrado_' . $row->integrado_id => [
                         'integrado_id' => $row->integrado_id,
                         'integrado_nome' => $row->integrado_nome,
@@ -138,10 +138,26 @@ class DispersaoIntegrado extends TableWidget
                     ->label('Integrado')
                     ->wrap()
                     ->searchable()
-                    ->url(fn ($record) => ViagemResource::getUrl('index', [
-                        'filters' => [
-                            'integrado_id' => $record['integrado_id'],
-                        ],
+                    // ->url(fn(array $record) => ViagemResource::getUrl('index', [
+                    //     'filters' => [
+                    //         'integrado_id' => [
+                    //             'values' => [
+                    //                 0 => $record['integrado_id'],
+                    //             ]
+                    //         ],
+                    //     ],
+                    // ]))
+                    ->url(fn(array $record) => ViagemResource::getUrl('index', [
+                        'filters' => array_filter([
+                            'integrado_id' => [
+                                'values' => [
+                                    0 => $record['integrado_id'],
+                                ],
+                            ],
+                            'data_competencia' => [
+                                'data_competencia' => $dataCompetencia ?? null,
+                            ],
+                        ]),
                     ]))
                     ->openUrlInNewTab(),
                 TextColumn::make('integrado_municipio')
@@ -168,7 +184,7 @@ class DispersaoIntegrado extends TableWidget
                     ->numeric(2),
                 TextColumn::make('dispersao_percentage')
                     ->label('% Dispersão/Km Rodado')
-                    ->formatStateUsing(fn ($state) => number_format($state, 2))
+                    ->formatStateUsing(fn($state) => number_format($state, 2))
                     ->numeric(2)
                     ->suffix('%'),
             ])

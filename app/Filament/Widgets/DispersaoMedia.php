@@ -99,9 +99,9 @@ class DispersaoMedia extends StatsOverviewWidget
             : 0;
 
         return [
-            Stat::make('Dispersão geral', number_format($kmDispersao, 2, ',', '.') . ' km - ' . number_format($dispersaoMedia, 2, ',', '.') . '%')
+            Stat::make('Dispersão geral', number_format($kmDispersao, 0, ',', '.') . ' km - ' . number_format($dispersaoMedia, 2, ',', '.') . '%')
                 ->description('Dispersão média por viagem: ' . number_format($dispersaoPorViagem, 2, ',', '.') . ' km/viagem'),
-            Stat::make('Total km rodado', number_format($totalKmRodado, 2, ',', '.') . ' km')
+            Stat::make('Total km rodado', number_format($totalKmRodado, 0, ',', '.') . ' km')
                 ->description('Km médio por viagem: ' . ($totalViagens > 0 ? number_format($totalKmRodado / $totalViagens, 2, ',', '.') . ' km/viagem' : '0 km/viagem')),
             Stat::make('Qtde viagens', $totalViagens)
                 ->description($countViagensNaoConsideradas > 0 ? '('.$countViagensNaoConsideradas.' viagens não consideradas)' : 'Não houve viagens desconsideradas'),

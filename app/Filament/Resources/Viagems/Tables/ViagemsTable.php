@@ -152,11 +152,13 @@ class ViagemsTable
                     TextColumn::make('data_inicio')
                         ->label('Dt. Início')
                         ->width('1%')
+                        ->disabledClick()
                         ->dateTime('d/m/Y H:i')
                         ->sortable(),
                     TextColumn::make('data_fim')
                         ->label('Dt. Fim')
                         ->width('1%')
+                        ->disabledClick()
                         ->dateTime('d/m/Y H:i')
                         ->dateTimeTooltip()
                         ->sortable()

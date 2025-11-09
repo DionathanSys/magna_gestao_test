@@ -32,9 +32,14 @@ class ViagemForm
                     ->schema([
                         TextInput::make('numero_viagem')
                             ->required()
-                            ->columnSpan(6),
+                            ->columnSpan(4),
                         TextInput::make('documento_transporte')
-                            ->columnSpan(6),
+                            ->columnSpan(4),
+                        Toggle::make('considerar_relatorio')
+                            ->columnSpan(3)
+                            ->label('Considerar no Relatório')
+                            ->inline(false)
+                            ->default(false),
                         DatePicker::make('data_competencia')
                             ->columnStart(1)
                             ->columnSpan(4)

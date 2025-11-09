@@ -57,13 +57,6 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
-                // TextColumn::make('integrados_codigos')
-                //     ->label('Cód. Integrado')
-                //     ->width('1%')
-                //     ->html()
-                //     ->tooltip(fn(Models\Viagem $record) => $record->integrados_codigos)
-                //     ->disabledClick()
-                //     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('integrados_nomes')
                     ->label('Integrado')
                     ->width('1%')

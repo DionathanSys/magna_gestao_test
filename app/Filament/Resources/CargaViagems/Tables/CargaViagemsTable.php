@@ -16,6 +16,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\QueryBuilder;
@@ -38,6 +39,12 @@ class CargaViagemsTable
                     ]);
                 })
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->width('1%')
+                    ->wrapHeader()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('viagem.veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
@@ -84,22 +91,26 @@ class CargaViagemsTable
                         ->label('Km Rodado')
                         ->width('1%')
                         ->wrapHeader()
+                        ->summarize(Sum::make()->label('TT Km Rodado')->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
                     TextColumn::make('viagem.km_pago')
                         ->label('Km Pago')
                         ->width('1%')
                         ->wrapHeader()
+                        ->summarize(Sum::make()->label('TT Km Pago')->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
                     TextColumn::make('viagem.km_cadastro')
                         ->label('Km Cadastro')
                         ->width('1%')
                         ->wrapHeader()
-                        ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
+                        ->numeric(decimalPlaces: 2, locale: 'pt-BR')
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('km_dispersao')
                         ->label('Km Dispersão')
                         ->width('1%')
                         ->wrapHeader()
                         ->sortable()
+                        ->summarize(Sum::make()->label('TT Km Dispersão')->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('km_dispersao_rateio')
                         ->label('Km Rateio')

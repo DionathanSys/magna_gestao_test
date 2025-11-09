@@ -30,46 +30,62 @@ class CargaService
          *
          * 01 viagem pode ter 1 ou mais integrados (cargas)
          */
-        
+
         try {
 
-            $cargaViagem = $this->cargaViagem
+            $cargaViagemSemIntegrado = $this->cargaViagem
                 ->where('viagem_id', $viagem->id)
                 ->where('integrado_id', null)
                 ->first();
 
-            if ($cargaViagem) {
+            if ($cargaViagemSemIntegrado && $integrado) {
                 Log::info("Carga de viagem existente para a viagem ID {$viagem->id} porém sem integrado, atualizando integrado");
-                $cargaViagem->update([
-                    'integrado_id' => $integrado->id ?? null,
+                $cargaViagemSemIntegrado->update([
+                    'integrado_id' => $integrado->id,
                     'updated_by'   => $this->getUserIdChecked(),
                 ]);
-                return $cargaViagem;
-
-            } else {
-                Log::info("Será criado nova carga de viagem para a viagem ID {$viagem->id} com integrado");
+                return $cargaViagemSemIntegrado;
             }
 
-            return $this->cargaViagem->query()->updateOrCreate(
-                [
-                    'viagem_id'    => $viagem->id,
-                    'integrado_id' => $integrado->id ?? null,
-                ],
-                [
-                    'viagem_id'     => $viagem->id,
-                    'integrado_id'  => $integrado->id ?? null,
-                    'created_by'    => $this->getUserIdChecked(),
-                    'updated_by'    => $this->getUserIdChecked(),
-                ]
-            );
+            $cargaViagemComIntegrado = $this->cargaViagem
+                ->where('viagem_id', $viagem->id)
+                ->where('integrado_id', $integrado->id)
+                ->first();
 
+            if ($cargaViagemComIntegrado) {
+                Log::info("Carga de viagem já existente para a viagem ID {$viagem->id} com o integrado ID {$integrado->id}, retornando existente");
+                return $cargaViagemComIntegrado;
+            }
+
+            return $this->cargaViagem->query()->create([
+                'viagem_id'     => $viagem->id,
+                'integrado_id'  => $integrado->id,
+                'created_by'    => $this->getUserIdChecked(),
+                'updated_by'    => $this->getUserIdChecked(),
+            ]);
         } catch (\Exception $e) {
             Log::error('Erro ao criar carga de viagem: ' . $e->getMessage(), [
-                'metodo'       => __METHOD__. ' - ' . __LINE__,
+                'metodo'       => __METHOD__ . ' - ' . __LINE__,
                 'viagem_id'    => $viagem->id,
                 'integrado_id' => $integrado->id ?? null,
             ]);
             return null;
+        }
+    }
+
+    public function atualizarKmDispersao(int $viagemId): void
+    {
+        try {
+            $action = new Actions\AtualizarKmDispersao();
+            $action->handle($viagemId);
+
+            Log::info("Quilometragem de dispersão atualizada para CargaViagem ID {$viagemId}");
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao atualizar quilometragem de dispersão: ' . $e->getMessage(), [
+                'metodo'         => __METHOD__. ' - ' . __LINE__,
+                'cargas_viagem_id'=> $viagemId,
+            ]);
         }
     }
 }

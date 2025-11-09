@@ -21,10 +21,8 @@ class CargaViagemForm
                 Select::make('integrado_id')
                     ->columnSpan(1)
                     ->relationship('integrado', 'nome')
+                    ->searchable()
                     ->required(),
-                TextInput::make('documento_frete_id')
-                    ->columnSpan(1)
-                    ->numeric(),
             ]);
     }
 }

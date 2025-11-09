@@ -367,7 +367,7 @@ class ViagemsTable
                     Viagems\Actions\AdicionarComentarioAction::make(),
                     Viagems\Actions\VisualizarComentarioAction::make(),
                     EditAction::make()
-                        ->visible(fn(Models\Viagem $record) => ! $record->conferido)
+                        ->visible(fn(Models\Viagem $record) => ! $record->conferido || Auth::user()->is_admin)
                         ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),
                     Action::make('buscar_documentos')
                         ->label('Buscar Documentos')

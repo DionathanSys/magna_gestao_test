@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Enum\MotivoDivergenciaViagem;
+use App\Services\Carga\CargaService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Log;
 
 class Viagem extends Model
 {
@@ -142,5 +144,13 @@ class Viagem extends Model
         ];
     }
 
-
+    protected static function booted()
+    {
+        static::updated(function (self $model) {
+            if ($model->isDirty(['km_rodado', 'km_pago'])) {
+                Log::info('Viagem atualizada com alteração de km_rodado ou km_pago', ['id' => $model->id, 'km_rodado' => $model->km_rodado, 'km_pago' => $model->km_pago]);
+                (new CargaService())->atualizarKmDispersao($model->id);
+            }
+        });
+    }
 }

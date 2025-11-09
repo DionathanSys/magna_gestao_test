@@ -80,6 +80,7 @@ class ViagemForm
                     ->columnSpan(12)
                     ->schema([
                         RepeatableEntry::make('documentos')
+                            ->placeholder('Nenhum documento vinculado')
                             ->columnSpan(12)
                             ->table([
                                 TableColumn::make('Destino'),
@@ -87,8 +88,6 @@ class ViagemForm
                                 TableColumn::make('Tipo Doc.'),
                                 TableColumn::make('Valor Total'),
                                 TableColumn::make('Valor ICMS'),
-
-
                             ])
                             ->schema([
                                 TextEntry::make('parceiro_destino'),
@@ -98,6 +97,30 @@ class ViagemForm
                                     ->money('BRL'),
                                 TextEntry::make('valor_icms')
                                     ->money('BRL'),
+                            ])
+                    ]),
+                Section::make('Integrados')
+                    ->columnStart(1)
+                    ->columnSpan(12)
+                    ->schema([
+                        RepeatableEntry::make('integrados')
+                            ->placeholder('Nenhum integrado adicionado')
+                            ->columnSpan(12)
+                            ->table([
+                                TableColumn::make('Id'),
+                                TableColumn::make('Nome'),
+                                TableColumn::make('Km Rota'),
+                                TableColumn::make('Cidade'),
+                                TableColumn::make('Estado'),
+
+
+                            ])
+                            ->schema([
+                                TextEntry::make('id'),
+                                TextEntry::make('nome'),
+                                TextEntry::make('km_rota'),
+                                TextEntry::make('cidade'),
+                                TextEntry::make('estado'),
 
                             ])
                     ]),
@@ -105,15 +128,8 @@ class ViagemForm
                     ->columnStart(1)
                     ->columnSpan(12)
                     ->schema([
-                        EmptyState::make('No users yet')
-                            ->description('Get started by creating a new user.')
-                            ->icon(Heroicon::ChatBubbleBottomCenterText)
-                            ->visible(fn($record) => (
-                                // se não houver registro (novo), considera sem comentários
-                                $record === null
-                                || (method_exists($record, 'comentarios') && $record->comentarios()->count() === 0)
-                            )),
                         RepeatableEntry::make('comentarios')
+                            ->placeholder('Nenhum comentário adicionado')
                             ->table([
                                 TableColumn::make('Conteúdo')
                                     ->wrapHeader(),
@@ -131,6 +147,7 @@ class ViagemForm
                                     ->label('Criado por'),
                             ])
                     ])
+                    
 
             ]);
     }

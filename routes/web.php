@@ -6,6 +6,7 @@ use App\Imports\DocumentoFreteImport;
 use App\Jobs\ProcessImportRowJob;
 use App\Jobs\TesteJob;
 use App\Models\Pneu;
+use App\Services\Carga\Actions\AtualizarKmDispersao;
 use App\Services\DocumentoFrete\DocumentoFreteService;
 use App\Traits\PdfExtractorTrait;
 use Illuminate\Support\Facades\Log;
@@ -113,4 +114,18 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
     // return $response;
 })->name('upload.pdf');
+
+Route::get('/teste-job', function () {
+    \App\Models\CargaViagem::chunk(100, function ($cargas) {
+        foreach ($cargas as $carga) {
+            if ($carga->integrado_id == null) {
+                Log::warning('Carga sem integrado vinculado, ignorando atualização de km dispersão.', [
+                    'carga_id' => $carga->id
+                ]);
+                continue;
+            }
+            (new AtualizarKmDispersao())->handle($carga->viagem_id);
+        }
+    });
+})->name('teste.job');
 

@@ -31,7 +31,11 @@ class CargaViagemsTable
         return $table
             ->poll(null)
             ->modifyQueryUsing(function (Builder $query): Builder {
-                    return $query->with(['viagem', 'integrado']);
+                    return $query->with([
+                        'viagem.veiculo:id,placa',
+                        'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,km_rodado_excedente,km_cobrar,motivo_divergencia,conferido',
+                        'integrado:id,nome,codigo,km_rota',
+                    ]);
                 })
             ->columns([
                 TextColumn::make('viagem.veiculo.placa')
@@ -58,17 +62,24 @@ class CargaViagemsTable
                     ->width('1%')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                    ColumnGroup::make('Integrado', [
                 TextColumn::make('integrado.nome')
                     ->label('Integrado')
                     ->width('1%')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('integrado.km_rota')
+                    ->label('Km Rota Integrado')
+                    ->width('1%')
+                    ->numeric()
+                    ->wrapHeader()
+                    ->sortable(),]),
                 TextColumn::make('Doc. Frete')
                     ->width('1%')
                     ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                ColumnGroup::make('KM', [
+                ColumnGroup::make('KM Viagem', [
                     TextColumn::make('viagem.km_rodado')
                         ->label('Km Rodado')
                         ->width('1%')
@@ -84,18 +95,15 @@ class CargaViagemsTable
                         ->width('1%')
                         ->wrapHeader()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
-                    TextColumn::make('viagem.km_rodado_excedente')
-                        ->label('Km Perdido')
+                    TextColumn::make('km_dispersao')
+                        ->label('Km Dispersão')
                         ->width('1%')
-                        ->color(fn($state, Models\CargaViagem $record): string => $record->viagem->km_rodado_excedente > 0 ? 'info' : '')
-                        ->badge(fn($state, Models\CargaViagem $record): bool => $record->viagem->km_rodado_excedente > 0)
                         ->wrapHeader()
-                        ->sortable()
-                        ->numeric(decimalPlaces: 2, locale: 'pt-BR')
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('viagem.km_cobrar')
-                        ->label('Km Cobrar')
+                    TextColumn::make('km_dispersao_rateio')
+                        ->label('Km Rateio')
                         ->width('1%')
+                        ->state(fn($state) => $state ? 'Sim' : 'Não')
                         ->wrapHeader()
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('viagem.motivo_divergencia')

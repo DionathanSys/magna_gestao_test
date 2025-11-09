@@ -24,6 +24,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class CargaViagemsTable
 {
@@ -219,30 +220,11 @@ class CargaViagemsTable
                         false: fn (Builder $query) => $query->has('viagem.complementos'),
                         blank: fn (Builder $query) => $query,
                     ),
-                Filter::make('data_competencia')
-                    ->columns(6)
-                    ->schema([
-                        DatePicker::make('data_inicio')
-                            ->label('Data Comp. Início')
-                            ->columnSpan(2),
-                        DatePicker::make('data_fim')
-                            ->label('Data Comp. Fim')
-                            ->columnSpan(2),
-                    ])
-                    ->columnSpan(2)
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['data_inicio'],
-                                fn(Builder $query, $date) =>
-                                $query->whereHas('viagem', fn($q) => $q->whereDate('data_competencia', '>=', $date))
-                            )
-                            ->when(
-                                $data['data_fim'],
-                                fn(Builder $query, $date) =>
-                                $query->whereHas('viagem', fn($q) => $q->whereDate('data_competencia', '<=', $date))
-                            );
-                    }),
+                DateRangeFilter::make('data_competencia')
+                        ->label('Dt. Competência')
+                        ->autoApply()
+                        ->firstDayOfWeek(0)
+                        ->alwaysShowCalendar(),
                 QueryBuilder::make()
                     ->constraints([
                             \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_cobrar')

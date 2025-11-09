@@ -7,11 +7,13 @@ use App\Models\Viagem;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DispersaoIntegrado extends TableWidget
 {
@@ -26,6 +28,40 @@ class DispersaoIntegrado extends TableWidget
 
         return $table
             ->records(function () use ($veiculoId, $dataCompetencia): array {
+
+                $kmRodadoTotal = Viagem::query()
+                    ->when($veiculoId, function ($query, $veiculoId) {
+                        return $query->where('veiculo_id', $veiculoId);
+                    })
+                    ->when($dataCompetencia, function ($query, $dataCompetencia) {
+                        // data_competencia pode chegar como array ou como string no formato
+                        // 'dd/mm/YYYY - dd/mm/YYYY'. Tratamos ambos os casos.
+                        try {
+                            if (is_array($dataCompetencia) && count($dataCompetencia) === 2) {
+                                return $query->whereBetween('data_competencia', [
+                                    $dataCompetencia[0],
+                                    $dataCompetencia[1]
+                                ]);
+                            }
+
+                            if (is_string($dataCompetencia) && str_contains($dataCompetencia, ' - ')) {
+                                [$start, $end] = array_map('trim', explode(' - ', $dataCompetencia, 2));
+
+                                // converte 'dd/mm/YYYY' -> 'YYYY-mm-dd'
+                                $startDate = Carbon::createFromFormat('d/m/Y', $start)->format('Y-m-d');
+                                $endDate = Carbon::createFromFormat('d/m/Y', $end)->format('Y-m-d');
+
+                                return $query->whereBetween('data_competencia', [$startDate, $endDate]);
+                            }
+                        } catch (\Throwable $e) {
+                            // se o parse falhar, ignoramos o filtro de data e continuamos
+                        }
+
+                        return $query;
+                    })
+                    ->where('considerar_relatorio', true)
+                    ->sum('km_rodado');
+
                 $results = DB::table('cargas_viagem')
                     ->select(
                         'integrados.id as integrado_id',
@@ -37,7 +73,7 @@ class DispersaoIntegrado extends TableWidget
                         DB::raw('MAX(cargas_viagem.km_dispersao) as max_km_dispersao'),
                         DB::raw('AVG(cargas_viagem.km_dispersao) as avg_km_dispersao'),
                         DB::raw('CASE WHEN COUNT(cargas_viagem.id) > 0 THEN COALESCE(SUM(cargas_viagem.km_dispersao), 0) / COUNT(cargas_viagem.id) ELSE 0 END as km_dispersao_per_carga'),
-                        DB::raw('CASE WHEN SUM(viagens.km_pago) > 0 THEN (COALESCE(SUM(cargas_viagem.km_dispersao), 0) / SUM(viagens.km_pago)) * 100 ELSE 0 END as dispersao_percentage')
+                        DB::raw('CASE WHEN SUM(viagens.km_rodado) > 0 THEN (COALESCE(SUM(cargas_viagem.km_dispersao), 0) / SUM(viagens.km_rodado)) * 100 ELSE 0 END as dispersao_percentage')
                     )
                     ->join('integrados', 'cargas_viagem.integrado_id', '=', 'integrados.id')
                     ->join('viagens', 'cargas_viagem.viagem_id', '=', 'viagens.id')
@@ -46,12 +82,29 @@ class DispersaoIntegrado extends TableWidget
                         return $query->where('viagens.veiculo_id', $veiculoId);
                     })
                     ->when($dataCompetencia, function ($query, $dataCompetencia) {
-                        if (is_array($dataCompetencia) && count($dataCompetencia) === 2) {
-                            return $query->whereBetween('viagens.data_competencia', [
-                                $dataCompetencia[0],
-                                $dataCompetencia[1]
-                            ]);
+                        // data_competencia pode chegar como array ou como string no formato
+                        // 'dd/mm/YYYY - dd/mm/YYYY'. Tratamos ambos os casos.
+                        try {
+                            if (is_array($dataCompetencia) && count($dataCompetencia) === 2) {
+                                return $query->whereBetween('viagens.data_competencia', [
+                                    $dataCompetencia[0],
+                                    $dataCompetencia[1]
+                                ]);
+                            }
+
+                            if (is_string($dataCompetencia) && str_contains($dataCompetencia, ' - ')) {
+                                [$start, $end] = array_map('trim', explode(' - ', $dataCompetencia, 2));
+
+                                // converte 'dd/mm/YYYY' -> 'YYYY-mm-dd'
+                                $startDate = Carbon::createFromFormat('d/m/Y', $start)->format('Y-m-d');
+                                $endDate = Carbon::createFromFormat('d/m/Y', $end)->format('Y-m-d');
+
+                                return $query->whereBetween('viagens.data_competencia', [$startDate, $endDate]);
+                            }
+                        } catch (\Throwable $e) {
+                            // se o parse falhar, ignoramos o filtro de data e continuamos
                         }
+
                         return $query;
                     })
                     ->groupBy('integrados.id', 'integrados.nome', 'integrados.municipio')
@@ -102,10 +155,12 @@ class DispersaoIntegrado extends TableWidget
                     ->label('Km/Carga')
                     ->numeric(2),
                 TextColumn::make('dispersao_percentage')
-                    ->label('% Dispersão/Km Pago')
+                    ->label('% Dispersão/Km Rodado')
+                    ->formatStateUsing(fn ($state) => number_format($state, 2))
                     ->numeric(2)
                     ->suffix('%'),
             ])
+            ->striped()
             ->filters([
                 //
             ])

@@ -13,6 +13,7 @@ use Filament\Forms\Components\{
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use App\Enum;
+use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
@@ -132,6 +133,9 @@ class ViagemForm
                 Section::make('Comentarios')
                     ->columnStart(1)
                     ->columnSpan(12)
+                    ->headerActions([
+                        AdicionarComentarioAction::make()
+                    ])
                     ->schema([
                         RepeatableEntry::make('comentarios')
                             ->placeholder('Nenhum comentário adicionado')

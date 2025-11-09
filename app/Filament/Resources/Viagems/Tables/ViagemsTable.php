@@ -180,28 +180,6 @@ class ViagemsTable
                         '1' => 'info',
                         default => 'danger',
                     }),
-                // TextColumn::make('comentarios.conteudo')
-                //     ->label('Comentários')
-                //     ->html()
-                //     ->width('1%')
-                //     ->wrap()
-                //     ->lineClamp(2)
-                //     ->size(TextSize::ExtraSmall)
-                //     ->listWithLineBreaks()
-                //     ->limitList(1)
-                //     ->expandableLimitedList()
-                //     ->visibleFrom('xl')
-                //     ->toggleable(isToggledHiddenByDefault: false),
-                // TextColumn::make('complementos_exists')
-                //     ->label('Complementos')
-                //     ->width('1%')
-                //     ->exists('complementos')
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // TextColumn::make('documentos_exists')
-                //     ->label('Documentos')
-                //     ->width('1%')
-                //     ->exists('documentos')
-                //     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('Users', [
                     TextColumn::make('creator.name')
                         ->label('Criado Por')

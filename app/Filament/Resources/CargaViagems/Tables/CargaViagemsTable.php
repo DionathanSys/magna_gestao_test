@@ -79,25 +79,21 @@ class CargaViagemsTable
                         ->width('1%')
                         ->wrapHeader()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
-                    TextColumn::make('viagem.km_cadastro')
+                    TextColumn::make('km_dispersao')
+                         ->label('Km Dispersão')
+                         ->width('1%')
+                         ->wrapHeader()
+                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
+                    TextColumn::make('km_dispersao_rateio')
+                        ->label('Km Cadastro')
+                        ->width('1%')
+                        ->state(fn ($state) => $state ? 'Rateado' : 'Não Rateado')
+                        ->wrapHeader(),
+                    TextColumn::make('integrado.km_cadastro')
                         ->label('Km Cadastro')
                         ->width('1%')
                         ->wrapHeader()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
-                    TextColumn::make('viagem.km_rodado_excedente')
-                        ->label('Km Perdido')
-                        ->width('1%')
-                        ->color(fn($state, Models\CargaViagem $record): string => $record->viagem->km_rodado_excedente > 0 ? 'info' : '')
-                        ->badge(fn($state, Models\CargaViagem $record): bool => $record->viagem->km_rodado_excedente > 0)
-                        ->wrapHeader()
-                        ->sortable()
-                        ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('viagem.km_cobrar')
-                        ->label('Km Cobrar')
-                        ->width('1%')
-                        ->wrapHeader()
-                        ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('viagem.motivo_divergencia')
                         ->label('Motivo Divergência')
                         ->width('2%')

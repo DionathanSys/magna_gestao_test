@@ -36,7 +36,7 @@ class KpiViagem extends Page
         return [
             FilterAction::make()
                 ->schema([
-                    Select::make('placa')
+                    Select::make('veiculo_id')
                         ->label('Placa')
                         ->options(fn() => \App\Models\Veiculo::query()
                             ->where('is_active', true)
@@ -54,7 +54,7 @@ class KpiViagem extends Page
 
     public function getHeaderWidgetsColumns(): int | array
     {
-        return 2;
+        return 1;
     }
 
     protected function getHeaderWidgets(): array

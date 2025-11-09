@@ -21,6 +21,8 @@ class KmRodadoPneu extends BaseWidget
 
     protected string $view = 'filament.widgets.km-rodado-pneu';
 
+    protected static bool $isDiscovered = false;
+
     protected int $queryCount;
 
     protected int $perPage = 15;

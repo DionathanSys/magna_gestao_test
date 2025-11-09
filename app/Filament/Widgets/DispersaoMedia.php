@@ -12,6 +12,8 @@ class DispersaoMedia extends StatsOverviewWidget
 
     protected static ?int $sort = 1;
 
+    protected static bool $isDiscovered = false;
+
     protected function getStats(): array
     {
         $veiculoId = $this->pageFilters['veiculo_id'] ?? null;

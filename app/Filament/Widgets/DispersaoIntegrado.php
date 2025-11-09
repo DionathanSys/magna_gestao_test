@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models\CargaViagem;
 use App\Models\Viagem;
 use Filament\Actions\BulkActionGroup;
@@ -21,12 +22,15 @@ class DispersaoIntegrado extends TableWidget
 
     protected static ?int $sort = 2;
 
+    protected static bool $isDiscovered = false;
+
     public function table(Table $table): Table
     {
         $veiculoId = $this->pageFilters['veiculo_id'] ?? null;
         $dataCompetencia = $this->pageFilters['data_competencia'] ?? null;
 
         return $table
+            ->description('Top 20 Integrados por Km Dispersão - ' . $dataCompetencia ? $dataCompetencia : 'Período não definido')
             ->records(function () use ($veiculoId, $dataCompetencia): array {
 
                 $kmRodadoTotal = Viagem::query()
@@ -131,7 +135,13 @@ class DispersaoIntegrado extends TableWidget
                 TextColumn::make('integrado_nome')
                     ->label('Integrado')
                     ->wrap()
-                    ->searchable(),
+                    ->searchable()
+                    ->url(fn ($record) => ViagemResource::getUrl('index', [
+                        'filters' => [
+                            'integrado_id' => $record['integrado_id'],
+                        ],
+                    ]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('integrado_municipio')
                     ->label('Município')
                     ->wrap()

@@ -99,6 +99,7 @@ class CargaViagemsTable
                         ->label('Km Dispersão')
                         ->width('1%')
                         ->wrapHeader()
+                        ->sortable()
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('km_dispersao_rateio')
                         ->label('Km Rateio')

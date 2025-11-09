@@ -93,6 +93,13 @@ class ViagemsTable
                             Models\Integrado::find($record->carga->integrado_id),
                             $state
                         )),
+                    TextInputColumn::make('km_cobrar')
+                        ->width('1%')
+                        ->wrapHeader()
+                        ->type('number')
+                        ->disabled(fn(Models\Viagem $record) => ($record->conferido && !Auth::user()->is_admin))
+                        ->rules(['numeric', 'min:0', 'required'])
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('km_dispersao')
                         ->label('Km Dispersão')
                         ->width('1%')

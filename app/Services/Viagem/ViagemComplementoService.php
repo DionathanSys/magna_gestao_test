@@ -32,7 +32,7 @@ class ViagemComplementoService
                         'integrado_id'          => $integradoId,
                         'km_rodado'             => $viagem->km_rodado,
                         'km_pago'               => $viagem->km_pago,
-                        'km_divergencia'        => $viagem->km_divergencia,
+                        'km_divergencia'        => $viagem->km_dispersao,
                         'km_cobrar'             => $viagem->km_cobrar,
                         'data_competencia'      => $viagem->data_competencia,
                         'motivo_divergencia'    => $viagem->motivo_divergencia,
@@ -43,7 +43,7 @@ class ViagemComplementoService
 
                 $viagem->km_rodado = 0;
                 $viagem->km_pago = 0;
-                $viagem->km_divergencia = 0;
+                $viagem->km_dispersao = 0;
                 $viagem->km_cobrar = 0;
 
                 Log::debug('Complemento criado ou atualizado para a viagem: ' . $viagem->id . ' e integrado_id: ' . $integradoId, [

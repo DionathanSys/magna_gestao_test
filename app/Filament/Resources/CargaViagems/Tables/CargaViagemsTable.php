@@ -33,12 +33,12 @@ class CargaViagemsTable
         return $table
             ->poll(null)
             ->modifyQueryUsing(function (Builder $query): Builder {
-                    return $query->with([
-                        'viagem.veiculo:id,placa',
-                        'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,km_rodado_excedente,km_cobrar,motivo_divergencia,conferido',
-                        'integrado:id,nome,codigo,km_rota',
-                    ]);
-                })
+                return $query->with([
+                    'viagem.veiculo:id,placa',
+                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,km_rodado_excedente,km_cobrar,motivo_divergencia,conferido',
+                    'integrado:id,nome,codigo,km_rota',
+                ]);
+            })
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -70,18 +70,19 @@ class CargaViagemsTable
                     ->width('1%')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                    ColumnGroup::make('Integrado', [
-                TextColumn::make('integrado.nome')
-                    ->label('Integrado')
-                    ->width('1%')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('integrado.km_rota')
-                    ->label('Km Rota Integrado')
-                    ->width('1%')
-                    ->numeric()
-                    ->wrapHeader()
-                    ->sortable(),]),
+                ColumnGroup::make('Integrado', [
+                    TextColumn::make('integrado.nome')
+                        ->label('Integrado')
+                        ->width('1%')
+                        ->numeric()
+                        ->sortable(),
+                    TextColumn::make('integrado.km_rota')
+                        ->label('Km Rota Integrado')
+                        ->width('1%')
+                        ->numeric()
+                        ->wrapHeader()
+                        ->sortable(),
+                ]),
                 TextColumn::make('Doc. Frete')
                     ->width('1%')
                     ->numeric()
@@ -216,30 +217,47 @@ class CargaViagemsTable
                     ->trueLabel('Sim')
                     ->falseLabel('Não')
                     ->queries(
-                        true: fn (Builder $query) => $query->doesntHave('viagem.complementos'),
-                        false: fn (Builder $query) => $query->has('viagem.complementos'),
-                        blank: fn (Builder $query) => $query,
+                        true: fn(Builder $query) => $query->doesntHave('viagem.complementos'),
+                        false: fn(Builder $query) => $query->has('viagem.complementos'),
+                        blank: fn(Builder $query) => $query,
                     ),
-                DateRangeFilter::make('data_competencia')
-                        ->label('Dt. Competência')
-                        ->autoApply()
-                        ->firstDayOfWeek(0)
-                        ->alwaysShowCalendar(),
+                DateRangeFilter::make('viagem.data_competencia')
+                    ->label('Dt. Competência')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar()
+                    ->alwaysShowCalendar()
+                    ->modifyQueryUsing(
+                        fn(Builder $query, ?Carbon $startDate, ?Carbon $endDate, $dateString) =>
+                        $query->when(
+                            ! empty($dateString),
+                            function (Builder $query) use ($startDate, $endDate): Builder {
+                                // clona as datas para não alterar os objetos originais
+                                $start = $startDate?->copy()->startOfDay();
+                                $end = $endDate?->copy()->endOfDay();
+
+                                // aplica o filtro via relação viagem (whereBetween em viagens.data_competencia)
+                                return $query->whereHas('viagem', function (Builder $q) use ($start, $end) {
+                                    $q->whereBetween('data_competencia', [$start, $end]);
+                                });
+                            }
+                        )
+                    ),
                 QueryBuilder::make()
                     ->constraints([
-                            \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_cobrar')
-                                ->relationship('viagem','km_cobrar'),
-                            \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_perdido'),
-                            \Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint::make('integrado')
-                                ->multiple()
-                                ->emptyable()
-                                ->selectable(
-                                    \Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\IsRelatedToOperator::make()
-                                        ->titleAttribute('nome')
-                                        ->searchable()
-                                        ->multiple()
-                                )
-                        ])
+                        \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_cobrar')
+                            ->relationship('viagem', 'km_cobrar'),
+                        \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_perdido'),
+                        \Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint::make('integrado')
+                            ->multiple()
+                            ->emptyable()
+                            ->selectable(
+                                \Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\IsRelatedToOperator::make()
+                                    ->titleAttribute('nome')
+                                    ->searchable()
+                                    ->multiple()
+                            )
+                    ])
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->searchOnBlur()
             ->persistFiltersInSession()

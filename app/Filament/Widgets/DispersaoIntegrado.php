@@ -22,6 +22,8 @@ class DispersaoIntegrado extends TableWidget
 
     protected static ?int $sort = 2;
 
+    protected static ?string $heading = 'Top 20 Integrados Críticos - Km Dispersão';
+
     protected static bool $isDiscovered = false;
 
     public function table(Table $table): Table
@@ -30,7 +32,7 @@ class DispersaoIntegrado extends TableWidget
         $dataCompetencia = $this->pageFilters['data_competencia'] ?? null;
 
         return $table
-            ->description('Top 20 Integrados por Km Dispersão - ' . $dataCompetencia ? $dataCompetencia : 'Período não definido')
+            ->description($dataCompetencia ? 'Período: ' . $dataCompetencia : 'Período não definido')
             ->records(function () use ($veiculoId, $dataCompetencia): array {
 
                 $kmRodadoTotal = Viagem::query()

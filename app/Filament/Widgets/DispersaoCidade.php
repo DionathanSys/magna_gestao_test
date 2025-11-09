@@ -27,7 +27,7 @@ class DispersaoCidade extends TableWidget
         $dataCompetencia = $this->pageFilters['data_competencia'] ?? null;
 
         return $table
-            ->description('Top 20 Cidades por Km Dispersão - ' . $dataCompetencia ? $dataCompetencia : 'Período não definido')
+            ->description($dataCompetencia ? 'Período: ' . $dataCompetencia : 'Período não definido')
             ->records(function () use ($veiculoId, $dataCompetencia): array {
                 // parse intervalo de data (aceita string "dd/mm/YYYY - dd/mm/YYYY" ou array)
                 $start = null;

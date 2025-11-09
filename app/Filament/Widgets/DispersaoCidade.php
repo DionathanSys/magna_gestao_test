@@ -68,8 +68,6 @@ class DispersaoCidade extends TableWidget
                         DB::raw('MIN(cargas_viagem.km_dispersao) as min_km_dispersao'),
                         DB::raw('MAX(cargas_viagem.km_dispersao) as max_km_dispersao'),
                         DB::raw('AVG(cargas_viagem.km_dispersao) as avg_km_dispersao'),
-                        DB::raw('CASE WHEN COUNT(cargas_viagem.id) > 0 THEN COALESCE(SUM(cargas_viagem.km_dispersao), 0) / COUNT(cargas_viagem.id) ELSE 0 END as km_dispersao_per_carga'),
-                        DB::raw('CASE WHEN SUM(viagens.km_rodado) > 0 THEN (COALESCE(SUM(cargas_viagem.km_dispersao), 0) / SUM(viagens.km_rodado)) * 100 ELSE 0 END as dispersao_percentage_by_viagem_km_rodado')
                     )
                     ->join('integrados', 'cargas_viagem.integrado_id', '=', 'integrados.id')
                     ->join('viagens', 'cargas_viagem.viagem_id', '=', 'viagens.id')
@@ -101,8 +99,6 @@ class DispersaoCidade extends TableWidget
                             'max_km_dispersao' => (float) ($row->max_km_dispersao ?? 0),
                             'avg_km_dispersao' => (float) ($row->avg_km_dispersao ?? 0),
                             'km_dispersao_per_carga' => (float) $row->km_dispersao_per_carga,
-                            'dispersao_percentage_by_viagem_km_rodado' => (float) $row->dispersao_percentage_by_viagem_km_rodado,
-                            'dispersao_over_total_km_rodado' => (float) $dispOverTotal,
                         ],
                     ];
                 })->toArray();
@@ -115,14 +111,6 @@ class DispersaoCidade extends TableWidget
                 TextColumn::make('max_km_dispersao')->label('Km Máx.')->numeric(2),
                 TextColumn::make('avg_km_dispersao')->label('Km Médio')->numeric(2),
                 TextColumn::make('km_dispersao_per_carga')->label('Km/Carga')->numeric(2),
-                TextColumn::make('dispersao_percentage_by_viagem_km_rodado')
-                    ->label('% Dispersão / Km Rodado (viagens)')
-                    ->formatStateUsing(fn($s) => number_format((float) $s, 2, ',', '.'))
-                    ->suffix('%'),
-                TextColumn::make('dispersao_over_total_km_rodado')
-                    ->label('% Dispersão / Km Rodado Total')
-                    ->formatStateUsing(fn($s) => number_format((float) $s, 2, ',', '.'))
-                    ->suffix('%'),
             ])
             ->striped()
             ->toolbarActions([

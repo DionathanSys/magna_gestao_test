@@ -103,7 +103,7 @@ class CargaViagemsTable
                     TextColumn::make('km_dispersao_rateio')
                         ->label('Km Rateio')
                         ->width('1%')
-                        ->state(fn($state) => $state ? 'Sim' : 'Não')
+                        // ->state(fn($state) => $state ? 'Sim' : 'Não')
                         ->wrapHeader()
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('viagem.motivo_divergencia')

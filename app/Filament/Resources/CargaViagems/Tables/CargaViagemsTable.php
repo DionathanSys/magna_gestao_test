@@ -87,7 +87,7 @@ class CargaViagemsTable
                     TextColumn::make('km_dispersao_rateio')
                         ->label('Km Cadastro')
                         ->width('1%')
-                        ->state(fn ($state) => $state ? 'Rateado' : 'Não Rateado')
+                        // ->state(fn ($state) => $state ? 'Rateado' : 'Não Rateado')
                         ->wrapHeader(),
                     TextColumn::make('integrado.km_cadastro')
                         ->label('Km Cadastro')

@@ -137,16 +137,6 @@ class DispersaoIntegrado extends TableWidget
                 TextColumn::make('integrado_nome')
                     ->label('Integrado')
                     ->wrap()
-                    ->searchable()
-                    // ->url(fn(array $record) => ViagemResource::getUrl('index', [
-                    //     'filters' => [
-                    //         'integrado_id' => [
-                    //             'values' => [
-                    //                 0 => $record['integrado_id'],
-                    //             ]
-                    //         ],
-                    //     ],
-                    // ]))
                     ->url(fn(array $record) => ViagemResource::getUrl('index', [
                         'filters' => array_filter([
                             'integrado_id' => [
@@ -162,8 +152,7 @@ class DispersaoIntegrado extends TableWidget
                     ->openUrlInNewTab(),
                 TextColumn::make('integrado_municipio')
                     ->label('Município')
-                    ->wrap()
-                    ->searchable(),
+                    ->wrap(),
                 TextColumn::make('total_km_dispersao')
                     ->label('Km Dispersão Total')
                     ->numeric(2),

@@ -322,6 +322,38 @@ class ViagemsTable
                     ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                     ->multiple()
                     ->columnSpanFull(),
+                    Filter::make('integrados_count')
+                    ->label('Qtd. Integrados')
+                    ->schema([
+                        Select::make('operator')
+                            ->label('Operador')
+                            ->options([
+                                '>=' => 'Maior ou igual',
+                                '<=' => 'Menor ou igual',
+                                '='  => 'Igual',
+                                '>'  => 'Maior que',
+                                '<'  => 'Menor que',
+                            ])
+                            ->default('>='),
+                        TextInput::make('count')
+                            ->label('Quantidade')
+                            ->type('number'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $count = (int) ($data['count'] ?? 0);
+                        $op = $data['operator'] ?? '>=';
+
+                        if ($count <= 0) {
+                            return $query;
+                        }
+
+                        // usa subquery para contar integrados distintos por viagem e aplicar having via whereRaw
+                        // garante compatibilidade independentemente de relacionamentos Eloquent
+                        $binding = [$count];
+                        $raw = "(select count(distinct cv.integrado_id) from cargas_viagem cv where cv.viagem_id = viagens.id) {$op} ?";
+
+                        return $query->whereRaw($raw, $binding);
+                    }),
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(

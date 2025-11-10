@@ -125,5 +125,6 @@ Route::get('/teste-job', function () {
         'metodo' => __METHOD__ . '@' . __LINE__,
         'new_value' => !$current
     ]);
+    echo 'cargaViagemsGroupOnly set to ' . (!$current);
 });
 

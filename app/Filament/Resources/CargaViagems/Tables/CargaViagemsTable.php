@@ -284,7 +284,7 @@ class CargaViagemsTable
                     ->action(function () {
                         $current = Session::get('cargaViagemsGroupOnly', false);
                         Session::put('cargaViagemsGroupOnly', ! $current);
-                        return redirect(CargaViagemResource::getUrl());
+                        // return redirect(CargaViagemResource::getUrl());
                     }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

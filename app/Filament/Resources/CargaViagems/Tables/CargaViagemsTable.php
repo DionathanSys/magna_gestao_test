@@ -280,7 +280,7 @@ class CargaViagemsTable
                 Action::make('toggleGroupOnly')
                     ->label(fn(): string => Session::get('cargaViagemsGroupOnly', false) ? 'Desativar Modo Grupo' : 'Ativar Modo Grupo')
                     ->icon(fn(): string => Session::get('cargaViagemsGroupOnly', false) ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
-                    ->action(function (): void {
+                    ->action(function () {
                         $current = Session::get('cargaViagemsGroupOnly', false);
                         Session::put('cargaViagemsGroupOnly', ! $current);
                         return redirect(request()->fullUrl());

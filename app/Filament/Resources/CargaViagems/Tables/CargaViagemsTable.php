@@ -169,7 +169,7 @@ class CargaViagemsTable
                         ->collapsible(),
                     Group::make('viagem.motivo_divergencia')
                         ->label('Motivo Divergência')
-                        ->titlePrefixedWithLabel(false)
+                        // ->titlePrefixedWithLabel(false)
                         ->collapsible(),
                 ]
             )

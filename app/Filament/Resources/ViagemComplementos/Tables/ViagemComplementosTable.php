@@ -2,12 +2,13 @@
 
 namespace App\Filament\Resources\ViagemComplementos\Tables;
 
+use App\Enum\Viagem\StatusViagemEnum;
 use App\Models;
 use Carbon\Carbon;
 use App\Filament\Resources\ViagemComplementos;
 use Filament\Actions\{BulkActionGroup, CreateAction, DeleteBulkAction, EditAction};
 use Filament\Forms\Components\{DatePicker, TextInput};
-use Filament\Tables\Columns\{IconColumn, TextColumn};
+use Filament\Tables\Columns\{IconColumn, SelectColumn, TextColumn};
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Filters\{Filter, SelectFilter};
 use Filament\Tables\Grouping\Group;
@@ -67,8 +68,8 @@ class ViagemComplementosTable
                     ->searchable(),
                 IconColumn::make('conferido')
                     ->boolean(),
-                TextColumn::make('status')
-                    ->searchable(),
+                SelectColumn::make('status')
+                    ->options(StatusViagemEnum::toSelectArray()),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -100,7 +101,7 @@ class ViagemComplementosTable
                 ]
             )
             ->selectCurrentPageOnly()
-            ->defaultGroup('numero_viagem')
+            ->defaultGroup('integrado.nome')
             ->deferFilters()
             ->searchOnBlur()
             ->persistSearchInSession()

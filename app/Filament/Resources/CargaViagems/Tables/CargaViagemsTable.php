@@ -169,7 +169,12 @@ class CargaViagemsTable
                         ->collapsible(),
                     Group::make('viagem.motivo_divergencia')
                         ->label('Motivo Divergência')
-                        // ->titlePrefixedWithLabel(false)
+                        // garante que o título seja uma string (usa ->value se for BackedEnum)
+                        ->getTitleFromRecordUsing(fn(Models\CargaViagem $record): string =>
+                            $record->viagem?->motivo_divergencia?->value
+                            ?? (string) ($record->viagem?->motivo_divergencia ?? '')
+                        )
+                        ->titlePrefixedWithLabel(false)
                         ->collapsible(),
                 ]
             )

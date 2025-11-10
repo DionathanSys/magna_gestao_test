@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CargaViagems\Tables;
 
+use App\Filament\Resources\CargaViagems\CargaViagemResource;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -283,7 +284,7 @@ class CargaViagemsTable
                     ->action(function () {
                         $current = Session::get('cargaViagemsGroupOnly', false);
                         Session::put('cargaViagemsGroupOnly', ! $current);
-                        return redirect(request()->fullUrl());
+                        return redirect(CargaViagemResource::getUrl());
                     }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

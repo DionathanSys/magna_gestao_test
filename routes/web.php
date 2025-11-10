@@ -117,25 +117,13 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
 Route::get('/teste-job', function () {
 
-    try {
-        \App\Models\CargaViagem::chunk(100, function ($cargas) {
-        foreach ($cargas as $carga) {
-            if ($carga->integrado_id == null) {
-                Log::warning('Carga sem integrado vinculado, ignorando atualização de km dispersão.', [
-                    'carga_id' => $carga->id
-                ]);
-                echo "Carga ID {$carga->id} sem integrado vinculado, ignorando.\n";
-                continue;
-            }
-            (new AtualizarKmDispersao())->handle($carga->viagem_id);
-            echo "Carga ID {$carga->id} processada.\n";
-        }
-    });
-    } catch (\Exception $e) {
-        Log::error('Erro ao processar atualização de km dispersão nas cargas de viagem.', [
-            'error' => $e->getMessage()
-        ]);
-        echo "Erro ao processar: " . $e->getMessage() . "\n";
-    }
-})->name('teste.job');
+    //crie na sessão um valor true ou false para mudar o estado de groupOnly na table de CargaViagems
+    //cada vez que acessar essa rota, o valor será invertido
+    $current = session()->get('cargaViagemsGroupOnly', false);
+    session()->put('cargaViagemsGroupOnly', !$current);
+    Log::debug('Toggle cargaViagemsGroupOnly to ' . (!$current) , [
+        'metodo' => __METHOD__ . '@' . __LINE__,
+        'new_value' => !$current
+    ]);
+});
 

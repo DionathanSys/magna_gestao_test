@@ -24,6 +24,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Session;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class CargaViagemsTable
@@ -148,6 +149,8 @@ class CargaViagemsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+
+            ->groupsOnly(Session::get('cargaViagemsGroupOnly', false))
             ->groups(
                 [
                     Group::make('viagem.numero_viagem')

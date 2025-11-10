@@ -11,6 +11,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -276,6 +277,13 @@ class CargaViagemsTable
                     ->iconButton(),
             ])
             ->toolbarActions([
+                Action::make('toggleGroupOnly')
+                    ->label(fn(): string => Session::get('cargaViagemsGroupOnly', false) ? 'Desativar Modo Grupo' : 'Ativar Modo Grupo')
+                    ->icon(fn(): string => Session::get('cargaViagemsGroupOnly', false) ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
+                    ->action(function (): void {
+                        $current = Session::get('cargaViagemsGroupOnly', false);
+                        Session::put('cargaViagemsGroupOnly', ! $current);
+                    }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

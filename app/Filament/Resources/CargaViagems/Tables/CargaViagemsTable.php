@@ -152,7 +152,8 @@ class CargaViagemsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
 
-            ->groupsOnly(Session::get('cargaViagemsGroupOnly', false))
+            // ->groupsOnly(Session::get('cargaViagemsGroupOnly', false))
+            ->groupsOnly()
             ->groups(
                 [
                     Group::make('viagem.numero_viagem')

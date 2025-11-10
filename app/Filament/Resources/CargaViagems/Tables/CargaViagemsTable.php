@@ -152,8 +152,6 @@ class CargaViagemsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
 
-            // ->groupsOnly(Session::get('cargaViagemsGroupOnly', false))
-            ->groupsOnly()
             ->groups(
                 [
                     Group::make('viagem.numero_viagem')
@@ -279,14 +277,6 @@ class CargaViagemsTable
                     ->iconButton(),
             ])
             ->toolbarActions([
-                Action::make('toggleGroupOnly')
-                    ->label(fn(): string => Session::get('cargaViagemsGroupOnly', false) ? 'Desativar Modo Grupo' : 'Ativar Modo Grupo')
-                    ->icon(fn(): string => Session::get('cargaViagemsGroupOnly', false) ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
-                    ->action(function () {
-                        $current = Session::get('cargaViagemsGroupOnly', false);
-                        Session::put('cargaViagemsGroupOnly', ! $current);
-                        // return redirect(CargaViagemResource::getUrl());
-                    }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

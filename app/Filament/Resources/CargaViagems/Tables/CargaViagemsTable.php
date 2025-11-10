@@ -36,7 +36,7 @@ class CargaViagemsTable
             ->modifyQueryUsing(function (Builder $query): Builder {
                 return $query->with([
                     'viagem.veiculo:id,placa',
-                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,km_rodado_excedente,km_cobrar,motivo_divergencia,conferido',
+                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,km_cobrar,motivo_divergencia,conferido',
                     'integrado:id,nome,codigo,km_rota',
                 ]);
             })

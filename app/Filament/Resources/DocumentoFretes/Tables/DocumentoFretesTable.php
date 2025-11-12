@@ -14,6 +14,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -148,7 +149,7 @@ class DocumentoFretesTable
                     Actions\ImportarDocumentoFreteAction::make(),
                     Action::make('importar_espelho_frete')
                         ->label('Importar Espelho de Frete')
-                        ->icon('heroicon-o-upload')
+                        ->icon(Heroicon::ArrowUpTray)
                         ->url(route('import.pdf'))
                         ->openUrlInNewTab()
                         ->color('success'),

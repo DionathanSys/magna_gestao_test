@@ -6,6 +6,7 @@ use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\Viagems\ViagemResource;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -145,6 +146,12 @@ class DocumentoFretesTable
                     CreateAction::make()
                         ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'parceiro_origem', 'documento_transporte', 'tipo_documento', 'data_emissao', 'valor_total']),
                     Actions\ImportarDocumentoFreteAction::make(),
+                    Action::make('importar_espelho_frete')
+                        ->label('Importar Espelho de Frete')
+                        ->icon('heroicon-o-upload')
+                        ->url(route('import.pdf'))
+                        ->openUrlInNewTab()
+                        ->color('success'),
                 ])->button(),
             ]);
     }

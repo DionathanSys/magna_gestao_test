@@ -37,6 +37,8 @@ class ViagemForm
                                 $query->where('is_active', true);
                                 $query->orderBy('placa');
                             })
+                            ->searchPrompt('Buscar Veículo')
+                            ->placeholder('Buscar ...')
                             ->required()
                             ->searchable()
                             ->columnSpan(3),
@@ -165,7 +167,7 @@ class ViagemForm
                                     ->label('Criado por'),
                             ])
                     ])
-                    
+
 
             ]);
     }

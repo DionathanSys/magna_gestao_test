@@ -14,7 +14,7 @@ class ListViagems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ImportDocumentosAction::make(),
+            
         ];
     }
 }

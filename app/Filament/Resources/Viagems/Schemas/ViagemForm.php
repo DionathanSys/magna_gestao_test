@@ -31,11 +31,19 @@ class ViagemForm
                     ->columns(12)
                     ->columnSpanFull()
                     ->schema([
+                        Select::make('veiculo_id')
+                            ->label('Veículo')
+                            ->relationship('veiculo', 'placa', function ($query) {
+                                $query->where('is_active', true);
+                                $query->orderBy('placa');
+                            })
+                            ->required()
+                            ->columnSpan(2),
                         TextInput::make('numero_viagem')
                             ->required()
-                            ->columnSpan(4),
+                            ->columnSpan(3),
                         TextInput::make('documento_transporte')
-                            ->columnSpan(4),
+                            ->columnSpan(3),
                         Toggle::make('considerar_relatorio')
                             ->columnSpan(3)
                             ->label('Considerar no Relatório')

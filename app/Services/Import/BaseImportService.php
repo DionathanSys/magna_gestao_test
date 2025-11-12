@@ -26,7 +26,7 @@ abstract class BaseImportService
     {
     }
 
-    public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
+    public function import(string $filePath, ExcelImportInterface $importer, array $options = [], array $additionalData = []): array
     {
         try {
 
@@ -46,7 +46,7 @@ abstract class BaseImportService
             $this->validateHeaders($rows[0] ?? [], $importer);
 
             // Processar linhas
-            $this->processRows($rows, $importer, $importLog->id, $options);
+            $this->processRows($rows, $importer, $importLog->id, $options, $additionalData);
 
             $this->setSuccess("Importação iniciada.");
 
@@ -108,7 +108,7 @@ abstract class BaseImportService
         Log::info('Cabeçalho validado com sucesso.');
     }
 
-    protected function processRows(array $rows, ExcelImportInterface $importer, int $importLogId, array $options): void
+    protected function processRows(array $rows, ExcelImportInterface $importer, int $importLogId, array $options, array $additionalData = []): void
     {
         $headers = array_shift($rows); // Remove cabeçalho
 
@@ -139,7 +139,7 @@ abstract class BaseImportService
         Log::info("Processando " . count($rows) . " linhas em {$totalBatches} lotes de tamanho {$batchSize}.");
 
         foreach ($batches as $batch) {
-            ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
+            ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId, $additionalData);
         }
 
         FinalizeImportJob::dispatch($importLogId);

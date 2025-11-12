@@ -23,7 +23,8 @@ class ProcessImportRowJob implements ShouldQueue
         private array   $batch,
         private array   $headers,
         private string  $importerClass,
-        private int     $importLogId
+        private int     $importLogId,
+        private array   $additionalData = []
     ) {
         $this->importLogService = new Services\Import\ImportLogService($importLogId);
     }
@@ -45,6 +46,7 @@ class ProcessImportRowJob implements ShouldQueue
 
             $rowNumber = $index + 2;
             $rowData = array_combine($this->headers, $row);
+            $rowData = array_merge($rowData, $this->additionalData);
 
             try {
                 $importer->process($rowData, $rowNumber);

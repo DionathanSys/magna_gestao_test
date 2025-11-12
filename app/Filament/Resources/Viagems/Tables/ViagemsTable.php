@@ -412,6 +412,9 @@ class ViagemsTable
                 Viagems\Actions\ViagemConferidaAction::make(),
                 Viagems\Actions\ViagemNaoConferidaAction::make(),
             ], position: RecordActionsPosition::BeforeColumns)
+            ->headerActions([
+                Viagems\Actions\ImportDocumentosAction::make(),
+            ])
             ->toolbarActions([
                 CreateAction::make(),
                 Viagems\Actions\VincularViagemDocumentoBulkAction::make(),

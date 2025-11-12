@@ -38,14 +38,15 @@ class ViagemForm
                                 $query->orderBy('placa');
                             })
                             ->required()
-                            ->columnSpan(2),
+                            ->searchable()
+                            ->columnSpan(3),
                         TextInput::make('numero_viagem')
                             ->required()
                             ->columnSpan(3),
                         TextInput::make('documento_transporte')
                             ->columnSpan(3),
                         Toggle::make('considerar_relatorio')
-                            ->columnSpan(3)
+                            ->columnSpan(2)
                             ->label('Considerar no Relatório')
                             ->inline(false)
                             ->default(false),

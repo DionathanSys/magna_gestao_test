@@ -333,7 +333,7 @@ class ViagemsTable
                             ->collapsed()
                             ->description('Quantidade de integrados vinculados à viagem.')
                             ->columnSpanFull()
-                            ->columns(2)
+                            ->columns(4)
                             ->schema([
                                 Select::make('operator')
                                     ->label('Operador')

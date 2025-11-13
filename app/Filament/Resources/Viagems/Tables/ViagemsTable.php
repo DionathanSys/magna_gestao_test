@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\{DatePicker, Select, TextInput};
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Filters\{Filter, QueryBuilder, SelectFilter, TernaryFilter};
 use Filament\Tables\Grouping\Group;
@@ -322,22 +323,30 @@ class ViagemsTable
                     ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
                     ->multiple()
                     ->columnSpanFull(),
-                    Filter::make('integrados_count')
+                Filter::make('integrados_count')
                     ->label('Qtd. Integrados')
                     ->schema([
-                        Select::make('operator')
-                            ->label('Operador')
-                            ->options([
-                                '>=' => 'Maior ou igual',
-                                '<=' => 'Menor ou igual',
-                                '='  => 'Igual',
-                                '>'  => 'Maior que',
-                                '<'  => 'Menor que',
+                        Section::make()
+                            ->description('Quantidade de integrados vinculados à viagem.')
+                            ->columnSpanFull()
+                            ->columns(2)
+                            ->schema([
+                                Select::make('operator')
+                                    ->label('Operador')
+                                    ->columnSpan(2)
+                                    ->options([
+                                        '>=' => 'Maior ou igual',
+                                        '<=' => 'Menor ou igual',
+                                        '='  => 'Igual',
+                                        '>'  => 'Maior que',
+                                        '<'  => 'Menor que',
+                                    ])
+                                    ->default('>='),
+                                TextInput::make('count')
+                                    ->label('Quantidade')
+                                    ->columnSpan(2)
+                                    ->type('number'),
                             ])
-                            ->default('>='),
-                        TextInput::make('count')
-                            ->label('Quantidade')
-                            ->type('number'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $count = (int) ($data['count'] ?? 0);

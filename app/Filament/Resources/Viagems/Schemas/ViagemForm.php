@@ -50,6 +50,7 @@ class ViagemForm
                                 'CONCORDIA'     => 'Concórdia',
                             ])
                             ->default('CHAPECO')
+                            ->native(false)
                             ->required()
                             ->columnSpan(4),
                         TextInput::make('numero_viagem')

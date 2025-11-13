@@ -325,6 +325,7 @@ class ViagemsTable
                     ->columnSpanFull(),
                 Filter::make('integrados_count')
                     ->label('Qtd. Integrados')
+                    ->columnSpanFull()
                     ->schema([
                         Section::make()
                             ->description('Quantidade de integrados vinculados à viagem.')
@@ -365,6 +366,8 @@ class ViagemsTable
                     }),
                 SelectFilter::make('unidade_negocio')
                     ->label('Unidade de Negócio')
+                    ->selectablePlaceholder(false)
+                    ->native(false)
                     ->options([
                         'CHAPECO'       => 'Chapecó',
                         'CATANDUVAS'    => 'Catanduvas',

@@ -347,15 +347,6 @@ class ViagemsTable
                                     ->columnSpan(2)
                                     ->type('number'),
                             ]),
-                    SelectFilter::make('unidade_negocio')
-                        ->label('Unidade de Negócio')
-                        ->options([
-                            'CHAPECO'       => 'Chapecó',
-                            'CATANDUVAS'    => 'Catanduvas',
-                            'CONCORDIA'     => 'Concórdia',
-                        ])
-                        ->default('CHAPECO'),
-
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $count = (int) ($data['count'] ?? 0);
@@ -372,6 +363,14 @@ class ViagemsTable
 
                         return $query->whereRaw($raw, $binding);
                     }),
+                SelectFilter::make('unidade_negocio')
+                    ->label('Unidade de Negócio')
+                    ->options([
+                        'CHAPECO'       => 'Chapecó',
+                        'CATANDUVAS'    => 'Catanduvas',
+                        'CONCORDIA'     => 'Concórdia',
+                    ])
+                    ->default('CHAPECO'),
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(

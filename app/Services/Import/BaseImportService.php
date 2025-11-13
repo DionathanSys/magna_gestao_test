@@ -26,7 +26,7 @@ abstract class BaseImportService
     {
     }
 
-    public function import(string $filePath, ExcelImportInterface $importer, array $options = [], array $additionalData = []): array
+    public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
     {
         try {
 
@@ -46,7 +46,7 @@ abstract class BaseImportService
             $this->validateHeaders($rows[0] ?? [], $importer);
 
             // Processar linhas
-            $this->processRows($rows, $importer, $importLog->id, $options, $additionalData);
+            $this->processRows($rows, $importer, $importLog->id, $options);
 
             $this->setSuccess("Importação iniciada.");
 
@@ -139,7 +139,7 @@ abstract class BaseImportService
         Log::info("Processando " . count($rows) . " linhas em {$totalBatches} lotes de tamanho {$batchSize}.");
 
         foreach ($batches as $batch) {
-            ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId, $additionalData);
+            ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
         }
 
         FinalizeImportJob::dispatch($importLogId);

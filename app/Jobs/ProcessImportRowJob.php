@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\{Models, Enum, Services};
+use App\Services;
 use App\Contracts\ExcelImportInterface;
 use App\Enum\Import\StatusImportacaoEnum;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,8 +23,7 @@ class ProcessImportRowJob implements ShouldQueue
         private array   $batch,
         private array   $headers,
         private string  $importerClass,
-        private int     $importLogId,
-        private array   $additionalData = []
+        private int     $importLogId
     ) {
         $this->importLogService = new Services\Import\ImportLogService($importLogId);
     }
@@ -46,7 +45,6 @@ class ProcessImportRowJob implements ShouldQueue
 
             $rowNumber = $index + 2;
             $rowData = array_combine($this->headers, $row);
-            $rowData = array_merge($rowData, $this->additionalData);
 
             try {
                 $importer->process($rowData, $rowNumber);

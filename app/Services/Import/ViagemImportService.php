@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Log;
 
 class ViagemImportService extends BaseImportService
 {
-    public function importarViagens(string $filePath, array $options = [], array $additionalData = []): array
+    public function importarViagens(string $filePath, array $options = []): array
     {
         $importer = app(ViagemImporter::class);
-        return $this->import($filePath, $importer, $options, $additionalData);
+        return $this->import($filePath, $importer, $options);
     }
 }

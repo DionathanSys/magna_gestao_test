@@ -87,7 +87,9 @@ class ViagemImporter implements ExcelImportInterface
     {
         try {
 
-            $veiculo_id         = $this->veiculoService->getVeiculoIdByPlaca($row['Placa']);
+            $veiculo            = $this->veiculoService->getVeiculoByPlaca($row['Placa']);
+            $veiculo_id         = $veiculo->id;
+            $unidade_negocio    = $veiculo->filial;
 
             $codigoIntegrado    = $this->integradoService->extrairCodigoIntegrado($row['Destino'] ?? '');
 
@@ -110,6 +112,7 @@ class ViagemImporter implements ExcelImportInterface
 
         return [
             'veiculo_id'            => $veiculo_id,
+            'unidade_negocio'       => $unidade_negocio,
             'numero_viagem'         => $row['Viagem'],
             'documento_transporte'  => $row['CargaCliente'] ?? null,
             'data_competencia'      => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d'),

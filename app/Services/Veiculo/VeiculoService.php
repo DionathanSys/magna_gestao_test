@@ -20,6 +20,16 @@ class VeiculoService
 
         return $veiculo?->id;
     }
+  
+    public function getVeiculoByPlaca(string $placa): ?Models\Veiculo
+    {
+        $veiculo = \App\Models\Veiculo::query()
+            ->where('placa', $placa)
+            ->where('is_active', true)
+            ->first();
+
+        return $veiculo;
+    }
 
     public function getKmMedio(int $veiculoId): float
     {

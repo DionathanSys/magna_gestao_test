@@ -21,15 +21,7 @@ class ImportDocumentosAction
                     ->label('Relatório Excel')
                     ->disk('public')
                     ->required(),
-                Select::make('unidade_negocio')
-                    ->label('Unidade de Negócio')
-                    ->options([
-                        'BRF_CHAPECO'       => 'BRF CHAPECÓ',
-                        'BRF_CATANDUVAS'    => 'BRF CATANDUVAS',
-                        'BRF_CONCORDIA'     => 'BRF CONCÓRDIA',
-                    ])
-                    ->default('BRF_CHAPECO')
-                    ->required(),
+
             ])
             ->action(function (array $data, ViagemImportService $importService): void {
                 $filePath = $data['arquivo'];
@@ -38,10 +30,6 @@ class ImportDocumentosAction
                     'descricao' => 'Importação de Viagens Softlog - BRF',
                     'batch_size' => 15,
                 ];
-
-                $result = $importService->importarViagens($filePath, $options, [
-                    'unidade_negocio' => $data['unidade_negocio'],
-                ]);
 
                 if ($importService->hasError()) {
                     Log::error('Erro na importação de viagens: ' . $importService->getMessage(), [

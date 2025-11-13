@@ -41,14 +41,25 @@ class ViagemForm
                             ->placeholder('Buscar ...')
                             ->required()
                             ->searchable()
-                            ->columnSpan(3),
+                            ->columnSpan(4),
+                        Select::make('unidade_negocio')
+                            ->label('Unidade de Negócio')
+                            ->options([
+                                'CHAPECO'       => 'Chapecó',
+                                'CATANDUVAS'    => 'Catanduvas',
+                                'CONCORDIA'     => 'Concórdia',
+                            ])
+                            ->default('CHAPECO')
+                            ->required()
+                            ->columnSpan(4),
                         TextInput::make('numero_viagem')
                             ->required()
+                            ->columnStart(1)
                             ->columnSpan(3),
                         TextInput::make('documento_transporte')
                             ->columnSpan(3),
                         Toggle::make('considerar_relatorio')
-                            ->columnSpan(2)
+                            ->columnSpan(3)
                             ->label('Considerar no Relatório')
                             ->inline(false)
                             ->default(false),

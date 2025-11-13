@@ -328,6 +328,9 @@ class ViagemsTable
                     ->columnSpanFull()
                     ->schema([
                         Section::make()
+                            ->compact()
+                            ->collapsible()
+                            ->collapsed()
                             ->description('Quantidade de integrados vinculados à viagem.')
                             ->columnSpanFull()
                             ->columns(2)
@@ -373,7 +376,7 @@ class ViagemsTable
                         'CATANDUVAS'    => 'Catanduvas',
                         'CONCORDIA'     => 'Concórdia',
                     ])
-                    ->default('CHAPECO'),
+                    ->default('Chapecó'),
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(

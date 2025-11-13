@@ -49,7 +49,7 @@ class ViagemForm
                                 'CATANDUVAS'    => 'Catanduvas',
                                 'CONCORDIA'     => 'Concórdia',
                             ])
-                            ->default('CHAPECO')
+                            ->default('Chapecó')
                             ->native(false)
                             ->required()
                             ->columnSpan(4),

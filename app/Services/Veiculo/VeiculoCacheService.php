@@ -11,7 +11,7 @@ class VeiculoCacheService
 {
     private const CACHE_KEY_PLACAS_ATIVAS = 'veiculos_placas_ativas';
     private const CACHE_KEY_PLACAS_TODAS = 'veiculos_placas';
-    private const CACHE_TTL = 86400; // 24 horas
+    private const CACHE_TTL = 604800; // 7 dias
 
     /**
      * Retorna placas de veículos ativos para SelectFilter

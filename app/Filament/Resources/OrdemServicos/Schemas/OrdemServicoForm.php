@@ -30,8 +30,7 @@ class OrdemServicoForm
                         Flex::make([
                             Grid::make(['default' => 1,'sm' => 2, 'md' => 4])
                                 ->schema([
-                                    // Components\OrdemServicoVeiculoInput::make()
-                                    SelectFilterVeiculo::make('veiculo_id')
+                                    Components\OrdemServicoVeiculoInput::make()
                                         ->columnSpan(1),
                                     static::getQuilometragemFormField()
                                         ->columnSpan(1),

@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -13,4 +14,4 @@ Artisan::command('test:email', function () {
     $this->info('Email de teste enviado!');
 })->purpose('Testar envio de email diário');
 
-Schedule::command('email:diario')->dailyAt('20:40');
+Schedule::command('email:diario')->dailyAt('17:00');

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrdemServicos\Schemas\Components;
 
+use App\Services\Veiculo\VeiculoCacheService;
 use App\Services\Veiculo\VeiculoService;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
@@ -22,10 +23,7 @@ class OrdemServicoVeiculoInput
             ->searchPrompt('Buscar Veículo')
             ->placeholder('Buscar ...')
             ->autofocus(true)
-            ->relationship('veiculo', 'placa', function ($query) {
-                $query->where('is_active', true)
-                    ->orderBy('placa', 'asc');
-            })
+            ->options(VeiculoCacheService::getPlacasAtivasForSelect())
             ->required()
             ->searchable()
             ->live(onBlur: true)

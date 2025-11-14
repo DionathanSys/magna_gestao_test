@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models;
 use App\Models\ImportLog;
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
+use App\Services\Veiculo\VeiculoCacheService;
 use App\Services\Veiculo\VeiculoService;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Support\Facades\Log;
@@ -32,8 +33,7 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $log = ImportLog::find(130);
-        ds('Log de Importação');
-        ds()->table(Json::decode($log->error_rows))->label('Error Rows');
+        $log = VeiculoCacheService::getTodasPlacasForSelect();
+        dd($log);
     }
 }

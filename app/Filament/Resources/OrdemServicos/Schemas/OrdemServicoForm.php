@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 use App\Enum;
+use App\Filament\Components\SelectFilterVeiculo;
 use App\Filament\Resources\Parceiros\ParceiroResource;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -29,7 +30,8 @@ class OrdemServicoForm
                         Flex::make([
                             Grid::make(['default' => 1,'sm' => 2, 'md' => 4])
                                 ->schema([
-                                    Components\OrdemServicoVeiculoInput::make()
+                                    // Components\OrdemServicoVeiculoInput::make()
+                                    SelectFilterVeiculo::make('veiculo_id')
                                         ->columnSpan(1),
                                     static::getQuilometragemFormField()
                                         ->columnSpan(1),

@@ -13,7 +13,7 @@ use Filament\Forms\Components\{
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use App\Enum;
-use App\Filament\Resources\Components\SelectFilterVeiculo;
+use App\Filament\Components\SelectFilterVeiculo;
 use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;

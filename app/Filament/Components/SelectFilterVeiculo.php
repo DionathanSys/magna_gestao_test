@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Components;
+namespace App\Filament\Components;
 
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Tables\Filters\SelectFilter;

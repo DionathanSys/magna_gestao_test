@@ -13,7 +13,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\{DatePicker, Select, TextInput};
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Tables\Filters\{Filter, QueryBuilder, SelectFilter, TernaryFilter};
+use Filament\Tables\Filters\{Filter, Indicator, QueryBuilder, SelectFilter, TernaryFilter};
 use Filament\Tables\Grouping\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -376,7 +376,7 @@ class ViagemsTable
                         'CATANDUVAS'    => 'Catanduvas',
                         'CONCORDIA'     => 'Concórdia',
                     ])
-                    ->default('Chapecó'),
+                    ->default('CHAPECO'),
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(

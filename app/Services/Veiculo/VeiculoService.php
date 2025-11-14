@@ -20,6 +20,8 @@ class VeiculoService
 
         return $veiculo?->id;
     }
+
+    
   
     public function getVeiculoByPlaca(string $placa): ?Models\Veiculo
     {

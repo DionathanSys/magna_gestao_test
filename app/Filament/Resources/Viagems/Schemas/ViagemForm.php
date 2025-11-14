@@ -13,6 +13,7 @@ use Filament\Forms\Components\{
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use App\Enum;
+use App\Filament\Resources\Components\SelectFilterVeiculo;
 use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
@@ -31,16 +32,18 @@ class ViagemForm
                     ->columns(12)
                     ->columnSpanFull()
                     ->schema([
-                        Select::make('veiculo_id')
-                            ->label('Veículo')
-                            ->relationship('veiculo', 'placa', function ($query) {
-                                $query->where('is_active', true);
-                                $query->orderBy('placa');
-                            })
-                            ->searchPrompt('Buscar Veículo')
-                            ->placeholder('Buscar ...')
-                            ->required()
-                            ->searchable()
+                        // Select::make('veiculo_id')
+                        //     ->label('Veículo')
+                        //     ->relationship('veiculo', 'placa', function ($query) {
+                        //         $query->where('is_active', true);
+                        //         $query->orderBy('placa');
+                        //     })
+                        //     ->searchPrompt('Buscar Veículo')
+                        //     ->placeholder('Buscar ...')
+                        //     ->required()
+                        //     ->searchable()
+                        //     ->columnSpan(4),
+                        SelectFilterVeiculo::make('veiculo_id')
                             ->columnSpan(4),
                         Select::make('unidade_negocio')
                             ->label('Unidade de Negócio')

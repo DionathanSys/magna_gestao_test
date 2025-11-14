@@ -14,4 +14,4 @@ Artisan::command('test:email', function () {
     $this->info('Email de teste enviado!');
 })->purpose('Testar envio de email diário');
 
-Schedule::command('email:diario')->dailyAt('17:00');
+Schedule::command('email:diario')->dailyAt('17:05');

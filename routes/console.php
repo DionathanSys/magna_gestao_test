@@ -14,4 +14,6 @@ Artisan::command('test:email', function () {
     $this->info('Email de teste enviado!');
 })->purpose('Testar envio de email diário');
 
-Schedule::command('email:diario')->everyFiveMinutes()->runInBackground();
+Schedule::command('email:diario')->dailyAt('07:00')->runInBackground();
+Schedule::command('email:diario')->dailyAt('12:05')->runInBackground();
+Schedule::command('email:diario')->dailyAt('17:10')->runInBackground();

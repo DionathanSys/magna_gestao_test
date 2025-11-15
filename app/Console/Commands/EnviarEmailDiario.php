@@ -198,7 +198,7 @@ class EnviarEmailDiario extends Command
         }
     }
 
-    //     sudo supervisorctl stop magna_gestao-queue:*
+    // sudo supervisorctl stop magna_gestao-queue:*
     // sudo supervisorctl reread
     // sudo supervisorctl update
     // sudo supervisorctl start magna_gestao-queue:*

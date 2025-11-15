@@ -10,7 +10,6 @@ class GetAgendamentoAberto
 {
     public function handle(array $veiculoIds): ?Collection
     {
-        Log::debug('Consultando agendamentos abertos para os veículos IDs: ' . implode(', ', $veiculoIds));
         $agendamentos =  Models\Agendamento::query()
             ->whereIn('veiculo_id', $veiculoIds)
             ->whereIn('status', [

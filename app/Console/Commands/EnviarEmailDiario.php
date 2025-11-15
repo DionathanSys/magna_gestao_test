@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Mail\RelatoriodiarioMail;
 use App\Models\Agendamento;
 use Carbon\Carbon;
@@ -34,15 +35,13 @@ class EnviarEmailDiario extends Command
 
         try {
             // Emails destinatários
-            $emailsOption = $this->option('emails');
-            $emails = $emailsOption
-                ? array_map('trim', explode(',', $emailsOption))
-                : ['dionathan.silva@transmagnabosco.com.br'];
+            $emails = ['dionathan.silva@transmagnabosco.com.br'];
 
             // Coletar dados para o email
             $dados = $this->coletarDadosAgendamentos();
 
             // Enviar email para cada destinatário
+            ds($dados);
             foreach ($emails as $email) {
                 Mail::to($email)->send(new RelatoriodiarioMail($dados));
                 $this->info("Email enviado para: {$email}");
@@ -85,32 +84,31 @@ class EnviarEmailDiario extends Command
             // Agendamentos pendentes (hoje)
             'pendentes' => $this->buscarAgendamentos([
                 ['data_agendamento', '=', $hoje->toDateString()],
-                ['status', '=', 'PENDENTE']
-            ]),
-
-            // Agendamentos em execução (hoje)
-            'em_execucao' => $this->buscarAgendamentos([
-                ['data_agendamento', '=', $hoje->toDateString()],
-                ['status', '=', 'EM_EXECUCAO']
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
             ]),
 
             // Agendamentos para amanhã
             'amanha' => $this->buscarAgendamentos([
                 ['data_agendamento', '=', $amanha->toDateString()],
-                ['status', 'in', ['PENDENTE', 'EM_EXECUCAO']]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
             ]),
 
             // Agendamentos desta semana (exceto hoje e amanhã)
             'esta_semana' => $this->buscarAgendamentos([
                 ['data_agendamento', '>', $amanha->toDateString()],
                 ['data_agendamento', '<=', $fimSemana->toDateString()],
-                ['status', 'in', ['PENDENTE', 'EM_EXECUCAO']]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
             ]),
 
             // Agendamentos atrasados
             'atrasados' => $this->buscarAgendamentos([
                 ['data_agendamento', '<', $hoje->toDateString()],
-                ['status', 'in', ['PENDENTE', 'EM_EXECUCAO']]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
+            ]),
+
+            'pendentes_sem_data' => $this->buscarAgendamentos([
+                ['data_agendamento', 'is', null],
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
             ]),
 
             // Resumo estatístico
@@ -121,9 +119,11 @@ class EnviarEmailDiario extends Command
     private function buscarAgendamentos(array $filtros): array
     {
         try {
-            $query = Agendamento::query()
-                ->with(['veiculo:id,placa', 'responsavel:id,name', 'tipoServico:id,nome']);
 
+            $query = Agendamento::query()
+                ->with(['veiculo:id,placa', 'servico:id,descricao', 'planoPreventivo:id,descricao', 'parceiro:id,nome']);
+
+            
             foreach ($filtros as $filtro) {
                 if (isset($filtro[2]) && $filtro[1] === 'in') {
                     $query->whereIn($filtro[0], $filtro[2]);
@@ -133,19 +133,17 @@ class EnviarEmailDiario extends Command
             }
 
             return $query->orderBy('data_agendamento')
-                ->orderBy('hora_inicio')
+                ->orderBy('veiculo_id')
                 ->get()
                 ->map(function ($agendamento) {
                     return [
                         'id' => $agendamento->id,
                         'data_agendamento' => $agendamento->data_agendamento?->format('d/m/Y'),
-                        'hora_inicio' => $agendamento->hora_inicio,
-                        'hora_fim' => $agendamento->hora_fim,
+                        'parceiro' => $agendamento->parceiro?->nome ?? 'N/A',
                         'veiculo_placa' => $agendamento->veiculo?->placa ?? 'N/A',
-                        'responsavel_nome' => $agendamento->responsavel?->name ?? 'N/A',
-                        'tipo_servico' => $agendamento->tipoServico?->nome ?? $agendamento->tipo_servico,
+                        'servico' => $agendamento->servico?->descricao ?? 'N/A',
+                        'plano_preventivo' => $agendamento->planoPreventivo?->descricao ?? 'N/A',
                         'status' => $agendamento->status,
-                        'prioridade' => $agendamento->prioridade ?? 'NORMAL',
                         'observacoes' => $agendamento->observacoes,
                         'dias_atraso' => $agendamento->data_agendamento
                             ? Carbon::parse($agendamento->data_agendamento)->diffInDays(Carbon::today(), false)
@@ -171,13 +169,13 @@ class EnviarEmailDiario extends Command
 
             return [
                 'total_agendamentos_hoje' => Agendamento::whereDate('data_agendamento', $hoje)->count(),
-                'total_pendentes' => Agendamento::where('status', 'PENDENTE')->count(),
-                'total_em_execucao' => Agendamento::where('status', 'EM_EXECUCAO')->count(),
+                'total_pendentes' => Agendamento::where('status', StatusOrdemServicoEnum::PENDENTE)->count(),
+                'total_em_execucao' => Agendamento::where('status', StatusOrdemServicoEnum::EXECUCAO)->count(),
                 'total_atrasados' => Agendamento::where('data_agendamento', '<', $hoje)
-                    ->whereIn('status', ['PENDENTE', 'EM_EXECUCAO'])
+                    ->whereIn('status', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO])
                     ->count(),
                 'total_concluidos_hoje' => Agendamento::whereDate('data_agendamento', $hoje)
-                    ->where('status', 'CONCLUIDO')
+                    ->where('status', StatusOrdemServicoEnum::CONCLUIDO)
                     ->count(),
                 'veiculos_com_agendamento' => Agendamento::whereDate('data_agendamento', $hoje)
                     ->distinct('veiculo_id')

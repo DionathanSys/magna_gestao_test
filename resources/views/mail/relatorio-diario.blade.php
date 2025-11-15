@@ -142,6 +142,10 @@
                     <h3>{{ $dados['resumo']['total_pendentes'] }}</h3>
                     <p>Pendentes</p>
                 </div>
+                <div class="resumo-card pendente">
+                    <h3>{{ $dados['resumo']['total_pendentes_sem_data'] }}</h3>
+                    <p>Pendentes Sem Data</p>
+                </div>
                 <div class="resumo-card execucao">
                     <h3>{{ $dados['resumo']['total_em_execucao'] }}</h3>
                     <p>Em Execução</p>

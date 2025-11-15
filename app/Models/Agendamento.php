@@ -12,6 +12,7 @@ class Agendamento extends Model
 
     protected $casts = [
         'status' => StatusOrdemServicoEnum::class,
+        'data_agendamento' => 'date',
     ];
 
     public function veiculo(): BelongsTo

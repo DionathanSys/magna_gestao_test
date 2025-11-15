@@ -52,7 +52,6 @@ class EnviarEmailDiario extends Command
                 'destinatarios' => $emails,
                 'total_agendamentos' => array_sum([
                     count($dados['pendentes']),
-                    count($dados['em_execucao']),
                     count($dados['amanha']),
                     count($dados['esta_semana']),
                     count($dados['atrasados']),
@@ -143,7 +142,7 @@ class EnviarEmailDiario extends Command
                         'veiculo_placa' => $agendamento->veiculo?->placa ?? 'N/A',
                         'servico' => $agendamento->servico?->descricao ?? 'N/A',
                         'plano_preventivo' => $agendamento->planoPreventivo?->descricao ?? 'N/A',
-                        'status' => $agendamento->status,
+                        'status' => $agendamento->status?->value ?? $agendamento->status,
                         'observacoes' => $agendamento->observacoes,
                         'dias_atraso' => $agendamento->data_agendamento
                             ? Carbon::parse($agendamento->data_agendamento)->diffInDays(Carbon::today(), false)
@@ -169,7 +168,8 @@ class EnviarEmailDiario extends Command
 
             return [
                 'total_agendamentos_hoje' => Agendamento::whereDate('data_agendamento', $hoje)->count(),
-                'total_pendentes' => Agendamento::where('status', StatusOrdemServicoEnum::PENDENTE)->count(),
+                'total_pendentes' => Agendamento::where('status', StatusOrdemServicoEnum::PENDENTE)->whereNotNull('data_agendamento')->count(),
+                'total_pendentes_sem_data' => Agendamento::where('status', StatusOrdemServicoEnum::PENDENTE)->whereNull('data_agendamento')->count(),
                 'total_em_execucao' => Agendamento::where('status', StatusOrdemServicoEnum::EXECUCAO)->count(),
                 'total_atrasados' => Agendamento::where('data_agendamento', '<', $hoje)
                     ->whereIn('status', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO])

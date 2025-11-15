@@ -143,7 +143,7 @@ class EnviarEmailDiario extends Command
                         'servico' => $agendamento->servico?->descricao ?? 'N/A',
                         'plano_preventivo' => $agendamento->planoPreventivo?->descricao ?? 'N/A',
                         'status' => $agendamento->status?->value ?? $agendamento->status,
-                        'observacoes' => $agendamento->observacoes,
+                        'observacoes' => $agendamento->observacao,
                         'dias_atraso' => $agendamento->data_agendamento
                             ? Carbon::parse($agendamento->data_agendamento)->diffInDays(Carbon::today(), false)
                             : 0,
@@ -177,7 +177,10 @@ class EnviarEmailDiario extends Command
                 'total_concluidos_hoje' => Agendamento::whereDate('data_agendamento', $hoje)
                     ->where('status', StatusOrdemServicoEnum::CONCLUIDO)
                     ->count(),
-                'veiculos_com_agendamento' => Agendamento::whereDate('data_agendamento', $hoje)
+                'veiculos_com_agendamento' => Agendamento::whereIn('status', [
+                        StatusOrdemServicoEnum::PENDENTE,
+                        StatusOrdemServicoEnum::EXECUCAO,
+                    ]   )
                     ->distinct('veiculo_id')
                     ->count('veiculo_id'),
             ];

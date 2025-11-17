@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Viagems\Actions;
 
 use App\{Models, Services};
+use App\Models\Integrado;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\RichEditor;
@@ -45,6 +46,8 @@ class AdicionarComentarioAction
                 $service->adicionarComentario(array($record->id, Models\Viagem::class), $data);
 
                 foreach($integradosId as $integradoId){
+                    $integrado = Integrado::find($integradoId);
+                    $data['conteudo'] = "[Viagem: {$record->id} {$integrado->nome}] " . $data['conteudo'];
                     $service->adicionarComentario(array($integradoId, Models\Integrado::class), $data);
                 }
 

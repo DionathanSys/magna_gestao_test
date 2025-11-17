@@ -47,7 +47,7 @@ class AdicionarComentarioAction
 
                 foreach($integradosId as $integradoId){
                     $integrado = Integrado::find($integradoId);
-                    $data['conteudo'] = "[Viagem: {$record->id} {$integrado->nome}] " . $data['conteudo'];
+                    $data['conteudo'] = "[Viagem: {$record->numero_viagem} - {$integrado->nome}] " . $data['conteudo'];
                     $service->adicionarComentario(array($integradoId, Models\Integrado::class), $data);
                 }
 

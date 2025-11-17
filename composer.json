@@ -19,7 +19,8 @@
         "pepperfm/filament-json": "^4.0",
         "phpoffice/phpspreadsheet": "^5.0",
         "predis/predis": "^3.2",
-        "spatie/pdf-to-text": "^1.54"
+        "spatie/pdf-to-text": "^1.54",
+        "watheqalshowaiter/filament-sticky-table-header": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

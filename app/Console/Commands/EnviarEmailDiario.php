@@ -41,7 +41,6 @@ class EnviarEmailDiario extends Command
             $dados = $this->coletarDadosAgendamentos();
 
             // Enviar email para cada destinatário
-            ds($dados);
             foreach ($emails as $email) {
                 Mail::to($email)->send(new RelatoriodiarioMail($dados));
                 $this->info("Email enviado para: {$email}");
@@ -106,7 +105,7 @@ class EnviarEmailDiario extends Command
             ]),
 
             'pendentes_sem_data' => $this->buscarAgendamentos([
-                ['data_agendamento', 'is', null],
+                ['data_agendamento', '=', null],
                 ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
             ]),
 
@@ -151,11 +150,12 @@ class EnviarEmailDiario extends Command
                 })
                 ->toArray();
         } catch (\Exception $e) {
-            Log::warning('Erro ao buscar agendamentos', [
+            Log::error('Erro ao buscar agendamentos', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'filtros' => $filtros,
                 'erro' => $e->getMessage(),
             ]);
+            $this->error('Erro ao buscar agendamentos: ' . $e->getMessage());
 
             return [];
         }

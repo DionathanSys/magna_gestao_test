@@ -36,7 +36,9 @@ class ViagemsTable
                     'checker:id,name',
                     'creator:id,name',
                     'updater:id,name',
-                ]);
+                ])
+                    // antecipa o cálculo de existência para evitar N+1
+                    ->withExists(['comentarios']);
             })
             ->poll(null)
             ->columns([

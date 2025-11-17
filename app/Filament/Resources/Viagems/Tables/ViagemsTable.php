@@ -58,12 +58,12 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
-                // TextColumn::make('integrados_nomes')
-                //     ->label('Integrado')
-                //     ->width('1%')
-                //     ->html()
-                //     ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
-                //     ->disabledClick(),
+                TextColumn::make('integrados_nomes')
+                    ->label('Integrado')
+                    ->width('1%')
+                    ->html()
+                    ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
+                    ->disabledClick(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transp.')
                     ->width('1%')

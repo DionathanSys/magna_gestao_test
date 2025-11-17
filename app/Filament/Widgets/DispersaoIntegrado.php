@@ -11,12 +11,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
-use Filament\Widgets\TableWidget;
+use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class DispersaoIntegrado extends TableWidget
+class DispersaoIntegrado extends BaseWidget
 {
     use InteractsWithPageFilters;
 
@@ -193,4 +193,5 @@ class DispersaoIntegrado extends TableWidget
                 ]),
             ]);
     }
+
 }

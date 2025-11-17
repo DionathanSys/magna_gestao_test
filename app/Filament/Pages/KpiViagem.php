@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\DispersaoCidade;
 use App\Filament\Widgets\DispersaoIntegrado;
 use App\Filament\Widgets\DispersaoMedia;
+use App\Livewire\PneuResource;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -67,4 +68,6 @@ class KpiViagem extends Page
             DispersaoCidade::class,
         ];
     }
+
+
 }

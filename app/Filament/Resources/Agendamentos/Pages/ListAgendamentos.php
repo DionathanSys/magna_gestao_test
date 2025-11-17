@@ -103,10 +103,10 @@ class ListAgendamentos extends ListRecords
             'Atrasados' => Tab::make()
                 ->modifyQueryUsing(
                     fn(Builder $query) =>
-                    $query->where('data_agendamento', '<', now()->subDay()->format('Y-m-d'))
+                    $query->where('data_agendamento', '<', now()->format('Y-m-d'))
                         ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])
                 )
-                ->badge(Models\Agendamento::query()->where('data_agendamento', '<', now()->subDay()->format('Y-m-d'))
+                ->badge(Models\Agendamento::query()->where('data_agendamento', '<', now()->format('Y-m-d'))
                     ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])->count())
                 ->badgeColor('info'),
             'Cancelados' => Tab::make()

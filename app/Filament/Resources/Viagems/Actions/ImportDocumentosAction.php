@@ -31,6 +31,8 @@ class ImportDocumentosAction
                     'batch_size' => 15,
                 ];
 
+                $result = $importService->importarViagens($filePath, $options);
+
                 if ($importService->hasError()) {
                     Log::error('Erro na importação de viagens: ' . $importService->getMessage(), [
                         'metodo' => __METHOD__,

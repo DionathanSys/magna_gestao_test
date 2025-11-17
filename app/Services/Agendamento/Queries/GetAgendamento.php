@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class GetAgendamento
 {
-    public function pendentes(string|null $periodo, string|null $atePeriodo): ?Collection
+    public function emAberto(array|int $veiculoId, string|null $periodo, string|null $atePeriodo): ?Collection
     {
         $query =  Models\Agendamento::query()
             ->whereIn('status', [

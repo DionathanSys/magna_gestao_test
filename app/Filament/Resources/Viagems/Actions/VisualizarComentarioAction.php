@@ -39,7 +39,24 @@ class VisualizarComentarioAction
                             ->dateTime('d/m/Y H:i'),
                         TextEntry::make('creator.name')
                             ->label('Criado por'),
+                    ]),
+                RepeatableEntry::make('cargas.integrado.comentarios')
+                    ->table([
+                        TableColumn::make('Conteúdo')
+                         ->wrapHeader(),
+                        TableColumn::make('Criado Em'),
+                        TableColumn::make('Criado Por'),
                     ])
+                    ->schema([
+                        TextEntry::make('conteudo')
+                            ->label('Comentário')
+                            ->html(),
+                        TextEntry::make('created_at')
+                            ->label('Criado em')
+                            ->dateTime('d/m/Y H:i'),
+                        TextEntry::make('creator.name')
+                            ->label('Criado por'),
+                    ]),
             ])->icon('heroicon-o-chat-bubble-left-ellipsis');
     }
 }

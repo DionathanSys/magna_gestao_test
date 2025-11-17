@@ -30,15 +30,13 @@ class ViagemsTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->with([
-                    'carga.integrado',
+                    'carga.integrado:id,nome,municipio',
                     'veiculo:id,placa',
                     'comentarios',
                     'checker:id,name',
                     'creator:id,name',
                     'updater:id,name',
-                ])
-                    // antecipa o cálculo de existência para evitar N+1
-                    ->withExists(['complementos', 'documentos']);
+                ]);
             })
             ->poll(null)
             ->columns([

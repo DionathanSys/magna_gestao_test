@@ -7,7 +7,7 @@
     background-color: rgb(24, 24, 27);
 }
 
-.fi-ta-content-ctn {
+.fi-ta-content {
     max-height: calc(100vh - 20rem);
     overflow-y: auto;
     position: relative;

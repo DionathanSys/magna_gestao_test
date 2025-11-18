@@ -28,6 +28,7 @@ class ViagemNaoConferidaAction
                 //     notify::error('Erro ao marcar viagem como não conferida', $service->getMessage());
                 //     return;
                 // }
+                
                 notify::success();
             });
     }

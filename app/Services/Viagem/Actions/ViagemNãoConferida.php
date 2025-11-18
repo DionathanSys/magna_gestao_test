@@ -4,10 +4,13 @@ namespace App\Services\Viagem\Actions;
 
 use App\Enum;
 use App\Models;
+use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Auth;
 
 class ViagemNãoConferida
 {
+
+    use UserCheckTrait;
 
     public function handle(Models\Viagem $viagem): Models\Viagem
     {
@@ -15,7 +18,7 @@ class ViagemNãoConferida
 
         $viagem->update([
             'conferido' => false,
-            'updated_by' => Auth::user()->id,
+            'updated_by' => $this->getUserIdChecked(),
             'checked_by' => null,
         ]);
 

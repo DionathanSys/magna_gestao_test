@@ -379,6 +379,36 @@ class ViagemsTable
 
                         return $query->whereRaw($raw, $binding);
                     }),
+                Filter::make('range_dispersao')
+                    ->label('Range Dispersão Km')
+                    ->columnSpanFull()
+                    ->schema([
+                        Section::make()
+                            ->compact()
+                            ->collapsible()
+                            ->collapsed()
+                            ->description('Quantidade de integrados vinculados à viagem.')
+                            ->columnSpanFull()
+                            ->columns(4)
+                            ->schema([
+                                TextInput::make('minimo')
+                                    ->label('Mínimo')
+                                    ->columnSpan(2)
+                                    ->type('number'),
+                                TextInput::make('maximo')
+                                    ->label('Máximo')
+                                    ->columnSpan(2)
+                                    ->type('number'),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        //verificar se possui valor e aplicar filtros
+                        $min = $data['minimo'] ?? null;
+                        $max = $data['maximo'] ?? null;
+                        return $query
+                            ->when($min !== null, fn(Builder $query, $min): Builder => $query->where('km_dispersao', '>=', $min))
+                            ->when($max !== null, fn(Builder $query, $max): Builder => $query->where('km_dispersao', '<=', $max));
+                    }),
                 SelectFilter::make('unidade_negocio')
                     ->label('Unidade de Negócio')
                     ->selectablePlaceholder(false)

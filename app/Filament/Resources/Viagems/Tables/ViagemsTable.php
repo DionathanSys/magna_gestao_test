@@ -424,12 +424,12 @@ class ViagemsTable
                         ]))
                         ->openUrlInNewTab()
                         ->color('info'),
-                    // Action::make('directions')
-                    //     ->label('Direções')
-                    //     ->icon('heroicon-o-map')
-                    //     ->url(fn(Models\Viagem $record): ?string => $record->maps_integrados['directions_url'] ?? null)
-                    //     ->openUrlInNewTab()
-                    //     ->visible(fn(Models\Viagem $record): bool => ! empty($record->maps_integrados)),
+                    Action::make('directions')
+                        ->label('Direções')
+                        ->icon('heroicon-o-map')
+                        ->url(fn(Models\Viagem $record): ?string => $record->maps_integrados['directions_url'] ?? null)
+                        ->openUrlInNewTab()
+                        ->visible(fn(Models\Viagem $record): bool => ! empty($record->maps_integrados)),
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),

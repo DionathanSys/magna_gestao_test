@@ -106,12 +106,10 @@ class Viagem extends Model
     {
         return Attribute::make(
             get: function () {
-                // ✅ Verifica se o relacionamento já foi carregado
                 if (!$this->relationLoaded('cargas')) {
                     return 'N/A'; // Evita query extra
                 }
 
-                // ✅ Usa o relacionamento já carregado
                 $nomes = $this->cargas
                     ->filter(fn($carga) => $carga->integrado !== null)
                     ->map(fn($carga) => $carga->integrado->nome . ' - ' . $carga->integrado->municipio)
@@ -125,39 +123,56 @@ class Viagem extends Model
         );
     }
 
-    public function getMapsIntegradosAttribute(): ?array
+    protected function mapsIntegrados(): Attribute
     {
-        $origin = '-27.0927894,-52.6491463';
+        return Attribute::make(
+            get: function (): ?array {
+                $origin = '-27.0927894,-52.6491463';
 
-        // busca integrados com coordenadas (usa relação já definida)
-        $integrados = $this->integrados()->get()
-            ->filter(fn($i) => !empty($i->latitude) && !empty($i->longitude));
+                // ✅ Verifica se cargas já foram carregadas
+                if (!$this->relationLoaded('cargas')) {
+                    // Carrega sob demanda se necessário
+                    $this->load('cargas.integrado');
+                }
 
-        if ($integrados->isEmpty()) {
-            return null;
-        }
+                // ✅ Usa as cargas já carregadas para pegar os integrados
+                $integrados = $this->cargas
+                    ->pluck('integrado')
+                    ->filter(fn($integrado) => 
+                        $integrado !== null && 
+                        !empty($integrado->latitude) && 
+                        !empty($integrado->longitude)
+                    )
+                    ->unique('id') // Remove duplicados
+                    ->values();
 
-        $coords = $integrados->map(fn($i) => "{$i->latitude},{$i->longitude}")->values();
-        $waypoints = $coords->implode('|');
+                if ($integrados->isEmpty()) {
+                    return null;
+                }
 
-        $originEnc = urlencode($origin);
-        $waypointsEnc = urlencode($waypoints);
-        $destinationEnc = $originEnc; // volta ao ponto inicial
+                $coords = $integrados->map(fn($i) => "{$i->latitude},{$i->longitude}")->values();
+                $waypoints = $coords->implode('|');
 
-        $directionsUrl = "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&waypoints={$waypointsEnc}&destination={$destinationEnc}&travelmode=driving";
+                $originEnc = urlencode($origin);
+                $waypointsEnc = urlencode($waypoints);
+                $destinationEnc = $originEnc; // volta ao ponto inicial
 
-        $items = $integrados->map(fn($i) => [
-            'id' => $i->id,
-            'nome' => $i->nome ?? null,
-            'municipio' => $i->municipio ?? null,
-            'coords' => "{$i->latitude},{$i->longitude}",
-            'url' => "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&destination=" . urlencode("{$i->latitude},{$i->longitude}") . "&travelmode=driving",
-        ])->values()->toArray();
+                $directionsUrl = "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&waypoints={$waypointsEnc}&destination={$destinationEnc}&travelmode=driving";
 
-        return [
-            'directions_url' => $directionsUrl,
-            'items' => $items,
-        ];
+                $items = $integrados->map(fn($i) => [
+                    'id' => $i->id,
+                    'nome' => $i->nome ?? null,
+                    'municipio' => $i->municipio ?? null,
+                    'coords' => "{$i->latitude},{$i->longitude}",
+                    'url' => "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&destination=" . urlencode("{$i->latitude},{$i->longitude}") . "&travelmode=driving",
+                ])->values()->toArray();
+
+                return [
+                    'directions_url' => $directionsUrl,
+                    'items' => $items,
+                ];
+            }
+        );
     }
 
     protected static function booted()

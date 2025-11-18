@@ -31,6 +31,7 @@ class ConferirViagem implements ShouldQueue
                 $service->marcarViagemComoConferida($this->viagem);
                 if ($service->hasError()) {
                     Log::error('Erro ao marcar viagem como conferida', [
+                        'metodo' => __METHOD__ . '@' . __LINE__,
                         'viagem_id' => $this->viagem->id,
                         'error' => $service->getMessage()
                     ]);
@@ -42,6 +43,7 @@ class ConferirViagem implements ShouldQueue
                 $service->marcarViagemComoNãoConferida($this->viagem);
                 if ($service->hasError()) {
                     Log::error('Erro ao marcar viagem como não conferida', [
+                        'metodo' => __METHOD__ . '@' . __LINE__,
                         'viagem_id' => $this->viagem->id,
                         'error' => $service->getMessage()
                     ]);

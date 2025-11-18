@@ -30,7 +30,9 @@ class ViagemsTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->with([
-                    'carga.integrado:id,nome,municipio',
+                    'cargas' => function ($query) {
+                        $query->with('integrado:id,nome,municipio,codigo');
+                    },
                     'veiculo:id,placa',
                     'comentarios',
                     'checker:id,name',
@@ -58,12 +60,13 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
-                // TextColumn::make('integrados_nomes')
-                //     ->label('Integrado')
-                //     ->width('1%')
-                //     ->html()
-                //     ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
-                //     ->disabledClick(),
+                TextColumn::make('integrados_nomes')
+                    ->label('Integrado')
+                    ->width('1%')
+                    ->html()
+                    ->wrap()
+                    ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
+                    ->disabledClick(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transp.')
                     ->width('1%')

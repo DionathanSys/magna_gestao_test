@@ -22,6 +22,8 @@ class Viagem extends Model
         'motivo_divergencia'    => MotivoDivergenciaViagem::class,
     ];
 
+    protected $appends = ['integrados_nomes'];
+
     public function cargas(): HasMany
     {
         return $this->hasMany(CargaViagem::class, 'viagem_id');
@@ -99,14 +101,27 @@ class Viagem extends Model
             ->implode('<br>');
     }
 
-    public function getIntegradosCodigosAttribute(): string
+    protected function integradosNomes(): Attribute
     {
-        return $this->cargas
-            ->whereNotNull('integrado')
-            ->pluck('integrado.codigo')
-            ->unique()
-            ->whenEmpty(fn() => collect(['N/A']))
-            ->implode(', ');
+        return Attribute::make(
+            get: function () {
+                // ✅ Verifica se o relacionamento já foi carregado
+                if (!$this->relationLoaded('cargas')) {
+                    return 'N/A'; // Evita query extra
+                }
+
+                // ✅ Usa o relacionamento já carregado
+                $nomes = $this->cargas
+                    ->filter(fn($carga) => $carga->integrado !== null)
+                    ->map(fn($carga) => $carga->integrado->nome . ' - ' . $carga->integrado->municipio)
+                    ->unique()
+                    ->values();
+
+                return $nomes->isEmpty() 
+                    ? 'Sem Integrado' 
+                    : $nomes->implode('<br>');
+            }
+        );
     }
 
     public function getMapsIntegradosAttribute(): ?array

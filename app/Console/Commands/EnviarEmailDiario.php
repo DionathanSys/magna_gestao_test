@@ -40,6 +40,7 @@ class EnviarEmailDiario extends Command
             // Coletar dados para o email
             $dados = $this->coletarDadosAgendamentos();
 
+            Log::debug($dados);
             // Enviar email para cada destinatário
             foreach ($emails as $email) {
                 Mail::to($email)->send(new RelatoriodiarioMail($dados));

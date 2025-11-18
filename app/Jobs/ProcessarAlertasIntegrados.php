@@ -61,6 +61,9 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                 return;
             }
 
+            //TODO utilizar o cliente de uma das cargas para definir destinatários dinamicamente
+            
+
             // Envia email
             $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdesseti@transmagnabosco.com.br'];
 
@@ -90,6 +93,13 @@ class ProcessarAlertasIntegrados implements ShouldQueue
     {
         try {
             $cargaIds = Cache::get(self::CACHE_KEY, []);
+
+            Log::debug('Adicionando carga para alerta de integrados', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'carga_id' => $cargaId,
+                'cargas_atuais_no_cache' => $cargaIds,
+            ]);
+
             $cargaIds[] = $cargaId;
 
             Cache::put(self::CACHE_KEY, array_unique($cargaIds), self::CACHE_DURATION);

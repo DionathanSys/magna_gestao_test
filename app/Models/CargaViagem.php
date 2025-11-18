@@ -43,13 +43,12 @@ class CargaViagem extends Model
                 $integradoService = new IntegradoService();
                 
                 if ($integradoService->getIntegradoAlertaById($model->integrado_id)) {
-                    // Adiciona ao lote de alertas
-                    ProcessarAlertasIntegrados::adicionarCarga($model->id);
-                    
-                    Log::info('Carga adicionada ao lote de alertas (via cache)', [
+                    Log::info('Carga será adicionada ao lote de alertas (via cache)', [
                         'carga_id' => $model->id,
                         'integrado_id' => $model->integrado_id,
+                        'integrado_nome' => $model->nome,
                     ]);
+                    ProcessarAlertasIntegrados::adicionarCarga($model->id);
                 }
             }
         });

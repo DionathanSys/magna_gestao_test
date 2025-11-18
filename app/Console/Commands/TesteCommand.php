@@ -33,7 +33,6 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $log = VeiculoCacheService::getTodasPlacasForSelect();
-        dd($log);
+        $d = db_config('config-viagem');
     }
 }

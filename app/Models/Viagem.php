@@ -35,17 +35,17 @@ class Viagem extends Model
         return $this->hasOne(CargaViagem::class, 'viagem_id');
     }
 
-    // public function integrados(): HasManyThrough
-    // {
-    //     return $this->hasManyThrough(
-    //         Integrado::class,
-    //         CargaViagem::class,
-    //         'viagem_id', // Foreign key on CargaViagem table
-    //         'id', // Foreign key on Integrado table
-    //         'id', // Local key on Viagem table
-    //         'integrado_id' // Local key on CargaViagem table
-    //     );
-    // }
+    public function integrados(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Integrado::class,
+            CargaViagem::class,
+            'viagem_id', // Foreign key on CargaViagem table
+            'id', // Foreign key on Integrado table
+            'id', // Local key on Viagem table
+            'integrado_id' // Local key on CargaViagem table
+        );
+    }
 
     public function documentos(): HasMany
     {

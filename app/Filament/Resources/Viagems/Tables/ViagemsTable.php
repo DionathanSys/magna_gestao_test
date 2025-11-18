@@ -31,16 +31,18 @@ class ViagemsTable
             ->modifyQueryUsing(function (Builder $query) {
                 $query->with([
                     'cargas' => function ($query) {
-                        $query->with('integrado:id,nome,municipio,codigo');
+                        $query->select(['id', 'viagem_id', 'integrado_id', 'km_dispersao', 'km_dispersao_rateio'])
+                            ->with('integrado:id,nome,municipio,codigo,latitude,longitude');
                     },
                     'veiculo:id,placa',
-                    'comentarios',
+                    'comentarios.creator:id,name',
                     'checker:id,name',
                     'creator:id,name',
                     'updater:id,name',
                 ])
                     // antecipa o cálculo de existência para evitar N+1
-                    ->withExists(['comentarios']);
+                    ->withExists(['comentarios'])
+                    ->withCount('cargas');
             })
             ->poll(null)
             ->columns([
@@ -64,7 +66,8 @@ class ViagemsTable
                     ->label('Integrado')
                     ->width('1%')
                     ->html()
-                    ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
+                    // ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
+                    ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes))
                     ->disabledClick(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transp.')
@@ -92,10 +95,17 @@ class ViagemsTable
                         ->disabled(fn(Models\Viagem $record) => $record->conferido)
                         ->rules(['numeric', 'min:0', 'required'])
                         ->toggleable(isToggledHiddenByDefault: false)
-                        ->afterStateUpdated(fn($state, Models\Viagem $record) => (new Services\IntegradoService)->atualizarKmRota(
-                            Models\Integrado::find($record->carga->integrado_id),
-                            $state
-                        )),
+                        ->afterStateUpdated(function ($state, Models\Viagem $record) {
+                                if (!$record->relationLoaded('cargas')) {
+                                    $record->load('cargas.integrado');
+                                }
+                                
+                                $primeiraIntegrado = $record->cargas->first()?->integrado;
+                                
+                                if ($primeiraIntegrado) {
+                                    (new Services\IntegradoService)->atualizarKmRota($primeiraIntegrado, $state);
+                                }
+                            }),
                     TextInputColumn::make('km_cobrar')
                         ->width('1%')
                         ->wrapHeader()

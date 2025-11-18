@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Viagems\Actions;
 
+use App\Jobs\ConferirViagem;
 use App\Models;
 use App\Services;
 use App\Services\NotificacaoService as notify;
@@ -18,12 +19,15 @@ class ViagemNaoConferidaAction
             ->color('danger')
             ->visible(fn(Models\Viagem $record) => $record->conferido)
             ->action(function (Models\Viagem $record) {
-                $service = new Services\Viagem\ViagemService();
-                $service->marcarViagemComoNãoConferida($record);
-                if ($service->hasError()) {
-                    notify::error('Erro ao marcar viagem como não conferida', $service->getMessage());
-                    return;
-                }
+
+                ConferirViagem::dispatch($record);
+
+                // $service = new Services\Viagem\ViagemService();
+                // $service->marcarViagemComoNãoConferida($record);
+                // if ($service->hasError()) {
+                //     notify::error('Erro ao marcar viagem como não conferida', $service->getMessage());
+                //     return;
+                // }
                 notify::success();
             });
     }

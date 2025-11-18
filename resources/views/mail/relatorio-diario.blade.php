@@ -30,11 +30,16 @@
         .header p { margin: 10px 0 0 0; opacity: 0.9; }
         .content { padding: 30px; }
         
-        .resumo {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+        /* ⭐ Tabela para resumo (funciona em todos os clientes de email) */
+        .resumo-table {
+            width: 100%;
             margin-bottom: 30px;
+            border-collapse: collapse;
+        }
+        .resumo-table td {
+            width: 33.33%;
+            padding: 10px;
+            vertical-align: top;
         }
         .resumo-card {
             background: #f8f9fa;
@@ -81,31 +86,23 @@
             background-color: #f8f9fa; 
             font-weight: 600;
             color: #495057;
+            font-size: 13px;
         }
-        .table tr:hover {
-            background-color: #f8f9fa;
+        .table td {
+            font-size: 13px;
         }
         
         .status {
             padding: 4px 8px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             text-transform: uppercase;
+            white-space: nowrap;
         }
         .status.pendente { background-color: #fff3cd; color: #856404; }
         .status.execucao { background-color: #d1ecf1; color: #0c5460; }
         .status.atrasado { background-color: #f8d7da; color: #721c24; }
-        
-        .prioridade {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .prioridade.alta { background-color: #f8d7da; color: #721c24; }
-        .prioridade.media { background-color: #fff3cd; color: #856404; }
-        .prioridade.baixa { background-color: #d4edda; color: #155724; }
         
         .vazio {
             text-align: center;
@@ -132,37 +129,50 @@
         </div>
 
         <div class="content">
-            <!-- Resumo -->
-            <div class="resumo">
-                <div class="resumo-card">
-                    <h3>{{ $dados['resumo']['total_agendamentos_hoje'] }}</h3>
-                    <p>Agendamentos Hoje</p>
-                </div>
-                <div class="resumo-card pendente">
-                    <h3>{{ $dados['resumo']['total_pendentes'] }}</h3>
-                    <p>Pendentes</p>
-                </div>
-                <div class="resumo-card pendente">
-                    <h3>{{ $dados['resumo']['total_pendentes_sem_data'] }}</h3>
-                    <p>Pendentes Sem Data</p>
-                </div>
-                <div class="resumo-card execucao">
-                    <h3>{{ $dados['resumo']['total_em_execucao'] }}</h3>
-                    <p>Em Execução</p>
-                </div>
-                <div class="resumo-card atrasado">
-                    <h3>{{ $dados['resumo']['total_atrasados'] }}</h3>
-                    <p>Atrasados</p>
-                </div>
-                <div class="resumo-card concluido">
-                    <h3>{{ $dados['resumo']['total_concluidos_hoje'] }}</h3>
-                    <p>Concluídos Hoje</p>
-                </div>
-                <div class="resumo-card">
-                    <h3>{{ $dados['resumo']['veiculos_com_agendamento'] }}</h3>
-                    <p>Veículos</p>
-                </div>
-            </div>
+            <!-- Resumo usando tabela HTML -->
+            <table class="resumo-table">
+                <tr>
+                    <td>
+                        <div class="resumo-card">
+                            <h3>{{ $dados['resumo']['total_agendamentos_hoje'] }}</h3>
+                            <p>Agendamentos Hoje</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="resumo-card pendente">
+                            <h3>{{ $dados['resumo']['total_pendentes'] }}</h3>
+                            <p>Pendentes</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="resumo-card pendente">
+                            <h3>{{ $dados['resumo']['total_pendentes_sem_data'] }}</h3>
+                            <p>Pendentes Sem Data</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="resumo-card execucao">
+                            <h3>{{ $dados['resumo']['total_em_execucao'] }}</h3>
+                            <p>Em Execução</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="resumo-card atrasado">
+                            <h3>{{ $dados['resumo']['total_atrasados'] }}</h3>
+                            <p>Atrasados</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="resumo-card">
+                            <h3>{{ $dados['resumo']['veiculos_com_agendamento'] }}</h3>
+                            <p>Veículos</p>
+                        </div>
+                    </td>
+                    <td colspan="2"></td>
+                </tr>
+            </table>
 
             <!-- Agendamentos Atrasados -->
             @if(count($dados['atrasados']) > 0)
@@ -176,10 +186,9 @@
                                 <th>Data</th>
                                 <th>Veículo</th>
                                 <th>Serviço</th>
-                                <th>Plano Preventivo</th>
-                                <th>Fornecedor Ext.</th>
+                                <th>Plano</th>
+                                <th>Fornecedor</th>
                                 <th>Atraso</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -187,11 +196,10 @@
                                 <tr>
                                     <td>{{ $agendamento['data_agendamento'] }}</td>
                                     <td><strong>{{ $agendamento['veiculo_placa'] }}</strong></td>
-                                    <td>{{ $agendamento['servico'] }}</td>
-                                    <td>{{ $agendamento['plano_preventivo'] }}</td>
-                                    <td>{{ $agendamento['parceiro'] }}</td>
-                                    <td><span class="status atrasado">{{ abs($agendamento['dias_atraso']) }} dias</span></td>
-                                    <td><span class="status {{ strtolower($agendamento['status']) }}">{{ $agendamento['status'] }}</span></td>
+                                    <td>{{ Str::limit($agendamento['servico'], 30) }}</td>
+                                    <td>{{ Str::limit($agendamento['plano_preventivo'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['parceiro'], 25) }}</td>
+                                    <td><span class="status atrasado">{{ abs($agendamento['dias_atraso']) }}d</span></td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -210,21 +218,19 @@
                             <tr>
                                 <th>Veículo</th>
                                 <th>Serviço</th>
-                                <th>Plano Preventivo</th>
-                                <th>Fornecedor Ext.</th>
-                                <th>Status</th>
+                                <th>Plano</th>
+                                <th>Fornecedor</th>
                                 <th>Observações</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($dados['pendentes'] as $agendamento)
                                 <tr>
-                                    <td>{{ $agendamento['veiculo_placa'] }}</td>
-                                    <td>{{ $agendamento['servico'] }}</td>
-                                    <td>{{ $agendamento['plano_preventivo'] }}</td>
-                                    <td>{{ $agendamento['parceiro'] }}</td>
-                                    <td><span class="status {{ strtolower($agendamento['status']) }}">{{ $agendamento['status'] }}</span></td>
-                                    <td>{{ Str::limit($agendamento['observacoes'], 50) }}</td>
+                                    <td><strong>{{ $agendamento['veiculo_placa'] }}</strong></td>
+                                    <td>{{ Str::limit($agendamento['servico'], 30) }}</td>
+                                    <td>{{ Str::limit($agendamento['plano_preventivo'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['parceiro'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['observacoes'], 40) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -243,21 +249,19 @@
                             <tr>
                                 <th>Veículo</th>
                                 <th>Serviço</th>
-                                <th>Plano Preventivo</th>
-                                <th>Fornecedor Ext.</th>
-                                <th>Status</th>
+                                <th>Plano</th>
+                                <th>Fornecedor</th>
                                 <th>Observações</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($dados['amanha'] as $agendamento)
                                 <tr>
-                                    <td>{{ $agendamento['veiculo_placa'] }}</td>
-                                    <td>{{ $agendamento['servico'] }}</td>
-                                    <td>{{ $agendamento['plano_preventivo'] }}</td>
-                                    <td>{{ $agendamento['parceiro'] }}</td>
-                                    <td><span class="status {{ strtolower($agendamento['status']) }}">{{ $agendamento['status'] }}</span></td>
-                                    <td>{{ Str::limit($agendamento['observacoes'], 50) }}</td>
+                                    <td><strong>{{ $agendamento['veiculo_placa'] }}</strong></td>
+                                    <td>{{ Str::limit($agendamento['servico'], 30) }}</td>
+                                    <td>{{ Str::limit($agendamento['plano_preventivo'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['parceiro'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['observacoes'], 40) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -274,23 +278,21 @@
                     <table class="table">
                         <thead>
                             <tr>
+                                <th>Data</th>
                                 <th>Veículo</th>
                                 <th>Serviço</th>
-                                <th>Plano Preventivo</th>
-                                <th>Fornecedor Ext.</th>
-                                <th>Status</th>
-                                <th>Observações</th>
+                                <th>Plano</th>
+                                <th>Fornecedor</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($dados['esta_semana'] as $agendamento)
                                 <tr>
-                                    <td>{{ $agendamento['veiculo_placa'] }}</td>
-                                    <td>{{ $agendamento['servico'] }}</td>
-                                    <td>{{ $agendamento['plano_preventivo'] }}</td>
-                                    <td>{{ $agendamento['parceiro'] }}</td>
-                                    <td><span class="status {{ strtolower($agendamento['status']) }}">{{ $agendamento['status'] }}</span></td>
-                                    <td>{{ Str::limit($agendamento['observacoes'], 50) }}</td>
+                                    <td>{{ $agendamento['data_agendamento'] }}</td>
+                                    <td><strong>{{ $agendamento['veiculo_placa'] }}</strong></td>
+                                    <td>{{ Str::limit($agendamento['servico'], 30) }}</td>
+                                    <td>{{ Str::limit($agendamento['plano_preventivo'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['parceiro'], 25) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -298,33 +300,30 @@
                 </div>
             @endif
 
-
-             <!-- Agendamentos Sem Data -->
+            <!-- Agendamentos Sem Data -->
             @if(count($dados['pendentes_sem_data']) > 0)
                 <div class="secao">
-                    <div class="secao-header">
-                        📆 Sem Data ({{ count($dados['pendentes_sem_data']) }})
+                    <div class="secao-header pendentes">
+                        ⚠️ Sem Data Definida ({{ count($dados['pendentes_sem_data']) }})
                     </div>
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>Veículo</th>
                                 <th>Serviço</th>
-                                <th>Plano Preventivo</th>
-                                <th>Fornecedor Ext.</th>
-                                <th>Status</th>
+                                <th>Plano</th>
+                                <th>Fornecedor</th>
                                 <th>Observações</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($dados['pendentes_sem_data'] as $agendamento)
                                 <tr>
-                                    <td>{{ $agendamento['veiculo_placa'] }}</td>
-                                    <td>{{ $agendamento['servico'] }}</td>
-                                    <td>{{ $agendamento['plano_preventivo'] }}</td>
-                                    <td>{{ $agendamento['parceiro'] }}</td>
-                                    <td><span class="status {{ strtolower($agendamento['status']) }}">{{ $agendamento['status'] }}</span></td>
-                                    <td>{{ Str::limit($agendamento['observacoes'], 50) }}</td>
+                                    <td><strong>{{ $agendamento['veiculo_placa'] }}</strong></td>
+                                    <td>{{ Str::limit($agendamento['servico'], 30) }}</td>
+                                    <td>{{ Str::limit($agendamento['plano_preventivo'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['parceiro'], 25) }}</td>
+                                    <td>{{ Str::limit($agendamento['observacoes'], 40) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -333,10 +332,10 @@
             @endif
 
             <!-- Mensagem se não há agendamentos -->
-            @if(count($dados['pendentes']) == 0 && count($dados['pendentes_sem_data']) == 0 && count($dados['em_execucao']) == 0 && count($dados['amanha']) == 0 && count($dados['esta_semana']) == 0 && count($dados['atrasados']) == 0)
+            @if(count($dados['pendentes']) == 0 && count($dados['pendentes_sem_data']) == 0 && count($dados['amanha']) == 0 && count($dados['esta_semana']) == 0 && count($dados['atrasados']) == 0)
                 <div class="vazio">
                     <h3>✅ Tudo em dia!</h3>
-                    <p>Não há agendamentos pendentes, em execução ou atrasados.</p>
+                    <p>Não há agendamentos pendentes ou atrasados.</p>
                 </div>
             @endif
         </div>

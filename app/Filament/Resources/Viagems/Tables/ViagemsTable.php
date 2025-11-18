@@ -387,7 +387,7 @@ class ViagemsTable
                             ->compact()
                             ->collapsible()
                             ->collapsed()
-                            ->description('Quantidade de integrados vinculados à viagem.')
+                            ->description('Range de Km de Dispersão das cargas vinculadas à viagem.')
                             ->columnSpanFull()
                             ->columns(4)
                             ->schema([

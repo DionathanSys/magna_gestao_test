@@ -156,6 +156,7 @@ class ViagemService
             return $viagem;
         } catch (\Exception $e) {
             Log::error(__METHOD__, [
+                'metodo' => __METHOD__ . '@' . __LINE__,
                 'error' => $e->getMessage(),
                 'data' => $viagem->toArray(),
             ]);

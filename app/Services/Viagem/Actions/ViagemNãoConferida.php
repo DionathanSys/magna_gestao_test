@@ -27,8 +27,8 @@ class ViagemNãoConferida
 
     private function validate(Models\Viagem $viagem): void
     {
-        if ($viagem->checked_by != Auth::user()->id && ! Auth::user()->is_admin) {
-            throw new \InvalidArgumentException('Apenas o usuário que conferiu a viagem pode marcá-la como não conferida.');
-        }
+        // if ($viagem->checked_by != Auth::user()->id && ! Auth::user()->is_admin) {
+        //     throw new \InvalidArgumentException('Apenas o usuário que conferiu a viagem pode marcá-la como não conferida.');
+        // }
     }
 }

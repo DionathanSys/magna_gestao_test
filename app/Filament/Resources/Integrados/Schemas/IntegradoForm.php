@@ -6,6 +6,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use App\Enum;
+use Filament\Forms\Components\Toggle;
+
 class IntegradoForm
 {
     public static function configure(Schema $schema): Schema
@@ -49,6 +51,11 @@ class IntegradoForm
                     ->columnSpan(1)
                     ->autocomplete(false)
                     ->default('0.00000000'),
+                Toggle::make('alerta_viagem')
+                    ->label('Alerta Viagem')
+                    ->columnStart(1)
+                    ->columnSpan(2)
+                    ->default(false),
                 Select::make('cliente')
                     ->label('Cliente')
                     ->required()

@@ -49,9 +49,9 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                 'viagem.veiculo:id,placa',
                 'integrado:id,codigo,nome,municipio,cliente,alerta_viagem',
             ])
-            ->whereIn('id', $cargaIds)
-            ->whereHas('integrado', fn($q) => $q->where('alerta_viagem', true))
-            ->get();
+                ->whereIn('id', $cargaIds)
+                ->whereHas('integrado', fn($q) => $q->where('alerta_viagem', true))
+                ->get();
 
             if ($cargas->isEmpty()) {
                 Log::info('Nenhuma carga com integrado de alerta encontrada', [
@@ -63,7 +63,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
 
             // Envia email
             $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdesseti@transmagnabosco.com.br'];
-            
+
             Mail::to($destinatarios)->send(new AlertaIntegradosViagem($cargas));
 
             Log::info('Email de alerta de integrados enviado', [
@@ -72,14 +72,13 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                 'total_integrados' => $cargas->pluck('integrado_id')->unique()->count(),
                 'destinatarios' => $destinatarios,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erro ao processar alertas de integrados', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }
@@ -89,12 +88,21 @@ class ProcessarAlertasIntegrados implements ShouldQueue
      */
     public static function adicionarCarga(int $cargaId): void
     {
-        $cargaIds = Cache::get(self::CACHE_KEY, []);
-        $cargaIds[] = $cargaId;
-        
-        Cache::put(self::CACHE_KEY, array_unique($cargaIds), self::CACHE_DURATION);
-        
-        // Agenda o job para rodar após o tempo de cache
-        self::dispatch()->delay(now()->addSeconds(self::CACHE_DURATION + 5));
+        try {
+            $cargaIds = Cache::get(self::CACHE_KEY, []);
+            $cargaIds[] = $cargaId;
+
+            Cache::put(self::CACHE_KEY, array_unique($cargaIds), self::CACHE_DURATION);
+
+            // Agenda o job para rodar após o tempo de cache
+            self::dispatch()->delay(now()->addSeconds(self::CACHE_DURATION + 5));
+        } catch (\Exception $e) {
+            Log::error('Erro ao adicionar carga para alerta de integrados', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'carga_id' => $cargaId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
     }
 }

@@ -18,7 +18,7 @@ class ViagemNãoConferida
 
         $viagem->update([
             'conferido' => false,
-            'updated_by' => $this->getUserIdChecked(),
+            'updated_by' => Auth::user()->id ?? 1,
             'checked_by' => null,
         ]);
 

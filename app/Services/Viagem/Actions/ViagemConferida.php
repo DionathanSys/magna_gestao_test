@@ -16,8 +16,8 @@ class ViagemConferida
         $viagem->update([
             'motivo_divergencia'    => $viagem->motivo_divergencia ?? Enum\MotivoDivergenciaViagem::SEM_OBS,
             'conferido'             => true,
-            'updated_by'            => Auth::user()->id,
-            'checked_by'            => Auth::user()->id
+            'updated_by'            => Auth::user()->id ?? 1,
+            'checked_by'            => Auth::user()->id ?? 1
         ]);
 
         return $viagem;

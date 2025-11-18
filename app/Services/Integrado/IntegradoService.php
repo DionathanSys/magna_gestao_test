@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class IntegradoService
 {
     private const CACHE_KEY_INTEGRADOS_ALERTA = 'integrados_com_alerta_ids';
+    private const CACHE_DURATION = 604800; // 7 dias em segundos
 
     public function getKmCadastroIntegrado() {}
 
@@ -61,7 +62,8 @@ class IntegradoService
         // Busca a lista de IDs em cache
         $integradosAlerta = Cache::remember(
             self::CACHE_KEY_INTEGRADOS_ALERTA,
-            callback: function () {
+            self::CACHE_DURATION,
+            function () {
                 return Models\Integrado::where('alerta_viagem', true)
                     ->pluck('id')
                     ->toArray();

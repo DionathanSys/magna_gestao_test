@@ -298,6 +298,7 @@
                 </div>
             @endif
 
+
              <!-- Agendamentos Sem Data -->
             @if(count($dados['pendentes_sem_data']) > 0)
                 <div class="secao">
@@ -316,7 +317,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($dados['esta_semana'] as $agendamento)
+                            @foreach($dados['pendentes_sem_data'] as $agendamento)
                                 <tr>
                                     <td>{{ $agendamento['veiculo_placa'] }}</td>
                                     <td>{{ $agendamento['servico'] }}</td>

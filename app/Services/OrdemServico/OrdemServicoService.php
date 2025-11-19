@@ -29,9 +29,6 @@ class OrdemServicoService
 
     public function firstOrCreate($data): OrdemServico
     {
-        Log::debug(__METHOD__ . ' - ' . __LINE__, [
-            'data' => $data,
-        ]);
 
         $ordemServico = OrdemServico::query()
             ->where('veiculo_id', $data['veiculo_id'])
@@ -40,10 +37,20 @@ class OrdemServicoService
             ->first();
 
         if ($ordemServico) {
+            Log::info('Ordem de Serviço pendente já existe', [
+                'ordem_servico_id' => $ordemServico->id,
+            ]);
+
             return $ordemServico;
         }
 
-        return $this->create($data);
+        $ordemServico = $this->create($data);
+        
+        Log::debug('Ordem de Serviço pendente criada', [
+            'ordem_servico' => $ordemServico,
+        ]);
+
+        return $ordemServico;
     }
 
     public function create(array $data): ?OrdemServico

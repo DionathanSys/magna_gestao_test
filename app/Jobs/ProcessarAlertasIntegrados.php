@@ -24,9 +24,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -35,6 +33,15 @@ class ProcessarAlertasIntegrados implements ShouldQueue
     {
         Log::debug('Job ProcessarAlertasIntegrados iniciado', [
             'metodo' => __METHOD__ . '@' . __LINE__,
+        ]);
+
+        $cacheAntesPull = Cache::get(self::CACHE_KEY, []);
+
+        Log::info('Estado do cache ANTES do pull', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'cache_conteudo' => $cacheAntesPull,
+            'cache_vazio' => empty($cacheAntesPull),
+            'total_itens' => count($cacheAntesPull),
         ]);
 
         // Busca IDs das cargas pendentes de alerta
@@ -130,15 +137,32 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                 // Salva no cache
                 Cache::forever(self::CACHE_KEY, $cargaIds);
 
-                Log::debug('Carga adicionada', [
+                $verificacao = Cache::get(self::CACHE_KEY, []);
+
+                Log::info('Carga adicionada ao cache', [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
                     'carga_id' => $cargaId,
                     'total_no_cache' => count($cargaIds),
+                    'cache_verificado' => $verificacao,
+                    'cache_salvou_corretamente' => in_array($cargaId, $verificacao),
+                    'era_vazio' => $eraVazio,
                 ]);
 
                 // IMPORTANTE: Só despacha job se o cache estava vazio
                 if ($eraVazio) {
-                    self::dispatch()->delay(now()->addSeconds(self::DELAY_SECONDS));
-                    Log::info('Job despachado (primeiro do lote)');
+                    $dataProcessamento = now()->addSeconds(self::DELAY_SECONDS);
+
+                    self::dispatch()->delay($dataProcessamento);
+
+                    Log::info('Job de alertas despachado', [
+                        'metodo' => __METHOD__ . '@' . __LINE__,
+                        'delay_segundos' => self::DELAY_SECONDS,
+                        'processara_em' => $dataProcessamento->format('Y-m-d H:i:s'),
+                        'processara_em_timestamp' => $dataProcessamento->timestamp,
+                        'agora' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                } else {
+                    Log::debug('Job já foi despachado anteriormente, aguardando processamento');
                 }
             } finally {
                 $lock->release();

@@ -87,8 +87,6 @@ class ProcessarAlertasIntegrados implements ShouldQueue
             // Envia email
             $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdesseti@transmagnabosco.com.br'];
 
-            Log::debug('teste');
-
             Mail::to($destinatarios)->send(new AlertaIntegradosViagem($cargas));
 
             Log::info('Email de alerta de integrados enviado', [

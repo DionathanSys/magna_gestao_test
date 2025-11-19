@@ -19,7 +19,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
 
     private const CACHE_KEY = 'alertas_integrados_pendentes';
     private const CACHE_LOCK_KEY = 'alertas_integrados_lock';
-    private const DELAY_SECONDS = 300; // 5 minutos
+    private const DELAY_SECONDS = 180; // 3 minutos
 
     /**
      * Create a new job instance.

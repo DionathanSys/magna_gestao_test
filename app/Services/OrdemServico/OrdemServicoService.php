@@ -45,10 +45,6 @@ class OrdemServicoService
         }
 
         $ordemServico = $this->create($data);
-        
-        Log::debug('Ordem de Serviço pendente criada', [
-            'ordem_servico' => $ordemServico,
-        ]);
 
         return $ordemServico;
     }
@@ -75,6 +71,7 @@ class OrdemServicoService
             $ordemServico = $this->firstOrCreate([
                 'veiculo_id'    => $agendamento->veiculo_id,
                 'parceiro_id'   => $agendamento->parceiro_id,
+                'quilometragem' => $this->veiculoService::getQuilometragemAtualByVeiculoId($agendamento->veiculo_id),
                 'tipo_manutencao' => $agendamento->plano_preventivo_id ? TipoManutencaoEnum::PREVENTIVA : TipoManutencaoEnum::CORRETIVA,
             ]);
 

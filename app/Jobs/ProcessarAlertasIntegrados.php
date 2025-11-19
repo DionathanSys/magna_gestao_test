@@ -26,9 +26,6 @@ class ProcessarAlertasIntegrados implements ShouldQueue
      */
     public function __construct()
     {
-        Log::debug('Job ProcessarAlertasIntegrados instanciado', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
-        ]);
     }
 
     /**
@@ -138,8 +135,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                     'total_no_cache' => count($cargaIds),
                 ]);
 
-                // ⭐ IMPORTANTE: Só despacha job se o cache estava vazio
-                // Isso garante que apenas UM job será despachado por lote
+                // IMPORTANTE: Só despacha job se o cache estava vazio
                 if ($eraVazio) {
                     self::dispatch()->delay(now()->addSeconds(self::DELAY_SECONDS));
                     Log::info('Job despachado (primeiro do lote)');

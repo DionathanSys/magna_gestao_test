@@ -36,6 +36,11 @@ class ProcessarAlertasIntegrados implements ShouldQueue
         // Busca IDs das cargas pendentes de alerta
         $cargaIds = Cache::pull(self::CACHE_KEY, []);
 
+        Log::debug('Iniciando processamento de alertas de integrados', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'carga_ids' => $cargaIds,
+        ]);
+
         if (empty($cargaIds)) {
             Log::info('Nenhuma carga pendente de alerta', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
@@ -53,6 +58,11 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                 ->whereHas('integrado', fn($q) => $q->where('alerta_viagem', true))
                 ->get();
 
+            Log::debug('Cargas com integrados de alerta carregadas', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'cargas_encontradas' => $cargas,
+            ]);
+
             if ($cargas->isEmpty()) {
                 Log::info('Nenhuma carga com integrado de alerta encontrada', [
                     'metodo' => __METHOD__ . '@' . __LINE__,
@@ -62,11 +72,12 @@ class ProcessarAlertasIntegrados implements ShouldQueue
             }
 
             //TODO utilizar o cliente de uma das cargas para definir destinatários dinamicamente
-            
 
             // Envia email
             $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdesseti@transmagnabosco.com.br'];
 
+            Log::debug('teste');
+            
             Mail::to($destinatarios)->send(new AlertaIntegradosViagem($cargas));
 
             Log::info('Email de alerta de integrados enviado', [

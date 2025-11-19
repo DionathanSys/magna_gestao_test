@@ -85,7 +85,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
             //TODO utilizar o cliente de uma das cargas para definir destinatários dinamicamente
 
             // Envia email
-            $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdesseti@transmagnabosco.com.br'];
+            $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdessetti@transmagnabosco.com.br'];
 
             Mail::to($destinatarios)->send(new AlertaIntegradosViagem($cargas));
 

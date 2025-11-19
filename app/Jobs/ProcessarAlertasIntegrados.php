@@ -18,14 +18,17 @@ class ProcessarAlertasIntegrados implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private const CACHE_KEY = 'alertas_integrados_pendentes';
-    private const CACHE_DURATION = 300; // 5 minutos
+    private const CACHE_LOCK_KEY = 'alertas_integrados_lock';
+    private const DELAY_SECONDS = 300; // 5 minutos
 
     /**
      * Create a new job instance.
      */
     public function __construct()
     {
-        //
+        Log::debug('Job ProcessarAlertasIntegrados instanciado', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+        ]);
     }
 
     /**
@@ -33,6 +36,10 @@ class ProcessarAlertasIntegrados implements ShouldQueue
      */
     public function handle(): void
     {
+        Log::debug('Job ProcessarAlertasIntegrados iniciado', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+        ]);
+
         // Busca IDs das cargas pendentes de alerta
         $cargaIds = Cache::pull(self::CACHE_KEY, []);
 
@@ -77,7 +84,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
             $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdesseti@transmagnabosco.com.br'];
 
             Log::debug('teste');
-            
+
             Mail::to($destinatarios)->send(new AlertaIntegradosViagem($cargas));
 
             Log::info('Email de alerta de integrados enviado', [
@@ -99,31 +106,64 @@ class ProcessarAlertasIntegrados implements ShouldQueue
 
     /**
      * Adiciona uma carga para ser alertada
+     * ⭐ LÓGICA CORRIGIDA: Só despacha job UMA VEZ
      */
     public static function adicionarCarga(int $cargaId): void
     {
         try {
-            $cargaIds = Cache::get(self::CACHE_KEY, []);
+            // Evitar race condition
+            $lock = Cache::lock(self::CACHE_LOCK_KEY, 10);
 
-            Log::debug('Adicionando carga para alerta de integrados', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
-                'carga_id' => $cargaId,
-                'cargas_atuais_no_cache' => $cargaIds,
-            ]);
+            if (!$lock->get()) {
+                Log::warning('Não conseguiu adquirir lock para adicionar carga', [
+                    'carga_id' => $cargaId,
+                ]);
+                return;
+            }
 
-            $cargaIds[] = $cargaId;
+            try {
+                // Busca cargas atuais
+                $cargaIds = Cache::get(self::CACHE_KEY, []);
+                $eraVazio = empty($cargaIds);
 
-            Cache::put(self::CACHE_KEY, array_unique($cargaIds), self::CACHE_DURATION);
+                // Adiciona nova carga
+                $cargaIds[] = $cargaId;
+                $cargaIds = array_unique($cargaIds);
 
-            // Agenda o job para rodar após o tempo de cache
-            self::dispatch()->delay(now()->addSeconds(self::CACHE_DURATION + 5));
+                // Salva no cache
+                Cache::forever(self::CACHE_KEY, $cargaIds);
+
+                Log::debug('Carga adicionada', [
+                    'carga_id' => $cargaId,
+                    'total_no_cache' => count($cargaIds),
+                ]);
+
+                // ⭐ IMPORTANTE: Só despacha job se o cache estava vazio
+                // Isso garante que apenas UM job será despachado por lote
+                if ($eraVazio) {
+                    self::dispatch()->delay(now()->addSeconds(self::DELAY_SECONDS));
+                    Log::info('Job despachado (primeiro do lote)');
+                }
+            } finally {
+                $lock->release();
+            }
         } catch (\Exception $e) {
-            Log::error('Erro ao adicionar carga para alerta de integrados', [
+            Log::error('Erro ao adicionar carga para alerta', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'carga_id' => $cargaId,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
         }
+    }
+
+    /**
+     * Handle job failure
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('Job ProcessarAlertasIntegrados falhou', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

@@ -33,9 +33,11 @@ class CargaViagem extends Model
     {
         static::created(function (self $model) {
             Log::info('CargaViagem criada', [
+                'metodo' => __METHOD__.'#'.'static::created',
                 'id' => $model->id, 
                 'viagem_id' => $model->viagem_id, 
-                'integrado_id' => $model->integrado_id]);
+                'integrado_id' => $model->integrado_id
+            ]);
 
             (new CargaService())->atualizarKmDispersao($model->viagem_id);
 
@@ -54,11 +56,11 @@ class CargaViagem extends Model
         });
 
         static::updated(function (self $model) {
-            Log::info('CargaViagem atualizada', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'integrado_id' => $model->integrado_id]);
+            Log::info('CargaViagem atualizada', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'integrado_id' => $model->integrado_id, 'metodo' => __METHOD__.'#'.'static::updated']);
         });
 
         static::deleted(function (self $model) {
-            Log::info('CargaViagem removida (deleted)', ['id' => $model->id, 'viagem_id' => $model->viagem_id]);
+            Log::info('CargaViagem removida (deleted)', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'metodo' => __METHOD__.'#'.'static::deleted']);
             (new CargaService())->atualizarKmDispersao($model->viagem_id);
         });
     }

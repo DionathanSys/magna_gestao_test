@@ -70,6 +70,12 @@ class IntegradoService
             }
         );
 
+        Log::debug('Verificando se integrado tem alerta', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'integrado_id' => $id,
+            'tem_alerta' => in_array($id, $integradosAlerta, true),
+        ]);
+        
         return in_array($id, $integradosAlerta, true);
     }
 

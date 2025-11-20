@@ -21,7 +21,7 @@ class ResultadoPeriodosTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                return $query->with(['veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal:id,quilometragem']);
+                return $query->with(['veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal']);
             })
             ->columns([
                 TextColumn::make('veiculo.placa')

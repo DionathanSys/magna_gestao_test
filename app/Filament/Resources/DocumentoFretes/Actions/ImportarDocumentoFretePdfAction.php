@@ -83,11 +83,19 @@ class ImportarDocumentoFretePdfAction
 
                         notify::success('Importação de Documento Frete iniciada com sucesso.');
                     } catch (\Exception $e) {
-                        Log::error('Erro ao iniciar importação de Documento Frete PDF', [
-                            'exception' => $e->getMessage(),
-                            'data' => $data,
+                        if ($relativePath) {
+                            Storage::disk(self::DISK)->delete($relativePath);
+                        }
+
+                        Log::error('Erro ao processar Documento Frete PDF', [
+                            'error' => $e->getMessage(),
+                            'file' => $e->getFile(),
+                            'line' => $e->getLine(),
+                            'trace' => $e->getTraceAsString(),
+                            'cliente' => $data['cliente'] ?? null,
                         ]);
-                        notify::error('Erro ao iniciar importação de Documento Frete: ' . $e->getMessage());
+
+                        notify::error('Erro ao processar PDF: ' . $e->getMessage());
                         $action->halt();
                     }
                 }

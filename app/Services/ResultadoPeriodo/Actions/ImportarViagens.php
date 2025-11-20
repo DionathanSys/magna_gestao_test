@@ -19,7 +19,7 @@ class ImportarViagens
 
     public function handle()
     {
-        if ($this->resultadoPeriodo->status !== StatusDiversosEnum::PENDENTE) {
+        if ($this->resultadoPeriodo->status !== StatusDiversosEnum::PENDENTE->value) {
             Log::info('Resultado período não está em status PENDENTE. Importação de viagens ignorada.', [
                 'metodo' => __METHOD__,
                 'resultado_periodo_id' => $this->resultadoPeriodo->id,

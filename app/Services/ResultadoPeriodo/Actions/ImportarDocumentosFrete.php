@@ -19,7 +19,7 @@ class ImportarDocumentosFrete
 
     public function handle()
     {
-        if ($this->resultadoPeriodo->status !== StatusDiversosEnum::PENDENTE) {
+        if ($this->resultadoPeriodo->status !== StatusDiversosEnum::PENDENTE->value) {
             Log::info('Resultado período não está em status PENDENTE. Importação de documentos de frete ignorada.', [
                 'metodo' => __METHOD__,
                 'resultado_periodo_id' => $this->resultadoPeriodo->id,
@@ -27,7 +27,7 @@ class ImportarDocumentosFrete
             ]);
             return;
         }
-        
+
         $this->getDocumentosFreteSemVinculo();
 
         if ($this->documentosFrete->isEmpty()) {

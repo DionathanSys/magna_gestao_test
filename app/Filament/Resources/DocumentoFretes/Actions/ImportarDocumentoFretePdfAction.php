@@ -154,13 +154,10 @@ class ImportarDocumentoFretePdfAction
         ]);
 
         $validate = Validator::make($data, [
-            'documento_frete' => 'required|file|mimes:pdf|max:5120',
+            'documento_frete' => 'required',
             'cliente' => 'required|in:' . implode(',', ClienteEnum::toSelectArray()),
         ], [
             'documento_frete.required' => 'O campo Documento Frete é obrigatório.',
-            'documento_frete.file' => 'O campo Documento Frete deve ser um arquivo válido.',
-            'documento_frete.mimes' => 'O campo Documento Frete deve ser um arquivo do tipo: pdf.',
-            'documento_frete.max' => 'O campo Documento Frete não deve ser maior que 5MB.',
             'cliente.required' => 'O campo Cliente é obrigatório.',
             'cliente.in' => 'O campo Cliente selecionado é inválido.',
         ]);

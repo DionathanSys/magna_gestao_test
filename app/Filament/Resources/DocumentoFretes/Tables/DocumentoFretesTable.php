@@ -6,6 +6,7 @@ use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\Viagems\ViagemResource;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -19,6 +20,7 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -51,11 +53,6 @@ class DocumentoFretesTable
                     ->label('Tipo Documento')
                     ->width('1%')
                     ->searchable(isIndividual: true),
-                TextColumn::make('viagem_id')
-                    ->label("viagem ID")
-                    ->width('1%')
-                    ->url(fn(Models\DocumentoFrete $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id ?? 0]))
-                    ->openUrlInNewTab(),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->width('1%')
@@ -90,9 +87,14 @@ class DocumentoFretesTable
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('parceiro_destino')
                     ->label('Parceiro Destino')
+                    ->width('1%')
                     ->disabledClick()
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('viagem_id')
+                    ->label("viagem ID")
+                    ->url(fn(Models\DocumentoFrete $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id ?? 0]))
+                    ->openUrlInNewTab(),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->dateTime('d/m/Y H:i')
@@ -128,18 +130,29 @@ class DocumentoFretesTable
                     ->toggle()
                     ->query(fn(Builder $query): Builder => $query->whereNull('viagem_id')),
             ])
+            ->groups([
+                Group::make('veiculo.placa')
+                    ->label('Placa')
+                    ->collapsible(),
+                Group::make('data_emissao')
+                    ->label('Dt. Emissão')
+                    ->titlePrefixedWithLabel(false)
+                    ->getTitleFromRecordUsing(fn(Models\DocumentoFrete $record): string => Carbon::parse($record->data_emissao)->format('d/m/Y'))
+                    ->collapsible(),
+                Group::make('parceiro_origem')
+                    ->label('Parceiro Origem')
+                    ->collapsible(),
+            ])
             ->recordActions([
                 ViewAction::make()
                     ->iconButton(),
                 EditAction::make()
                     ->iconButton(),
             ])
-            ->headerActions([
-                
-            ])
+            ->headerActions([])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()    
+                    DeleteBulkAction::make()
                         ->visible(fn(): bool => Auth::user()->is_admin),
                 ]),
                 ActionGroup::make([

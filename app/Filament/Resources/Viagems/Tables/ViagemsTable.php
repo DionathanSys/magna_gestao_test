@@ -437,10 +437,6 @@ class ViagemsTable
             ->deselectAllRecordsWhenFiltered(false)
             ->recordActions([
                 ActionGroup::make([
-                    Action::make('atualizar')
-                        ->label('Atualizar')
-                        ->icon('heroicon-o-arrow-path')
-                        ->action(function (Models\Viagem $record) {}),
                     Viagems\Actions\AdicionarComentarioAction::make(),
                     Viagems\Actions\VisualizarComentarioAction::make(),
                     EditAction::make()

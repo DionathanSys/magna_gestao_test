@@ -110,6 +110,8 @@ class DocumentoFretesTable
             ->persistSortInSession()
             ->defaultSortOptionLabel('created_at')
             ->persistFiltersInSession()
+            ->paginated([25, 50, 100, 250])
+            ->extremePaginationLinks()
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
@@ -167,6 +169,7 @@ class DocumentoFretesTable
                         ->openUrlInNewTab()
                         ->color('success'),
                 ])->button(),
-            ]);
+            ])
+            ->striped();
     }
 }

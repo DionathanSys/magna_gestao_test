@@ -51,11 +51,29 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-                // TextColumn::make('km_percorrido')
-                //     ->label('Km Percorrido')
-                //     ->width('1%')
-                //     ->numeric(0, ',', '.')
-                //     ->sortable(),
+                TextColumn::make('abastecimentoFinal.quilometragem_percorrida')
+                    ->label('Km Final')
+                    ->width('1%')
+                    ->numeric(0, ',', '.')
+                    ->sortable(),
+                TextColumn::make('documentosFrete_sum')
+                    ->label('Km Percorrido')
+                    ->sum('documentosFrete', 'valor_liquido')
+                    ->width('1%')
+                    ->numeric(0, ',', '.')
+                    ->sortable(),
+                TextColumn::make('viagens_sum')
+                    ->label('Km Pago')
+                    ->sum('viagens', 'km_pago')
+                    ->width('1%')
+                    ->numeric(0, ',', '.')
+                    ->sortable(),
+                TextColumn::make('abastecimentos_sum')
+                    ->label('Custo Abastecimento')
+                    ->sum('abastecimentos', 'preco_total')
+                    ->width('1%')
+                    ->numeric(0, ',', '.')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

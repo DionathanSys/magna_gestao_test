@@ -69,7 +69,7 @@ class VeiculoForm
                     ->columnSpanFull()
                     ->compact()
                     ->schema([
-                        Select::make('cliente')
+                        Select::make('informacoes_complementares.cliente')
                             ->label('Cliente')
                             ->columnSpan(2)
                             ->searchable()
@@ -80,6 +80,7 @@ class VeiculoForm
                             ->columnSpan(2),
                         Select::make('informacoes_complementares.bloqueador_silo')
                             ->label('Tipo Bloqueador de Silo')
+                            ->native(false)
                             ->columnSpan(2)
                             ->options([
                                 'NENHUM'     => 'Nenhum',

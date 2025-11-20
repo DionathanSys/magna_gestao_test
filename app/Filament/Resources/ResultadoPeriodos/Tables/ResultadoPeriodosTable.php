@@ -41,7 +41,7 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->date('d/m/Y')
                     ->sortable(),
-                TextColumn::make('abastecimentoInicial.ultimo_abastecimento_anterior.quilometragem')
+                TextColumn::make('abastecimentoInicial.quilometragem')
                     ->label('Km Inicial')
                     ->width('1%')
                     ->numeric(0, ',', '.')

@@ -49,9 +49,9 @@ class ImportarDocumentosFrete
             ->whereNull('resultado_periodo_id');
 
         if ($this->considerarPeriodo) {
-            $query->whereBetween('data_emissao', [
-                $this->resultadoPeriodo->data_inicial,
-                $this->resultadoPeriodo->data_final,
+            $query->whereBetween('data_competencia', [
+                $this->resultadoPeriodo->data_inicio,
+                $this->resultadoPeriodo->data_fim,
             ]);
         }
 

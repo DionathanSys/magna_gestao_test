@@ -50,8 +50,8 @@ class ImportarViagens
 
         if ($this->considerarPeriodo) {
             $query->whereBetween('data_competencia', [
-                $this->resultadoPeriodo->data_inicial,
-                $this->resultadoPeriodo->data_final,
+                $this->resultadoPeriodo->data_inicio,
+                $this->resultadoPeriodo->data_fim,
             ]);
         }
 

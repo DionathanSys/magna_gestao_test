@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Tables;
 
+use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Actions\ViewAction;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
@@ -15,6 +19,9 @@ class ResultadoPeriodosTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function ($query) {
+                return $query->with(['veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal:id,quilometragem']);
+            })
             ->columns([
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
@@ -73,6 +80,12 @@ class ResultadoPeriodosTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                ReplicateAction::make()
+                    ->label('Duplicar')
+                    ->icon(Heroicon::DocumentDuplicate)
+                    ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
+                    ->excludeAttributes(['created_at', 'updated_at'])
+                    ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

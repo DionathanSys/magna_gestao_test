@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Veiculos\Schemas;
 
+use App\Enum\ClienteEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -19,6 +20,7 @@ class VeiculoForm
             ->components([
                 Section::make('Informações Básicas')
                     ->columns(12)
+                    ->compact()
                     ->columnSpanFull()
                     ->schema([
                         TextInput::make('placa')
@@ -32,12 +34,6 @@ class VeiculoForm
                                 'CHAPECO'    => 'Chapecó',
                                 'CONCORDIA'  => 'Concórdia',
                             ])
-                            ->required(),
-                        Toggle::make('is_active')
-                            ->label('Ativo')
-                            ->columnSpan(1)
-                            ->inline(false)
-                            ->default(true)
                             ->required(),
                         TextInput::make('marca')
                             ->label('Marca')
@@ -54,6 +50,12 @@ class VeiculoForm
                             ->columnSpan(2)
                             ->maxLength(50)
                             ->placeholder('Chassi do veículo'),
+                        Toggle::make('is_active')
+                            ->label('Ativo')
+                            ->columnSpan(1)
+                            ->inline(false)
+                            ->default(true)
+                            ->required(),
                         Select::make('tipo_veiculo_id')
                             ->label('Tipo de Veículo')
                             ->columnStart(1)
@@ -67,6 +69,12 @@ class VeiculoForm
                     ->columnSpanFull()
                     ->compact()
                     ->schema([
+                        Select::make('cliente')
+                            ->label('Cliente')
+                            ->columnSpan(2)
+                            ->searchable()
+                            ->options(ClienteEnum::toSelectArray())
+                            ->required(),
                         TextInput::make('informacoes_complementares.codigo_imobilizado')
                             ->label('Código Imobilizado')
                             ->columnSpan(2),

@@ -51,8 +51,6 @@ class ImportarDocumentoFretePdfAction
 
                     try {
 
-                        dd($data);
-
                         Log::info('Iniciando importação de Documento Frete PDF', [
                             'cliente' => $data['cliente'],
                             'arquivo_path' => $data['documento_frete'],

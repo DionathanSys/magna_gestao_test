@@ -32,7 +32,7 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     ]);
 
     $file = $request->file('pdfFile');
-dd($file->getRealPath());
+    
     Log::debug(__METHOD__ . '@' . __LINE__, [
         'file' => $file
     ]);

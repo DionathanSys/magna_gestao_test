@@ -22,8 +22,10 @@ return new class extends Migration
                 ->nullOnDelete();
             $table->date('data_inicio');
             $table->date('data_fim');
-            $table->integer('km_inicial');
-            $table->integer('km_final');
+            $table->integer('km_inicial')
+                ->nullable();
+            $table->integer('km_final')
+                ->nullable();
             $table->integer('km_percorrido')
                 ->virtualAs('km_final - km_inicial');
             $table->timestamps();

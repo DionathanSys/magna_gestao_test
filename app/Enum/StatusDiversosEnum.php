@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enum\OrdemServico;
+namespace App\Enum;
 
 enum StatusDiversosEnum: string
 {

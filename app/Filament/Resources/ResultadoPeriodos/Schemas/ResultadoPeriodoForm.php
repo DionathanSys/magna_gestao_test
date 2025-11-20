@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Schemas;
 
-use App\Enum\OrdemServico\StatusDiversosEnum;
+use App\Enum\StatusDiversosEnum;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;

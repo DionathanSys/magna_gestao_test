@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Schemas;
 
+use App\Enum\OrdemServico\StatusDiversosEnum;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -31,6 +32,11 @@ class ResultadoPeriodoForm
                         }
                         $set('tipo_veiculo_id', null);
                     }),
+                Select::make('status')
+                    ->options(StatusDiversosEnum::toSelectArray())
+                    ->default(StatusDiversosEnum::PENDENTE->value)
+                    ->columnSpan(3)
+                    ->required(),
                 Select::make('tipo_veiculo_id')
                     ->relationship('tipoVeiculo', 'descricao')
                     ->columnSpan(3)

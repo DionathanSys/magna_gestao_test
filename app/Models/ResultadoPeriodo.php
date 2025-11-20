@@ -36,12 +36,29 @@ class ResultadoPeriodo extends Model
 
     public function abastecimentoInicial(): HasOne
     {
-        return $this->hasOne(Abastecimento::class)->ofMany('data_abastecimento', 'min');
+        return $this->hasOne(Abastecimento::class)
+            ->ofMany([
+                'data_abastecimento' => 'min',
+                'id' => 'min', // Desempate se houver mesma data
+            ], function ($query) {
+                // Adiciona filtros extras se necessário
+                $query->whereNotNull('data_abastecimento');
+            });
     }
 
+    /**
+     * ⭐ CORRIGIDO: Abastecimento com data mais recente
+     */
     public function abastecimentoFinal(): HasOne
     {
-        return $this->hasOne(Abastecimento::class)->ofMany('data_abastecimento', 'max');
+        return $this->hasOne(Abastecimento::class)
+            ->ofMany([
+                'data_abastecimento' => 'max',
+                'id' => 'max', // Desempate se houver mesma data
+            ], function ($query) {
+                // Adiciona filtros extras se necessário
+                $query->whereNotNull('data_abastecimento');
+            });
     }
     
 }

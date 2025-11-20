@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ResultadoPeriodos\Tables;
 
 use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
+use App\Filament\Resources\ResultadoPeriodos\Actions;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -78,6 +79,7 @@ class ResultadoPeriodosTable
                     ->label('Tipo Veículo'),
             ])
             ->recordActions([
+                Actions\ImportarRegistrosAction::make(),
                 ViewAction::make(),
                 EditAction::make(),
                 ReplicateAction::make()

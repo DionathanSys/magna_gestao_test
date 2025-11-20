@@ -32,6 +32,10 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     ]);
 
     $file = $request->file('pdfFile');
+dd($file);
+    Log::debug(__METHOD__ . '@' . __LINE__, [
+        'file' => $file
+    ]);
 
     $importer = new \App\Services\Import\Importers\ViagemEspelhoFreteImporter();
 

@@ -26,7 +26,7 @@ enum TipoRelatorioDocumentoFreteEnum: string
             ],
             self::ESPELHO_FRETE_NFS_BRF => [
                 'class_importer' => ViagemEspelhoFreteImporter::class,
-                'file_type' => 'xlsx',
+                'file_type' => 'pdf',
             ],
         };
     }

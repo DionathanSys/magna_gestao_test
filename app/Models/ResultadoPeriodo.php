@@ -41,7 +41,7 @@ class ResultadoPeriodo extends Model
 
     public function abastecimentoFinal(): HasOne
     {
-        return dd($this->hasOne(Abastecimento::class)->ofMany('data_abastecimento', 'max'));
+        return $this->hasOne(Abastecimento::class)->ofMany('data_abastecimento', 'max');
     }
     
 }

@@ -19,6 +19,7 @@ class ResultadoPeriodoForm
             ->columns(6)
             ->components([
                 Select::make('veiculo_id')
+                    ->label('Veículo')
                     ->options(VeiculoCacheService::getPlacasAtivasForSelect())
                     ->columnSpan(3)
                     ->searchable()
@@ -39,7 +40,7 @@ class ResultadoPeriodoForm
                     ->required(),
                 Select::make('tipo_veiculo_id')
                     ->relationship('tipoVeiculo', 'descricao')
-                    ->columnSpan(3)
+                    ->columnSpanFull()
                     ->searchable()
                     ->required(),
                 DatePicker::make('data_inicio')
@@ -52,14 +53,16 @@ class ResultadoPeriodoForm
                     ->required(),
                 TextInput::make('km_inicial')
                     ->label('Km Inicial')
-                    ->columnSpan(3)
+                    ->columnStart(1)
+                    ->columnSpan(2)
                     ->numeric(),
                 TextInput::make('km_final')
                     ->label('Km Final')
-                    ->visibleOn('edit')
+                    ->columnSpan(2)
                     ->numeric(),
                 TextInput::make('km_percorrido')
                     ->label('Km Percorrido')
+                    ->columnSpan(2)
                     ->visibleOn('edit')
                     ->numeric(),
             ]);

@@ -39,14 +39,14 @@ class ResultadoPeriodoForm
                     ->required(),
                 TextInput::make('km_inicial')
                     ->label('Km Inicial')
-                    ->required()
                     ->numeric(),
                 TextInput::make('km_final')
                     ->label('Km Final')
-                    ->required()
+                    ->visibleOn('edit')
                     ->numeric(),
                 TextInput::make('km_percorrido')
                     ->label('Km Percorrido')
+                    ->visibleOn('edit')
                     ->numeric(),
             ]);
     }

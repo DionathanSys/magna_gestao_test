@@ -38,6 +38,9 @@ class ImportarDocumentoFretePdfAction
                     'data' => $data,
                 ]);
 
+                $file = $data['documento_frete'];
+                dd($file);
+                
                 if (!self::validate($data)) {
                     Log::warning('Validação falhou para importação de Documento Frete', [
                         'data' => $data,
@@ -47,8 +50,7 @@ class ImportarDocumentoFretePdfAction
                     return;
                 }
 
-                $file = $data['documento_frete'];
-                dd($file);
+                
                 Log::debug(__METHOD__ . '@' . __LINE__, [
                     'file' => $file
                 ]);

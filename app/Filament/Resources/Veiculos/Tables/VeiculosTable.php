@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Veiculos\Tables;
 
+use App\Enum\ClienteEnum;
 use App\Models\TipoVeiculo;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -121,6 +122,10 @@ class VeiculosTable
                 TextColumn::make('informacoes_complementares.codigo_imobilizado')
                     ->label('Código Imobilizado')
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                SelectColumn::make('informacoes_complementares.cliente')
+                    ->label('Cliente')
+                    ->options(ClienteEnum::toSelectArray())
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')

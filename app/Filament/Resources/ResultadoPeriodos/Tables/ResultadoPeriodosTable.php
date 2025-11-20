@@ -40,21 +40,21 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->date('d/m/Y')
                     ->sortable(),
-                TextColumn::make('km_inicial')
+                TextColumn::make('abastecimentoInicial.quilometragem')
                     ->label('Km Inicial')
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-                TextColumn::make('km_final')
+                TextColumn::make('abastecimentoFinal.quilometragem')
                     ->label('Km Final')
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-                TextColumn::make('km_percorrido')
-                    ->label('Km Percorrido')
-                    ->width('1%')
-                    ->numeric(0, ',', '.')
-                    ->sortable(),
+                // TextColumn::make('km_percorrido')
+                //     ->label('Km Percorrido')
+                //     ->width('1%')
+                //     ->numeric(0, ',', '.')
+                //     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')
@@ -84,7 +84,7 @@ class ResultadoPeriodosTable
                     ->label('Duplicar')
                     ->icon(Heroicon::DocumentDuplicate)
                     ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
-                    ->excludeAttributes(['created_at', 'updated_at'])
+                    ->excludeAttributes(['km_percorrido', 'created_at', 'updated_at'])
                     ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
             ])
             ->toolbarActions([

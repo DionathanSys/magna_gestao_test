@@ -5,6 +5,8 @@ namespace App\Filament\Resources\ResultadoPeriodos\Schemas;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class ResultadoPeriodoForm
@@ -15,9 +17,19 @@ class ResultadoPeriodoForm
             ->components([
                 Select::make('veiculo_id')
                     ->relationship('veiculo', 'placa')
-                    ->required(),
+                    ->searchable()
+                    ->required()
+                    ->afterStateUpdated(function (Set $set, Get $get) {
+                        $veiculo = \App\Models\Veiculo::find($get('veiculo_id'));
+                        if ($veiculo) {
+                            $set('tipo_veiculo_id', $veiculo->tipo_veiculo_id);
+                            return;
+                        }
+                        $set('tipo_veiculo_id', null);
+                    }),
                 Select::make('tipo_veiculo_id')
                     ->relationship('tipoVeiculo', 'descricao')
+                    ->searchable()
                     ->required(),
                 DatePicker::make('data_inicio')
                     ->label('Data Início')

@@ -49,7 +49,7 @@ class ImportarAbastecimentos
             ->whereNull('resultado_periodo_id');
 
         if ($this->considerarPeriodo) {
-            $query->whereBetween('data_competencia', [
+            $query->whereBetween('data_abastecimento', [
                 $this->resultadoPeriodo->data_inicio,
                 $this->resultadoPeriodo->data_fim,
             ]);

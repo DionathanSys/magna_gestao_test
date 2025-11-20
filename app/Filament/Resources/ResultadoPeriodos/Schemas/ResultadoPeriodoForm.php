@@ -22,6 +22,7 @@ class ResultadoPeriodoForm
                     ->columnSpan(3)
                     ->searchable()
                     ->required()
+                    ->live(onBlur: true)
                     ->afterStateUpdated(function (Set $set, Get $get) {
                         $veiculo = \App\Models\Veiculo::find($get('veiculo_id'));
                         if ($veiculo) {

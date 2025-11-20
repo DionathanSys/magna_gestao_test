@@ -159,6 +159,7 @@ class DocumentoFretesTable
                 ]),
                 ActionGroup::make([
                     Actions\VincularViagemDocumentoBulkAction::make(),
+                    Actions\ImportarDocumentoFretePdfAction::make(),
                     CreateAction::make()
                         ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'parceiro_origem', 'documento_transporte', 'tipo_documento', 'data_emissao', 'valor_total']),
                     Actions\ImportarDocumentoFreteAction::make(),

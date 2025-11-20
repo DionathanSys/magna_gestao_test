@@ -36,7 +36,6 @@ class ImportarDocumentoFretePdfAction
                     ->maxSize(5120)
                     ->disk(self::DISK)
                     ->directory('temp-documento-fretes')
-                    ->storeFiles(false)
                     ->required()
                     ->downloadable()
                     ->previewable()

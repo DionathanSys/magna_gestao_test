@@ -50,9 +50,9 @@ class ResultadoPeriodoResource extends Resource
     {
         return [
             'index' => ListResultadoPeriodos::route('/'),
-            'create' => CreateResultadoPeriodo::route('/create'),
+            // 'create' => CreateResultadoPeriodo::route('/create'),
             'view' => ViewResultadoPeriodo::route('/{record}'),
-            'edit' => EditResultadoPeriodo::route('/{record}/edit'),
+            // 'edit' => EditResultadoPeriodo::route('/{record}/edit'),
         ];
     }
 }

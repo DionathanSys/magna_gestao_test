@@ -16,9 +16,7 @@ class ViagemBugioService
     {
         try {
 
-            Log::debug($data['integrados']);
-            die();
-            // $data['destinos'] = $this->mutateIntegrados($data['integrados']);
+            $data['destinos'] = $this->mutateIntegrados($data['integrados']);
             unset($data['integrados']);
 
 
@@ -39,6 +37,13 @@ class ViagemBugioService
 
     private function mutateIntegrados(array $integrados)
     {
-        // return json_encode($integrados);
+        $destinos = [];
+
+        foreach ($integrados as &$integrado) {
+            $destino['integrado_id']    = $integrado['integrado_id'];
+            $destino['km_rota']         = $integrado['km_rota'];
+
+        }
+        return $integrados;
     }
 }

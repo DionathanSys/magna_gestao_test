@@ -6,6 +6,9 @@ use App\Filament\Resources\ResultadoPeriodos\Pages\CreateResultadoPeriodo;
 use App\Filament\Resources\ResultadoPeriodos\Pages\EditResultadoPeriodo;
 use App\Filament\Resources\ResultadoPeriodos\Pages\ListResultadoPeriodos;
 use App\Filament\Resources\ResultadoPeriodos\Pages\ViewResultadoPeriodo;
+use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
+use App\Filament\Resources\ResultadoPeriodos\RelationManagers\DocumentosFreteRelationManager;
+use App\Filament\Resources\ResultadoPeriodos\RelationManagers\ViagensRelationManager;
 use App\Filament\Resources\ResultadoPeriodos\Schemas\ResultadoPeriodoForm;
 use App\Filament\Resources\ResultadoPeriodos\Schemas\ResultadoPeriodoInfolist;
 use App\Filament\Resources\ResultadoPeriodos\Tables\ResultadoPeriodosTable;
@@ -42,7 +45,9 @@ class ResultadoPeriodoResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AbastecimentosRelationManager::class,
+            ViagensRelationManager::class,
+            DocumentosFreteRelationManager::class,
         ];
     }
 

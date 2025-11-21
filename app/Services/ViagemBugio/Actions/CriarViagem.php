@@ -15,7 +15,7 @@ class CriarViagem
 
     public function validate(array $data): void
     {
-        Validator::make($data, [
+        $validator = Validator::make($data, [
             'destinos'          => 'required|array|size:min:1',
             'data_competencia'  => 'required|date',
             'km_rodado'         => 'required|numeric|min:0',
@@ -26,6 +26,17 @@ class CriarViagem
             'observacao'        => 'nullable|string|max:1000',
             'status'            => 'nullable|string|max:255',
             'created_by'        => 'required|integer|exists:users,id',
-        ])->validate();
+        ], [
+            
+        ]);
+
+        if ($validator->fails()) {
+            throw new \InvalidArgumentException($validator->errors()->first());
+        }
+
+        $validatorDestinos = Validator::make(['destinos' => $data['destinos']], [
+            'destinos.*.integrado_id'   => 'required|integer|exists:integrados,id',
+            'destinos.*.km_rota'        => 'required|numeric|min:0',
+        ]);
     }
 }

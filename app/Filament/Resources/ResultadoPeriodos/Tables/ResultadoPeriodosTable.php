@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ResultadoPeriodos\Tables;
 
 use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use App\Filament\Resources\ResultadoPeriodos\Actions;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -106,15 +107,17 @@ class ResultadoPeriodosTable
                     ->label('Tipo Veículo'),
             ])
             ->recordActions([
-                Actions\ImportarRegistrosAction::make(),
-                ViewAction::make(),
-                EditAction::make(),
-                ReplicateAction::make()
-                    ->label('Duplicar')
-                    ->icon(Heroicon::DocumentDuplicate)
-                    ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
-                    ->excludeAttributes(['km_percorrido', 'created_at', 'updated_at'])
-                    ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
+                ActionGroup::make([
+                    Actions\ImportarRegistrosAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
+                    ReplicateAction::make()
+                        ->label('Duplicar')
+                        ->icon(Heroicon::DocumentDuplicate)
+                        ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
+                        ->excludeAttributes(['km_percorrido', 'created_at', 'updated_at'])
+                        ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

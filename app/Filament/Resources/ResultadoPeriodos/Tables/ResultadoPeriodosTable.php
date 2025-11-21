@@ -23,9 +23,9 @@ class ResultadoPeriodosTable
         return $table
             ->modifyQueryUsing(function ($query) {
                 $query = $query->with(['veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal']);
-                return $query->withSum('documentosFrete as frete', 'valor_liquido')
-                    ->withSum('viagens', 'km_pago')
-                    ->withSum('abastecimentos', 'preco_total');
+                // return $query->withSum('documentosFrete as frete', 'valor_liquido')
+                //     ->withSum('viagens', 'km_pago')
+                //     ->withSum('abastecimentos', 'preco_total');
             })
             ->columns([
                 TextColumn::make('veiculo.placa')
@@ -60,10 +60,10 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-                TextColumn::make('frete_sum_valor_liquido')
+                TextColumn::make('documentosFrete_sum_valorLiquido')
                 ->label('Receita')
                 ->money('BRL')
-                ->sum('documentosFrete', 'valor_liquido'), // Filament cuida da conversão
+                ->sum('documentosFrete', 'valorLiquido'), // Filament cuida da conversão
 
             // TextColumn::make('viagens_sum_km_pago')
             //     ->label('KM Pago')

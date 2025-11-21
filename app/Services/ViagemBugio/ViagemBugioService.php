@@ -15,6 +15,13 @@ class ViagemBugioService
     public function criarViagem(array $data): ?Models\ViagemBugio
     {
         try {
+
+            Log::debug($data['integrados']);
+            die();
+            // $data['destinos'] = $this->mutateIntegrados($data['integrados']);
+            unset($data['integrados']);
+
+
             $action = new Actions\CriarViagem();
             $viagem = $action->handle($data);
             $this->setSuccess('Viagem criada com sucesso!');
@@ -28,5 +35,10 @@ class ViagemBugioService
             $this->setError('Erro ao criar viagem', ['error' => $e->getMessage()]);
             return null;
         }
+    }
+
+    private function mutateIntegrados(array $integrados)
+    {
+        // return json_encode($integrados);
     }
 }

@@ -4,7 +4,7 @@ namespace App\DTO;
 
 use App\Models\Integrado;
 
-class IntegradoCteDTO
+class IntegradoCteDto
 {
     private ?Integrado $integrado = null;
 

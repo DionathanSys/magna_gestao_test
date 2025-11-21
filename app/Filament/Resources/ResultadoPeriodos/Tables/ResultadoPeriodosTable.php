@@ -22,7 +22,10 @@ class ResultadoPeriodosTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                return $query->with(['veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal']);
+                $query = $query->with(['veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal']);
+                return $query->withSum('documentosFrete as documentos_frete', 'valor_liquido')
+                    ->withSum('viagens', 'km_pago')
+                    ->withSum('abastecimentos', 'preco_total');
             })
             ->columns([
                 TextColumn::make('veiculo.placa')
@@ -57,33 +60,32 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-                TextColumn::make('documentosFrete_sum_valor_liquido')
-                    ->label('Km Percorrido')
-                    ->sum('documentosFrete', 'valor_liquido')
-                    ->width('1%')
+                TextColumn::make('documentos_frete_sum_valor_liquido')
+                ->label('Receita')
+                ->money('BRL')
+                ->summarize(Sum::make()
                     ->money('BRL')
-                    ->sortable()
-                    ->summarize(Sum::make()
-                        ->money('BRL', 100))
-                    ->sortable(),
-                TextColumn::make('viagens_sum_km_pago')
-                    ->label('Km Pago')
-                    ->sum('viagens', 'km_pago')
-                    ->width('1%')
+                    ->label('Total Receita')
+                ),
+
+            TextColumn::make('viagens_sum_km_pago')
+                ->label('KM Pago')
+                ->numeric(0)
+                ->suffix(' km')
+                ->summarize(Sum::make()
+                    ->numeric(0)
+                    ->suffix(' km')
+                    ->label('Total KM')
+                ),
+
+            TextColumn::make('abastecimentos_sum_preco_total')
+                ->label('Combustível')
+                ->money('BRL')
+                ->summarize(Sum::make()
                     ->money('BRL')
-                    ->sortable()
-                    ->summarize(Sum::make()
-                        ->numeric(0, ',', '.'))
-                    ->sortable(),
-                TextColumn::make('abastecimentos_sum_preco_total')
-                    ->label('Custo Abastecimento')
-                    ->sum('abastecimentos', 'preco_total')
-                    ->width('1%')
-                    ->money('BRL')
-                    ->sortable()
-                    ->summarize(Sum::make()
-                        ->money('BRL', 100))
-                    ->sortable(),
+                    ->label('Total Combustível')
+                ),
+
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')
@@ -95,9 +97,7 @@ class ResultadoPeriodosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                
-            ])
+            ->filters([])
             ->groups([
                 Group::make('data_inicio')
                     ->label('Data Início'),

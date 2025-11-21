@@ -29,7 +29,7 @@ class ResultadoPeriodo extends Model
         return $this->hasMany(Viagem::class);
     }
 
-    public function documentosFrete(): HasMany
+    public function documentos(): HasMany
     {
         return $this->hasMany(DocumentoFrete::class);
     }

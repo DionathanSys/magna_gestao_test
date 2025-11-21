@@ -66,48 +66,61 @@ class AbastecimentosRelationManager extends RelationManager
             ->recordTitleAttribute('resultado_periodo_id')
             ->columns([
                 TextColumn::make('id_abastecimento')
+                    ->label('ID Abastecimento')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('veiculo.id')
+                    ->sortable()
                     ->searchable(),
+                TextColumn::make('veiculo.placa')
+                    ->label('Veículo'),
                 TextColumn::make('quilometragem')
-                    ->searchable(),
+                    ->numeric(0, ',', '.'),
                 TextColumn::make('posto_combustivel')
-                    ->searchable(),
+                    ->label('Posto Combustível'),
                 TextColumn::make('tipo_combustivel')
-                    ->badge()
-                    ->searchable(),
+                    ->label('Tipo Combustível')
+                    ->badge(),
                 TextColumn::make('quantidade')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(2, ',', '.')
+                    ->sortable()
+                    ->summarize(Sum::make()
+                        ->numeric(2, ',', '.')
+                        ->label('Total Lts.')
+                    ),
                 TextColumn::make('preco_por_litro')
-                    ->numeric()
+                    ->label('Vlr. Litro')
+                    ->money('BRL', 100)
                     ->sortable(),
                 TextColumn::make('preco_total')
-                    ->numeric()
+                    ->label('Vlr. Total')
+                    ->money('BRL', 100)
                     ->sortable()
                     ->summarize(Sum::make()
                         ->money('BRL', 100)
-                        ->label('Total Combustível')
+                        ->label('Vlr. Total')
                     ),
                 TextColumn::make('data_abastecimento')
-                    ->dateTime()
+                    ->label('Dt. Abastecimento')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 IconColumn::make('considerar_fechamento')
+                    ->label('Considerar Fechamento')
                     ->boolean(),
                 IconColumn::make('considerar_calculo_medio')
+                    ->label('Considerar Cálculo Médio')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                
             ])
             ->headerActions([
                 CreateAction::make(),

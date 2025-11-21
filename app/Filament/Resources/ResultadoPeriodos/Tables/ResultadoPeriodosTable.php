@@ -60,10 +60,10 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-                TextColumn::make('documentosFrete_sum_valorLiquido')
+                TextColumn::make('documentos_sum_valorLiquido')
                     ->label('Receita')
                     ->money('BRL')
-                    ->sum('documentosFrete', 'valorLiquido'), // Filament cuida da conversão
+                    ->sum('documentos', 'valorLiquido'), // Filament cuida da conversão
                 TextColumn::make('viagens_sum_km_pago')
                     ->label('KM Pago')
                     ->sum('viagens', 'km_pago'),

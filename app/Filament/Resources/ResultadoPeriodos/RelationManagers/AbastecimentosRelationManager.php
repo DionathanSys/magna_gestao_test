@@ -18,6 +18,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -84,7 +85,11 @@ class AbastecimentosRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('preco_total')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()
+                        ->money('BRL')
+                        ->label('Total Combustível')
+                    ),
                 TextColumn::make('data_abastecimento')
                     ->dateTime()
                     ->sortable(),

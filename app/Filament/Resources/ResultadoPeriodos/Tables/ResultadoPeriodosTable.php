@@ -65,23 +65,23 @@ class ResultadoPeriodosTable
                 ->money('BRL')
                 ->sum('documentosFrete', 'valor_liquido'), // Filament cuida da conversão
 
-            TextColumn::make('viagens_sum_km_pago')
-                ->label('KM Pago')
-                ->numeric(0)
-                ->suffix(' km')
-                ->summarize(Sum::make()
-                    ->numeric(0)
-                    ->suffix(' km')
-                    ->label('Total KM')
-                ),
+            // TextColumn::make('viagens_sum_km_pago')
+            //     ->label('KM Pago')
+            //     ->numeric(0)
+            //     ->suffix(' km')
+            //     ->summarize(Sum::make()
+            //         ->numeric(0)
+            //         ->suffix(' km')
+            //         ->label('Total KM')
+            //     ),
 
-            TextColumn::make('abastecimentos_sum_preco_total')
-                ->label('Combustível')
-                ->money('BRL')
-                ->summarize(Sum::make()
-                    ->money('BRL')
-                    ->label('Total Combustível')
-                ),
+            // TextColumn::make('abastecimentos_sum_preco_total')
+            //     ->label('Combustível')
+            //     ->money('BRL')
+            //     ->summarize(Sum::make()
+            //         ->money('BRL')
+            //         ->label('Total Combustível')
+            //     ),
 
                 TextColumn::make('created_at')
                     ->label('Criado em')

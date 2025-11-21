@@ -21,7 +21,7 @@ use Filament\Tables\Table;
 
 class DocumentosFreteRelationManager extends RelationManager
 {
-    protected static string $relationship = 'documentosFrete';
+    protected static string $relationship = 'documentos';
 
     public function form(Schema $schema): Schema
     {

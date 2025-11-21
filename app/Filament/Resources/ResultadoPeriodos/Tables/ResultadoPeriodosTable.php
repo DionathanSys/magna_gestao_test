@@ -55,6 +55,15 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
+                TextColumn::make('km_percorrido_calculado')
+                    ->label('Km Percorrido')
+                    ->width('1%')
+                    ->getStateUsing(function ($record) {
+                        $kmInicial = $record->abastecimentoInicial?->ultimo_abastecimento_anterior?->quilometragem ?? 0;
+                        $kmFinal = $record->abastecimentoFinal?->quilometragem ?? 0;
+                        return $kmFinal - $kmInicial;
+                    })
+                    ->numeric(0, ',', '.'),
                 TextColumn::make('abastecimentoFinal.id')
                     ->label('Km Percorrido')
                     ->width('1%')
@@ -62,10 +71,11 @@ class ResultadoPeriodosTable
                     ->sortable(),
                 TextColumn::make('documentos_sum_valor_liquido')
                     ->label('Receita')
-                    ->money('BRL')
+                    ->money('BRL', 100)
                     ->sum('documentos', 'valor_liquido'), // Filament cuida da conversão
                 TextColumn::make('viagens_sum_km_pago')
                     ->label('KM Pago')
+                    ->numeric(2, ',', '.')
                     ->sum('viagens', 'km_pago'),
                 TextColumn::make('abastecimentos_sum_preco_total')
                     ->label('Combustível')

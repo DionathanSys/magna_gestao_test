@@ -19,6 +19,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -85,67 +86,101 @@ class ViagensRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('resultado_periodo_id')
             ->columns([
-                TextColumn::make('veiculo_id')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('numero_viagem')
+                    ->label('Nº Viagem')
                     ->searchable(),
                 TextColumn::make('documento_transporte')
+                    ->label('Doc. Transporte')
                     ->searchable(),
                 TextColumn::make('km_rodado')
-                    ->numeric()
+                    ->label('Km Rodado')
+                    ->numeric(2, ',', '.')
+                    ->summarize(
+                        Sum::make()
+                            ->numeric(2, ',', '.')
+                            ->label('Total Km Rodado')
+                    )
                     ->sortable(),
                 TextColumn::make('km_pago')
-                    ->numeric()
+                    ->label('Km Pago')
+                    ->numeric(2, ',', '.')
+                    ->summarize(
+                        Sum::make()
+                            ->numeric(2, ',', '.')
+                            ->label('Total Km Pago')
+                    )
                     ->sortable(),
-                TextColumn::make('km_cadastro')
-                    ->numeric()
+                TextColumn::make('km_dispersao')
+                    ->label('Km Dispersão')
+                    ->numeric(2, ',', '.')
+                    ->sortable()
+                    ->summarize(
+                        Sum::make()
+                            ->numeric(2, ',', '.')
+                            ->label('Total Km Dispersão')
+                    ),
+                TextColumn::make('dispersao_percentual')
+                    ->label('Dispersão Percentual')
+                    ->suffix('%')
+                    ->numeric(2, ',', '.')
                     ->sortable(),
                 TextColumn::make('km_cobrar')
-                    ->numeric()
+                    ->label('Km Cobrar')
+                    ->numeric(2, ',', '.')
+                    ->summarize(
+                        Sum::make()
+                            ->numeric(2, ',', '.')
+                            ->label('Total Km Cobrar')
+                    )
                     ->sortable(),
                 TextColumn::make('motivo_divergencia')
+                    ->label('Motivo Divergência')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('data_competencia')
-                    ->date()
+                    ->label('Dt. Competência')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('data_inicio')
-                    ->dateTime()
+                    ->label('Dt. Início')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('data_fim')
-                    ->dateTime()
+                    ->label('Dt. Fim')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 IconColumn::make('conferido')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_by')
+                    ->label('Criado por')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('updated_by')
+                    ->label('Atualizado por')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('checked_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('km_dispersao')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('dispersao_percentual')
+                    ->label('Verificado por')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('condutor')
+                    ->label('Condutor')
                     ->searchable(),
                 IconColumn::make('considerar_relatorio')
+                    ->label('Considerar Relatório')
                     ->boolean(),
                 TextColumn::make('unidade_negocio')
+                    ->label('Unidade de Negócio')
                     ->searchable(),
             ])
             ->filters([

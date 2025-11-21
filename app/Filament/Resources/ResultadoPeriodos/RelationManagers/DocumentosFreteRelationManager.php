@@ -16,6 +16,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -60,44 +61,66 @@ class DocumentosFreteRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('resultado_periodo_id')
             ->columns([
-                TextColumn::make('veiculo.id')
-                    ->searchable(),
                 TextColumn::make('parceiro_origem')
+                    ->label('Parceiro Origem')
                     ->searchable(),
                 TextColumn::make('parceiro_destino')
+                    ->label('Parceiro Destino')
                     ->searchable(),
                 TextColumn::make('numero_documento')
+                    ->label('Nº Documento')
                     ->searchable(),
                 TextColumn::make('documento_transporte')
+                    ->label('Documento Transporte')
                     ->searchable(),
                 TextColumn::make('tipo_documento')
+                    ->label('Tipo Documento')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('data_emissao')
-                    ->date()
+                    ->label('Dt. Emissão')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('valor_total')
-                    ->numeric()
+                    ->money('BRL')
+                    ->summarize(
+                        Sum::make()
+                            ->money('BRL', 100)
+                            ->label('TT Valor Total')
+                    )
                     ->sortable(),
                 TextColumn::make('valor_icms')
-                    ->numeric()
+                    ->money('BRL')
+                    ->summarize(
+                        Sum::make()
+                            ->money('BRL', 100)
+                            ->label('TT Vlr. ICMS')
+                    )
                     ->sortable(),
                 TextColumn::make('valor_liquido')
-                    ->numeric()
+                    ->money('BRL')
+                    ->summarize(
+                        Sum::make()
+                            ->money('BRL', 100)
+                            ->label('TT Vlr. Líquido')
+                    )
                     ->sortable(),
                 TextColumn::make('municipio')
                     ->searchable(),
                 TextColumn::make('estado')
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('viagem.id')
+                    ->label('Viagem ID')
                     ->searchable(),
             ])
             ->filters([

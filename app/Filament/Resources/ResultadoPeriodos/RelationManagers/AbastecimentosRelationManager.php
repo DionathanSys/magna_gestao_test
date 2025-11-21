@@ -88,12 +88,12 @@ class AbastecimentosRelationManager extends RelationManager
                     ),
                 TextColumn::make('preco_por_litro')
                     ->label('Vlr. Litro')
-                    ->money('BRL', 100)
+                    ->money('BRL')
                     ->sortable(),
                 TextColumn::make('preco_total')
                     ->label('Vlr. Total')
-                    ->money('BRL', 100)
                     ->sortable()
+                    ->money('BRL')
                     ->summarize(Sum::make()
                         ->money('BRL', 100)
                         ->label('Vlr. Total')

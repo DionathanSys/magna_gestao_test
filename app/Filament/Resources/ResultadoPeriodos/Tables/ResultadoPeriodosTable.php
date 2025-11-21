@@ -115,7 +115,12 @@ class ResultadoPeriodosTable
                         ->label('Duplicar')
                         ->icon(Heroicon::DocumentDuplicate)
                         ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
-                        ->excludeAttributes(['km_percorrido', 'created_at', 'updated_at'])
+                        ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
+       
+                        // ->mutateRecordDataUsing(function (array $data): array {
+                        //     dd($data);
+                        //     return $data;
+                        // })
                         ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
                 ]),
             ])

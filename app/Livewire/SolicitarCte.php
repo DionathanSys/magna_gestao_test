@@ -177,6 +177,8 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
 
+        unset($data['anexos']);
+
         CriarViagemBugioJob::dispatch($data);
 
         notify::success('Solicitação de CTe enviada com sucesso!');

@@ -87,7 +87,7 @@ class AbastecimentosRelationManager extends RelationManager
                     ->numeric()
                     ->sortable()
                     ->summarize(Sum::make()
-                        ->money('BRL')
+                        ->money('BRL', 100)
                         ->label('Total Combustível')
                     ),
                 TextColumn::make('data_abastecimento')

@@ -69,7 +69,7 @@ class ResultadoPeriodosTable
                     ->sum('viagens', 'km_pago'),
                 TextColumn::make('abastecimentos_sum_preco_total')
                     ->label('Combustível')
-                    ->money('BRL')
+                    ->money('BRL', 100)
                     ->sum('abastecimentos', 'preco_total'),
                 TextColumn::make('created_at')
                     ->label('Criado em')

@@ -57,9 +57,9 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-                TextColumn::make('documentosFrete_sum_valorLiquido')
+                TextColumn::make('documentosFrete_sum_valor_liquido')
                     ->label('Km Percorrido')
-                    ->sum('documentosFrete', 'valorLiquido')
+                    ->sum('documentosFrete', 'valor_liquido')
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()
@@ -75,9 +75,9 @@ class ResultadoPeriodosTable
                     ->summarize(Sum::make()
                         ->numeric(0, ',', '.'))
                     ->sortable(),
-                TextColumn::make('abastecimentos_sum_precoTotal')
+                TextColumn::make('abastecimentos_sum_preco_total')
                     ->label('Custo Abastecimento')
-                    ->sum('abastecimentos', 'precoTotal')
+                    ->sum('abastecimentos', 'preco_total')
                     ->width('1%')
                     ->money('BRL')
                     ->sortable()

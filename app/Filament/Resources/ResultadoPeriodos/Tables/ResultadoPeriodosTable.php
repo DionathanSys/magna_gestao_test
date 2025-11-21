@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Tables;
 
+use App\Enum\StatusDiversosEnum;
 use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use App\Filament\Resources\ResultadoPeriodos\Actions;
+use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -14,8 +16,11 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ResultadoPeriodosTable
 {
@@ -96,8 +101,24 @@ class ResultadoPeriodosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->persistFiltersInSession()
             ->reorderableColumns()
-            ->filters([])
+            ->filters([
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options(StatusDiversosEnum::toSelectArray())
+                    ->default(StatusDiversosEnum::PENDENTE->value),
+                SelectFilter::make('veiculo_id')
+                    ->label('Veículo')
+                    ->options(VeiculoCacheService::getPlacasAtivasForSelect()),
+                DateRangeFilter::make('data_abastecimento')
+                    ->label('Dt. Abastecimento')
+                    ->drops(DropDirection::AUTO)
+                    ->icon('heroicon-o-backspace')
+                    ->alwaysShowCalendar()
+                    ->autoApply()
+                    ->firstDayOfWeek(0),
+            ])
             ->groups([
                 Group::make('data_inicio')
                     ->label('Data Início'),

@@ -35,7 +35,7 @@ class PayloadCteDTO
             quantidadeCte: (int) $quantidadeCte,
             anexos: $data['anexos'] ?? [],
             integrados: collect($data['integrados'] ?? [])->map(fn($item) =>
-                new IntegradoCteDTO(
+                new IntegradoCteDto(
                     integradoId: (int) $item['integrado_id'],
                     kmRota: (float) ($item['km_rota'] ?? 0)
                 )

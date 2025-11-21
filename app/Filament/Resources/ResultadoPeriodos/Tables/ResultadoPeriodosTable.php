@@ -23,6 +23,7 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use App\Services\NotificacaoService as notify;
+use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Collection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 

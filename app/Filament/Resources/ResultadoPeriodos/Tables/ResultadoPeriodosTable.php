@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Tables;
 
+use App\{Models, Services};
 use App\Enum\StatusDiversosEnum;
 use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use App\Filament\Resources\ResultadoPeriodos\Actions;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -20,6 +22,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
+use App\Services\NotificacaoService as notify;
+use Illuminate\Support\Collection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ResultadoPeriodosTable
@@ -137,7 +141,7 @@ class ResultadoPeriodosTable
                         ->icon(Heroicon::DocumentDuplicate)
                         ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
                         ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
-       
+
                         // ->mutateRecordDataUsing(function (array $data): array {
                         //     dd($data);
                         //     return $data;
@@ -148,6 +152,26 @@ class ResultadoPeriodosTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    BulkAction::make('vincular_registros_resultado')
+                        ->label('Importar Registros')
+                        ->icon(Heroicon::ArrowUpOnSquare)
+                        ->schema(function (Schema $schema): Schema {
+                            return $schema
+                                ->columns(1)
+                                ->components([
+                                    Toggle::make('considerar_periodo')
+                                        ->label('Considerar Período')
+                                        ->helperText('Se ativado, apenas os registros dentro do período definido serão importados.')
+                                        ->default(true),
+                                ]);
+                        })
+                        ->action(function (Collection $records, array $data) {
+                            $records->each(function (Models\ResultadoPeriodo $record) use ($data) {
+                                $service = new Services\ResultadoPeriodo\ResultadoPeriodoService();
+                                $service->importarRegistros($record->id, $data['considerar_periodo']);
+                            });
+                            notify::success(mensagem: 'Importação concluída com sucesso!');
+                        }),
                 ]),
             ]);
     }

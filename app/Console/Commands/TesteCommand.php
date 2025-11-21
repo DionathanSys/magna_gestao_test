@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\VincularRegistroResultadoJob;
 use Illuminate\Console\Command;
 use App\Models;
 use App\Models\ImportLog;
@@ -33,6 +34,7 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $d = db_config('config-viagem');
+        VincularRegistroResultadoJob::dispatch(1032, Models\Abastecimento::class);
+
     }
 }

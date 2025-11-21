@@ -3,6 +3,7 @@
 namespace App\Services\Viagem;
 
 use App\DTO\ViagemDTO;
+use App\Jobs\VincularRegistroResultadoJob;
 use App\Models;
 use App\Services;
 use App\Traits\ServiceResponseTrait;
@@ -36,6 +37,13 @@ class ViagemService
             }
 
             if ($viagem) {
+
+                VincularRegistroResultadoJob::dispatch($viagem->id, Models\Viagem::class);
+
+                Log::info('Job de vinculação de registro de resultado despachado para viagem ID: ' . $viagem->id, [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                ]);
+
                 $this->setSuccess('Viagem criada com sucesso!');
             }
 

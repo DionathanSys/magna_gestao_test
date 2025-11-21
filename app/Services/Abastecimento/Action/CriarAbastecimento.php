@@ -2,6 +2,7 @@
 
 namespace App\Services\Abastecimento\Action;
 
+use App\Jobs\VincularRegistroResultadoJob;
 use App\Models;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +21,7 @@ class CriarAbastecimento
         $this->validate($data);
 
         if (!$this->hasErrors) {
-            return Models\Abastecimento::create($data);
+           return Models\Abastecimento::create($data);
         }
 
         return null;

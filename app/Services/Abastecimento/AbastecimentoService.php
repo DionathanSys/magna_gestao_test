@@ -3,6 +3,7 @@
 namespace App\Services\Abastecimento;
 
 use App\{Models, Services};
+use App\Jobs\VincularRegistroResultadoJob;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Log;
 
@@ -21,6 +22,12 @@ class AbastecimentoService
                 $this->setError('Erro ao criar abastecimento', $action->errors);
                 return null;
             }
+
+            VincularRegistroResultadoJob::dispatch($abastecimento->id, Models\Abastecimento::class);
+
+            Log::info('Job de vinculação de registro de resultado despachado para abastecimento ID: ' . $abastecimento->id, [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+            ]);
 
             Log::info('Abastecimento criado com sucesso ID: '. $abastecimento->id_abastecimento ?? 'null', [
                 'metodo'        => __METHOD__.'@'.__LINE__,

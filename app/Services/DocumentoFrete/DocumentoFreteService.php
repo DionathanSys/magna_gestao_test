@@ -5,6 +5,7 @@ namespace App\Services\DocumentoFrete;
 use App\Contracts\XlsxImportInterface;
 use App\Jobs\ProcessXlsxRowJob;
 use App\{Models, Services};
+use App\Jobs\VincularRegistroResultadoJob;
 use App\Jobs\VincularViagemDocumentoFrete;
 use App\Services\DocumentoFrete\Actions\VincularViagemDocumento;
 use App\Traits\ServiceResponseTrait;
@@ -29,20 +30,25 @@ class DocumentoFreteService
             $action = new Actions\RegistrarDocumentoFrete();
             $documentoFrete = $action->handle($dados);
 
-            if (!$documentoFrete){
+            if (!$documentoFrete) {
                 $this->setWarning('Documento de frete não foi registrado.');
                 VincularViagemDocumentoFrete::dispatch($dados['documento_transporte']);
                 return;
             }
 
+            VincularRegistroResultadoJob::dispatch($documentoFrete->id, Models\DocumentoFrete::class);
+
+            Log::info('Job de vinculação de registro de resultado despachado para documento de frete ID: ' . $documentoFrete->id, [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+            ]);
+
             $this->setSuccess('Documento registrado com sucesso.');
 
             VincularViagemDocumentoFrete::dispatch($dados['documento_transporte']);
-
         } catch (\Exception $e) {
 
             Log::error('Erro ao criar documento de frete.', [
-                'metodo' => __METHOD__.'@'.__LINE__,
+                'metodo' => __METHOD__ . '@' . __LINE__,
                 'dados' => $dados,
                 'error' => $e->getMessage()
             ]);
@@ -51,7 +57,6 @@ class DocumentoFreteService
                 'error' => $this->getData(),
             ]);
         }
-
     }
 
     public function importarRelatorioDocumentoFrete(XlsxImportInterface $importer, string $fileName): void
@@ -195,9 +200,8 @@ class DocumentoFreteService
 
             $this->setSuccess("Documento de frete vinculado à viagem {$viagem->id} com sucesso.");
             return $documentoFrete;
-
         } catch (\Exception $e) {
-            Log::error(__METHOD__.'@'.__LINE__, [
+            Log::error(__METHOD__ . '@' . __LINE__, [
                 'error' => $e->getMessage(),
                 'documento_transporte' => $documentoTransporte,
             ]);
@@ -207,6 +211,5 @@ class DocumentoFreteService
             ]);
             return null;
         }
-
     }
 }

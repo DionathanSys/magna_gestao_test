@@ -64,10 +64,6 @@ class ResultadoPeriodosTable
                         return $kmFinal - $kmInicial;
                     })
                     ->numeric(0, ',', '.'),
-                TextColumn::make('documentos_sum_valor_liquido')
-                    ->label('Receita')
-                    ->money('BRL', 100)
-                    ->sum('documentos', 'valor_liquido'), // Filament cuida da conversão
                 TextColumn::make('viagens_sum_km_rodado')
                     ->label('KM Rodado Viagens')
                     ->numeric(2, ',', '.')
@@ -80,6 +76,10 @@ class ResultadoPeriodosTable
                     ->label('Qtde. Viagens')
                     ->numeric(2, ',', '.')
                     ->counts('viagens'),
+                TextColumn::make('documentos_sum_valor_liquido')
+                    ->label('Receita')
+                    ->money('BRL', 100)
+                    ->sum('documentos', 'valor_liquido'),
                 TextColumn::make('abastecimentos_sum_preco_total')
                     ->label('Combustível')
                     ->money('BRL', 100)
@@ -95,6 +95,7 @@ class ResultadoPeriodosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->reorderableColumns()
             ->filters([])
             ->groups([
                 Group::make('data_inicio')

@@ -11,6 +11,7 @@ use Filament\Actions\ReplicateAction;
 use Filament\Actions\ViewAction;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
@@ -60,19 +61,28 @@ class ResultadoPeriodosTable
                     ->label('Km Percorrido')
                     ->sum('documentosFrete', 'valor_liquido')
                     ->width('1%')
-                    ->numeric(0, ',', '.')
+                    ->money('BRL')
+                    ->sortable()
+                    ->summarize(Sum::make()
+                        ->money('BRL', 100))
                     ->sortable(),
                 TextColumn::make('viagens_sum_km_pago')
                     ->label('Km Pago')
                     ->sum('viagens', 'km_pago')
                     ->width('1%')
-                    ->numeric(0, ',', '.')
+                    ->money('BRL')
+                    ->sortable()
+                    ->summarize(Sum::make()
+                        ->numeric(0, ',', '.'))
                     ->sortable(),
                 TextColumn::make('abastecimentos_sum_preco_total')
                     ->label('Custo Abastecimento')
                     ->sum('abastecimentos', 'preco_total')
                     ->width('1%')
-                    ->numeric(0, ',', '.')
+                    ->money('BRL')
+                    ->sortable()
+                    ->summarize(Sum::make()
+                        ->money('BRL', 100))
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Criado em')

@@ -118,8 +118,7 @@ class ResultadoPeriodosTable
                         $state < 0 => 'heroicon-o-arrow-trending-down',
                         default => 'heroicon-o-arrow-trending-up',
                     })
-                    ->tooltip('Faturamento - Combustível - Manutenção')
-                    ->summarize(Sum::make()->money('BRL', 100)),
+                    ->tooltip('Faturamento - Combustível - Manutenção'),
 
                 // ⭐ Faturamento por KM Rodado
                 TextColumn::make('faturamento_por_km_rodado')
@@ -127,12 +126,7 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->money('BRL', 100)
                     ->description('R$/Km')
-                    ->tooltip('Faturamento dividido pelo KM Rodado (abastecimentos)')
-                    ->summarize(
-                        Average::make()
-                            ->money('BRL', 100)
-                            ->label('Média')
-                    ),
+                    ->tooltip('Faturamento dividido pelo KM Rodado (abastecimentos)'),
 
                 // ⭐ Faturamento por KM Pago
                 TextColumn::make('faturamento_por_km_pago')
@@ -140,12 +134,7 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->money('BRL', 100)
                     ->description('R$/Km')
-                    ->tooltip('Faturamento dividido pelo KM Pago (viagens)')
-                    ->summarize(
-                        Average::make()
-                            ->money('BRL', 100)
-                            ->label('Média')
-                    ),
+                    ->tooltip('Faturamento dividido pelo KM Pago (viagens)'),
 
                 // ⭐ % Manutenção sobre Faturamento
                 TextColumn::make('percentual_manutencao_faturamento')
@@ -156,12 +145,7 @@ class ResultadoPeriodosTable
                         $state > 10 => 'warning',
                         default => 'success'
                     })
-                    ->tooltip('Percentual de Manutenção sobre o Faturamento')
-                    ->summarize(
-                        Average::make()
-                            ->label('Média')
-                            ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.') . '%')
-                    ),
+                    ->tooltip('Percentual de Manutenção sobre o Faturamento'),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

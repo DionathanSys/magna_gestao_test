@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
 
 class ResultadoPeriodo extends Model
@@ -208,7 +209,11 @@ class ResultadoPeriodo extends Model
                 if ($faturamento <= 0) {
                     return 0;
                 }
-                
+                Log::debug('Cálculo do percentual de manutenção sobre faturamento', [
+                    'faturamento' => $faturamento,
+                    'manutencao' => $manutencao,
+                    'calculo' => ($manutencao / $faturamento) * 100,
+                ]);
                 return ($manutencao / $faturamento) * 100;
             }
         );

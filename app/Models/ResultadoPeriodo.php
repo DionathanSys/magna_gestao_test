@@ -210,11 +210,11 @@ class ResultadoPeriodo extends Model
                     return 0;
                 }
                 Log::debug('Cálculo do percentual de manutenção sobre faturamento', [
-                    'faturamento' => $faturamento,
+                    'faturamento' => $faturamento / 100,
                     'manutencao' => $manutencao,
                     'calculo' => ($manutencao / $faturamento) * 100,
                 ]);
-                return ($manutencao / $faturamento) * 100;
+                return ($manutencao / ($faturamento / 100)) * 100;
             }
         );
     }

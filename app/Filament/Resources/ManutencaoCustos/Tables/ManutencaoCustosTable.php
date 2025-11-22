@@ -31,7 +31,9 @@ class ManutencaoCustosTable
                     ->sortable(),
                 TextInputColumn::make('custo_total')
                     ->label('Custo Total R$')
-                    ->width('1%'),
+                    ->width('1%')
+                    ->type('number')
+                    ->rules(['numeric', 'min:0', 'required']),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->width('1%')

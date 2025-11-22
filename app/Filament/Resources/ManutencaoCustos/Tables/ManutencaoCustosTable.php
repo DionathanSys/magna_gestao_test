@@ -34,6 +34,7 @@ class ManutencaoCustosTable
                     ->width('1%'),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
+                    ->width('1%')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),

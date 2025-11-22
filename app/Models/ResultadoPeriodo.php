@@ -2,13 +2,27 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Number;
 
 class ResultadoPeriodo extends Model
 {
+
+    protected $appends = [
+        'periodo',
+        'km_rodado_abastecimento',
+        'km_pago',
+        'dispersao_km',
+        'dispersao_km_abastecimento_km_viagem',
+        'quantidade_viagens',
+        'media_km_pago_viagem',
+    ];
+
     public function veiculo(): BelongsTo
     {
         return $this->belongsTo(Veiculo::class);
@@ -34,6 +48,11 @@ class ResultadoPeriodo extends Model
         return $this->hasMany(DocumentoFrete::class);
     }
 
+    public function manutencao(): HasOne
+    {
+        return $this->hasOne(ManutencaoCusto::class);
+    }
+
     public function abastecimentoInicial(): HasOne
     {
         return $this->hasOne(Abastecimento::class)
@@ -46,15 +65,71 @@ class ResultadoPeriodo extends Model
             });
     }
 
-    /**
-     * ⭐ CORRIGIDO: Abastecimento com data mais recente
-     */
-public function abastecimentoFinal(): HasOne
-{
-    return $this->hasOne(Abastecimento::class)
-        ->whereNotNull('data_abastecimento')
-        ->orderBy('data_abastecimento', 'desc')
-        ->orderBy('id', 'desc'); // Desempate
-}
-    
+    public function abastecimentoFinal(): HasOne
+    {
+        return $this->hasOne(Abastecimento::class)
+            ->whereNotNull('data_abastecimento')
+            ->orderBy('data_abastecimento', 'desc')
+            ->orderBy('id', 'desc');
+    }
+
+    protected function periodo(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): string => Carbon::parse($this->data_inicio)->format('d/m/Y') . ' à ' . Carbon::parse($this->data_fim)->format('d/m/Y')
+        );
+    }
+
+    protected function kmPago(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): float => (float) ($this->viagens_sum_km_pago ?? 0)
+        );
+    }
+
+    protected function kmRodadoViagens(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): int => ($this->viagens_sum_km_rodado ?? 0)
+        );
+    }
+
+    protected function kmRodadoAbastecimento(): Attribute
+    {
+        return Attribute::make(
+            get: function (): int {
+                $kmFinal = $this->abastecimentoFinal?->quilometragem ?? 0;
+                $kmInicial = $this->abastecimentoInicial?->ultimo_abastecimento_anterior?->quilometragem ?? 0;
+                return $kmFinal - $kmInicial;
+            }
+        );
+    }
+
+    protected function dispersaoKm(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->km_rodado_abastecimento - ($this->km_pago ?? 0)
+        );
+    }
+
+    protected function dispersaoKmAbastecimentoKmViagem(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): int => ($this->km_rodado_viagens ?? 0) - ($this->km_rodado_abastecimento ?? 0)
+        );
+    }
+
+    protected function quantidadeViagens(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): int => $this->viagens_count ?? 0
+        );
+    }
+
+    protected function mediaKmPagoViagem(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): string => $this->quantidade_viagens > 0 ? number_format($this->km_pago / $this->quantidade_viagens, 2, ',', '.') . " Km/Viagem": "0"
+        );
+    }
 }

@@ -23,8 +23,11 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use App\Services\NotificacaoService as notify;
+use Carbon\Carbon;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Text;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Number;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ResultadoPeriodosTable
@@ -33,10 +36,17 @@ class ResultadoPeriodosTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                $query = $query->with(['veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal']);
-                // return $query->withSum('documentosFrete as frete', 'valor_liquido')
-                //     ->withSum('viagens', 'km_pago')
-                //     ->withSum('abastecimentos', 'preco_total');
+
+                $query = $query->with([
+                    'veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal'
+                ]);
+
+                return $query
+                    ->withSum('documentos', 'valor_liquido')
+                    ->withSum('viagens', 'km_pago')
+                    ->withSum('viagens', 'km_rodado')
+                    ->withSum('abastecimentos', 'preco_total')
+                    ->withCount('viagens');
             })
             ->columns([
                 TextColumn::make('veiculo.placa')
@@ -45,50 +55,39 @@ class ResultadoPeriodosTable
                     ->sortable(),
                 TextColumn::make('tipoVeiculo.descricao')
                     ->label('Tipo Veículo')
-                    ->width('1%'),
-                TextColumn::make('data_inicio')
-                    ->label('Data Início')
                     ->width('1%')
-                    ->date('d/m/Y')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('periodo')
+                    ->label('Período')
+                    ->width('1%')
                     ->sortable(),
-                TextColumn::make('data_fim')
-                    ->label('Data Fim')
+                TextColumn::make('km_rodado_abastecimento')
+                    ->label('Km Rodado')
                     ->width('1%')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                TextColumn::make('abastecimentoInicial.ultimo_abastecimento_anterior.quilometragem')
-                    ->label('Km Inicial')
-                    ->width('1%')
-                    ->numeric(0, ',', '.')
-                    ->sortable(),
-                TextColumn::make('abastecimentoFinal.quilometragem')
-                    ->label('Km Final')
-                    ->width('1%')
-                    ->numeric(0, ',', '.')
-                    ->sortable(),
-                TextColumn::make('km_percorrido_calculado')
-                    ->label('Km Percorrido Abast.')
-                    ->width('1%')
-                    ->getStateUsing(function ($record) {
-                        $kmInicial = $record->abastecimentoInicial?->ultimo_abastecimento_anterior?->quilometragem ?? 0;
-                        $kmFinal = $record->abastecimentoFinal?->quilometragem ?? 0;
-                        return $kmFinal - $kmInicial;
-                    })
                     ->numeric(0, ',', '.'),
-                TextColumn::make('viagens_sum_km_rodado')
-                    ->label('KM Rodado Viagens')
-                    ->numeric(2, ',', '.')
-                    ->sum('viagens', 'km_rodado'),
-                TextColumn::make('viagens_sum_km_pago')
+                TextColumn::make('km_pago')
                     ->label('KM Pago')
-                    ->numeric(2, ',', '.')
+                    ->width('1%')
+                    ->numeric(0, ',', '.')
                     ->sum('viagens', 'km_pago'),
-                TextColumn::make('viagens_count')
-                    ->label('Qtde. Viagens')
-                    ->numeric(2, ',', '.')
-                    ->counts('viagens'),
+                TextColumn::make('dispersao_km')
+                    ->label('Dispersão KM')
+                    ->width('1%')
+                    ->numeric(0, ',', '.'),
+                TextColumn::make('km_rodado_viagens')
+                    ->label('KM Rodado Viagem')
+                    ->width('1%')
+                    ->wrapHeader()
+                    ->numeric(0, ',', '.')
+                    ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
+                    ->tooltip(fn(): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.'),
+                TextColumn::make('media_km_pago_viagem')
+                    ->label('Viagens')
+                    ->width('1%')
+                    ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
                 TextColumn::make('documentos_sum_valor_liquido')
-                    ->label('Receita')
+                    ->label('Faturamento')
+                    ->width('1%')
                     ->money('BRL', 100)
                     ->sum('documentos', 'valor_liquido'),
                 TextColumn::make('abastecimentos_sum_preco_total')
@@ -116,8 +115,8 @@ class ResultadoPeriodosTable
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
                     ->options(VeiculoCacheService::getPlacasAtivasForSelect()),
-                DateRangeFilter::make('data_abastecimento')
-                    ->label('Dt. Abastecimento')
+                DateRangeFilter::make('data_inicio')
+                    ->label('Dt. Início')
                     ->drops(DropDirection::AUTO)
                     ->icon('heroicon-o-backspace')
                     ->alwaysShowCalendar()

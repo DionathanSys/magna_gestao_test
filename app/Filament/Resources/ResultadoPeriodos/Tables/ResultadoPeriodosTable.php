@@ -43,6 +43,7 @@ class ResultadoPeriodosTable
 
                 return $query
                     ->withSum('documentos', 'valor_liquido')
+                    ->withSum('manutencao', 'custo_total')
                     ->withSum('viagens', 'km_pago')
                     ->withSum('viagens', 'km_rodado')
                     ->withSum('abastecimentos', 'preco_total')
@@ -94,6 +95,10 @@ class ResultadoPeriodosTable
                     ->label('Combustível')
                     ->money('BRL', 100)
                     ->sum('abastecimentos', 'preco_total'),
+                TextColumn::make('manutencao_sum_custo_total')
+                    ->label('Manutenção')
+                    ->money('BRL', 100)
+                    ->sum('manutencao', 'custo_total'),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

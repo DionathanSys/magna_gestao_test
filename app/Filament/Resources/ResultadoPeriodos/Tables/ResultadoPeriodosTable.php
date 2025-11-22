@@ -40,7 +40,7 @@ class ResultadoPeriodosTable
                 $query = $query->with([
                     'veiculo:id,placa',
                     'tipoVeiculo:id,descricao',
-                    'abastecimentoInicial.ultimo_abastecimento_anterior',
+                    'abastecimentoInicial',
                     'abastecimentoFinal'
                 ]);
 

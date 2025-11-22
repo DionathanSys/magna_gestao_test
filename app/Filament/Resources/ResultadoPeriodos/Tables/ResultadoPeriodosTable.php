@@ -94,10 +94,11 @@ class ResultadoPeriodosTable
                 TextColumn::make('abastecimentos_sum_preco_total')
                     ->label('Combustível')
                     ->money('BRL', 100)
+                    ->width('1%')
                     ->sum('abastecimentos', 'preco_total'),
                 TextColumn::make('manutencao_sum_custo_total')
                     ->label('Manutenção')
-                    ->money('BRL', 100)
+                    ->money('BRL')
                     ->sum('manutencao', 'custo_total'),
                 TextColumn::make('created_at')
                     ->label('Criado em')
@@ -146,11 +147,6 @@ class ResultadoPeriodosTable
                         ->icon(Heroicon::DocumentDuplicate)
                         ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
                         ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
-
-                        // ->mutateRecordDataUsing(function (array $data): array {
-                        //     dd($data);
-                        //     return $data;
-                        // })
                         ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
                 ]),
             ])

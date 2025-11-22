@@ -34,7 +34,7 @@ class ManutencaoCustoForm
                 Select::make('resultado_periodo_id')
                     ->label('Resultado Período ID')
                     ->required()
-                    ->relationship('resultadoPeriodo.veiculo', 'placa', modifyQueryUsing: function ($query) {
+                    ->relationship('resultadoPeriodo', 'id', modifyQueryUsing: function ($query) {
                         $query->where('status', StatusDiversosEnum::PENDENTE->value);
                     })
             ]);

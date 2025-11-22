@@ -26,6 +26,7 @@ use App\Services\NotificacaoService as notify;
 use Carbon\Carbon;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Text;
+use Filament\Tables\Columns\Summarizers\Average;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Number;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
@@ -36,9 +37,11 @@ class ResultadoPeriodosTable
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-
                 $query = $query->with([
-                    'veiculo:id,placa', 'tipoVeiculo:id,descricao', 'abastecimentoInicial', 'abastecimentoFinal'
+                    'veiculo:id,placa',
+                    'tipoVeiculo:id,descricao',
+                    'abastecimentoInicial.ultimo_abastecimento_anterior',
+                    'abastecimentoFinal'
                 ]);
 
                 return $query
@@ -80,12 +83,12 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->wrapHeader()
                     ->numeric(0, ',', '.')
-                    ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
+                    ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
                     ->tooltip(fn(): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.'),
                 TextColumn::make('media_km_pago_viagem')
                     ->label('Viagens')
                     ->width('1%')
-                    ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
+                    ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
                 TextColumn::make('documentos_sum_valor_liquido')
                     ->label('Faturamento')
                     ->width('1%')
@@ -98,8 +101,67 @@ class ResultadoPeriodosTable
                     ->sum('abastecimentos', 'preco_total'),
                 TextColumn::make('manutencao_sum_custo_total')
                     ->label('Manutenção')
+                     ->width('1%')
                     ->money('BRL')
                     ->sum('manutencao', 'custo_total'),
+                // ⭐ Resultado Líquido
+                TextColumn::make('resultado_liquido')
+                    ->label('Resultado Líquido')
+                    ->width('1%')
+                    ->money('BRL', 100)
+                    ->color(fn(float $state): string => match (true) {
+                        $state < 0 => 'danger',
+                        $state < 1000 => 'warning',
+                        default => 'success'
+                    })
+                    ->icon(fn(float $state): string => match (true) {
+                        $state < 0 => 'heroicon-o-arrow-trending-down',
+                        default => 'heroicon-o-arrow-trending-up',
+                    })
+                    ->tooltip('Faturamento - Combustível - Manutenção')
+                    ->summarize(Sum::make()->money('BRL', 100)),
+
+                // ⭐ Faturamento por KM Rodado
+                TextColumn::make('faturamento_por_km_rodado')
+                    ->label('Fat/Km Rodado')
+                    ->width('1%')
+                    ->money('BRL', 100)
+                    ->description('R$/Km')
+                    ->tooltip('Faturamento dividido pelo KM Rodado (abastecimentos)')
+                    ->summarize(
+                        Average::make()
+                            ->money('BRL', 100)
+                            ->label('Média')
+                    ),
+
+                // ⭐ Faturamento por KM Pago
+                TextColumn::make('faturamento_por_km_pago')
+                    ->label('Fat/Km Pago')
+                    ->width('1%')
+                    ->money('BRL', 100)
+                    ->description('R$/Km')
+                    ->tooltip('Faturamento dividido pelo KM Pago (viagens)')
+                    ->summarize(
+                        Average::make()
+                            ->money('BRL', 100)
+                            ->label('Média')
+                    ),
+
+                // ⭐ % Manutenção sobre Faturamento
+                TextColumn::make('percentual_manutencao_faturamento')
+                    ->label('% Manut/Fat')
+                    ->formatStateUsing(fn(float $state): string => number_format($state, 2, ',', '.') . '%')
+                    ->color(fn(float $state): string => match (true) {
+                        $state > 15 => 'danger',
+                        $state > 10 => 'warning',
+                        default => 'success'
+                    })
+                    ->tooltip('Percentual de Manutenção sobre o Faturamento')
+                    ->summarize(
+                        Average::make()
+                            ->label('Média')
+                            ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.') . '%')
+                    ),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

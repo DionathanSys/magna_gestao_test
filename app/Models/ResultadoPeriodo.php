@@ -21,6 +21,10 @@ class ResultadoPeriodo extends Model
         'dispersao_km_abastecimento_km_viagem',
         'quantidade_viagens',
         'media_km_pago_viagem',
+        'resultado_liquido',
+        'faturamento_por_km_rodado',
+        'faturamento_por_km_pago',
+        'percentual_manutencao_faturamento',
     ];
 
     public function veiculo(): BelongsTo
@@ -130,6 +134,83 @@ class ResultadoPeriodo extends Model
     {
         return Attribute::make(
             get: fn(): string => $this->quantidade_viagens > 0 ? number_format($this->km_pago / $this->quantidade_viagens, 2, ',', '.') . " Km/Viagem": "0"
+        );
+    }
+
+     /**
+     * ⭐ Accessor: Resultado Líquido
+     * Faturamento - Combustível - Manutenção
+     */
+    protected function resultadoLiquido(): Attribute
+    {
+        return Attribute::make(
+            get: function (): float {
+                $faturamento = $this->documentos_sum_valor_liquido ?? 0;
+                $combustivel = $this->abastecimentos_sum_preco_total ?? 0;
+                $manutencao = $this->manutencao_sum_custo_total ?? 0;
+                
+                return $faturamento - $combustivel - $manutencao;
+            }
+        );
+    }
+
+    /**
+     * ⭐ Accessor: Faturamento por KM Rodado
+     * Faturamento / KM Rodado (baseado em abastecimentos)
+     */
+    protected function faturamentoPorKmRodado(): Attribute
+    {
+        return Attribute::make(
+            get: function (): float {
+                $faturamento = $this->documentos_sum_valor_liquido ?? 0;
+                $kmRodado = $this->km_rodado_abastecimento;
+                
+                if ($kmRodado <= 0) {
+                    return 0;
+                }
+                
+                return $faturamento / $kmRodado;
+            }
+        );
+    }
+
+    /**
+     * ⭐ Accessor: Faturamento por KM Pago
+     * Faturamento / KM Pago (baseado em viagens)
+     */
+    protected function faturamentoPorKmPago(): Attribute
+    {
+        return Attribute::make(
+            get: function (): float {
+                $faturamento = $this->documentos_sum_valor_liquido ?? 0;
+                $kmPago = $this->km_pago;
+                
+                if ($kmPago <= 0) {
+                    return 0;
+                }
+                
+                return $faturamento / $kmPago;
+            }
+        );
+    }
+
+    /**
+     * ⭐ Accessor: Percentual de Manutenção sobre Faturamento
+     * (Manutenção / Faturamento) * 100
+     */
+    protected function percentualManutencaoFaturamento(): Attribute
+    {
+        return Attribute::make(
+            get: function (): float {
+                $faturamento = $this->documentos_sum_valor_liquido ?? 0;
+                $manutencao = $this->manutencao_sum_custo_total ?? 0;
+                
+                if ($faturamento <= 0) {
+                    return 0;
+                }
+                
+                return ($manutencao / $faturamento) * 100;
+            }
         );
     }
 }

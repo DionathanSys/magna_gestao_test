@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ManutencaoCustos\Schemas;
 
+use App\Enum\StatusDiversosEnum;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -15,6 +16,7 @@ class ManutencaoCustoForm
         return $schema
             ->components([
                 Select::make('veiculo_id')
+                    ->label('Veículo')
                     ->required()
                     ->options(VeiculoCacheService::getPlacasAtivasForSelect())
                     ->searchable(),
@@ -32,7 +34,9 @@ class ManutencaoCustoForm
                 Select::make('resultado_periodo_id')
                     ->label('Resultado Período ID')
                     ->required()
-                    ->relationship('resultadoPeriodo.veiculo', 'placa'),
+                    ->relationship('resultadoPeriodo.veiculo', 'placa', modifyQueryUsing: function ($query) {
+                        $query->where('status', StatusDiversosEnum::PENDENTE->value);
+                    })
             ]);
     }
 }

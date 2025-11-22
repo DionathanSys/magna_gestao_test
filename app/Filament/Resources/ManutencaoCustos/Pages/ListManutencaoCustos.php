@@ -13,7 +13,8 @@ class ListManutencaoCustos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->preserveFormDataWhenCreatingAnother(['data_inicio', 'data_fim']),
         ];
     }
 }

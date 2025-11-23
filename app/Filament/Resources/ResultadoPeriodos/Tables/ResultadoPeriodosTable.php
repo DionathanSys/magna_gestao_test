@@ -161,7 +161,16 @@ class ResultadoPeriodosTable
                     TextColumn::make('consumo_medio_combustivel')
                         ->label('Consumo Médio Combustível')
                         ->suffix(' Km/L')
-                        
+                        ->description(fn(Models\ResultadoPeriodo $record): ?string => $record->diferenca_meta_consumo)
+                        ->descriptionColor(function (Models\ResultadoPeriodo $record): string {
+                            if (!$record->diferenca_meta_consumo) {
+                                return 'gray';
+                            }
+
+                            // Se contém "acima" = vermelho (ruim)
+                            // Se contém "abaixo" = verde (bom)
+                            return str_contains($record->diferenca_meta_consumo, 'acima') ? 'danger' : 'success';
+                        })
                         ->numeric(4, ',', '.')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),

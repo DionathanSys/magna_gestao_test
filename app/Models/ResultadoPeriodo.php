@@ -26,6 +26,7 @@ class ResultadoPeriodo extends Model
         'faturamento_por_km_rodado',
         'faturamento_por_km_pago',
         'percentual_manutencao_faturamento',
+        'diferenca_meta_consumo',
     ];
 
     public function veiculo(): BelongsTo
@@ -158,6 +159,59 @@ class ResultadoPeriodo extends Model
 
         return Attribute::make(
             get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0
+        );
+    }
+
+    /**
+     * ⭐ Accessor: Diferença entre consumo real e meta
+     * Retorna quanto ficou acima (+) ou abaixo (-) da meta
+     */
+    protected function diferencaMetaConsumo(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?string {
+                // Pega a meta do tipo de veículo
+                $meta = $this->veiculo?->tipoVeiculo?->meta_media;
+                
+                // Se não houver meta, retorna null
+                if (!$meta || $meta <= 0) {
+                    return null;
+                }
+                
+                // Consumo real do período
+                $consumoReal = $this->consumo_medio_combustivel;
+                
+                // Se não houver consumo, retorna null
+                if (!$consumoReal || $consumoReal <= 0) {
+                    return null;
+                }
+                
+                // Calcula a diferença (positivo = acima da meta, negativo = abaixo)
+                $diferenca = $consumoReal - $meta;
+                
+                // Calcula o percentual
+                $percentual = ($diferenca / $meta) * 100;
+                
+                // Formata a mensagem
+                if ($diferenca > 0) {
+                    // Consumo acima da meta (RUIM - gastando mais combustível)
+                    return sprintf(
+                        '%.2f km/L acima da meta (%.1f%% pior)',
+                        abs($diferenca),
+                        abs($percentual)
+                    );
+                } elseif ($diferenca < 0) {
+                    // Consumo abaixo da meta (BOM - economizando combustível)
+                    return sprintf(
+                        '%.2f km/L abaixo da meta (%.1f%% melhor)',
+                        abs($diferenca),
+                        abs($percentual)
+                    );
+                } else {
+                    // Exatamente na meta
+                    return 'Na meta';
+                }
+            }
         );
     }
 

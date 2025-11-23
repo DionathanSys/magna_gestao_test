@@ -29,6 +29,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -102,6 +103,8 @@ class ViagensRelationManager extends RelationManager
                     ->label('Km Dispersão')
                     ->width('1%')
                     ->numeric(2, ',', '.')
+                    ->color(fn($state, Models\Viagem $record): string => $record->km_dispersao > 3.99 ? 'danger' : 'info')
+                    ->badge()
                     ->sortable()
                     ->summarize(
                         Sum::make()
@@ -111,9 +114,27 @@ class ViagensRelationManager extends RelationManager
                 TextColumn::make('dispersao_percentual')
                     ->label('Dispersão Percentual')
                     ->width('1%')
+                    ->color(fn($state, Models\Viagem $record): string => $record->dispersao_percentual > 2 ? 'danger' : 'info')
+                    ->badge()
                     ->suffix('%')
                     ->numeric(2, ',', '.')
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(
+                            Summarizer::make()
+                                ->label('Dispersão %')
+                                ->using(function ($query) {
+                                    // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
+                                    return $query->selectRaw(
+                                        <<<'SQL'
+                                    CASE
+                                        WHEN COALESCE(SUM(km_rodado), 0) = 0 THEN NULL
+                                        ELSE (SUM(km_dispersao) / SUM(km_rodado)) * 100
+                                    END AS aggregate
+                                SQL
+                                    )->value('aggregate');
+                                })
+                                ->numeric(decimalPlaces: 2, locale: 'pt-BR')
+                        ),
                 TextColumn::make('km_cobrar')
                     ->label('Km Cobrar')
                     ->width('1%')

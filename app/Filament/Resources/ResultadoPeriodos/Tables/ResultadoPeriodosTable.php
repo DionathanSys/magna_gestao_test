@@ -24,6 +24,7 @@ use Filament\Tables\Table;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use App\Services\NotificacaoService as notify;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Text;
 use Filament\Tables\Columns\Summarizers\Average;
@@ -53,6 +54,9 @@ class ResultadoPeriodosTable
                     ->withCount('viagens');
             })
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->width('1%'),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->width('1%')
@@ -101,7 +105,7 @@ class ResultadoPeriodosTable
                     ->sum('abastecimentos', 'preco_total'),
                 TextColumn::make('manutencao_sum_custo_total')
                     ->label('Manutenção')
-                     ->width('1%')
+                    ->width('1%')
                     ->money('BRL')
                     ->sum('manutencao', 'custo_total'),
                 // ⭐ Resultado Líquido
@@ -194,6 +198,18 @@ class ResultadoPeriodosTable
                         ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
                         ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
                         ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
+                    Action::make('desvincular_periodo')
+                        ->label('Desvincular Período')
+                        ->icon(Heroicon::XMark)
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Desvincular Abastecimento do Período')
+                        ->modalDescription('Tem certeza que deseja desvincular este abastecimento do período? Ele ficará disponível para associação em outro período.')
+                        ->modalSubmitActionLabel('Sim, desvincular')
+                        ->action(function ($record) {
+                            $record->update(['resultado_periodo_id' => null]);
+                            notify::success(mensagem: 'Abastecimento desvinculado com sucesso!');
+                        }),
                 ]),
             ])
             ->toolbarActions([

@@ -67,20 +67,28 @@ class AbastecimentosRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('id_abastecimento')
                     ->label('ID Abastecimento')
+                    ->width('1%')
                     ->numeric()
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('veiculo.placa')
-                    ->label('Veículo'),
+                    ->label('Veículo')
+                    ->width('1%'),
                 TextColumn::make('quilometragem')
-                    ->numeric(0, ',', '.'),
+                    ->numeric(0, ',', '.')
+                    ->width('1%'),
                 TextColumn::make('posto_combustivel')
-                    ->label('Posto Combustível'),
+                    ->label('Posto Combustível')
+                    ->width('1%')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('tipo_combustivel')
                     ->label('Tipo Combustível')
-                    ->badge(),
+                    ->width('1%')
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('quantidade')
                     ->numeric(2, ',', '.')
+                    ->width('1%')
                     ->sortable()
                     ->summarize(Sum::make()
                         ->numeric(2, ',', '.')
@@ -88,10 +96,12 @@ class AbastecimentosRelationManager extends RelationManager
                     ),
                 TextColumn::make('preco_por_litro')
                     ->label('Vlr. Litro')
+                    ->width('1%')
                     ->money('BRL')
                     ->sortable(),
                 TextColumn::make('preco_total')
                     ->label('Vlr. Total')
+                    ->width('1%')
                     ->sortable()
                     ->money('BRL')
                     ->summarize(Sum::make()
@@ -104,10 +114,12 @@ class AbastecimentosRelationManager extends RelationManager
                     ->sortable(),
                 IconColumn::make('considerar_fechamento')
                     ->label('Considerar Fechamento')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('considerar_calculo_medio')
                     ->label('Considerar Cálculo Médio')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')
@@ -127,9 +139,12 @@ class AbastecimentosRelationManager extends RelationManager
                 AssociateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->iconButton(),
+                DissociateAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

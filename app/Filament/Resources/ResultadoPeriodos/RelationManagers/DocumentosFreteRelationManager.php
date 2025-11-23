@@ -63,26 +63,33 @@ class DocumentosFreteRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('parceiro_origem')
                     ->label('Parceiro Origem')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('parceiro_destino')
                     ->label('Parceiro Destino')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('numero_documento')
                     ->label('Nº Documento')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('documento_transporte')
                     ->label('Documento Transporte')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Documento')
+                    ->width('1%')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')
+                    ->width('1%')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('valor_total')
                     ->money('BRL')
+                    ->width('1%')
                     ->summarize(
                         Sum::make()
                             ->money('BRL', 100)
@@ -91,6 +98,7 @@ class DocumentosFreteRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('valor_icms')
                     ->money('BRL')
+                    ->width('1%')
                     ->summarize(
                         Sum::make()
                             ->money('BRL', 100)
@@ -99,6 +107,7 @@ class DocumentosFreteRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('valor_liquido')
                     ->money('BRL')
+                    ->width('1%')
                     ->summarize(
                         Sum::make()
                             ->money('BRL', 100)
@@ -106,6 +115,7 @@ class DocumentosFreteRelationManager extends RelationManager
                     )
                     ->sortable(),
                 TextColumn::make('municipio')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('estado')
                     ->searchable(),
@@ -131,9 +141,12 @@ class DocumentosFreteRelationManager extends RelationManager
                 AssociateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->iconButton(),
+                DissociateAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

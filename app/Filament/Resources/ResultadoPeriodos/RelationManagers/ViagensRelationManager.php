@@ -88,12 +88,15 @@ class ViagensRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('numero_viagem')
                     ->label('Nº Viagem')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transporte')
+                    ->width('1%')
                     ->searchable(),
                 TextColumn::make('km_rodado')
                     ->label('Km Rodado')
+                    ->width('1%')
                     ->numeric(2, ',', '.')
                     ->summarize(
                         Sum::make()
@@ -103,6 +106,7 @@ class ViagensRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('km_pago')
                     ->label('Km Pago')
+                    ->width('1%')
                     ->numeric(2, ',', '.')
                     ->summarize(
                         Sum::make()
@@ -112,6 +116,7 @@ class ViagensRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('km_dispersao')
                     ->label('Km Dispersão')
+                    ->width('1%')
                     ->numeric(2, ',', '.')
                     ->sortable()
                     ->summarize(
@@ -121,11 +126,13 @@ class ViagensRelationManager extends RelationManager
                     ),
                 TextColumn::make('dispersao_percentual')
                     ->label('Dispersão Percentual')
+                    ->width('1%')
                     ->suffix('%')
                     ->numeric(2, ',', '.')
                     ->sortable(),
                 TextColumn::make('km_cobrar')
                     ->label('Km Cobrar')
+                    ->width('1%')
                     ->numeric(2, ',', '.')
                     ->summarize(
                         Sum::make()
@@ -135,18 +142,22 @@ class ViagensRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('motivo_divergencia')
                     ->label('Motivo Divergência')
+                    ->width('1%')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('data_competencia')
-                    ->label('Dt. Competência')
+                    ->label('Dt. Competência')  
+                    ->width('1%')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('data_inicio')
-                    ->label('Dt. Início')
+                    ->label('Dt. Início')   
+                    ->width('1%')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('data_fim')
-                    ->label('Dt. Fim')
+                    ->label('Dt. Fim')  
+                    ->width('1%')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 IconColumn::make('conferido')
@@ -161,27 +172,33 @@ class ViagensRelationManager extends RelationManager
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_by')
+                TextColumn::make('creator.name')
                     ->label('Criado por')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('updated_by')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updater.name')
                     ->label('Atualizado por')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('checked_by')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('checker.name')
                     ->label('Verificado por')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('condutor')
                     ->label('Condutor')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('considerar_relatorio')
                     ->label('Considerar Relatório')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('unidade_negocio')
                     ->label('Unidade de Negócio')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -191,9 +208,12 @@ class ViagensRelationManager extends RelationManager
                 AssociateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->iconButton(),
+                DissociateAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

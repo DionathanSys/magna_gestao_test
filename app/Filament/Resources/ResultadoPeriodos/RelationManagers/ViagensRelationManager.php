@@ -3,7 +3,15 @@
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\MotivoDivergenciaViagem;
+use App\Filament\Resources\DocumentoFretes\DocumentoFreteResource;
+use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
+use App\Filament\Resources\Viagems\Actions\VisualizarComentarioAction;
+use App\Filament\Resources\Viagems\ViagemResource;
+use App\Models;
+use App\Services\ViagemService;
 use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -23,6 +31,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class ViagensRelationManager extends RelationManager
 {
@@ -30,61 +40,28 @@ class ViagensRelationManager extends RelationManager
 
     public function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                TextInput::make('veiculo_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('numero_viagem')
-                    ->required(),
-                TextInput::make('documento_transporte'),
-                TextInput::make('km_rodado')
-                    ->required()
-                    ->numeric()
-                    ->default(0.0),
-                TextInput::make('km_pago')
-                    ->required()
-                    ->numeric()
-                    ->default(0.0),
-                TextInput::make('km_cadastro')
-                    ->required()
-                    ->numeric()
-                    ->default(0.0),
-                TextInput::make('km_cobrar')
-                    ->required()
-                    ->numeric()
-                    ->default(0.0),
-                Select::make('motivo_divergencia')
-                    ->options(MotivoDivergenciaViagem::class),
-                DatePicker::make('data_competencia')
-                    ->required(),
-                DateTimePicker::make('data_inicio')
-                    ->required(),
-                DateTimePicker::make('data_fim')
-                    ->required(),
-                Toggle::make('conferido')
-                    ->required(),
-                TextInput::make('divergencias'),
-                TextInput::make('created_by')
-                    ->numeric(),
-                TextInput::make('updated_by')
-                    ->numeric(),
-                TextInput::make('checked_by')
-                    ->numeric(),
-                TextInput::make('km_dispersao')
-                    ->numeric(),
-                TextInput::make('dispersao_percentual')
-                    ->numeric(),
-                TextInput::make('condutor'),
-                Toggle::make('considerar_relatorio')
-                    ->required(),
-                TextInput::make('unidade_negocio'),
-            ]);
+        return ViagemResource::form($schema);
     }
 
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->with([
+                    'cargas' => function ($query) {
+                        $query->select(['id', 'viagem_id', 'integrado_id', 'km_dispersao', 'km_dispersao_rateio'])
+                            ->with('integrado:id,nome,municipio,codigo,latitude,longitude');
+                    },
+                    'veiculo:id,placa',
+                    'comentarios.creator:id,name',
+                    'checker:id,name',
+                    'creator:id,name',
+                    'updater:id,name',
+                ])
+                    // antecipa o cálculo de existência para evitar N+1
+                    ->withExists(['comentarios'])
+                    ->withCount('cargas');
+            })
             ->recordTitleAttribute('resultado_periodo_id')
             ->columns([
                 TextColumn::make('numero_viagem')
@@ -95,6 +72,12 @@ class ViagensRelationManager extends RelationManager
                     ->label('Doc. Transporte')
                     ->width('1%')
                     ->searchable(),
+                TextColumn::make('integrados_nomes')
+                    ->label('Integrado')
+                    ->width('1%')
+                    ->html()
+                    ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes))
+                    ->disabledClick(),
                 TextColumn::make('km_rodado')
                     ->label('Km Rodado')
                     ->width('1%')
@@ -147,17 +130,17 @@ class ViagensRelationManager extends RelationManager
                     ->badge()
                     ->searchable(),
                 TextColumn::make('data_competencia')
-                    ->label('Dt. Competência')  
+                    ->label('Dt. Competência')
                     ->width('1%')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('data_inicio')
-                    ->label('Dt. Início')   
+                    ->label('Dt. Início')
                     ->width('1%')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('data_fim')
-                    ->label('Dt. Fim')  
+                    ->label('Dt. Fim')
                     ->width('1%')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
@@ -201,16 +184,17 @@ class ViagensRelationManager extends RelationManager
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('data_inicio')
             ->filters([
                 //
             ])
             ->headerActions([
                 CreateAction::make(),
                 AssociateAction::make()
-                    ->preloadRecordSelect() 
+                    ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(
                         fn($query) => $query
-                            ->whereNull('resultado_periodo_id') 
+                            ->whereNull('resultado_periodo_id')
                             ->where('veiculo_id', $this->ownerRecord->veiculo_id)
                             ->orderBy('data_competencia', 'desc')
                     )
@@ -225,17 +209,36 @@ class ViagensRelationManager extends RelationManager
                     ->label('Vincular Viagens'),
             ])
             ->recordActions([
-                EditAction::make()
-                    ->iconButton(),
-                DissociateAction::make()
-                    ->iconButton(),
-                DeleteAction::make()
-                    ->iconButton(),
+                ActionGroup::make([
+                    AdicionarComentarioAction::make(),
+                    VisualizarComentarioAction::make(),
+                    EditAction::make()
+                        ->visible(fn(Models\Viagem $record) => ! $record->conferido || Auth::user()->is_admin)
+                        ->after(fn(Models\Viagem $record) => (new ViagemService())->recalcularViagem($record)),
+                    Action::make('buscar_documentos')
+                        ->label('Buscar Documentos')
+                        ->icon('heroicon-o-document-magnifying-glass')
+
+                        ->url(fn(Models\Viagem $record) => DocumentoFreteResource::getUrl('index', [
+                            'filters' => [
+                                'veiculo_id' => [
+                                    'values' => [
+                                        0 => $record->veiculo_id,
+                                    ]
+                                ],
+                                'sem_vinculo_viagem' => [
+                                    'isActive' => true
+                                ]
+                            ],
+                        ]))
+                        ->openUrlInNewTab()
+                        ->color('info'),
+                    DissociateAction::make(),
+                ])
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DissociateBulkAction::make(),
-                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

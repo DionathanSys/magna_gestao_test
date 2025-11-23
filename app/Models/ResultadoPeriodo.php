@@ -193,7 +193,7 @@ class ResultadoPeriodo extends Model
                 $percentual = ($diferenca / $meta) * 100;
                 
                 // Formata a mensagem
-                if ($diferenca > 0) {
+                if ($diferenca < 0) {
                     // Consumo acima da meta (RUIM - gastando mais combustível)
                     return sprintf(
                         '%.2f km/L acima da meta (%.1f%% pior)',

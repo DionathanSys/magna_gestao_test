@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\MotivoDivergenciaViagem;
+use Carbon\Carbon;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -205,7 +206,23 @@ class ViagensRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                AssociateAction::make()
+                    ->preloadRecordSelect() 
+                    ->recordSelectOptionsQuery(
+                        fn($query) => $query
+                            ->whereNull('resultado_periodo_id') 
+                            ->where('veiculo_id', $this->ownerRecord->veiculo_id)
+                            ->orderBy('data_competencia', 'desc')
+                    )
+                    ->recordTitle(
+                        fn($record) =>
+                        "#{$record->id} | " .
+                            Carbon::parse($record->data_competencia)->format('d/m/Y') . " | Nº " .
+                            number_format($record->numero_viagem, 0, ',', '.')
+                    )
+                    ->multiple()
+                    ->recordSelectSearchColumns(['id', 'numero_viagem', 'documento_transporte'])
+                    ->label('Vincular Viagens'),
             ])
             ->recordActions([
                 EditAction::make()

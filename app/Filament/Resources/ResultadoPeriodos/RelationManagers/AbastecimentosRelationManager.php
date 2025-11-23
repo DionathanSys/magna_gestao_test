@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\Abastecimento\TipoCombustivelEnum;
+use Carbon\Carbon;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -143,22 +144,17 @@ class AbastecimentosRelationManager extends RelationManager
                         fn($query) => $query
                             ->whereNull('resultado_periodo_id') 
                             ->where('veiculo_id', $this->ownerRecord->veiculo_id)
-                            ->whereBetween('data_abastecimento', [
-                                $this->ownerRecord->data_inicio,
-                                $this->ownerRecord->data_fim
-                            ]) // Dentro do período
                             ->orderBy('data_abastecimento', 'desc')
                     )
                     ->recordTitle(
                         fn($record) =>
                         "#{$record->id} | " .
-                            $record->data_abastecimento . " | ID: " .
+                            Carbon::parse($record->data_abastecimento)->format('d/m/Y H:i') . " | ID: " .
                             number_format($record->id_abastecimento, 0, ',', '.') . " | " .
                             number_format($record->quantidade, 2, ',', '.') . "L | " .
-                            "R$ " . number_format($record->preco_total, 2, ',', '.') . " | " .
-                            ($record->posto_combustivel ?? 'Sem posto')
+                            "R$ " . number_format($record->preco_total, 2, ',', '.')
                     )
-                    ->multiple() // ⭐ Permite selecionar vários de uma vez
+                    ->multiple()
                     ->recordSelectSearchColumns(['id', 'id_abastecimento']) 
                     ->label('Vincular Abastecimentos'),
             ])

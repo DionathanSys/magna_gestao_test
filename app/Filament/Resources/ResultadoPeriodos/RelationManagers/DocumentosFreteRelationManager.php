@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\Frete\TipoDocumentoEnum;
+use Carbon\Carbon;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -138,7 +139,25 @@ class DocumentosFreteRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                AssociateAction::make()
+                    ->preloadRecordSelect() 
+                    ->recordSelectOptionsQuery(
+                        fn($query) => $query
+                            ->whereNull('resultado_periodo_id') 
+                            ->where('veiculo_id', $this->ownerRecord->veiculo_id)
+                            ->orderBy('data_emissao', 'desc')
+                    )
+                    ->recordTitle(
+                        fn($record) =>
+                        "#{$record->id} | " .
+                            Carbon::parse($record->data_emissao)->format('d/m/Y') . " | Nº " .
+                            number_format($record->numero_documento, 0, ',', '.') . " | " .
+                            $record->tipo_documento->value . " | " .
+                            "R$ " . number_format($record->valor_liquido, 2, ',', '.')
+                    )
+                    ->multiple()
+                    ->recordSelectSearchColumns(['id', 'numero_documento', 'documento_transporte', 'parceiro_origem', 'parceiro_destino'])
+                    ->label('Vincular Documentos de Frete'),
             ])
             ->recordActions([
                 EditAction::make()

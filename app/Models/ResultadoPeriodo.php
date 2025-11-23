@@ -119,12 +119,12 @@ class ResultadoPeriodo extends Model
 
     protected function quantidadeLitrosCombustivel(): Attribute
     {
-        Log::debug('Cálculo da quantidade de litros de combustível', [
-            'placa' => $this->veiculo->placa,
-            'periodo' => $this->periodo,
-            'abastecimentos_sum_quantidade' => $this->abastecimentos->sum('quantidade'),
-            'calculo' => (float) ($this->abastecimentos->sum('quantidade') ?? 0),
-        ]);
+        // Log::debug('Cálculo da quantidade de litros de combustível', [
+        //     'placa' => $this->veiculo->placa,
+        //     'periodo' => $this->periodo,
+        //     'abastecimentos_sum_quantidade' => $this->abastecimentos->sum('quantidade'),
+        //     'calculo' => (float) ($this->abastecimentos->sum('quantidade') ?? 0),
+        // ]);
 
         return Attribute::make(
             get: fn(): float => (float) ($this->abastecimentos->sum('quantidade') ?? 0)
@@ -133,13 +133,13 @@ class ResultadoPeriodo extends Model
 
     protected function precoMedioCombustivel(): Attribute
     {
-        Log::debug('Cálculo do preco médio de combustível', [
-            'placa' => $this->veiculo->placa,
-            'periodo' => $this->periodo,
-            'abastecimentos_sum_preco_total' => $this->abastecimentos->sum('preco_total'),
-            'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
-            'calculo' => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0,
-        ]);
+        // Log::debug('Cálculo do preco médio de combustível', [
+        //     'placa' => $this->veiculo->placa,
+        //     'periodo' => $this->periodo,
+        //     'abastecimentos_sum_preco_total' => $this->abastecimentos->sum('preco_total'),
+        //     'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
+        //     'calculo' => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0,
+        // ]);
 
         return Attribute::make(
             get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0
@@ -148,13 +148,13 @@ class ResultadoPeriodo extends Model
 
     protected function consumoMedioCombustivel(): Attribute
     {
-        Log::debug('Cálculo do consumo médio de combustível', [
-            'placa' => $this->veiculo->placa,
-            'periodo' => $this->periodo,
-            'km_rodado_abastecimento' => $this->km_rodado_abastecimento,
-            'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
-            'calculo' => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0,
-        ]);
+        // Log::debug('Cálculo do consumo médio de combustível', [
+        //     'placa' => $this->veiculo->placa,
+        //     'periodo' => $this->periodo,
+        //     'km_rodado_abastecimento' => $this->km_rodado_abastecimento,
+        //     'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
+        //     'calculo' => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0,
+        // ]);
 
         return Attribute::make(
             get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0

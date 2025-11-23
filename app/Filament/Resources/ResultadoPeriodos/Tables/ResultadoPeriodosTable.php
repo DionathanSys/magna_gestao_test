@@ -71,40 +71,6 @@ class ResultadoPeriodosTable
                     ->label('Período')
                     ->width('1%')
                     ->sortable(),
-                TextColumn::make('km_rodado_abastecimento')
-                    ->label('Km Rodado')
-                    ->width('1%')
-                    ->numeric(0, ',', '.'),
-                TextColumn::make('km_pago')
-                    ->label('KM Pago')
-                    ->width('1%')
-                    ->numeric(0, ',', '.')
-                    ->sum('viagens', 'km_pago'),
-                TextColumn::make('dispersao_km')
-                    ->label('Dispersão KM')
-                    ->width('1%')
-                    ->numeric(0, ',', '.'),
-                TextColumn::make('km_rodado_viagens')
-                    ->label('KM Rodado Viagem')
-                    ->width('1%')
-                    ->wrapHeader()
-                    ->numeric(0, ',', '.')
-                    ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
-                    ->tooltip(fn(): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.'),
-                TextColumn::make('media_km_pago_viagem')
-                    ->label('Viagens')
-                    ->width('1%')
-                    ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
-                TextColumn::make('documentos_sum_valor_liquido')
-                    ->label('Faturamento')
-                    ->width('1%')
-                    ->money('BRL', 100)
-                    ->sum('documentos', 'valor_liquido'),
-                TextColumn::make('manutencao_sum_custo_total')
-                    ->label('Manutenção')
-                    ->width('1%')
-                    ->money('BRL')
-                    ->sum('manutencao', 'custo_total'),
                 TextColumn::make('resultado_liquido')
                     ->label('Resultado Líquido')
                     ->width('1%')
@@ -119,18 +85,56 @@ class ResultadoPeriodosTable
                         default => 'heroicon-o-arrow-trending-up',
                     })
                     ->tooltip('Faturamento - Combustível - Manutenção'),
-                TextColumn::make('faturamento_por_km_rodado')
-                    ->label('Fat/Km Rodado')
+                ColumnGroup::make('KM', [
+                    TextColumn::make('km_rodado_abastecimento')
+                        ->label('Km Rodado')
+                        ->width('1%')
+                        ->numeric(0, ',', '.'),
+                    TextColumn::make('km_pago')
+                        ->label('KM Pago')
+                        ->width('1%')
+                        ->numeric(0, ',', '.')
+                        ->sum('viagens', 'km_pago'),
+                    TextColumn::make('dispersao_km')
+                        ->label('Dispersão KM')
+                        ->width('1%')
+                        ->numeric(0, ',', '.'),
+                    TextColumn::make('km_rodado_viagens')
+                        ->label('KM Rodado Viagem')
+                        ->width('1%')
+                        ->wrapHeader()
+                        ->numeric(0, ',', '.')
+                        ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
+                        ->tooltip(fn(): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.'),
+                    TextColumn::make('media_km_pago_viagem')
+                        ->label('Viagens')
+                        ->width('1%')
+                        ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
+                ]),
+                ColumnGroup::make('Faturamento', [
+                    TextColumn::make('documentos_sum_valor_liquido')
+                        ->label('Faturamento')
+                        ->width('1%')
+                        ->money('BRL', 100)
+                        ->sum('documentos', 'valor_liquido'),
+                    TextColumn::make('faturamento_por_km_rodado')
+                        ->label('Fat/Km Rodado')
+                        ->width('1%')
+                        ->money('BRL', 100)
+                        ->description('R$/Km')
+                        ->tooltip('Faturamento dividido pelo KM Rodado (abastecimentos)'),
+                    TextColumn::make('faturamento_por_km_pago')
+                        ->label('Fat/Km Pago')
+                        ->width('1%')
+                        ->money('BRL', 100)
+                        ->description('R$/Km')
+                        ->tooltip('Faturamento dividido pelo KM Pago (viagens)'),
+                ]),
+                TextColumn::make('manutencao_sum_custo_total')
+                    ->label('Manutenção')
                     ->width('1%')
-                    ->money('BRL', 100)
-                    ->description('R$/Km')
-                    ->tooltip('Faturamento dividido pelo KM Rodado (abastecimentos)'),
-                TextColumn::make('faturamento_por_km_pago')
-                    ->label('Fat/Km Pago')
-                    ->width('1%')
-                    ->money('BRL', 100)
-                    ->description('R$/Km')
-                    ->tooltip('Faturamento dividido pelo KM Pago (viagens)'),
+                    ->money('BRL')
+                    ->sum('manutencao', 'custo_total'),
                 TextColumn::make('percentual_manutencao_faturamento')
                     ->label('% Manut/Fat')
                     ->formatStateUsing(fn(float $state): string => number_format($state, 2, ',', '.') . '%')
@@ -155,7 +159,7 @@ class ResultadoPeriodosTable
                         ->label('Consumo Médio Combustível')
                         ->suffix(' Km/L')
                         ->width('1%')
-                        ->money('BRL')
+                        ->numeric(4, ',', '.')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
                 TextColumn::make('created_at')

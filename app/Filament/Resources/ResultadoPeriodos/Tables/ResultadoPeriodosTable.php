@@ -52,6 +52,7 @@ class ResultadoPeriodosTable
                     ->withSum('viagens', 'km_pago')
                     ->withSum('viagens', 'km_rodado')
                     ->withSum('abastecimentos', 'preco_total')
+                    ->withSum('abastecimentos', 'quantidade')
                     ->withCount('viagens');
             })
             ->columns([

@@ -51,20 +51,6 @@ class ResultadoPeriodoForm
                     ->label('Data Fim')
                     ->columnSpan(3)
                     ->required(),
-                TextInput::make('km_inicial')
-                    ->label('Km Inicial')
-                    ->columnStart(1)
-                    ->columnSpan(2)
-                    ->numeric(),
-                TextInput::make('km_final')
-                    ->label('Km Final')
-                    ->columnSpan(2)
-                    ->numeric(),
-                TextInput::make('km_percorrido')
-                    ->label('Km Percorrido')
-                    ->columnSpan(2)
-                    ->visibleOn('edit')
-                    ->numeric(),
             ]);
     }
 }

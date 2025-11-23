@@ -18,6 +18,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -149,6 +150,10 @@ class AbastecimentosTable
                 ToggleColumn::make('considerar_calculo_medio')
                     ->label('Considerar Cálculo Médio')
                     ->toggleable(isToggledHiddenByDefault: false),
+                TextInputColumn::make('resultado_periodo_id')
+                    ->label('Resultado ID')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i:s')
@@ -160,7 +165,7 @@ class AbastecimentosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('data_abastecimento', 'desc')
+            ->defaultSort('data_abastecimento', 'asc')
             ->groups([
                 Group::make('veiculo.placa')
                     ->label('Veículo')

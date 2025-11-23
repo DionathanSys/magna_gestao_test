@@ -133,6 +133,7 @@ class AbastecimentosRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('data_abastecimento', 'asc')
             ->filters([])
             ->headerActions([
                 CreateAction::make(),

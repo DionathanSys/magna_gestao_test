@@ -25,6 +25,16 @@ class Viagem extends Model
 
     protected $appends = ['integrados_nomes'];
 
+    /**
+     * Relação com o modelo ResultadoPeriodo
+     *
+     * @return BelongsTo
+     */
+    public function resultadoPeriodo(): BelongsTo
+    {
+        return $this->belongsTo(ResultadoPeriodo::class);
+    }
+
     public function cargas(): HasMany
     {
         return $this->hasMany(CargaViagem::class, 'viagem_id');

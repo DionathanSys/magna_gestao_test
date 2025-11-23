@@ -136,7 +136,8 @@ class AbastecimentosRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                AssociateAction::make()
+                    ->recordSelectSearchColumns(['id_abastecimento']),
             ])
             ->recordActions([
                 EditAction::make()

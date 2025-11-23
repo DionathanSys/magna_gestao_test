@@ -130,20 +130,23 @@ class ResultadoPeriodosTable
                         ->description('R$/Km')
                         ->tooltip('Faturamento dividido pelo KM Pago (viagens)'),
                 ]),
-                TextColumn::make('manutencao_sum_custo_total')
-                    ->label('Manutenção')
-                    ->width('1%')
-                    ->money('BRL')
-                    ->sum('manutencao', 'custo_total'),
-                TextColumn::make('percentual_manutencao_faturamento')
-                    ->label('% Manut/Fat')
-                    ->formatStateUsing(fn(float $state): string => number_format($state, 2, ',', '.') . '%')
-                    ->color(fn(float $state): string => match (true) {
-                        $state > 15 => 'danger',
-                        $state > 10 => 'warning',
-                        default => 'success'
-                    })
-                    ->tooltip('Percentual de Manutenção sobre o Faturamento'),
+                ColumnGroup::make('Manutenção', [
+                    TextColumn::make('manutencao_sum_custo_total')
+                        ->label('Manutenção')
+                        ->width('1%')
+                        ->money('BRL')
+                        ->sum('manutencao', 'custo_total'),
+                    TextColumn::make('percentual_manutencao_faturamento')
+                        ->label('% Manut/Fat')
+                        ->width('1%')
+                        ->formatStateUsing(fn(float $state): string => number_format($state, 2, ',', '.') . '%')
+                        ->color(fn(float $state): string => match (true) {
+                            $state > 15 => 'danger',
+                            $state > 10 => 'warning',
+                            default => 'success'
+                        })
+                        ->tooltip('Percentual de Manutenção sobre o Faturamento'),
+                ]),
                 ColumnGroup::make('Diesel', [
                     TextColumn::make('abastecimentos_sum_preco_total')
                         ->label('Combustível')
@@ -158,7 +161,7 @@ class ResultadoPeriodosTable
                     TextColumn::make('consumo_medio_combustivel')
                         ->label('Consumo Médio Combustível')
                         ->suffix(' Km/L')
-                        ->width('1%')
+                        
                         ->numeric(4, ',', '.')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),

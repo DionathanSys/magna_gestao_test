@@ -149,13 +149,13 @@ class ResultadoPeriodosTable
                     TextColumn::make('preco_medio_combustivel')
                         ->label('Preço Médio Combustível')
                         ->width('1%')
-                        ->money('BRL', 100)
+                        ->money('BRL')
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('consumo_medio_combustivel')
                         ->label('Consumo Médio Combustível')
                         ->suffix(' Km/L')
                         ->width('1%')
-                        ->money('BRL', 100)
+                        ->money('BRL')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
                 TextColumn::make('created_at')

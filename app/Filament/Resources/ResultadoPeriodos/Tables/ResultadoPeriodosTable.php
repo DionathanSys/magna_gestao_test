@@ -40,7 +40,7 @@ class ResultadoPeriodosTable
         return $table
             ->modifyQueryUsing(function ($query) {
                 $query = $query->with([
-                    'veiculo:id,placa',
+                    'veiculo:id,placa,tipo_veiculo_id',
                     'tipoVeiculo:id,descricao',
                     'abastecimentoInicial',
                     'abastecimentoFinal'

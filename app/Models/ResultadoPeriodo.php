@@ -78,6 +78,13 @@ class ResultadoPeriodo extends Model
             ->orderBy('id', 'desc');
     }
 
+    protected function title(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): string => $this->veiculo->placa . ' ' . ucfirst(Carbon::parse($this->data_fim)->locale('pt_BR')->isoFormat('MMM YY'))
+        );
+    }
+
     protected function periodo(): Attribute
     {
         return Attribute::make(

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\Abastecimento\TipoCombustivelEnum;
+use App\Filament\Resources\Abastecimentos\Tables\AbastecimentosTable;
 use Carbon\Carbon;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
@@ -63,86 +64,86 @@ class AbastecimentosRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return AbastecimentosTable::configure($table)
             ->recordTitleAttribute('resultado_periodo_id')
-            ->columns([
-                TextColumn::make('id_abastecimento')
-                    ->label('ID Abastecimento')
-                    ->width('1%')
-                    ->numeric()
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('veiculo.placa')
-                    ->label('Veículo')
-                    ->width('1%'),
-                TextColumn::make('quilometragem')
-                    ->numeric(0, ',', '.')
-                    ->width('1%'),
-                TextColumn::make('posto_combustivel')
-                    ->label('Posto Combustível')
-                    ->width('1%')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('tipo_combustivel')
-                    ->label('Tipo Combustível')
-                    ->width('1%')
-                    ->badge()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('quantidade')
-                    ->numeric(2, ',', '.')
-                    ->width('1%')
-                    ->sortable()
-                    ->summarize(
-                        Sum::make()
-                            ->numeric(2, ',', '.')
-                            ->label('Total Lts.')
-                    ),
-                TextColumn::make('preco_por_litro')
-                    ->label('Vlr. Litro')
-                    ->width('1%')
-                    ->money('BRL')
-                    ->sortable(),
-                TextColumn::make('preco_total')
-                    ->label('Vlr. Total')
-                    ->width('1%')
-                    ->sortable()
-                    ->money('BRL')
-                    ->summarize(
-                        Sum::make()
-                            ->money('BRL', 100)
-                            ->label('Vlr. Total')
-                    ),
-                TextColumn::make('data_abastecimento')
-                    ->label('Dt. Abastecimento')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
-                IconColumn::make('considerar_fechamento')
-                    ->label('Considerar Fechamento')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('considerar_calculo_medio')
-                    ->label('Considerar Cálculo Médio')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Criado em')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label('Atualizado em')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            // ->columns([
+            //     TextColumn::make('id_abastecimento')
+            //         ->label('ID Abastecimento')
+            //         ->width('1%')
+            //         ->numeric()
+            //         ->sortable()
+            //         ->searchable(),
+            //     TextColumn::make('veiculo.placa')
+            //         ->label('Veículo')
+            //         ->width('1%'),
+            //     TextColumn::make('quilometragem')
+            //         ->numeric(0, ',', '.')
+            //         ->width('1%'),
+            //     TextColumn::make('posto_combustivel')
+            //         ->label('Posto Combustível')
+            //         ->width('1%')
+            //         ->toggleable(isToggledHiddenByDefault: true),
+            //     TextColumn::make('tipo_combustivel')
+            //         ->label('Tipo Combustível')
+            //         ->width('1%')
+            //         ->badge()
+            //         ->toggleable(isToggledHiddenByDefault: true),
+            //     TextColumn::make('quantidade')
+            //         ->numeric(2, ',', '.')
+            //         ->width('1%')
+            //         ->sortable()
+            //         ->summarize(
+            //             Sum::make()
+            //                 ->numeric(2, ',', '.')
+            //                 ->label('Total Lts.')
+            //         ),
+            //     TextColumn::make('preco_por_litro')
+            //         ->label('Vlr. Litro')
+            //         ->width('1%')
+            //         ->money('BRL')
+            //         ->sortable(),
+            //     TextColumn::make('preco_total')
+            //         ->label('Vlr. Total')
+            //         ->width('1%')
+            //         ->sortable()
+            //         ->money('BRL')
+            //         ->summarize(
+            //             Sum::make()
+            //                 ->money('BRL', 100)
+            //                 ->label('Vlr. Total')
+            //         ),
+            //     TextColumn::make('data_abastecimento')
+            //         ->label('Dt. Abastecimento')
+            //         ->dateTime('d/m/Y H:i')
+            //         ->sortable(),
+            //     IconColumn::make('considerar_fechamento')
+            //         ->label('Considerar Fechamento')
+            //         ->boolean()
+            //         ->toggleable(isToggledHiddenByDefault: true),
+            //     IconColumn::make('considerar_calculo_medio')
+            //         ->label('Considerar Cálculo Médio')
+            //         ->boolean()
+            //         ->toggleable(isToggledHiddenByDefault: true),
+            //     TextColumn::make('created_at')
+            //         ->label('Criado em')
+            //         ->dateTime('d/m/Y H:i')
+            //         ->sortable()
+            //         ->toggleable(isToggledHiddenByDefault: true),
+            //     TextColumn::make('updated_at')
+            //         ->label('Atualizado em')
+            //         ->dateTime('d/m/Y H:i')
+            //         ->sortable()
+            //         ->toggleable(isToggledHiddenByDefault: true),
+            // ])
             ->defaultSort('data_abastecimento', 'asc')
             ->filters([])
             ->headerActions([
                 CreateAction::make(),
                 AssociateAction::make()
-                    ->preloadRecordSelect() 
+                    ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(
                         fn($query) => $query
-                            ->whereNull('resultado_periodo_id') 
+                            ->whereNull('resultado_periodo_id')
                             ->where('veiculo_id', $this->ownerRecord->veiculo_id)
                             ->orderBy('data_abastecimento', 'desc')
                     )
@@ -155,7 +156,7 @@ class AbastecimentosRelationManager extends RelationManager
                             "R$ " . number_format($record->preco_total, 2, ',', '.')
                     )
                     ->multiple()
-                    ->recordSelectSearchColumns(['id', 'id_abastecimento']) 
+                    ->recordSelectSearchColumns(['id', 'id_abastecimento'])
                     ->label('Vincular Abastecimentos'),
             ])
             ->recordActions([
@@ -172,5 +173,8 @@ class AbastecimentosRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+   
+            
+   
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Abastecimentos\Tables;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\Abastecimentos;
+use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
 use App\Models\Abastecimento;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -47,7 +48,8 @@ class AbastecimentosTable
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->width('1%')
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->hiddenOn(AbastecimentosRelationManager::class),
                 TextColumn::make('quilometragem')
                     ->width('1%')
                     ->numeric(0, ',', '.'),

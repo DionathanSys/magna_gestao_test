@@ -27,7 +27,7 @@ class AbastecimentoForm
                 TextInput::make('posto_combustivel')
                     ->required(),
                 Select::make('tipo_combustivel')
-                    ->options(TipoCombustivelEnum::class)
+                    ->options(TipoCombustivelEnum::toSelectArray())
                     ->required(),
                 TextInput::make('quantidade')
                     ->required()
@@ -38,8 +38,11 @@ class AbastecimentoForm
                 DateTimePicker::make('data_abastecimento')
                     ->required(),
                 Toggle::make('considerar_fechamento')
+                    ->columnStart(1)
+                    ->inline(false)
                     ->required(),
                 Toggle::make('considerar_calculo_medio')
+                    ->inline(false)
                     ->required(),
             ]);
     }

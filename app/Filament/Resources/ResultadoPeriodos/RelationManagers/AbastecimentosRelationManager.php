@@ -90,9 +90,10 @@ class AbastecimentosRelationManager extends RelationManager
                     ->numeric(2, ',', '.')
                     ->width('1%')
                     ->sortable()
-                    ->summarize(Sum::make()
-                        ->numeric(2, ',', '.')
-                        ->label('Total Lts.')
+                    ->summarize(
+                        Sum::make()
+                            ->numeric(2, ',', '.')
+                            ->label('Total Lts.')
                     ),
                 TextColumn::make('preco_por_litro')
                     ->label('Vlr. Litro')
@@ -104,9 +105,10 @@ class AbastecimentosRelationManager extends RelationManager
                     ->width('1%')
                     ->sortable()
                     ->money('BRL')
-                    ->summarize(Sum::make()
-                        ->money('BRL', 100)
-                        ->label('Vlr. Total')
+                    ->summarize(
+                        Sum::make()
+                            ->money('BRL', 100)
+                            ->label('Vlr. Total')
                     ),
                 TextColumn::make('data_abastecimento')
                     ->label('Dt. Abastecimento')
@@ -131,13 +133,33 @@ class AbastecimentosRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                
-            ])
+            ->filters([])
             ->headerActions([
                 CreateAction::make(),
                 AssociateAction::make()
-                    ->recordSelectSearchColumns(['id_abastecimento']),
+                    ->preloadRecordSelect() 
+                    ->recordSelectOptionsQuery(
+                        fn($query) => $query
+                            ->whereNull('resultado_periodo_id') 
+                            ->where('veiculo_id', $this->ownerRecord->veiculo_id)
+                            ->whereBetween('data_abastecimento', [
+                                $this->ownerRecord->data_inicio,
+                                $this->ownerRecord->data_fim
+                            ]) // Dentro do período
+                            ->orderBy('data_abastecimento', 'desc')
+                    )
+                    ->recordTitle(
+                        fn($record) =>
+                        "#{$record->id} | " .
+                            $record->data_abastecimento . " | ID: " .
+                            number_format($record->id_abastecimento, 0, ',', '.') . " | " .
+                            number_format($record->quantidade, 2, ',', '.') . "L | " .
+                            "R$ " . number_format($record->preco_total, 2, ',', '.') . " | " .
+                            ($record->posto_combustivel ?? 'Sem posto')
+                    )
+                    ->multiple() // ⭐ Permite selecionar vários de uma vez
+                    ->recordSelectSearchColumns(['id', 'id_abastecimento']) 
+                    ->label('Vincular Abastecimentos'),
             ])
             ->recordActions([
                 EditAction::make()

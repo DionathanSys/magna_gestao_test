@@ -4,6 +4,7 @@ namespace App\Filament\Resources\DocumentoFretes\Tables;
 
 use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
+use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Carbon\Carbon;
@@ -131,6 +132,7 @@ class DocumentoFretesTable
                     ->label('Sem Viagem')
                     ->toggle()
                     ->query(fn(Builder $query): Builder => $query->whereNull('viagem_id')),
+                RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->groups([
                 Group::make('veiculo.placa')

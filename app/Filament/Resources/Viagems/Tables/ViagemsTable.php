@@ -6,6 +6,7 @@ use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkActi
 use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn,};
 use Filament\Tables\Table;
 use App\{Models, Services, Enum};
+use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\{DocumentoFretes, Viagems};
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -96,16 +97,16 @@ class ViagemsTable
                         ->rules(['numeric', 'min:0', 'required'])
                         ->toggleable(isToggledHiddenByDefault: false)
                         ->afterStateUpdated(function ($state, Models\Viagem $record) {
-                                if (!$record->relationLoaded('cargas')) {
-                                    $record->load('cargas.integrado');
-                                }
-                                
-                                $primeiraIntegrado = $record->cargas->first()?->integrado;
-                                
-                                if ($primeiraIntegrado) {
-                                    (new Services\IntegradoService)->atualizarKmRota($primeiraIntegrado, $state);
-                                }
-                            }),
+                            if (!$record->relationLoaded('cargas')) {
+                                $record->load('cargas.integrado');
+                            }
+
+                            $primeiraIntegrado = $record->cargas->first()?->integrado;
+
+                            if ($primeiraIntegrado) {
+                                (new Services\IntegradoService)->atualizarKmRota($primeiraIntegrado, $state);
+                            }
+                        }),
                     TextInputColumn::make('km_cobrar')
                         ->width('1%')
                         ->wrapHeader()
@@ -419,6 +420,7 @@ class ViagemsTable
                         'CONCORDIA'     => 'Concórdia',
                     ])
                     ->default('CHAPECO'),
+                RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(

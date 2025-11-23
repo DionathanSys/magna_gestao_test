@@ -231,4 +231,19 @@ class Abastecimento extends Model
         );
     }
 
+    protected function title(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $data = $this->data_abastecimento ?? 'Sem data';
+                $km = number_format($this->quilometragem ?? 0, 0, ',', '.');
+                $litros = number_format($this->quantidade ?? 0, 2, ',', '.');
+                $valor = 'R$ ' . number_format($this->preco_total ?? 0, 2, ',', '.');
+                $posto = $this->posto_combustivel ?? 'Sem posto';
+                
+                return "#{$this->id} | {$data} | {$km} km | {$litros}L | {$valor} | {$posto}";
+            }
+        );
+    }
+
 }

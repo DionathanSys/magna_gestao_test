@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Abastecimentos\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
+use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\Abastecimentos;
 use App\Models\Abastecimento;
 use Filament\Actions\ActionGroup;
@@ -33,7 +34,7 @@ class AbastecimentosTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query): void {
-                $query->with(['veiculo:id,placa,tipo_veiculo_id','veiculo.tipoVeiculo:id,meta_media']);
+                $query->with(['veiculo:id,placa,tipo_veiculo_id', 'veiculo.tipoVeiculo:id,meta_media']);
             })
             ->columns([
                 TextColumn::make('id_abastecimento')
@@ -94,11 +95,11 @@ class AbastecimentosTable
                         $percentual = round(($consumo / $meta) * 100);
 
                         return match (true) {
-                            $consumo >= ($meta * 1.39) => "Excelente! {$percentual}% da meta 🚀",           
-                            $consumo > ($meta * 0.99) => "Meta Atingida: {$percentual}% da meta ✅",              
-                            $consumo >= ($meta * 0.85) => "Abaixo da meta: {$percentual}% da meta",             
-                            $consumo >= ($meta * 0.5) => "Muito abaixo da meta: {$percentual}% ⚠️",             
-                            default => "Crítico: {$percentual}% da meta ❌",                             
+                            $consumo >= ($meta * 1.39) => "Excelente! {$percentual}% da meta 🚀",
+                            $consumo > ($meta * 0.99) => "Meta Atingida: {$percentual}% da meta ✅",
+                            $consumo >= ($meta * 0.85) => "Abaixo da meta: {$percentual}% da meta",
+                            $consumo >= ($meta * 0.5) => "Muito abaixo da meta: {$percentual}% ⚠️",
+                            default => "Crítico: {$percentual}% da meta ❌",
                         };
                     })
                     ->color(function (Abastecimento $record) {
@@ -192,7 +193,8 @@ class AbastecimentosTable
                 Filter::make('considera_no_calculo_media')
                     ->label('Abastecidas p/ cálculo médio')
                     ->toggle()
-                    ->query(fn (Builder $query): Builder => $query->where('considerar_calculo_medio', true)),
+                    ->query(fn(Builder $query): Builder => $query->where('considerar_calculo_medio', true)),
+                RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->recordActions([
                 EditAction::make()

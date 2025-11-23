@@ -27,6 +27,7 @@ use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Text;
+use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\Summarizers\Average;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Number;
@@ -98,17 +99,11 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->money('BRL', 100)
                     ->sum('documentos', 'valor_liquido'),
-                TextColumn::make('abastecimentos_sum_preco_total')
-                    ->label('Combustível')
-                    ->money('BRL', 100)
-                    ->width('1%')
-                    ->sum('abastecimentos', 'preco_total'),
                 TextColumn::make('manutencao_sum_custo_total')
                     ->label('Manutenção')
                     ->width('1%')
                     ->money('BRL')
                     ->sum('manutencao', 'custo_total'),
-                // ⭐ Resultado Líquido
                 TextColumn::make('resultado_liquido')
                     ->label('Resultado Líquido')
                     ->width('1%')
@@ -123,24 +118,18 @@ class ResultadoPeriodosTable
                         default => 'heroicon-o-arrow-trending-up',
                     })
                     ->tooltip('Faturamento - Combustível - Manutenção'),
-
-                // ⭐ Faturamento por KM Rodado
                 TextColumn::make('faturamento_por_km_rodado')
                     ->label('Fat/Km Rodado')
                     ->width('1%')
                     ->money('BRL', 100)
                     ->description('R$/Km')
                     ->tooltip('Faturamento dividido pelo KM Rodado (abastecimentos)'),
-
-                // ⭐ Faturamento por KM Pago
                 TextColumn::make('faturamento_por_km_pago')
                     ->label('Fat/Km Pago')
                     ->width('1%')
                     ->money('BRL', 100)
                     ->description('R$/Km')
                     ->tooltip('Faturamento dividido pelo KM Pago (viagens)'),
-
-                // ⭐ % Manutenção sobre Faturamento
                 TextColumn::make('percentual_manutencao_faturamento')
                     ->label('% Manut/Fat')
                     ->formatStateUsing(fn(float $state): string => number_format($state, 2, ',', '.') . '%')
@@ -150,6 +139,24 @@ class ResultadoPeriodosTable
                         default => 'success'
                     })
                     ->tooltip('Percentual de Manutenção sobre o Faturamento'),
+                ColumnGroup::make('Diesel', [
+                    TextColumn::make('abastecimentos_sum_preco_total')
+                        ->label('Combustível')
+                        ->money('BRL', 100)
+                        ->width('1%')
+                        ->sum('abastecimentos', 'preco_total'),
+                    TextColumn::make('preco_medio_combustivel')
+                        ->label('Preço Médio Combustível')
+                        ->width('1%')
+                        ->money('BRL', 100)
+                        ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('consumo_medio_combustivel')
+                        ->label('Consumo Médio Combustível')
+                        ->suffix(' Km/L')
+                        ->width('1%')
+                        ->money('BRL', 100)
+                        ->toggleable(isToggledHiddenByDefault: false),
+                ]),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')
@@ -198,7 +205,7 @@ class ResultadoPeriodosTable
                         ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
                         ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
                         ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
-                    
+
                 ]),
             ])
             ->toolbarActions([

@@ -117,6 +117,41 @@ class ResultadoPeriodo extends Model
         );
     }
 
+    protected function quantidadeLitrosCombustivel(): Attribute
+    {
+        Log::debug('Cálculo da quantidade de litros de combustível', [
+            'abastecimentos_sum_quantidade' => $this->abastecimentos->sum('quantidade'),
+        ]);
+
+        return Attribute::make(
+            get: fn(): float => (float) ($this->abastecimentos->sum('quantidade') ?? 0)
+        );
+    }
+
+    protected function precoMedioCombustivel(): Attribute
+    {
+        Log::debug('Cálculo do preco médio de combustível', [
+            'abastecimentos_sum_preco_total' => $this->abastecimentos->sum('preco_total'),
+            'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
+        ]);
+
+        return Attribute::make(
+            get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0
+        );
+    }
+
+    protected function consumoMedioCombustivel(): Attribute
+    {
+        Log::debug('Cálculo do consumo médio de combustível', [
+            'km_rodado_abastecimento' => $this->km_rodado_abastecimento,
+            'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
+        ]);
+
+        return Attribute::make(
+            get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0
+        );
+    }
+
     protected function dispersaoKm(): Attribute
     {
         return Attribute::make(
@@ -146,7 +181,7 @@ class ResultadoPeriodo extends Model
     }
 
      /**
-     * ⭐ Accessor: Resultado Líquido
+     * Accessor: Resultado Líquido
      * Faturamento - Combustível - Manutenção
      */
     protected function resultadoLiquido(): Attribute
@@ -163,7 +198,7 @@ class ResultadoPeriodo extends Model
     }
 
     /**
-     * ⭐ Accessor: Faturamento por KM Rodado
+     *Accessor: Faturamento por KM Rodado
      * Faturamento / KM Rodado (baseado em abastecimentos)
      */
     protected function faturamentoPorKmRodado(): Attribute
@@ -183,7 +218,7 @@ class ResultadoPeriodo extends Model
     }
 
     /**
-     * ⭐ Accessor: Faturamento por KM Pago
+     *Accessor: Faturamento por KM Pago
      * Faturamento / KM Pago (baseado em viagens)
      */
     protected function faturamentoPorKmPago(): Attribute
@@ -203,7 +238,7 @@ class ResultadoPeriodo extends Model
     }
 
     /**
-     * ⭐ Accessor: Percentual de Manutenção sobre Faturamento
+     *Accessor: Percentual de Manutenção sobre Faturamento
      * (Manutenção / Faturamento) * 100
      */
     protected function percentualManutencaoFaturamento(): Attribute
@@ -216,11 +251,7 @@ class ResultadoPeriodo extends Model
                 if ($faturamento <= 0) {
                     return 0;
                 }
-                Log::debug('Cálculo do percentual de manutenção sobre faturamento', [
-                    'faturamento' => $faturamento / 100,
-                    'manutencao' => $manutencao,
-                    'calculo' => ($manutencao / $faturamento) * 100,
-                ]);
+
                 return ($manutencao / ($faturamento / 100)) * 100;
             }
         );

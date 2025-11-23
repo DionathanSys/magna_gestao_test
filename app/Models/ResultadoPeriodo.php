@@ -175,7 +175,7 @@ class ResultadoPeriodo extends Model
                 
                 // Se não houver meta, retorna null
                 if (!$meta || $meta <= 0) {
-                    return 'vazio';
+                    return 'vazio sem meta';
                 }
                 
                 // Consumo real do período
@@ -183,7 +183,7 @@ class ResultadoPeriodo extends Model
                 
                 // Se não houver consumo, retorna null
                 if (!$consumoReal || $consumoReal <= 0) {
-                    return 'vazio';
+                    return 'vazio sem consumo';
                 }
                 
                 // Calcula a diferença (positivo = acima da meta, negativo = abaixo)

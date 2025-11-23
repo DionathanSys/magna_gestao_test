@@ -121,6 +121,7 @@ class ResultadoPeriodo extends Model
     {
         Log::debug('Cálculo da quantidade de litros de combustível', [
             'placa' => $this->veiculo->placa,
+            'periodo' => $this->periodo,
             'abastecimentos_sum_quantidade' => $this->abastecimentos->sum('quantidade'),
         ]);
 
@@ -133,6 +134,7 @@ class ResultadoPeriodo extends Model
     {
         Log::debug('Cálculo do preco médio de combustível', [
             'placa' => $this->veiculo->placa,
+            'periodo' => $this->periodo,
             'abastecimentos_sum_preco_total' => $this->abastecimentos->sum('preco_total'),
             'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
         ]);
@@ -146,6 +148,7 @@ class ResultadoPeriodo extends Model
     {
         Log::debug('Cálculo do consumo médio de combustível', [
             'placa' => $this->veiculo->placa,
+            'periodo' => $this->periodo,
             'km_rodado_abastecimento' => $this->km_rodado_abastecimento,
             'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
         ]);

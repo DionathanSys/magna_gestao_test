@@ -143,7 +143,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <div class="logo">🚚 Magna Gestão</div>
+            <div class="logo">🚚 Axion Gestão</div>
             <div class="subtitle">Sistema Completo de Gestão de Frotas</div>
 
             <div class="features">
@@ -187,7 +187,7 @@
             <a href="/admin" class="btn-primary">Acessar Sistema</a>
 
             <div class="footer">
-                © {{ date('Y') }} Magna Gestão - Todos os direitos reservados
+                © {{ date('Y') }} Axion Gestão - Todos os direitos reservados
             </div>
         </div>
     </div>

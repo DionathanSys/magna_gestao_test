@@ -39,6 +39,7 @@ class CustoDiversoResource extends Resource
                 KeyValue::make('descricao')
                     ->label('Descrição')
                     ->columnStart(1)
+                    ->columnSpanFull()
                     ->required(),
                 TextInput::make('custo_total')
                     ->label('Custo Total')

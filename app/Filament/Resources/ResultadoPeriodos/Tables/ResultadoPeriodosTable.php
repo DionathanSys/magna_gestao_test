@@ -58,7 +58,8 @@ class ResultadoPeriodosTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->width('1%'),
+                    ->width('1%')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->width('1%')
@@ -70,20 +71,12 @@ class ResultadoPeriodosTable
                 TextColumn::make('periodo')
                     ->label('Período')
                     ->width('1%')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('resultado_liquido')
                     ->label('Resultado Líquido')
                     ->width('1%')
                     ->money('BRL', 100)
-                    ->color(fn(float $state): string => match (true) {
-                        $state < 0 => 'danger',
-                        $state < 1000 => 'warning',
-                        default => 'success'
-                    })
-                    ->icon(fn(float $state): string => match (true) {
-                        $state < 0 => 'heroicon-o-arrow-trending-down',
-                        default => 'heroicon-o-arrow-trending-up',
-                    })
                     ->tooltip('Faturamento - Combustível - Manutenção'),
                 ColumnGroup::make('KM', [
                     TextColumn::make('km_rodado_abastecimento')
@@ -105,7 +98,8 @@ class ResultadoPeriodosTable
                         ->wrapHeader()
                         ->numeric(0, ',', '.')
                         ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
-                        ->tooltip(fn(): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.'),
+                        ->tooltip(fn(): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.')
+                        ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('media_km_pago_viagem')
                         ->label('Viagens')
                         ->width('1%')

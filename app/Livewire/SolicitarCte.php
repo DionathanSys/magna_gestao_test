@@ -209,6 +209,21 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'integrados'        => 'required|array|min:1',
             'integrados.*.integrado_id'    => 'required|integer|exists:integrados,id',
             'integrados.*.km_rota'         => 'required|numeric|min:0',
+        ], [
+            'km_total.required'            => "O campo 'KM Total' é obrigatório.",
+            'valor_frete.required'         => "O campo 'Valor do Frete' é obrigatório.",
+            'motorista.cpf.required'       => "O campo 'Motorista' é obrigatório.",
+            'veiculo.required'             => "O campo 'Veículo' é obrigatório.",
+            'veiculo.exists'               => "O veículo selecionado não foi encontrado.",
+            'anexos.required'              => "O campo 'Anexos' é obrigatório.",
+            'anexos.array'                 => "O campo 'Anexos' deve ser um array.",
+            'anexos.min'                   => "É necessário anexar pelo menos 1 arquivo.",
+            'integrados.required'          => "O campo 'Integrados' é obrigatório.",
+            'integrados.array'             => "O campo 'Integrados' deve ser um array.",
+            'integrados.min'               => "É necessário adicionar pelo menos 1 integrado.",
+            'integrados.*.integrado_id.required'    => "O campo 'Integrado' é obrigatório em cada item.",
+            'integrados.*.integrado_id.exists'      => "O integrado selecionado não foi encontrado em cada item.",
+            'integrados.*.km_rota.required'         => "O campo 'KM Rota' é obrigatório em cada item.",
         ]);
 
         if($validator->fails()){

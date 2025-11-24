@@ -167,7 +167,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         ]);
 
         notify::error('Teste');
-        die();
+         return;
         $service = new CteService\CteService();
         $service->solicitarCtePorEmail($data);
         

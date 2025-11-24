@@ -22,6 +22,7 @@ use Livewire\Component;
 use App\Services\CteService;
 use BackedEnum;
 use App\Services\NotificacaoService as notify;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -302,8 +303,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     private function mutateData(array $data): array
     {
-        $data['destinos']   = $this->mutateDestinos($data['data-integrados']);
-        $data['veiculo']      = $data['veiculo'] ?? null;
+        $data['destinos']       = $this->mutateDestinos($data['data-integrados']);
+        $data['veiculo']        = $data['veiculo'] ?? null;
+        $data['veiculo_id']     = \App\Models\Veiculo::where('placa', $data['veiculo'])->first()?->id ?? null;
         $data['motorista']    = [
             'cpf' => $data['motorista'] ?? null,
         ];

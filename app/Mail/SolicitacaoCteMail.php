@@ -11,6 +11,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SolicitacaoCteMail extends Mailable
 {
@@ -59,28 +60,31 @@ class SolicitacaoCteMail extends Mailable
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
-    public function attachments(): array
+   public function attachments(): array
     {
         $attachments = [];
 
         foreach ($this->payload->anexos as $anexo) {
             try {
-                Log::debug('Anexo para email', [
-                    'nome' => $anexo->getClientOriginalName(),
-                    'tipo' => $anexo->getClientOriginalExtension(),
-                    'tamanho' => $anexo->getSize(),
-                    'mime' => $anexo->getMimeType(),
-                    'realPath' => $anexo->getRealPath(),
+                Log::debug('Anexando arquivo ao email', [
+                    'path' => $anexo['path'] ?? 'N/A',
+                    'name' => $anexo['name'] ?? 'N/A',
                 ]);
 
-                $attachments[] = Attachment::fromPath($anexo->getRealPath())
-                    ->as($anexo->getClientOriginalName())
-                    ->withMime($anexo->getMimeType());
+                // ✅ Verificar se é array ou objeto
+                if (is_array($anexo)) {
+                    $attachments[] = Attachment::fromPath($anexo['path'])
+                        ->as($anexo['name'])
+                        ->withMime($anexo['mime']);
+                } else {
+                    // Se for string (path direto)
+                    $attachments[] = Attachment::fromStorageDisk('private', $anexo);
+                }
+
             } catch (\Exception $e) {
                 Log::error('Erro ao anexar arquivo no email', [
                     'error' => $e->getMessage(),
-                    'nome' => $anexo->getClientOriginalName(),
-
+                    'anexo' => $anexo,
                 ]);
             }
         }

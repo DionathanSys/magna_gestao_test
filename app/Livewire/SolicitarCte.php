@@ -25,6 +25,7 @@ use App\Services\NotificacaoService as notify;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class SolicitarCte extends Component implements HasSchemas, HasActions
 {
@@ -161,6 +162,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     public function handle(): void
     {
+
         $data = $this->mutateData($this->data ?? []);
 
         if(!$this->validateData($data)){
@@ -168,9 +170,10 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             return;
         }
 
-        Log::debug("dados do componente livewire", [
+        Log::debug("dados componente solicitar cte", [
             'método' => __METHOD__ . '-' . __LINE__,
             'data' => $this->data,
+            'dados_processados' => $data,
         ]);
 
         $data['created_by'] = Auth::id();
@@ -243,6 +246,8 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'cpf' => $data['motorista'] ?? null,
         ];
 
+        $data['anexos'] = $this->processarAnexos($data['anexos'] ?? []);
+
         // Remover dados desnecessários
         unset($data['data-integrados']);
 
@@ -265,5 +270,44 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     public function render()
     {
         return view('livewire.solicitar-cte');
+    }
+
+    /**
+     * Processar arquivos temporários do Livewire
+     * 
+     * @param array $anexos
+     * @return array Array com paths dos arquivos salvos
+     */
+    private function processarAnexos(array $anexos): array
+    {
+        $arquivosSalvos = [];
+
+        foreach ($anexos as $key => $anexo) {
+            // Verificar se é um objeto TemporaryUploadedFile
+            if ($anexo instanceof TemporaryUploadedFile) {
+                // Mover arquivo temporário para storage permanente
+                $path = $anexo->store('private/cte');
+                $arquivosSalvos[] = $path;
+                
+                Log::debug('Arquivo processado', [
+                    'original_key' => $key,
+                    'path' => $path,
+                    'size' => $anexo->getSize(),
+                    'mime' => $anexo->getMimeType(),
+                ]);
+
+            } elseif (is_string($anexo)) {
+                // Se já for uma string (path), apenas adicionar
+                $arquivosSalvos[] = $anexo;
+            } else {
+                Log::warning('Tipo de anexo desconhecido', [
+                    'key' => $key,
+                    'type' => gettype($anexo),
+                    'value' => $anexo,
+                ]);
+            }
+        }
+
+        return $arquivosSalvos;
     }
 }

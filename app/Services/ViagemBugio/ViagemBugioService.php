@@ -40,6 +40,9 @@ class ViagemBugioService
         $destinos = [];
 
         foreach ($integrados as &$integrado) {
+            Log::debug(__METHOD__ . '-' . __LINE__, [
+                'integrado' => $integrado,
+            ]);
             $destino['integrado_id']    = $integrado['integrado_id'];
             $destino['km_rota']         = $integrado['km_rota'];
 

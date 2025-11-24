@@ -16,13 +16,13 @@ class CriarViagem
     public function validate(array $data): void
     {
         $validator = Validator::make($data, [
+            'veiculo_id'        => 'required|integer|exists:veiculos,id',
             'destinos'          => 'required|array|size:min:1',
-            'data_competencia'  => 'required|date',
             'km_rodado'         => 'required|numeric|min:0',
             'km_pago'           => 'required|numeric|min:0',
+            'data_competencia'  => 'required|date',
             'frete'             => 'required|numeric|min:0',
             'condutor'          => 'nullable|string|max:155',
-            'veiculo_id'        => 'required|integer|exists:veiculos,id',
             'observacao'        => 'nullable|string|max:1000',
             'status'            => 'nullable|string|max:255',
             'created_by'        => 'required|integer|exists:users,id',

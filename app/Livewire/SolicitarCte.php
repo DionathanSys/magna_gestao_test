@@ -95,7 +95,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->label('Anexos')
                             ->multiple()
                             ->maxFiles(10)
-                            ->panelLayout('grid')
+                            // ->panelLayout('grid')
                             ->directory('cte')
                             ->visibility('private')
                             ->required(),
@@ -105,7 +105,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->columnSpan(['md' => 2, 'xl' => 5])
                             ->defaultItems(1)
                             ->addActionLabel('Adicionar Integrado')
-                            ->deletable(false)
+                            ->deletable(true)
                             ->minItems(1)
                             ->schema([
                                 Select::make('integrado_id')
@@ -166,9 +166,11 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'data' => $data,
         ]);
 
+        notify::error('Teste');
+        die();
         $service = new CteService\CteService();
         $service->solicitarCtePorEmail($data);
-
+        
         if ($service->hasError()) {
             notify::error('Erro ao enviar solicitação de CTe.');
             return;

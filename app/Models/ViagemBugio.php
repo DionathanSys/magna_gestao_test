@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ViagemBugio extends Model
 {
@@ -11,4 +12,11 @@ class ViagemBugio extends Model
     protected $casts = [
         'destinos' => 'array',
     ];
+
+    public function veiculo(): BelongsTo
+    {
+        return $this->belongsTo(Veiculo::class);
+    }
+
+    
 }

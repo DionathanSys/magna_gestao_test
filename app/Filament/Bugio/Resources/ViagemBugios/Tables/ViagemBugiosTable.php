@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class ViagemBugiosTable
                     ->label('Placa')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('destinos.integrado_nome')
+                TextColumn::make('destinos')
                     ->label('Integrados')
                     ->sortable()
                     ->searchable(),
@@ -36,11 +37,14 @@ class ViagemBugiosTable
                 TextColumn::make('km_pago')
                     ->label('Km Pago')
                     ->numeric(0, ',', '.')
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()),
                 TextColumn::make('frete')
                     ->label('Frete')
                     ->money('BRL')
-                    ->sortable(),
+                    ->sortable()
+                    ->summarize(Sum::make()
+                        ->money('BRL')),
                 TextColumn::make('condutor')
                     ->label('Motorista')
                     ->sortable()

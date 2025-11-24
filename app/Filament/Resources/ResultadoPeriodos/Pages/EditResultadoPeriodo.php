@@ -6,6 +6,8 @@ use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Support\Facades\Auth;
 
 class EditResultadoPeriodo extends EditRecord
 {
@@ -14,8 +16,18 @@ class EditResultadoPeriodo extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->visible(fn (): bool => Auth::user()->is_admin),
         ];
+    }
+
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
+    public function getContentTabComponent(): Tab
+    {
+        return Tab::make('Editar');
     }
 }

@@ -195,6 +195,8 @@ class ResultadoPeriodosTable
                     ->label('Data Início'),
                 Group::make('veiculo.placa')
                     ->label('Veículo'),
+                Group::make('veiculo.modelo')
+                    ->label('Veículo'),
                 Group::make('tipoVeiculo.descricao')
                     ->label('Tipo Veículo'),
             ])

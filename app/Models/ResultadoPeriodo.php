@@ -27,6 +27,7 @@ class ResultadoPeriodo extends Model
         'faturamento_por_km_pago',
         'percentual_manutencao_faturamento',
         'diferenca_meta_consumo',
+        'variacao_faturamento_mes_anterior',
     ];
 
     public function veiculo(): BelongsTo
@@ -93,6 +94,67 @@ class ResultadoPeriodo extends Model
         );
     }
 
+    //Período do mês anterior do mesmo veículo
+    public function periodoMesAnterior(): HasOne
+    {
+        return $this->hasOne(ResultadoPeriodo::class, 'veiculo_id', 'veiculo_id')
+            ->where('id', '!=', $this->id) // Não pegar o próprio registro
+            ->where('data_fim', '<', $this->data_inicio) // Anterior a este período
+            ->orderBy('data_fim', 'desc') // Pegar o mais recente
+            ->limit(1);
+    }
+
+    /**
+     *Accessor: Variação do Faturamento em relação ao mês anterior
+     * Compara o faturamento atual com o do período anterior do mesmo veículo
+     */
+    protected function variacaoFaturamentoMesAnterior(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?string {
+                // Faturamento do período atual
+                $faturamentoAtual = $this->documentos_sum_valor_liquido ?? 0;
+
+                if ($faturamentoAtual <= 0) {
+                    return null;
+                }
+
+                // Busca o período anterior do mesmo veículo
+                $periodoAnterior = static::query()
+                    ->where('veiculo_id', $this->veiculo_id)
+                    ->where('id', '!=', $this->id)
+                    ->where('data_fim', '<', $this->data_inicio)
+                    ->withSum('documentos', 'valor_liquido')
+                    ->orderBy('data_fim', 'desc')
+                    ->first();
+
+                // Se não houver período anterior
+                if (!$periodoAnterior) {
+                    return null;
+                }
+
+                $faturamentoAnterior = $periodoAnterior->documentos_sum_valor_liquido ?? 0;
+
+                // Se não houver faturamento no período anterior
+                if ($faturamentoAnterior <= 0) {
+                    return '+100%'; // Aumentou infinito (de 0 para algo)
+                }
+
+                // Calcula a variação percentual
+                $variacao = (($faturamentoAtual - $faturamentoAnterior) / $faturamentoAnterior) * 100;
+
+                // Formata a mensagem
+                if ($variacao > 0) {
+                    return sprintf('+%.1f%%', $variacao);
+                } elseif ($variacao < 0) {
+                    return sprintf('%.1f%%', $variacao); // Já tem o sinal negativo
+                } else {
+                    return '0%';
+                }
+            }
+        );
+    }
+
     protected function kmPago(): Attribute
     {
         return Attribute::make(
@@ -120,13 +182,6 @@ class ResultadoPeriodo extends Model
 
     protected function quantidadeLitrosCombustivel(): Attribute
     {
-        // Log::debug('Cálculo da quantidade de litros de combustível', [
-        //     'placa' => $this->veiculo->placa,
-        //     'periodo' => $this->periodo,
-        //     'abastecimentos_sum_quantidade' => $this->abastecimentos->sum('quantidade'),
-        //     'calculo' => (float) ($this->abastecimentos->sum('quantidade') ?? 0),
-        // ]);
-
         return Attribute::make(
             get: fn(): float => (float) ($this->abastecimentos->sum('quantidade') ?? 0)
         );
@@ -134,14 +189,6 @@ class ResultadoPeriodo extends Model
 
     protected function precoMedioCombustivel(): Attribute
     {
-        // Log::debug('Cálculo do preco médio de combustível', [
-        //     'placa' => $this->veiculo->placa,
-        //     'periodo' => $this->periodo,
-        //     'abastecimentos_sum_preco_total' => $this->abastecimentos->sum('preco_total'),
-        //     'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
-        //     'calculo' => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0,
-        // ]);
-
         return Attribute::make(
             get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0
         );
@@ -149,21 +196,13 @@ class ResultadoPeriodo extends Model
 
     protected function consumoMedioCombustivel(): Attribute
     {
-        // Log::debug('Cálculo do consumo médio de combustível', [
-        //     'placa' => $this->veiculo->placa,
-        //     'periodo' => $this->periodo,
-        //     'km_rodado_abastecimento' => $this->km_rodado_abastecimento,
-        //     'quantidade_litros_combustivel' => $this->quantidade_litros_combustivel,
-        //     'calculo' => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0,
-        // ]);
-
         return Attribute::make(
             get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0
         );
     }
 
     /**
-     * ⭐ Accessor: Diferença entre consumo real e meta
+     *Accessor: Diferença entre consumo real e meta
      * Retorna quanto ficou acima (+) ou abaixo (-) da meta
      */
     protected function diferencaMetaConsumo(): Attribute
@@ -172,26 +211,26 @@ class ResultadoPeriodo extends Model
             get: function (): ?string {
                 // Pega a meta do tipo de veículo
                 $meta = $this->veiculo?->tipoVeiculo?->meta_media;
-                
+
                 // Se não houver meta
                 if (!$meta || $meta <= 0) {
                     return 'Sem Meta';
                 }
-                
+
                 // Consumo real do período
                 $consumoReal = $this->consumo_medio_combustivel;
-                
+
                 // Se não houver consumo
                 if (!$consumoReal || $consumoReal <= 0) {
                     return 'Sem Consumo';
                 }
-                
+
                 // Calcula a diferença (positivo = acima da meta, negativo = abaixo)
                 $diferenca = $consumoReal - $meta;
-                
+
                 // Calcula o percentual
                 $percentual = ($diferenca / $meta) * 100;
-                
+
                 // Formata a mensagem
                 if ($diferenca > 0) {
                     return sprintf(
@@ -237,11 +276,11 @@ class ResultadoPeriodo extends Model
     protected function mediaKmPagoViagem(): Attribute
     {
         return Attribute::make(
-            get: fn(): string => $this->quantidade_viagens > 0 ? number_format($this->km_pago / $this->quantidade_viagens, 2, ',', '.') . " Km/Viagem": "0"
+            get: fn(): string => $this->quantidade_viagens > 0 ? number_format($this->km_pago / $this->quantidade_viagens, 2, ',', '.') . " Km/Viagem" : "0"
         );
     }
 
-     /**
+    /**
      * Accessor: Resultado Líquido
      * Faturamento - Combustível - Manutenção
      */
@@ -252,7 +291,7 @@ class ResultadoPeriodo extends Model
                 $faturamento = $this->documentos_sum_valor_liquido ?? 0;
                 $combustivel = $this->abastecimentos_sum_preco_total ?? 0;
                 $manutencao = $this->manutencao_sum_custo_total ?? 0;
-                
+
                 return $faturamento - $combustivel - $manutencao;
             }
         );
@@ -268,11 +307,11 @@ class ResultadoPeriodo extends Model
             get: function (): float {
                 $faturamento = $this->documentos_sum_valor_liquido ?? 0;
                 $kmRodado = $this->km_rodado_abastecimento;
-                
+
                 if ($kmRodado <= 0) {
                     return 0;
                 }
-                
+
                 return $faturamento / $kmRodado;
             }
         );
@@ -288,11 +327,11 @@ class ResultadoPeriodo extends Model
             get: function (): float {
                 $faturamento = $this->documentos_sum_valor_liquido ?? 0;
                 $kmPago = $this->km_pago;
-                
+
                 if ($kmPago <= 0) {
                     return 0;
                 }
-                
+
                 return $faturamento / $kmPago;
             }
         );
@@ -308,7 +347,7 @@ class ResultadoPeriodo extends Model
             get: function (): float {
                 $faturamento = $this->documentos_sum_valor_liquido ?? 0;
                 $manutencao = $this->manutencao_sum_custo_total ?? 0;
-                
+
                 if ($faturamento <= 0) {
                     return 0;
                 }

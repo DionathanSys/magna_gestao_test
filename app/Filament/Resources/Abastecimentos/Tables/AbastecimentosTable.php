@@ -7,6 +7,7 @@ use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\Abastecimentos;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
 use App\Models\Abastecimento;
+use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -180,7 +181,7 @@ class AbastecimentosTable
             ->filters([
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
-                    ->relationship('veiculo', 'placa')
+                    ->options(VeiculoCacheService::getPlacasAtivasForSelect())
                     ->multiple()
                     ->searchable(),
                 SelectFilter::make('tipo_veiculo')

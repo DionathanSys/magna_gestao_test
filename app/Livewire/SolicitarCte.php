@@ -23,6 +23,7 @@ use BackedEnum;
 use App\Services\NotificacaoService as notify;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class SolicitarCte extends Component implements HasSchemas, HasActions
 {
@@ -161,13 +162,19 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     {
         $data = $this->mutateData($this->data ?? []);
 
+        if(!$this->validateData($data)){
+            notify::error('Dados inválidos. Verifique os campos e tente novamente.');
+            return;
+        }
+
         Log::debug("dados do componente livewire", [
             'método' => __METHOD__ . '-' . __LINE__,
-            'data' => $data,
+            'data' => $this->data,
         ]);
 
         notify::error('Teste');
-         return;
+        return;
+
         $service = new CteService\CteService();
         $service->solicitarCtePorEmail($data);
         
@@ -187,15 +194,33 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $this->resetForm();
     }
 
+    private function validateData(array $data): void
+    {
+        Log::debug(__METHOD__ . '-' . __LINE__, [
+            'data' => $data,
+        ]);
+
+        $validator = Validator::make($data, [
+            'km_total'          => 'required|numeric|min:0',
+            'valor_frete'       => 'required|numeric|min:0',
+            'motorista'         => 'required|string|exists:motoristas,cpf',
+            'veiculo'           => 'required|string|exists:veiculos,placa',
+            'anexos'            => 'required|array|min:1',
+            'data-integrados'   => 'required|array|min:1',
+            'data-integrados.*.integrado_id'    => 'required|integer|exists:integrados,id',
+            'data-integrados.*.km_rota'         => 'required|numeric|min:0',
+        ]);
+    }
+
     private function mutateData(array $data): array
     {
         Log::debug(__METHOD__ . '-' . __LINE__, [
             'data' => $data,
         ]);
 
-        $data['integrados'] = $data['data-integrados'];
-        $data['veiculo'] = $data['veiculo'] ?? null;
-        $data['motorista'] = [
+        $data['integrados']   = $data['data-integrados'];
+        $data['veiculo']      = $data['veiculo'] ?? null;
+        $data['motorista']    = [
             'cpf' => $data['motorista'] ?? null,
         ];
 

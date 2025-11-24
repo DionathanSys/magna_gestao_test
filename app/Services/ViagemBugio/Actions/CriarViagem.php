@@ -3,12 +3,28 @@
 namespace App\Services\ViagemBugio\Actions;
 
 use App\{Models, Services, Enum};
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 class CriarViagem
 {
+
+    protected $fields = [
+        'veiculo_id',
+        'destinos',
+        'km_rodado',
+        'km_pago',
+        'data_competencia',
+        'frete',
+        'condutor',
+        'observacao',
+        'status',
+        'created_by',
+    ];
+
     public function handle(array $data): ?Models\ViagemBugio
     {
+        $data = Arr::only($data, $this->fields);
         $this->validate($data);
         return Models\ViagemBugio::create($data);
     }

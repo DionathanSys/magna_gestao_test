@@ -134,7 +134,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                             $set('../../km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                             $set('km_rota', 0);
-
                                         }
                                     }),
                                 TextInput::make('km_rota')
@@ -165,7 +164,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
         $data = $this->mutateData($this->data ?? []);
 
-        if(!$this->validateData($data)){
+        if (!$this->validateData($data)) {
             notify::error('Dados inválidos. Verifique os campos e tente novamente.');
             return;
         }
@@ -180,7 +179,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $data['updated_by'] = Auth::id();
 
         SolicitarCteBugio::dispatch($data);
-      
+
         unset($data['anexos']);
 
         CriarViagemBugioJob::dispatch($data);
@@ -221,14 +220,14 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'destinos.*.km_rota.required'         => "O campo 'KM Rota' é obrigatório em cada item.",
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             Log::warning('validação de dados falhou', [
                 'método' => __METHOD__ . '-' . __LINE__,
                 'errors' => $validator->errors()->all(),
                 'data' => $data,
             ]);
 
-            foreach($validator->errors()->all() as $error){
+            foreach ($validator->errors()->all() as $error) {
                 notify::error($error);
             }
 
@@ -319,18 +318,16 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     private function mutateDestinos(array $destinos)
     {
-        $destinos = [];
+        $destinosProcessados = [];
 
-        foreach ($destinos as &$destino) {
-            Log::debug(__METHOD__ . '-' . __LINE__, [
-                'destino' => $destino,
-            ]);
-            $destino['integrado_id']    = $destino['integrado_id'];
-            $destino['km_rota']         = $destino['km_rota'];
-            $destino['integrado_nome']   = \App\Models\Integrado::find($destino['integrado_id'])?->nome ?? 'N/A';
-
+        foreach ($destinos as $destino) {
+            $destinosProcessados[] = [
+                'integrado_id'    => $destino['integrado_id'],
+                'km_rota'         => $destino['km_rota'],
+                'integrado_nome'  => \App\Models\Integrado::find($destino['integrado_id'])?->nome ?? 'N/A',
+            ];
         }
-        return $destinos;
+        return $destinosProcessados;
     }
 
     private function calcularFrete(float $kmTotal): float
@@ -367,14 +364,13 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                 // Mover arquivo temporário para storage permanente
                 $path = $anexo->store('private/cte');
                 $arquivosSalvos[] = $path;
-                
+
                 Log::debug('Arquivo processado', [
                     'original_key' => $key,
                     'path' => $path,
                     'size' => $anexo->getSize(),
                     'mime' => $anexo->getMimeType(),
                 ]);
-
             } elseif (is_string($anexo)) {
                 // Se já for uma string (path), apenas adicionar
                 $arquivosSalvos[] = $anexo;

@@ -111,17 +111,6 @@ class ResultadoPeriodosTable
                         ->width('1%')
                         ->money('BRL', 100)
                         ->description(fn(Models\ResultadoPeriodo $record): ?string => $record->variacao_faturamento_mes_anterior)
-                        ->color(function (Models\ResultadoPeriodo $record): string {
-                            $variacao = $record->variacao_faturamento_mes_anterior;
-
-                            if (!$variacao) {
-                                return 'gray';
-                            }
-
-                            // Se começa com + ou é positivo = verde (cresceu)
-                            // Se negativo = vermelho (caiu)
-                            return str_starts_with($variacao, '+') ? 'success' : 'danger';
-                        })
                         ->sum('documentos', 'valor_liquido'),
                     TextColumn::make('faturamento_por_km_rodado')
                         ->label('Fat/Km Rodado')

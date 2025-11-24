@@ -235,6 +235,69 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             return false;
         }
 
+        // Validação adicional: verificar tipos de arquivos (PDF e XML obrigatórios)
+        if (!$this->validarTiposAnexos($data['anexos'] ?? [])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validar se existe pelo menos 1 PDF e 1 XML nos anexos
+     */
+    private function validarTiposAnexos(array $anexos): bool
+    {
+        if (empty($anexos)) {
+            notify::error('Pelo menos um anexo deve ser enviado.');
+            return false;
+        }
+
+        $hasPdf = false;
+        $hasXml = false;
+        $tiposEncontrados = [];
+
+        foreach ($anexos as $anexo) {
+            // Pegar extensão do arquivo
+            $extension = strtolower(pathinfo($anexo, PATHINFO_EXTENSION));
+            $tiposEncontrados[] = $extension;
+
+            if ($extension === 'pdf') {
+                $hasPdf = true;
+            }
+
+            if (in_array($extension, ['xml', 'txt'])) {
+                $hasXml = true;
+            }
+        }
+
+        Log::debug('Validação de tipos de anexos', [
+            'anexos' => $anexos,
+            'tipos_encontrados' => $tiposEncontrados,
+            'has_pdf' => $hasPdf,
+            'has_xml' => $hasXml,
+        ]);
+
+        // Validar se tem pelo menos 1 PDF
+        if (!$hasPdf) {
+            notify::error('É obrigatório enviar pelo menos 1 arquivo PDF.');
+            Log::warning('Validação falhou: PDF não encontrado', [
+                'anexos' => $anexos,
+                'tipos_encontrados' => $tiposEncontrados,
+            ]);
+            return false;
+        }
+
+        // Validar se tem pelo menos 1 XML
+        if (!$hasXml) {
+            notify::error('É obrigatório enviar pelo menos 1 arquivo XML.');
+            Log::warning('Validação falhou: XML não encontrado', [
+                'anexos' => $anexos,
+                'tipos_encontrados' => $tiposEncontrados,
+            ]);
+            return false;
+        }
+
         return true;
     }
 

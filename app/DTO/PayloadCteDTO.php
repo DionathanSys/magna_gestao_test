@@ -54,31 +54,6 @@ class PayloadCteDTO
             $this->errors[] = 'KM total deve ser maior que zero';
         }
 
-        // Validar anexos - deve ter pelo menos um PDF e um XML
-        if (empty($this->anexos)) {
-            $this->errors[] = 'Pelo menos um anexo deve ser enviado';
-        } else {
-            $hasPdf = false;
-            $hasXml = false;
-            foreach ($this->anexos as $anexo) {
-                $extension = strtolower(pathinfo($anexo->getClientOriginalName(), PATHINFO_EXTENSION));
-                if ($extension === 'pdf') {
-                    $hasPdf = true;
-                }
-                if ($extension === 'xml') {
-                    $hasXml = true;
-                }
-            }
-
-            if (!$hasPdf) {
-                $this->errors[] = 'Pelo menos um arquivo PDF deve ser enviado';
-            }
-
-            if (!$hasXml) {
-                $this->errors[] = 'Pelo menos um arquivo XML deve ser enviado';
-            }
-        }
-
         // Validar integrados
         if ($this->integrados->isEmpty()) {
             $this->errors[] = 'Pelo menos um integrado deve ser selecionado';

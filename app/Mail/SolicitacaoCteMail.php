@@ -71,7 +71,7 @@ class SolicitacaoCteMail extends Mailable
                     'name' => $anexo['name'] ?? 'N/A',
                 ]);
 
-                // ✅ Verificar se é array ou objeto
+                // Verificar se é array ou objeto
                 if (is_array($anexo)) {
                     $attachments[] = Attachment::fromPath($anexo['path'])
                         ->as($anexo['name'])

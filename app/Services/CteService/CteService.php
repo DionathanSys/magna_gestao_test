@@ -23,7 +23,7 @@ class CteService
                 'método' => __METHOD__.'-'.__LINE__,
                 'data' => $data,
                 'db_config.valor-quilometro' => db_config('config-bugio.valor-quilometro'),
-                'user_id' => Auth::id() ?? 'N/A',
+                'user_id' => $data['created_by'] ?? null,
             ]);
 
             $data['motorista']['nome'] = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
@@ -34,17 +34,8 @@ class CteService
             Log::debug("dados do payload DTO", [
                 'método' => __METHOD__.'-'.__LINE__,
                 'payloadDto' => $payloadDto->toArray(),
-                'user_id' => Auth::id() ?? 'N/A',
+                'user_id' => $data['created_by'],
             ]);
-
-            if (!$payloadDto->isValid()){
-                Log::warning('dados do payload DTO inválidos', [
-                    'método' => __METHOD__.'-'.__LINE__,
-                    'errors' => $payloadDto->errors,
-                    'user_id' => Auth::id() ?? 'N/A',
-                ]);
-                throw new \InvalidArgumentException('Dados inválidos: ' . implode(', ', $payloadDto->errors));
-            }
 
             $action = new Actions\EnviarSolicitacaoCte();
             $action->handle($payloadDto);
@@ -55,7 +46,7 @@ class CteService
             Log::error(__METHOD__ . '-' . __LINE__, [
                 'error' => $e->getMessage(),
                 'data' => $data,
-                'user_id' => Auth::id() ?? 'N/A',
+                'user_id' => $data['created_by'] ?? null,
             ]);
             $this->setError('Erro ao enviar solicitação de CTe: ' . $e->getMessage());
         }

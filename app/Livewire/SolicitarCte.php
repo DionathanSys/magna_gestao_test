@@ -201,9 +201,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'motorista.cpf'     => 'required|string',
             'veiculo'           => 'required|string|exists:veiculos,placa',
             'anexos'            => 'required|array|min:1',
-            'integrados'        => 'required|array|min:1',
-            'integrados.*.integrado_id'    => 'required|integer|exists:integrados,id',
-            'integrados.*.km_rota'         => 'required|numeric|min:0',
+            'destinos'          => 'required|array|min:1',
+            'destinos.*.integrado_id'    => 'required|integer|exists:integrados,id',
+            'destinos.*.km_rota'         => 'required|numeric|min:0',
         ], [
             'km_total.required'            => "O campo 'KM Total' é obrigatório.",
             'valor_frete.required'         => "O campo 'Valor do Frete' é obrigatório.",
@@ -213,12 +213,12 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'anexos.required'              => "O campo 'Anexos' é obrigatório.",
             'anexos.array'                 => "O campo 'Anexos' deve ser um array.",
             'anexos.min'                   => "É necessário anexar pelo menos 1 arquivo.",
-            'integrados.required'          => "O campo 'Integrados' é obrigatório.",
-            'integrados.array'             => "O campo 'Integrados' deve ser um array.",
-            'integrados.min'               => "É necessário adicionar pelo menos 1 integrado.",
-            'integrados.*.integrado_id.required'    => "O campo 'Integrado' é obrigatório em cada item.",
-            'integrados.*.integrado_id.exists'      => "O integrado selecionado não foi encontrado em cada item.",
-            'integrados.*.km_rota.required'         => "O campo 'KM Rota' é obrigatório em cada item.",
+            'destinos.required'            => "O campo 'Integrados' é obrigatório.",
+            'destinos.array'               => "O campo 'Integrados' deve ser um array.",
+            'destinos.min'                 => "É necessário adicionar pelo menos 1 destino.",
+            'destinos.*.integrado_id.required'    => "O campo 'Integrado' é obrigatório em cada item.",
+            'destinos.*.integrado_id.exists'      => "O integrado selecionado não foi encontrado em cada item.",
+            'destinos.*.km_rota.required'         => "O campo 'KM Rota' é obrigatório em cada item.",
         ]);
 
         if($validator->fails()){
@@ -303,7 +303,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     private function mutateData(array $data): array
     {
-        $data['integrados']   = $data['data-integrados'];
+        $data['destinos']   = $this->mutateDestinos($data['data-integrados']);
         $data['veiculo']      = $data['veiculo'] ?? null;
         $data['motorista']    = [
             'cpf' => $data['motorista'] ?? null,
@@ -315,6 +315,22 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         unset($data['data-integrados']);
 
         return $data;
+    }
+
+    private function mutateDestinos(array $destinos)
+    {
+        $destinos = [];
+
+        foreach ($destinos as &$destino) {
+            Log::debug(__METHOD__ . '-' . __LINE__, [
+                'destino' => $destino,
+            ]);
+            $destino['integrado_id']    = $destino['integrado_id'];
+            $destino['km_rota']         = $destino['km_rota'];
+            $destino['integrado_nome']   = \App\Models\Integrado::find($destino['integrado_id'])?->nome ?? 'N/A';
+
+        }
+        return $destinos;
     }
 
     private function calcularFrete(float $kmTotal): float

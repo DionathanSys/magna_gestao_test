@@ -18,6 +18,8 @@ class CriarViagem
         $validator = Validator::make($data, [
             'veiculo_id'        => 'required|integer|exists:veiculos,id',
             'destinos'          => 'required|array|size:min:1',
+            'destinos.*.integrado_id'   => 'required|integer|exists:integrados,id',
+            'destinos.*.km_rota'        => 'required|numeric|min:0',
             'km_rodado'         => 'required|numeric|min:0',
             'km_pago'           => 'required|numeric|min:0',
             'data_competencia'  => 'required|date',
@@ -27,16 +29,21 @@ class CriarViagem
             'status'            => 'nullable|string|max:255',
             'created_by'        => 'required|integer|exists:users,id',
         ], [
-            
+            'veiculo_id.required'       => "O campo 'Veículo' é obrigatório.",
+            'veiculo_id.exists'         => "O veículo selecionado não existe.",
+            'destinos.required'         => "O campo 'Destinos' é obrigatório.",
+            'destinos.size'             => "O campo 'Destinos' deve conter ao menos um destino.",
+            'km_rodado.required'        => "O campo 'Km Rodado' é obrigatório.",
+            'km_pago.required'          => "O campo 'Km Pago' é obrigatório.",
+            'data_competencia.required' => "O campo 'Data de Competência' é obrigatório.",
+            'frete.required'            => "O campo 'Frete' é obrigatório.",
+            'created_by.required'       => "O campo 'Criado Por' é obrigatório.",
+            'created_by.exists'         => "O usuário criador não existe.",
         ]);
 
         if ($validator->fails()) {
             throw new \InvalidArgumentException($validator->errors()->first());
         }
 
-        $validatorDestinos = Validator::make(['destinos' => $data['destinos']], [
-            'destinos.*.integrado_id'   => 'required|integer|exists:integrados,id',
-            'destinos.*.km_rota'        => 'required|numeric|min:0',
-        ]);
     }
 }

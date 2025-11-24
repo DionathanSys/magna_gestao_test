@@ -26,7 +26,7 @@
     <h4>Observações:</h4>
     <p>Início no município de Chapecó para PF: ICMS DIFERIDO, CST 051 ( campo de observações: ICMS DIFERIDO CFME ARTIGO 122, INCISO II, ANEXO 6, DO RICMS/SC)</p>
     <p>Remetente: Bugio Nutrição – 50.593.076/0001-46</p>
-    <p>Destinatário: Nildo Bes – 774.033.719-68</p>
+    <p>Destinatário: {{$payload->destinos[0]['integrado_nome']}}</p>
     <p>Tomador: Bugio Agropecuária – 82.996.521/0001-05</p>
 
     <p>Favor responder este e-mail, incluindo todos os destinatários em cópia.</p>

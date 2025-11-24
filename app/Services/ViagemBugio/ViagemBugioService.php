@@ -16,10 +16,6 @@ class ViagemBugioService
     {
         try {
 
-            $data['destinos'] = $this->mutateIntegrados($data['integrados']);
-            unset($data['integrados']);
-
-
             $action = new Actions\CriarViagem();
             $viagem = $action->handle($data);
             $this->setSuccess('Viagem criada com sucesso!');
@@ -35,18 +31,5 @@ class ViagemBugioService
         }
     }
 
-    private function mutateIntegrados(array $integrados)
-    {
-        $destinos = [];
-
-        foreach ($integrados as &$integrado) {
-            Log::debug(__METHOD__ . '-' . __LINE__, [
-                'integrado' => $integrado,
-            ]);
-            $destino['integrado_id']    = $integrado['integrado_id'];
-            $destino['km_rota']         = $integrado['km_rota'];
-
-        }
-        return $integrados;
-    }
+    
 }

@@ -194,7 +194,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $this->resetForm();
     }
 
-    private function validateData(array $data): void
+    private function validateData(array $data): bool
     {
         Log::debug(__METHOD__ . '-' . __LINE__, [
             'data' => $data,
@@ -203,21 +203,33 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $validator = Validator::make($data, [
             'km_total'          => 'required|numeric|min:0',
             'valor_frete'       => 'required|numeric|min:0',
-            'motorista'         => 'required|string|exists:motoristas,cpf',
+            'motorista.cpf'     => 'required|string',
             'veiculo'           => 'required|string|exists:veiculos,placa',
             'anexos'            => 'required|array|min:1',
-            'data-integrados'   => 'required|array|min:1',
-            'data-integrados.*.integrado_id'    => 'required|integer|exists:integrados,id',
-            'data-integrados.*.km_rota'         => 'required|numeric|min:0',
+            'integrados'        => 'required|array|min:1',
+            'integrados.*.integrado_id'    => 'required|integer|exists:integrados,id',
+            'integrados.*.km_rota'         => 'required|numeric|min:0',
         ]);
+
+        if($validator->fails()){
+            Log::warning('validação de dados falhou', [
+                'método' => __METHOD__ . '-' . __LINE__,
+                'errors' => $validator->errors()->all(),
+                'data' => $data,
+            ]);
+
+            foreach($validator->errors()->all() as $error){
+                notify::error($error);
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     private function mutateData(array $data): array
     {
-        Log::debug(__METHOD__ . '-' . __LINE__, [
-            'data' => $data,
-        ]);
-
         $data['integrados']   = $data['data-integrados'];
         $data['veiculo']      = $data['veiculo'] ?? null;
         $data['motorista']    = [

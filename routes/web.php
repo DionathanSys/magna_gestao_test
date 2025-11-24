@@ -16,6 +16,10 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+Route::get('/', function () {
+    return view('landing');
+})->name('landing');
+
 Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServico $ordemServico) {
     $service = new \App\Services\OrdemServico\OrdemServicoPdfService();
     return $service->visualizarPdfOrdemServico($ordemServico);

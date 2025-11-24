@@ -78,7 +78,7 @@ class SolicitacaoCteMail extends Mailable
                         ->withMime($anexo['mime']);
                 } else {
                     // Se for string (path direto)
-                    $attachments[] = Attachment::fromStorageDisk('private', $anexo);
+                    $attachments[] = Attachment::fromStorageDisk('local', $anexo);
                 }
 
             } catch (\Exception $e) {

@@ -38,10 +38,16 @@ class CustoDiversoResource extends Resource
                     ->required(),
                 KeyValue::make('descricao')
                     ->label('Descrição')
+                    ->columnStart(1)
                     ->required(),
                 TextInput::make('custo_total')
                     ->label('Custo Total')
+                    ->columnStart(1)
                     ->prefix('R$')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('quantidade_veiculos')
+                    ->label('Quantidade Veículos')
                     ->required()
                     ->numeric(),
             ]);
@@ -55,20 +61,32 @@ class CustoDiversoResource extends Resource
                 TextColumn::make('id')
                     ->sortable(),
                 TextColumn::make('data_inicio')
+                    ->label('Data Início')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('data_fim')
+                    ->label('Data Fim')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('custo_total')
+                    ->label('Custo Total')
+                    ->money('BRL')
+                    ->sortable(),
+                TextColumn::make('quantidade_veiculos')
+                    ->label('Quantidade Veículos')
+                    ->sortable(),
+                TextColumn::make('custo_medio_por_veiculo')
+                    ->label('Custo Médio por Veículo')
                     ->money('BRL')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado Em')
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado Em')
+                    ->dateTime('d/m/Y H:i:s')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

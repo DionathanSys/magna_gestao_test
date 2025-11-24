@@ -25,7 +25,7 @@ class ViagemBugiosTable
                     ->label('Placa')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('destinos')
+                TextColumn::make('destinos.integrado_nome')
                     ->label('Integrados')
                     ->sortable()
                     ->searchable(),
@@ -49,10 +49,17 @@ class ViagemBugiosTable
                     ->label('Motorista')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->sortable()
-                    ->searchable(),
+                TextColumn::make('creator.name')
+                    ->label('Criado Por')
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Criado Em')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+                TextColumn::make('updated_at')
+                    ->label('Atualizado Em')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
             ])
             ->filters([
                 //

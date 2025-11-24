@@ -110,6 +110,7 @@ class ResultadoPeriodosTable
                         ->label('Faturamento')
                         ->width('1%')
                         ->money('BRL', 100)
+                        ->description(fn (Models\ResultadoPeriodo $record): ?string => $record->variacao_faturamento_mes_anterior)
                         ->sum('documentos', 'valor_liquido'),
                     TextColumn::make('faturamento_por_km_rodado')
                         ->label('Fat/Km Rodado')

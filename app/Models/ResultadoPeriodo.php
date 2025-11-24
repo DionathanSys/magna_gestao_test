@@ -173,17 +173,17 @@ class ResultadoPeriodo extends Model
                 // Pega a meta do tipo de veículo
                 $meta = $this->veiculo?->tipoVeiculo?->meta_media;
                 
-                // Se não houver meta, retorna null
+                // Se não houver meta
                 if (!$meta || $meta <= 0) {
-                    return 'vazio sem meta';
+                    return 'Sem Meta';
                 }
                 
                 // Consumo real do período
                 $consumoReal = $this->consumo_medio_combustivel;
                 
-                // Se não houver consumo, retorna null
+                // Se não houver consumo
                 if (!$consumoReal || $consumoReal <= 0) {
-                    return 'vazio sem consumo';
+                    return 'Sem Consumo';
                 }
                 
                 // Calcula a diferença (positivo = acima da meta, negativo = abaixo)
@@ -195,19 +195,19 @@ class ResultadoPeriodo extends Model
                 // Formata a mensagem
                 if ($diferenca > 0) {
                     return sprintf(
-                        '%.2f km/L acima da meta (%.1f%% melhor)',
+                        '+%.2f km/L (+%.1f%%)',
                         abs($diferenca),
                         abs($percentual)
                     );
                 } elseif ($diferenca < 0) {
                     return sprintf(
-                        '%.2f km/L abaixo da meta (%.1f%% pior)',
+                        '-%.2f km/L (-%.1f%%)',
                         abs($diferenca),
                         abs($percentual)
                     );
                 } else {
                     // Exatamente na meta
-                    return 'Na meta';
+                    return '';
                 }
             }
         );

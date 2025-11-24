@@ -60,8 +60,8 @@ class IntegradoForm
                     ->label('Cliente')
                     ->required()
                     ->native(false)
-                    ->columnStart(1 )
-                    ->columnSpan(2)
+                    ->columnStart(1)
+                    ->columnSpan(4)
                     ->options(Enum\ClienteEnum::toSelectArray())
             ]);
     }

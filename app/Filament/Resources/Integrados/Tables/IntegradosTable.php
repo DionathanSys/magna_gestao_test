@@ -39,8 +39,8 @@ class IntegradosTable
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('longitude')
                     ->toggleable(isToggledHiddenByDefault: false),
-                // TextColumn::make('cliente')
-                //     ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('cliente')
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

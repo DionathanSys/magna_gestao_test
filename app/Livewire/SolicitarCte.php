@@ -306,7 +306,12 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $data['destinos']       = $this->mutateDestinos($data['data-integrados']);
         $data['veiculo']        = $data['veiculo'] ?? null;
         $data['veiculo_id']     = \App\Models\Veiculo::where('placa', $data['veiculo'])->first()?->id ?? null;
-        $data['motorista']    = [
+        $data['km_pago']        = $data['km_total'] ?? 0;
+        $data['km_rodado']      = 0;
+        $data['data_competencia'] = now()->format('Y-m-d');
+        $data['frete']          = $data['valor_frete'] ?? 0.0;
+        $data['condutor']       = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
+        $data['motorista']      = [
             'cpf' => $data['motorista'] ?? null,
         ];
 

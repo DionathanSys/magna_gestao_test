@@ -135,8 +135,8 @@ class ResultadoPeriodosTable
                         ->width('1%')
                         ->formatStateUsing(fn(float $state): string => number_format($state, 2, ',', '.') . '%')
                         ->color(fn(float $state): string => match (true) {
-                            $state > 15 => 'danger',
-                            $state > 10 => 'warning',
+                            $state > 10 => 'danger',
+                            $state > 8 => 'warning',
                             default => 'success'
                         })
                         ->tooltip('Percentual de Manutenção sobre o Faturamento'),
@@ -149,11 +149,13 @@ class ResultadoPeriodosTable
                         ->sum('abastecimentos', 'preco_total'),
                     TextColumn::make('preco_medio_combustivel')
                         ->label('Preço Médio Combustível')
+                        ->wrapHeader()
                         ->width('1%')
                         ->money('BRL')
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('consumo_medio_combustivel')
                         ->label('Consumo Médio Combustível')
+                        ->wrapHeader()
                         ->suffix(' Km/L')
                         ->description(fn(Models\ResultadoPeriodo $record): ?string => $record->diferenca_meta_consumo)
                         ->numeric(4, ',', '.')

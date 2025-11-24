@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Enum\ClienteEnum;
 use App\Jobs\CriarViagemBugioJob;
+use App\Jobs\SolicitarCteBugio;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\FileUpload;
@@ -172,20 +173,11 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'data' => $this->data,
         ]);
 
-        notify::error('Teste');
-        return;
-
-        $service = new CteService\CteService();
-        $service->solicitarCtePorEmail($data);
-        
-        if ($service->hasError()) {
-            notify::error('Erro ao enviar solicitação de CTe.');
-            return;
-        }
-
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
 
+        SolicitarCteBugio::dispatch($data);
+      
         unset($data['anexos']);
 
         CriarViagemBugioJob::dispatch($data);

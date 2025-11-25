@@ -7,8 +7,8 @@ use App\Services\Import\Importers\ViagemEspelhoFreteImporter;
 
 enum TipoRelatorioDocumentoFreteEnum: string
 {
-    case RELATORIO_SANKHYA_CTE = 'RELATORIO SANKHYA CTE';
-    case ESPELHO_FRETE_NFS_BRF = 'ESPELHO FRETE NFS BRF';
+    case RELATORIO_SANKHYA_CTE              = 'RELATORIO SANKHYA CTE';
+    case ESPELHO_FRETE_NFS_BRF              = 'ESPELHO FRETE NFS BRF';
 
     public static function toSelectArray(): array
     {

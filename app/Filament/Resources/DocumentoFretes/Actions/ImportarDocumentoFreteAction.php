@@ -20,6 +20,7 @@ class ImportarDocumentoFreteAction
     {
         return Action::make('importar-documento-frete')
             ->label('Importar Documento Frete')
+            ->tooltip('Importar um novo Documento de Frete BRF')
             ->icon('heroicon-o-arrow-up-tray')
             ->schema([
                 FileUpload::make('documento_frete')

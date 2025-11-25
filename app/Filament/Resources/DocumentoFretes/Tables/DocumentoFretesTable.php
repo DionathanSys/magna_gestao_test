@@ -160,17 +160,18 @@ class DocumentoFretesTable
                         ->visible(fn(): bool => Auth::user()->is_admin),
                 ]),
                 ActionGroup::make([
-                    Actions\VincularViagemDocumentoBulkAction::make(),
-                    Actions\ImportarDocumentoFretePdfAction::make(),
                     CreateAction::make()
                         ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'parceiro_origem', 'documento_transporte', 'tipo_documento', 'data_emissao', 'valor_total']),
+                    Actions\VincularViagemDocumentoBulkAction::make(),
+                    Actions\ImportarDocumentoFretePdfAction::make(),
                     Actions\ImportarDocumentoFreteAction::make(),
-                    Action::make('importar_espelho_frete')
-                        ->label('Importar Espelho de Frete')
-                        ->icon(Heroicon::ArrowUpTray)
-                        ->url(route('import.pdf'))
-                        ->openUrlInNewTab()
-                        ->color('success'),
+                    Actions\ImportarDocumentoFreteNutrepampaAction::make(),
+                    // Action::make('importar_espelho_frete')
+                    //     ->label('Importar Espelho de Frete')
+                    //     ->icon(Heroicon::ArrowUpTray)
+                    //     ->url(route('import.pdf'))
+                    //     ->openUrlInNewTab()
+                    //     ->color('success'),
                 ])->button(),
             ])
             ->striped();

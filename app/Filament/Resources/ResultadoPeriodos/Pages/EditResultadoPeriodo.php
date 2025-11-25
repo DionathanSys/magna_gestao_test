@@ -21,13 +21,13 @@ class EditResultadoPeriodo extends EditRecord
         ];
     }
 
-    public function hasCombinedRelationManagerTabsWithContent(): bool
+      public function hasCombinedRelationManagerTabsWithContent(): bool
     {
         return true;
     }
 
-    public function getContentTabComponent(): Tab
+    public function getContentTabLabel(): ?string
     {
-        return Tab::make('Editar');
+        return 'Geral';
     }
 }

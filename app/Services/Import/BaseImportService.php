@@ -88,6 +88,9 @@ abstract class BaseImportService
         $requiredColumns = $importer->getRequiredColumns();
         $missingColumns = [];
 
+        Log::debug('Validando cabeçalho do arquivo de importação.', ['headers' => $headers, 'required_columns' => $requiredColumns]);
+
+
         foreach ($headers as $key => $value) {
             $value = preg_replace('/[^a-zA-Z0-9_]/', '', $value);
             $headers[$key] = $value;
@@ -95,9 +98,17 @@ abstract class BaseImportService
         
         foreach ($requiredColumns as $column) {
             if (!in_array($column, $headers)) {
+                
+                Log::warning("Coluna obrigatória ausente: {$column}", [
+                    'headers' => $headers,
+                    'required_columns' => $requiredColumns,
+                ]);
+
                 $missingColumns[] = $column;
             }
         }
+
+        Log::debug('Colunas obrigatórias não encontradas no cabeçalho.', ['missing_columns' => $missingColumns]);
 
         if (!empty($missingColumns)) {
             throw new \InvalidArgumentException(

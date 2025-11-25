@@ -98,7 +98,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'parceiro_origem'       => $row['NomeParceiroParceiro'],
             'parceiro_destino'      => $row['NomeParceiroParcDestinatrio'],
             'numero_documento'      => $row['NroNota'],
-            'documento_transporte'  => $row['NroUnico'],
+            'documento_transporte'  => $row['Nronico'],
             'tipo_documento'        => TipoDocumentoEnum::CTE,
             'data_emissao'          => Carbon::createFromFormat('m/d/Y', $row['DtNeg'])->format('Y-m-d'),
             'valor_total'           => (float) $row['VlrNota'],

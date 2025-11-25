@@ -14,6 +14,7 @@ class ImportarDocumentoFreteNutrepampaAction
     {
         return Action::make('importar-documento-frete-nutrepampa')
             ->label('Importar Documento Frete Nutrepampa')
+            ->tooltip('Importar Documento Frete Nutrepampa')
             ->icon('heroicon-o-arrow-up-tray')
             ->schema([
                 FileUpload::make('arquivo')

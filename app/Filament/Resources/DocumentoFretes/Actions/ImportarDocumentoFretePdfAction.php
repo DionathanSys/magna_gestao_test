@@ -28,6 +28,7 @@ class ImportarDocumentoFretePdfAction
     {
         return Action::make('importar-documento-frete-pdf')
             ->label('Importar Espelho Frete')
+            ->tooltip('Importar Espelho de frete BRF.')
             ->icon('heroicon-o-arrow-up-tray')
             ->schema([
                 FileUpload::make('documento_frete')

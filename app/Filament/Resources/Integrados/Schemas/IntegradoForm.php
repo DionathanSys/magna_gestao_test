@@ -43,12 +43,12 @@ class IntegradoForm
                     ->numeric(),
                 TextInput::make('latitude')
                     ->label('Latitude')
-                    ->columnSpan(1)
+                    ->columnSpan(2)
                     ->autocomplete(false)
                     ->default('0.00000000'),
                 TextInput::make('longitude')
                     ->label('Longitude')
-                    ->columnSpan(1)
+                    ->columnSpan(2)
                     ->autocomplete(false)
                     ->default('0.00000000'),
                 Toggle::make('alerta_viagem')

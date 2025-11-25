@@ -13,7 +13,8 @@ class ListResultadoPeriodos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'tipo_veiculo', 'data_inicio', 'data_fim', 'status']),
         ];
     }
 }

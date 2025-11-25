@@ -25,14 +25,14 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
     public function getRequiredColumns(): array
     {
         return [
-            'NroUnico',
+            'Nronico',  //Nro. Único
             'VlrNota',
             'NroNota',
             'DtNeg',
             'VlrdoICMS',
             'Placa',
-            'NomeParceiro(Parceiro)',
-            'NomeParceiro(ParcDestinatário)',
+            'NomeParceiroParceiro', //Nome Parceiro Origem
+            'NomeParceiroParcDestinatrio', //Nome Parceiro (ParcDestinatário)
         ];
     }
 

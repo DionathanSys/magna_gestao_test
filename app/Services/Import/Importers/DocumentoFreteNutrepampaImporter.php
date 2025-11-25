@@ -95,12 +95,12 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 
         return [
             'veiculo_id'            => $veiculo_id,
-            'parceiro_origem'       => $row['NomeParceiro(Parceiro)'],
-            'parceiro_destino'      => $row['NomeParceiro(ParcDestinatário)'],
+            'parceiro_origem'       => $row['NomeParceiroParceiro'],
+            'parceiro_destino'      => $row['NomeParceiroParcDestinatrio'],
             'numero_documento'      => $row['NroNota'],
             'documento_transporte'  => $row['NroUnico'],
             'tipo_documento'        => TipoDocumentoEnum::CTE,
-            'data_emissao'          => Carbon::createFromFormat('d/m/Y', $row['DtNeg'])->format('Y-m-d'),
+            'data_emissao'          => Carbon::createFromFormat('m/d/Y', $row['DtNeg'])->format('Y-m-d'),
             'valor_total'           => (float) $row['VlrNota'],
             'valor_icms'            => isset($row['VlrdoICMS']) ? (float) $row['VlrdoICMS'] : 0.0,
         ];

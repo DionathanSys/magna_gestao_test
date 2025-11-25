@@ -19,6 +19,11 @@ class ImportarAbastecimentos
 
     public function handle()
     {
+        Log::debug('Iniciando importação de abastecimentos para Resultado Período ID: ' . $this->resultadoPeriodo->id, [
+            'metodo' => __METHOD__,
+            'resultado_periodo' => $this->resultadoPeriodo,
+        ]);
+
         if ($this->resultadoPeriodo->status !== StatusDiversosEnum::PENDENTE->value) {
             Log::info('Resultado período não está em status PENDENTE. Importação de abastecimentos ignorada.', [
                 'metodo' => __METHOD__,

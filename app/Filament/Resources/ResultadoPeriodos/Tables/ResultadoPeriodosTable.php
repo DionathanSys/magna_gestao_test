@@ -30,6 +30,7 @@ use Filament\Schemas\Components\Text;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\Summarizers\Average;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Number;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
@@ -233,6 +234,7 @@ class ResultadoPeriodosTable
                         })
                         ->action(function (Collection $records, array $data) {
                             $records->each(function (Models\ResultadoPeriodo $record) use ($data) {
+                                Log::debug('Iniciando importação de registros para Resultado Período ID: ' . $record->id);
                                 $service = new Services\ResultadoPeriodo\ResultadoPeriodoService();
                                 $service->importarRegistros($record->id, $data['considerar_periodo']);
                             });

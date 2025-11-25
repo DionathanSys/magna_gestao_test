@@ -51,7 +51,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'VlrNota'                        => 'required|numeric|min:0',
             'NroNota'                        => 'required|numeric',
             'VlrdoICMS'                      => 'nullable|numeric',
-            'DtNeg'                          => 'required|date_format:d/m/Y',
+            'DtNeg'                          => 'required|date_format:m/d/Y',
             'Placa'                          => 'required|string|exists:veiculos,placa',
             'NomeParceiroParceiro'          => 'required|string',
             'NomeParceiroParcDestinatrio'   => 'required|string',

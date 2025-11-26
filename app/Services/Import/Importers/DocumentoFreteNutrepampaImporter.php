@@ -48,9 +48,9 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         // Validação básica
         $validator = Validator::make($row, [
             'Nronico'                        => 'required|numeric',
-            'VlrNota'                        => 'required|decimal:0,2',
+            'VlrNota'                        => 'required|decimal:2',
             'NroNota'                        => 'required|numeric',
-            'VlrdoICMS'                      => 'required|decimal:0,2',
+            'VlrdoICMS'                      => 'required|decimal:2',
             'DtNeg'                          => 'required|date_format:m/d/Y',
             'Placa'                          => 'required|string|exists:veiculos,placa',
             'NomeParceiroParceiro'           => 'required|string',
@@ -66,9 +66,9 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'NomeParceiroParcDestinatrio.required'  => 'O Nome do Destinatário é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),   
             'NomeParceiroParcDestinatrio.string'    => 'O Nome do Destinatário deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'VlrNota.required'                      => 'O Valor da Nota é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'VlrNota.numeric'                       => 'O Valor da Nota deve ser numérico ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'VlrNota.decimal'                       => 'O Valor da Nota deve ser numérico ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'VlrNota.min'                           => 'O Valor da Nota deve ser maior ou igual a zero ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'VlrdoICMS.numeric'                     => 'O Valor do ICMS deve ser numérico ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'VlrdoICMS.decimal'                     => 'O Valor do ICMS deve ser numérico ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'NroNota.required'                      => 'O Número da Nota é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'NroNota.numeric'                       => 'O Número da Nota deve ser numérico ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'DtNeg.required'                        => 'A Data de Negociação é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),

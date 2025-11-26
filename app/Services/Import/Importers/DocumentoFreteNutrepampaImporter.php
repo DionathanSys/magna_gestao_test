@@ -93,6 +93,18 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         $veiculo    = $this->veiculoService->getVeiculoByPlaca($row['Placa']);
         $veiculo_id = $veiculo->id;
 
+        // Remove caracteres não numéricos exceto vírgula e ponto
+        $valorTotal = preg_replace('/[^\d,.-]/', '', $row['VlrNota']);
+
+        // Converte vírgula para ponto (formato brasileiro)
+        $valorTotal = (float) str_replace(',', '.', $valorTotal);
+        
+        // Remove caracteres não numéricos exceto vírgula e ponto
+        $valorICMS = preg_replace('/[^\d,.-]/', '', $row['VlrdoICMS']);
+
+        // Converte vírgula para ponto (formato brasileiro)
+        $valorICMS = (float) str_replace(',', '.', $valorICMS);
+
         return [
             'veiculo_id'            => $veiculo_id,
             'parceiro_origem'       => $row['NomeParceiroParceiro'],
@@ -101,8 +113,8 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'documento_transporte'  => $row['Nronico'],
             'tipo_documento'        => TipoDocumentoEnum::CTE,
             'data_emissao'          => Carbon::createFromFormat('m/d/Y', $row['DtNeg'])->format('Y-m-d'),
-            'valor_total'           => (float) $row['VlrNota'],
-            'valor_icms'            => isset($row['VlrdoICMS']) ? (float) $row['VlrdoICMS'] : 0.0,
+            'valor_total'           => $valorTotal,
+            'valor_icms'            => isset($row['VlrdoICMS']) ? $valorICMS : 0.0,
         ];
     }
 

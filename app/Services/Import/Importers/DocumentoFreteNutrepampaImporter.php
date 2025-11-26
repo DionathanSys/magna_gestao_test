@@ -7,6 +7,7 @@ use App\Enum;
 use App\Contracts\ExcelImportInterface;
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Services;
+use App\Traits\FormatarValorTrait;
 use App\Traits\ServiceResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +17,7 @@ use Illuminate\Support\Str;
 class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 {
     use ServiceResponseTrait;
+    use FormatarValorTrait;
 
     public function __construct(
         private Services\Veiculo\VeiculoService                 $veiculoService,
@@ -44,6 +46,8 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
     public function validate(array $row, int $rowNumber): array
     {
         $errors = [];
+
+        $this->normalizarValoresMonetarios($row, ['VlrNota', 'VlrdoICMS']);
 
         // Validação básica
         $validator = Validator::make($row, [
@@ -93,17 +97,8 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         $veiculo    = $this->veiculoService->getVeiculoByPlaca($row['Placa']);
         $veiculo_id = $veiculo->id;
 
-        // Remove caracteres não numéricos exceto vírgula e ponto
-        $valorTotal = preg_replace('/[^\d,.-]/', '', $row['VlrNota']);
-
-        // Converte vírgula para ponto (formato brasileiro)
-        $valorTotal = (float) str_replace(',', '.', $valorTotal);
-        
-        // Remove caracteres não numéricos exceto vírgula e ponto
-        $valorICMS = preg_replace('/[^\d,.-]/', '', $row['VlrdoICMS']);
-
-        // Converte vírgula para ponto (formato brasileiro)
-        $valorICMS = (float) str_replace(',', '.', $valorICMS);
+        $valorTotal = $this->converterParaFloat($row['VlrNota']);
+        $valorICMS = $this->converterParaFloat($row['VlrdoICMS'] ?? null);
 
         return [
             'veiculo_id'            => $veiculo_id,

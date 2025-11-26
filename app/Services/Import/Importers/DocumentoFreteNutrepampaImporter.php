@@ -47,14 +47,14 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 
         // Validação básica
         $validator = Validator::make($row, [
-            'Nronico'                       => 'required|numeric',
-            'VlrNota'                        => 'required|numeric|min:0',
+            'Nronico'                        => 'required|numeric',
+            'VlrNota'                        => 'required|decimal|min:0',
             'NroNota'                        => 'required|numeric',
-            'VlrdoICMS'                      => 'nullable|numeric',
+            'VlrdoICMS'                      => 'required|decimal|min:0',
             'DtNeg'                          => 'required|date_format:m/d/Y',
             'Placa'                          => 'required|string|exists:veiculos,placa',
-            'NomeParceiroParceiro'          => 'required|string',
-            'NomeParceiroParcDestinatrio'   => 'required|string',
+            'NomeParceiroParceiro'           => 'required|string',
+            'NomeParceiroParcDestinatrio'    => 'required|string',
         ], [
             'Nronico.required'                  => 'O campo Nro. Único é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Nronico.numeric'                   => 'O campo Nro. Único deve ser um número válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),

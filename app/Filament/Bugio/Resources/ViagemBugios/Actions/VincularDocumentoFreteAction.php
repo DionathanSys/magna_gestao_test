@@ -15,8 +15,9 @@ class VincularDocumentoFreteAction
             ->schema([
                 Select::make('documento_frete_id')
                     ->label('Documento de Frete')
+                    ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => DocumentoFrete::query()
-                        ->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA")
+                        // ->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA")
                         ->where('parceiro_destino', 'like', "%{$search}%")
                         ->limit(50)
                         ->pluck('numero_documento', 'id')

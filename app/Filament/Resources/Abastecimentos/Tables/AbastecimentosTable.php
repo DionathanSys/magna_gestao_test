@@ -12,6 +12,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Schemas\Components\Text;
 use Filament\Support\Colors\Color;
@@ -211,6 +212,11 @@ class AbastecimentosTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     FilamentExportBulkAction::make('export'),
+                    DissociateBulkAction::make()
+                        ->label('Dissociar Resultado')
+                        ->relationship('resultadoPeriodo')
+                        ->requiresConfirmation()
+                        ->color('warning'),
                     DeleteBulkAction::make(),
                 ]),
                 ActionGroup::make([

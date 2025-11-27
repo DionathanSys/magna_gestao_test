@@ -17,9 +17,7 @@ class VincularDocumentoFreteAction
                     ->label('Documento de Frete')
                     ->searchable(['numero_documento', 'parceiro_destino'])
                     ->preload()
-                    ->relationship('documentos', 'descricao', modifyQueryUsing: function ($query) {
-                        return $query->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA");
-                    })
+                    ->relationship('documentos', 'numero_documento')
                     // ->getSearchResultsUsing(fn(string $search): array => DocumentoFrete::query()
                     //     // ->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA")
                     //     ->where('parceiro_destino', 'like', "%{$search}%")

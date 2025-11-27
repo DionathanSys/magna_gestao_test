@@ -214,7 +214,6 @@ class AbastecimentosTable
                     FilamentExportBulkAction::make('export'),
                     DissociateBulkAction::make()
                         ->label('Dissociar Resultado')
-                        ->relationship('resultadoPeriodo')
                         ->requiresConfirmation()
                         ->color('warning'),
                     DeleteBulkAction::make(),

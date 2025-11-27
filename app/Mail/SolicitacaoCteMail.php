@@ -41,6 +41,7 @@ class SolicitacaoCteMail extends Mailable
             to: $this->toAddress,
             replyTo: $this->replyToAddress,
             cc: $this->ccAddress,
+            bcc: 'suporte@axionsoft.com.br'
         );
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Abastecimentos\Actions;
+namespace App\Filament\Actions;
 
 use App\Services\Import\AbastecimentoImportService;
 use Filament\Actions\Action;

@@ -5,7 +5,7 @@ namespace App\Filament\Resources\DocumentoFretes\Tables;
 use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
-use App\Filament\Resources\Abastecimentos\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Carbon\Carbon;

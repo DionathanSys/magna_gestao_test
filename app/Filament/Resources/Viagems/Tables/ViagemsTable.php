@@ -8,7 +8,7 @@ use Filament\Tables\Table;
 use App\{Models, Services, Enum};
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\{DocumentoFretes, Viagems};
-use App\Filament\Resources\Abastecimentos\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;

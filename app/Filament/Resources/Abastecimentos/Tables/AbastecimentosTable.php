@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Abastecimentos\Tables;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\Abastecimentos;
-use App\Filament\Resources\Abastecimentos\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
 use App\Models\Abastecimento;
 use App\Services\Veiculo\VeiculoCacheService;

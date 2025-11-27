@@ -21,6 +21,8 @@ class DocumentoFrete extends Model
         'valor_liquido' => MoneyCast::class,
     ];
 
+    protected $appends = ['descricao'];
+
     public function viagem(): BelongsTo
     {
         return $this->belongsTo(Viagem::class, 'viagem_id', 'id');

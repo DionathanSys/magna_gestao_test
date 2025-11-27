@@ -45,6 +45,15 @@ class ResultadoPeriodo extends Model
         return $this->hasMany(Abastecimento::class);
     }
 
+    /**
+     * ✅ Método necessário para DissociateBulkAction funcionar
+     * Retorna o nome do relacionamento inverso em Abastecimento
+     */
+    public function getInverseRelationshipFor(Model $record): string
+    {
+        return 'resultadoPeriodo';
+    }
+
     public function viagens(): HasMany
     {
         return $this->hasMany(Viagem::class);

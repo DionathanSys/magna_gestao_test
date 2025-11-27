@@ -15,15 +15,18 @@ class VincularDocumentoFreteAction
             ->schema([
                 Select::make('documento_frete_id')
                     ->label('Documento de Frete')
-                    ->searchable()
+                    ->searchable(['numero_documento', 'parceiro_destino'])
                     ->preload()
-                    ->getSearchResultsUsing(fn(string $search): array => DocumentoFrete::query()
-                        // ->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA")
-                        ->where('parceiro_destino', 'like', "%{$search}%")
-                        ->limit(50)
-                        ->pluck('numero_documento', 'id')
-                        ->all())
-                    ->getOptionLabelUsing(fn($value): ?string => DocumentoFrete::find($value)?->descricao)
+                    ->relationship('documentos', 'descricao', modifyQueryUsing: function ($query) {
+                        return $query->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA");
+                    })
+                    // ->getSearchResultsUsing(fn(string $search): array => DocumentoFrete::query()
+                    //     // ->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA")
+                    //     ->where('parceiro_destino', 'like', "%{$search}%")
+                    //     ->limit(50)
+                    //     ->pluck('numero_documento', 'id')
+                    //     ->all())
+                    // ->getOptionLabelUsing(fn($value): ?string => DocumentoFrete::find($value)?->descricao)
                     ->getOptionLabelFromRecordUsing(fn(DocumentoFrete $record) => $record->descricao)
                     ->required(),
             ])

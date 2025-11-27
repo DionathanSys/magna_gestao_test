@@ -2,6 +2,7 @@
 
 namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 
+use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -66,6 +67,7 @@ class ViagemBugiosTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                VincularDocumentoFreteAction::make(),
                 EditAction::make()
                     ->visible(fn () => Auth::user()->is_admin),
             ])

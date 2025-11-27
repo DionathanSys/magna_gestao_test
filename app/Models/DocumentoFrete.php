@@ -7,6 +7,8 @@ use App\Enum\Frete\TipoDocumentoEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentoFrete extends Model
 {
@@ -24,6 +26,12 @@ class DocumentoFrete extends Model
         return $this->belongsTo(Viagem::class, 'viagem_id', 'id');
     }
 
+
+    public function viagemBugio(): HasMany
+    {
+        return $this->hasMany(ViagemBugio::class, 'documento_frete_id', 'id');
+    }
+
     public function veiculo(): BelongsTo
     {
         return $this->belongsTo(Veiculo::class, 'veiculo_id');
@@ -37,5 +45,12 @@ class DocumentoFrete extends Model
     public function scopeSemVinculoViagem(Builder $query): Builder
     {
         return $query->where('viagem_id', null);
+    }
+
+    public function descricao(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => "Nº {$this->numero_documento} {$this->data_emissao} - {$this->parceiro_destino}",
+        );
     }
 }

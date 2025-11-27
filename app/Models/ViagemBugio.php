@@ -23,7 +23,9 @@ class ViagemBugio extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    
-
+    public function documentos(): BelongsTo
+    {
+        return $this->belongsTo(DocumentoFrete::class, 'documento_frete_id');
+    }
 
 }

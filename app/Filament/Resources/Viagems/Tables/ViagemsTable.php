@@ -8,6 +8,7 @@ use Filament\Tables\Table;
 use App\{Models, Services, Enum};
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\{DocumentoFretes, Viagems};
+use App\Filament\Resources\Abastecimentos\Actions\DissociateResultadoPeriodoBulkAction;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -483,7 +484,11 @@ class ViagemsTable
                 Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                 Viagems\Actions\RegistrarComplementoViagem::make(),
                 Viagems\Actions\MarcarViagemConferidaAction::make(),
-                DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->visible(fn(): bool => Auth::user()->is_admin),
+                    DissociateResultadoPeriodoBulkAction::make(),
+                ]),
             ]);
     }
 }

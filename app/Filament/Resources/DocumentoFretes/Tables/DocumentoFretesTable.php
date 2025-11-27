@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DocumentoFretes\Tables;
 use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
+use App\Filament\Resources\Abastecimentos\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Carbon\Carbon;
@@ -158,6 +159,7 @@ class DocumentoFretesTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(fn(): bool => Auth::user()->is_admin),
+                    DissociateResultadoPeriodoBulkAction::make(),
                 ]),
                 ActionGroup::make([
                     CreateAction::make()
@@ -166,12 +168,6 @@ class DocumentoFretesTable
                     Actions\ImportarDocumentoFretePdfAction::make(),
                     Actions\ImportarDocumentoFreteAction::make(),
                     Actions\ImportarDocumentoFreteNutrepampaAction::make(),
-                    // Action::make('importar_espelho_frete')
-                    //     ->label('Importar Espelho de Frete')
-                    //     ->icon(Heroicon::ArrowUpTray)
-                    //     ->url(route('import.pdf'))
-                    //     ->openUrlInNewTab()
-                    //     ->color('success'),
                 ])->button(),
             ])
             ->striped();

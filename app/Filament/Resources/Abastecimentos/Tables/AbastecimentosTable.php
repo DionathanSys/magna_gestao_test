@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Abastecimentos\Tables;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\Abastecimentos;
+use App\Filament\Resources\Abastecimentos\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
 use App\Models\Abastecimento;
 use App\Services\Veiculo\VeiculoCacheService;
@@ -212,10 +213,7 @@ class AbastecimentosTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     FilamentExportBulkAction::make('export'),
-                    DissociateBulkAction::make()
-                        ->label('Dissociar Resultado')
-                        ->requiresConfirmation()
-                        ->color('warning'),
+                    DissociateResultadoPeriodoBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
                 ActionGroup::make([

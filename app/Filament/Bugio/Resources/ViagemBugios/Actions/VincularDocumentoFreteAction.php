@@ -24,6 +24,7 @@ class VincularDocumentoFreteAction
                         ->pluck('numero_documento', 'id')
                         ->all())
                     ->getOptionLabelUsing(fn($value): ?string => DocumentoFrete::find($value)?->descricao)
+                    ->getOptionLabelFromRecordUsing(fn(DocumentoFrete $record) => $record->descricao)
                     ->required(),
             ])
             ->action(function (array $data, $record) {

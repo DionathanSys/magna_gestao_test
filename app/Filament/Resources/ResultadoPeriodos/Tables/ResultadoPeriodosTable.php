@@ -240,6 +240,28 @@ class ResultadoPeriodosTable
                             });
                             notify::success(mensagem: 'Importação concluída com sucesso!');
                         }),
+                        BulkAction::make('encerrar_resultado')
+                            ->label('Encerrar Resultado')
+                            ->icon(Heroicon::CheckCircle)
+                            ->color('success')
+                            ->requiresConfirmation()
+                            ->action(function (Collection $records) {
+                                $records->each(function (Models\ResultadoPeriodo $record) {
+                                    $record->update(['status' => StatusDiversosEnum::ENCERRADO->value]);
+                                });
+                                notify::success();
+                            }),
+                            BulkAction::make('pendente_resultado')
+                                ->label('Marcar como Pendente')
+                                ->icon(Heroicon::Clock)
+                                ->color('warning')
+                                ->requiresConfirmation()
+                                ->action(function (Collection $records) {
+                                    $records->each(function (Models\ResultadoPeriodo $record) {
+                                        $record->update(['status' => StatusDiversosEnum::PENDENTE->value]);
+                                    });
+                                    notify::success(mensagem: 'Registros marcados como Pendente com sucesso!');
+                                }),
                 ]),
             ]);
     }

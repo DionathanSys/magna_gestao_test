@@ -85,7 +85,8 @@ class DocumentosFreteRelationManager extends RelationManager
                     ->label('Tipo Documento')
                     ->width('1%')
                     ->badge()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(fn ($state) => $state instanceof TipoDocumentoEnum ? $state->value : $state),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->width('1%')

@@ -29,6 +29,15 @@ class DocumentoFrete extends Model
         return $this->belongsTo(Viagem::class, 'viagem_id', 'id');
     }
 
+     /**
+     * Relação com o modelo ResultadoPeriodo
+     *
+     * @return BelongsTo
+     */
+    public function resultadoPeriodo(): BelongsTo
+    {
+        return $this->belongsTo(ResultadoPeriodo::class);
+    }
 
     public function viagemBugio(): HasMany
     {

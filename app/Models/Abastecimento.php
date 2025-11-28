@@ -42,6 +42,16 @@ class Abastecimento extends Model
         return $this->belongsTo(Veiculo::class);
     }
 
+     /**
+     * Relação com o modelo ResultadoPeriodo
+     *
+     * @return BelongsTo
+     */
+    public function resultadoPeriodo(): BelongsTo
+    {
+        return $this->belongsTo(ResultadoPeriodo::class);
+    }
+
     /**
      * Scope para buscar o último abastecimento antes ou na data especificada
      *

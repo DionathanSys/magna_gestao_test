@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 use App\Enum\Abastecimento\TipoCombustivelEnum;
 use App\Filament\Resources\Abastecimentos\Tables\AbastecimentosTable;
 use Carbon\Carbon;
+use App\Models;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -22,6 +23,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class AbastecimentosRelationManager extends RelationManager
@@ -136,6 +138,18 @@ class AbastecimentosRelationManager extends RelationManager
             //         ->toggleable(isToggledHiddenByDefault: true),
             // ])
             ->defaultSort('data_abastecimento', 'asc')
+            ->defaultGroup('data_emissao')
+            ->groups(
+                [
+                    Group::make('data_abastecimento')
+                        ->label('Data Competência')
+                        ->titlePrefixedWithLabel(false)
+                        ->getTitleFromRecordUsing(fn(Models\Abastecimento $record): string => Carbon::parse($record->data_abastecimento)->format('d/m/Y'))
+                        ->collapsible(),
+                ]
+            )
+            ->paginated([10, 25, 50, 100, 'all'])
+            ->defaultPaginationPageOption(50)
             ->filters([])
             ->headerActions([
                 CreateAction::make(),

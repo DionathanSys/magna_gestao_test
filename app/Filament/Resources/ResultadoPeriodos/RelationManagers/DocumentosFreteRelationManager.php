@@ -137,7 +137,7 @@ class DocumentosFreteRelationManager extends RelationManager
                     ->searchable(),
             ])
             ->defaultGroup('data_emissao')
-             ->groups(
+            ->groups(
                 [
                     Group::make('data_emissao')
                         ->label('Data Competência')
@@ -158,10 +158,10 @@ class DocumentosFreteRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make(),
                 AssociateAction::make()
-                    ->preloadRecordSelect() 
+                    ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(
                         fn($query) => $query
-                            ->whereNull('resultado_periodo_id') 
+                            ->whereNull('resultado_periodo_id')
                             ->where('veiculo_id', $this->ownerRecord->veiculo_id)
                             ->orderBy('data_emissao', 'desc')
                     )

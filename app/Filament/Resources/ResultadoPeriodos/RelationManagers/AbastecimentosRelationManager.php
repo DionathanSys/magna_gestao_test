@@ -138,7 +138,7 @@ class AbastecimentosRelationManager extends RelationManager
             //         ->toggleable(isToggledHiddenByDefault: true),
             // ])
             ->defaultSort('data_abastecimento', 'asc')
-            ->defaultGroup('data_emissao')
+            ->defaultGroup('data_abastecimento')
             ->groups(
                 [
                     Group::make('data_abastecimento')

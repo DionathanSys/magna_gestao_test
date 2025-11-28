@@ -224,6 +224,9 @@ class ViagemsTable
                 TextColumn::make('condutor')
                     ->label('Motorista')
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('resultado_periodo_id')
+                    ->label("Resultado Período ID")
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->groups(
                 [

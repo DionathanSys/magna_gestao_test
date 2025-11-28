@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\Frete\TipoDocumentoEnum;
+use App\Models;
 use Carbon\Carbon;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
@@ -19,6 +20,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 
 class DocumentosFreteRelationManager extends RelationManager
@@ -134,6 +136,22 @@ class DocumentosFreteRelationManager extends RelationManager
                     ->label('Viagem ID')
                     ->searchable(),
             ])
+            ->defaultGroup('data_emissao')
+             ->groups(
+                [
+                    Group::make('data_emissao')
+                        ->label('Data Competência')
+                        ->titlePrefixedWithLabel(false)
+                        ->getTitleFromRecordUsing(fn(Models\DocumentoFrete $record): string => Carbon::parse($record->data_emissao)->format('d/m/Y'))
+                        ->collapsible(),
+                    Group::make('documento_transporte')
+                        ->label('Documento Transporte')
+                        ->titlePrefixedWithLabel(false)
+                        ->collapsible(),
+                ]
+            )
+            ->paginated([10, 25, 50, 100, 'all'])
+            ->defaultPaginationPageOption(50)
             ->filters([
                 //
             ])

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
+use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Models;
 use Carbon\Carbon;
@@ -188,6 +189,7 @@ class DocumentosFreteRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    FilamentExportBulkAction::make('export'),
                     DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),

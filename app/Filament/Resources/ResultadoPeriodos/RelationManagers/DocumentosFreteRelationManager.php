@@ -137,6 +137,7 @@ class DocumentosFreteRelationManager extends RelationManager
                     ->searchable(),
             ])
             ->defaultGroup('data_emissao')
+            ->collapsedGroupsByDefault()
             ->groups(
                 [
                     Group::make('data_emissao')

@@ -73,6 +73,6 @@ class VincularResultadoPeriodoBulkAction
             ->select('id')
             ->whereDate('data_inicio', '<=', $documentoFrete->data_emissao)
             ->whereDate('data_fim', '>=', $documentoFrete->data_emissao)
-            ->first();
+            ->first()?->id;
     }
 }

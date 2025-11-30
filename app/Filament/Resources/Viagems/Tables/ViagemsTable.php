@@ -429,21 +429,11 @@ class ViagemsTable
                         'CONCORDIA'     => 'Concórdia',
                     ])
                     ->default('CHAPECO'),
+                SelectFilter::make('cliente')
+                    ->label('Cliente')
+                    ->options(Enum\ClienteEnum::toSelectArray())
+                    ->multiple(),
                 RegistrosSemVinculoResultadoFilter::make(),
-                SelectFilter::make('veiculo_cliente')
-                    ->label('Veículo do Cliente')
-                    ->query(function (Builder $query, $value): Builder {
-                        if ($value === '1') {
-                            return $query->whereHas('veiculo', function (Builder $subQuery) {
-                                $subQuery->where('cliente_proprio', true);
-                            });
-                        } elseif ($value === '0') {
-                            return $query->whereHas('veiculo', function (Builder $subQuery) {
-                                $subQuery->where('cliente_proprio', false);
-                            });
-                        }
-                        return $query;
-                    }),
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(

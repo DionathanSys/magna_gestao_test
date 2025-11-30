@@ -218,7 +218,9 @@ class DocumentoFreteService
     {
         $viagemService = new Services\Viagem\ViagemService();
 
-        $data = $documentosFrete->groupBy('veiculo_id');
+        $data = $documentosFrete->groupBy(['veiculo_id', function (array $item) {
+            return $item['data_emissao'];
+        }]);
 
         Log::debug('Dados agrupados por veículo para criação de viagem', [
             'data' => $data,
@@ -226,8 +228,13 @@ class DocumentoFreteService
 
         $data->each(function ($docsFrete, $veiculoId) use (&$viagemService) {
             Log::debug('Processando veículo ID: ' . $veiculoId, [
+                'metodo' => __METHOD__ . '@' . __LINE__,
                 'documentos_frete' => $docsFrete,
             ]);
+
+            $viagemData = $this->processDataToCreateViagem($docsFrete->sortBy('numero_documento'));
+
+
         });
 
 
@@ -244,14 +251,38 @@ class DocumentoFreteService
 
     private function processDataToCreateViagem(Collection $documentosFrete): array
     {
-        $data = [];
 
+       if($documentosFrete->isEmpty()) {
+            Log::warning('Nenhum documento de frete fornecido para criação de viagem.');
+            return [];
+        }
 
-        $documentosFrete->each(function (Models\DocumentoFrete $docFrete) use (&$data) {
-            $data['veiculo_id'] = $docFrete->veiculo_id;
-            $data['unidade_negocio'] = $docFrete->veiculo->unidade_negocio ?? 'N/A';
-            $data['numero_viagem'] = $docFrete->documento_transporte;
+        $documentosFrete->each(function ($docsFrete) {
+            Log::debug('Documento de frete para viagem', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'documento_frete' => $docsFrete,
+                'countDocs' => $docsFrete->count(),
+                'firstDoc' => $docsFrete->first(),
+                'lastDoc' => $docsFrete->last(),
+                'dif'   => $docsFrete->last()->numero_documento - $docsFrete->first()->numero_documento,
+            ]);
         });
-        return $data;
+        die();
+return [];
+        $firstDoc = $documentosFrete->first();
+        $lastDoc = $documentosFrete->last();
+
+        $dataViagem = [
+            'veiculo_id' => $firstDoc->veiculo_id,
+            'data_inicio' => $firstDoc->data_emissao,
+            'data_fim' => $lastDoc->data_emissao,
+            'documento_transporte' => $firstDoc->documento_transporte,
+        ];
+
+        Log::info('Dados processados para criação de viagem', [
+            'dados_viagem' => $dataViagem,
+        ]);
+
+        return $dataViagem;
     }
 }

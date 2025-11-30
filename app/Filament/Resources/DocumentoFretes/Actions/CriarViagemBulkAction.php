@@ -21,7 +21,7 @@ class CriarViagemBulkAction
 {
     public static function make(): BulkAction
     {
-        return Action::make('criar-viagem')
+        return BulkAction::make('criar-viagem')
             ->label('Criar Viagem')
             ->tooltip('Criar viagem a partir do Documento de Frete')
             ->icon(Heroicon::PlusCircle)

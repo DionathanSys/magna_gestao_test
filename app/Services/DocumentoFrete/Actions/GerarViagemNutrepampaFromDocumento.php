@@ -2,6 +2,7 @@
 
 namespace App\Services\DocumentoFrete\Actions;
 
+use App\Models\DocumentoFrete;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +23,11 @@ class GerarViagemNutrepampaFromDocumento
 
     private function processarDocumentosFrete(): void
     {
-        $documentosGroupVeiculoId = $this->documentosFrete->groupBy('veiculo_id');
+        $documentosGroupVeiculoId = $this->documentosFrete->groupBy(['veiculo_id', function (DocumentoFrete $documento) {
+            return $documento->data_emissao;
+        }]);
+
+        dd($documentosGroupVeiculoId);
 
         $documentosGroupVeiculoId->each(function (Collection $documentosVeiculo, $veiculoId) {
 
@@ -33,7 +38,7 @@ class GerarViagemNutrepampaFromDocumento
                 $this->data[$veiculoId . '.' . $dataEmissao] = [
                     'veiculo_id' => $veiculoId,
                     'data_emissao' => $dataEmissao,
-                    'documentos_frete' => $documentosDataEmissao->pluck(['documento_transporte', 'numero_documento'], 'id')->toArray(),
+                    'documentos_frete' => $documentosDataEmissao->pluck('numero_documento', 'id')->toArray(),
                 ];
             });
 

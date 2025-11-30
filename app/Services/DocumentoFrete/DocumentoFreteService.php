@@ -255,7 +255,7 @@ class DocumentoFreteService
             return [];
         }
 
-        $documentosFrete = $documentosFrete->groupBy('numero_documento');
+        $documentosFrete = $documentosFrete->groupBy('data_emissao');
 
         $documentosFrete->each(function ($docsFrete) {
             Log::debug('Documento de frete para viagem', [

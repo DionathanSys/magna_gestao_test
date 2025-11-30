@@ -27,12 +27,7 @@ class GerarViagemNutrepampaFromDocumento
             return $documento->data_emissao;
         }]);
 
-        dump($documentosGroupVeiculoId);
-
-        $documentosGroupVeiculoId->each(function (Collection $documentosVeiculo, $veiculoId, $key) {
-
-            dd($documentosVeiculo, $veiculoId, $key);
-            $documentosGroupDataEmissao = $documentosVeiculo->groupBy('data_emissao');
+        $documentosGroupVeiculoId->each(function (Collection $documentosGroupDataEmissao, $veiculoId) {
 
             $documentosGroupDataEmissao->each(function (Collection $documentosDataEmissao, $dataEmissao) use ($veiculoId) {
 

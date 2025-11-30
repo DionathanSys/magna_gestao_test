@@ -223,6 +223,11 @@ class ViagemsTable
                 ]),
                 TextColumn::make('condutor')
                     ->label('Motorista')
+                    ->grow(false)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('cliente')
+                    ->label('Cliente')
+                    ->grow()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('resultado_periodo_id')
                     ->label("Resultado Período ID")
@@ -425,6 +430,20 @@ class ViagemsTable
                     ])
                     ->default('CHAPECO'),
                 RegistrosSemVinculoResultadoFilter::make(),
+                SelectFilter::make('veiculo_cliente')
+                    ->label('Veículo do Cliente')
+                    ->query(function (Builder $query, $value): Builder {
+                        if ($value === '1') {
+                            return $query->whereHas('veiculo', function (Builder $subQuery) {
+                                $subQuery->where('cliente_proprio', true);
+                            });
+                        } elseif ($value === '0') {
+                            return $query->whereHas('veiculo', function (Builder $subQuery) {
+                                $subQuery->where('cliente_proprio', false);
+                            });
+                        }
+                        return $query;
+                    }),
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(

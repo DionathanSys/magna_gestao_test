@@ -218,9 +218,7 @@ class DocumentoFreteService
     {
         $viagemService = new Services\Viagem\ViagemService();
 
-        $data = $documentosFrete->groupBy(['veiculo_id', function (array $item) {
-            return $item['data_emissao'];
-        }]);
+        $data = $documentosFrete->groupBy('veiculo_id');
 
         Log::debug('Dados agrupados por veículo para criação de viagem', [
             'data' => $data,
@@ -256,6 +254,8 @@ class DocumentoFreteService
             Log::warning('Nenhum documento de frete fornecido para criação de viagem.');
             return [];
         }
+
+        $documentosFrete = $documentosFrete->groupBy('numero_documento');
 
         $documentosFrete->each(function ($docsFrete) {
             Log::debug('Documento de frete para viagem', [

@@ -28,7 +28,7 @@ class CriarViagemBulkAction
             ->action(function($records) {
 
                 $documentoFreteService = new Services\DocumentoFrete\DocumentoFreteService();
-                $viagem = $documentoFreteService->createViagemFromDocumentoFrete($records);
+                $viagem = $documentoFreteService->createViagemNutrepampaFromDocumentoFrete($records);
 
                 notify::success('Importação de Documento Frete iniciada com sucesso.');
             });

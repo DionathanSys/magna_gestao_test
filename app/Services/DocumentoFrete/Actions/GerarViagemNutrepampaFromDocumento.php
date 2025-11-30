@@ -33,7 +33,7 @@ class GerarViagemNutrepampaFromDocumento
                 $this->data[$veiculoId . '.' . $dataEmissao] = [
                     'veiculo_id' => $veiculoId,
                     'data_emissao' => $dataEmissao,
-                    'documentos_frete' => $documentosDataEmissao->pluck(['id', 'numero_documento'], 'id')->toArray(),
+                    'documentos_frete' => $documentosDataEmissao->pluck(['documento_transporte', 'numero_documento'], 'id')->toArray(),
                 ];
             });
 

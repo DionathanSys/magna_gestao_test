@@ -7,6 +7,7 @@ use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions;
+use App\Filament\Resources\DocumentoFretes\Actions\CriarViagemBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Carbon\Carbon;
@@ -166,6 +167,7 @@ class DocumentoFretesTable
                         ->visible(fn(): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
                     VincularResultadoPeriodoBulkAction::make(),
+                    CriarViagemBulkAction::make(),
                 ]),
                 ActionGroup::make([
                     CreateAction::make()

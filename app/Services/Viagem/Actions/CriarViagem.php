@@ -19,6 +19,7 @@ class CriarViagem
     protected array $allowedFields = [
         'veiculo_id',
         'unidade_negocio',
+        'cliente',
         'numero_viagem',
         'documento_transporte',
         'km_rodado',
@@ -61,6 +62,7 @@ class CriarViagem
         $validator = Validator::make($data, [
             'veiculo_id'            => 'required|exists:veiculos,id',
             'unidade_negocio'       => 'required|string',
+            'cliente'               => 'nullable|string',
             'numero_viagem'         => 'required|string|unique:viagens,numero_viagem',
             'documento_transporte'  => 'nullable|string',
             'km_rodado'             => 'required|numeric|min:0',
@@ -78,6 +80,7 @@ class CriarViagem
             'veiculo_id.exists'             => 'Veículo não encontrado.',
             'unidade_negocio.required'      => 'O campo Unidade de Negócio é obrigatório.',
             'unidade_negocio.string'        => 'O campo Unidade de Negócio deve ser um texto válido.',
+            'cliente.string'                => 'O campo Cliente deve ser um texto válido.',
             'numero_viagem.required'        => 'O campo Viagem é obrigatório.',
             'numero_viagem.string'          => 'O campo Viagem deve ser um texto válido.',
             'numero_viagem.unique'          => 'O número da Viagem já está em uso.',
@@ -111,6 +114,10 @@ class CriarViagem
         ]);
 
         if ($validator->fails()) {
+            Log::error(__METHOD__ . '@' . __LINE__, [
+                'error' => $validator->errors()->all(),
+                'data'  => $data,
+            ]);
             $this->errors = $validator->errors()->all();
             $this->hasError = true;
             return;

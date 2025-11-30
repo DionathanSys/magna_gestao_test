@@ -9,6 +9,7 @@ use App\Jobs\VincularRegistroResultadoJob;
 use App\Jobs\VincularViagemDocumentoFrete;
 use App\Services\DocumentoFrete\Actions\VincularViagemDocumento;
 use App\Traits\ServiceResponseTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -211,5 +212,46 @@ class DocumentoFreteService
             ]);
             return null;
         }
+    }
+
+    public function createViagemFromDocumentoFrete(Collection $documentosFrete)
+    {
+        $viagemService = new Services\Viagem\ViagemService();
+
+        $data = $documentosFrete->groupBy('veiculo_id');
+
+        Log::debug('Dados agrupados por veículo para criação de viagem', [
+            'data' => $data,
+        ]);
+
+        $data->each(function ($docsFrete, $veiculoId) use (&$viagemService) {
+            Log::debug('Processando veículo ID: ' . $veiculoId, [
+                'documentos_frete' => $docsFrete,
+            ]);
+        });
+
+
+
+        try {
+        } catch (\Exception $e) {
+            Log::error(__METHOD__, [
+                'error' => $e->getMessage(),
+            ]);
+            $this->setError($e->getMessage());
+            return null;
+        }
+    }
+
+    private function processDataToCreateViagem(Collection $documentosFrete): array
+    {
+        $data = [];
+
+
+        $documentosFrete->each(function (Models\DocumentoFrete $docFrete) use (&$data) {
+            $data['veiculo_id'] = $docFrete->veiculo_id;
+            $data['unidade_negocio'] = $docFrete->veiculo->unidade_negocio ?? 'N/A';
+            $data['numero_viagem'] = $docFrete->documento_transporte;
+        });
+        return $data;
     }
 }

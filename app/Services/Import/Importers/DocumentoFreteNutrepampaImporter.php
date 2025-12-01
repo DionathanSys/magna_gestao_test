@@ -35,6 +35,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'Placa',
             'NomeParceiroParceiro', //Nome Parceiro Origem
             'NomeParceiroParcDestinatrio', //Nome Parceiro (ParcDestinatário)
+            'Observao', //Observação
         ];
     }
 
@@ -100,13 +101,23 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         $valorTotal = $this->converterParaFloat($row['VlrNota']);
         $valorICMS = $this->converterParaFloat($row['VlrdoICMS'] ?? null);
 
+        Log::debug('Transformando dados para importação de documento frete Nutrepampa', [
+            'metodo'    => __METHOD__ . '@' . __LINE__,
+            'row'       => $row,
+            'obs'       => str_contains(Str::lower($row['Observao'] ?? ''), 'complemento')
+        ]);
+
+        if(str_contains(Str::lower($row['Observao'] ?? ''), 'complemento')) {
+            $tipoDocumento = TipoDocumentoEnum::CTE_COMPLEMENTO;
+        }
+
         return [
             'veiculo_id'            => $veiculo_id,
             'parceiro_origem'       => $row['NomeParceiroParceiro'],
             'parceiro_destino'      => $row['NomeParceiroParcDestinatrio'],
             'numero_documento'      => $row['NroNota'],
             'documento_transporte'  => $row['Nronico'],
-            'tipo_documento'        => TipoDocumentoEnum::CTE,
+            'tipo_documento'        => $tipoDocumento ?? TipoDocumentoEnum::CTE,
             'data_emissao'          => Carbon::createFromFormat('m/d/Y', $row['DtNeg'])->format('Y-m-d'),
             'valor_total'           => $valorTotal,
             'valor_icms'            => isset($row['VlrdoICMS']) ? $valorICMS : 0.0,

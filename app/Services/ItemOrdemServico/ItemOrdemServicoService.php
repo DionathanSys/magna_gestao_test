@@ -22,7 +22,6 @@ class ItemOrdemServicoService
             $this->setSuccess('Item criado com sucesso!');
             return $item;
         } catch (\Exception $e) {
-            dd($e->getMessage());
             Log::error(__METHOD__.'-'.__LINE__, [
                 'error' => $e->getMessage(),
                 'data' => $data

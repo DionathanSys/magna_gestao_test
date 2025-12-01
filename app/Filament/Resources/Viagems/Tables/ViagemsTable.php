@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Viagems\Tables;
 
+use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction,};
 use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn,};
 use Filament\Tables\Table;
@@ -500,6 +501,7 @@ class ViagemsTable
                     DeleteBulkAction::make()
                         ->visible(fn(): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    FilamentExportBulkAction::make('export')
                 ]),
             ]);
     }

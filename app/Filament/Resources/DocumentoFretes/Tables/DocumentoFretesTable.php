@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DocumentoFretes\Tables;
 
+use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
@@ -168,6 +169,7 @@ class DocumentoFretesTable
                     DissociateResultadoPeriodoBulkAction::make(),
                     VincularResultadoPeriodoBulkAction::make(),
                     CriarViagemBulkAction::make(),
+                    FilamentExportBulkAction::make('export')
                 ]),
                 ActionGroup::make([
                     CreateAction::make()

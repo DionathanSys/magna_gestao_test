@@ -58,7 +58,8 @@ class DocumentoFretesTable
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Documento')
                     ->width('1%')
-                    ->searchable(isIndividual: true),
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->width('1%')
@@ -119,6 +120,7 @@ class DocumentoFretesTable
             ->persistSortInSession()
             ->defaultSortOptionLabel('created_at')
             ->persistFiltersInSession()
+            ->persistColumnSearchesInSession()
             ->paginated([25, 50, 100, 250])
             ->extremePaginationLinks()
             ->filters([

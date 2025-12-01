@@ -47,7 +47,7 @@ class GerarViagemNutrepampaFromDocumento
                             'viagem_id'             => $viagem->id,
                             'documento_transporte'  => $viagem->documento_transporte,
                         ]);
-                        
+
                 } else {
                     Log::warning('Falha ao criar viagem Nutrepampa a partir de documentos de frete.', [
                         'metodo' => __METHOD__ . '@' . __LINE__,
@@ -84,7 +84,7 @@ class GerarViagemNutrepampaFromDocumento
 
                     $this->data[] = [
                         'veiculo_id'            => $veiculo->id,
-                        'unidade_negocio'       => $veiculo->unidade_negocio,
+                        'unidade_negocio'       => $veiculo->filial,
                         'cliente'               => $veiculo->informacoes_complementares['cliente'],
                         'numero_viagem'         => $documentosGroupValorTotal->first()->documento_transporte,
                         'documento_transporte'  => $documentosGroupValorTotal->first()->documento_transporte,
@@ -92,7 +92,7 @@ class GerarViagemNutrepampaFromDocumento
                         'km_cadastro'           => 0,
                         'km_rodado'             => 0,
                         'km_cobrar'             => 0,
-                        'data_emissao'          => $dataEmissao,
+                        'data_competencia'      => $dataEmissao,
                         'data_inicio'           => $dataEmissao,
                         'data_fim'              => $dataEmissao,
                         'conferido'             => false,

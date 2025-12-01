@@ -29,31 +29,40 @@ class GerarViagemNutrepampaFromDocumento
         $this->processarDocumentosFrete();
 
         $actionViagem = new ViagemService();
-        // foreach ($this->data as $key => $dados) {
-        //     try {
-        //         $viagem = $actionViagem->create($dados);
 
-        //         if ($viagem) {
-        //             $this->viagensCriadas[] = $viagem;
-        //             Log::info('Viagem Nutrepampa criada a partir de documentos de frete. ID da Viagem: ' . $viagem->id, [
-        //                 'metodo' => __METHOD__ . '@' . __LINE__,
-        //                 'dados_viagem' => $dados,
-        //             ]);
-        //         } else {
-        //             Log::warning('Falha ao criar viagem Nutrepampa a partir de documentos de frete.', [
-        //                 'metodo' => __METHOD__ . '@' . __LINE__,
-        //                 'dados_viagem' => $dados,
-        //             ]);
-        //         }
-        //     } catch (\Exception $e) {
-        //         Log::error('Erro ao criar viagem Nutrepampa a partir de documentos de frete.', [
-        //             'metodo' => __METHOD__ . '@' . __LINE__,
-        //             'error' => $e->getMessage(),
-        //             'dados_viagem' => $dados,
-        //         ]);
-        //     }
-        // }
-        // return $this->viagensCriadas;
+        foreach ($this->data as $key => $dados) {
+            try {
+                
+                $viagem = $actionViagem->create($dados);
+
+                if ($viagem) {
+                    $this->viagensCriadas[] = $viagem;
+                    Log::info('Viagem Nutrepampa criada a partir de documentos de frete. ID da Viagem: ' . $viagem->id, [
+                        'metodo' => __METHOD__ . '@' . __LINE__,
+                        'dados_viagem' => $dados,
+                    ]);
+
+                    Models\DocumentoFrete::whereIn('id', $dados['documentos_frete_ids'])
+                        ->update([
+                            'viagem_id'             => $viagem->id,
+                            'documento_transporte'  => $viagem->documento_transporte,
+                        ]);
+                        
+                } else {
+                    Log::warning('Falha ao criar viagem Nutrepampa a partir de documentos de frete.', [
+                        'metodo' => __METHOD__ . '@' . __LINE__,
+                        'dados_viagem' => $dados,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Erro ao criar viagem Nutrepampa a partir de documentos de frete.', [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'error' => $e->getMessage(),
+                    'dados_viagem' => $dados,
+                ]);
+            }
+        }
+        return $this->viagensCriadas;
     }
 
     private function processarDocumentosFrete(): void

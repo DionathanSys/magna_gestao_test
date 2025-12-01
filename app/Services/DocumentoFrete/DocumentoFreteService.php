@@ -217,7 +217,7 @@ class DocumentoFreteService
     public function createViagemNutrepampaFromDocumentoFrete(Collection $documentosFrete)
     {
         $action = new Actions\GerarViagemNutrepampaFromDocumento($documentosFrete);
-        return $action->handle($documentosFrete);
+        return $action->handle();
 
     }
 

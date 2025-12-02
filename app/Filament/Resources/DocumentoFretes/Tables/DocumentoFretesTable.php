@@ -38,7 +38,7 @@ class DocumentoFretesTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                return $query->with(['veiculo:id,placa']);
+                return $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,descricao']);
             })
             ->columns([
                 TextColumn::make('veiculo.placa')
@@ -105,6 +105,11 @@ class DocumentoFretesTable
                 TextInputColumn::make('resultado_periodo_id')
                     ->label("Resultado Período ID")
                     ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('resultadoPeriodo.descricao')
+                    ->label('Resultado Período')
+                    ->disabledClick()
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->dateTime('d/m/Y H:i')
@@ -121,7 +126,7 @@ class DocumentoFretesTable
             ->defaultSortOptionLabel('created_at')
             ->persistFiltersInSession()
             ->persistColumnSearchesInSession()
-            ->paginated([25, 50, 100, 250])
+            ->paginated([25, 50, 100, 250, 500])
             ->extremePaginationLinks()
             ->filters([
                 SelectFilter::make('veiculo_id')

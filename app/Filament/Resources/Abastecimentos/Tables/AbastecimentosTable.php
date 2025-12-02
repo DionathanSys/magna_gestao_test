@@ -39,7 +39,7 @@ class AbastecimentosTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query): void {
-                $query->with(['veiculo:id,placa,tipo_veiculo_id', 'veiculo.tipoVeiculo:id,meta_media']);
+                $query->with(['veiculo:id,placa,tipo_veiculo_id', 'veiculo.tipoVeiculo:id,meta_media', 'resultadoPeriodo:id,descricao']);
             })
             ->columns([
                 TextColumn::make('id_abastecimento')
@@ -159,6 +159,12 @@ class AbastecimentosTable
                     ->label('Resultado ID')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('resultadoPeriodo.descricao')
+                    ->label('Resultado Período')
+                    ->disabledClick()
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i:s')
@@ -177,6 +183,9 @@ class AbastecimentosTable
                     ->collapsible(),
                 Group::make('veiculo.tipoVeiculo.descricao')
                     ->label('Tipo de Veículo')
+                    ->collapsible(),
+                Group::make('resultadoPeriodo.descricao')
+                    ->label('Resultado Período')
                     ->collapsible(),
             ])
             ->striped()
@@ -220,6 +229,8 @@ class AbastecimentosTable
                     Abastecimentos\Actions\ImportAbastecimentoAction::make(),
                     CreateAction::make(),
                 ])->button()
-            ]);
+            ])
+            ->paginated([25, 50, 100, 250, 500])
+            ->extremePaginationLinks();
     }
 }

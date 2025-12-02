@@ -38,7 +38,7 @@ class DocumentoFretesTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                return $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,periodo']);
+                return $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']);
             })
             ->columns([
                 TextColumn::make('veiculo.placa')
@@ -105,7 +105,7 @@ class DocumentoFretesTable
                 TextInputColumn::make('resultado_periodo_id')
                     ->label("Resultado Período ID")
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('resultadoPeriodo.periodo')
+                TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
                     ->disabledClick()
                     ->searchable(isIndividual: true)

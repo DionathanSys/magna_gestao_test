@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CargaViagems\Tables;
 
+use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Filament\Resources\CargaViagems\CargaViagemResource;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Filament\Actions\BulkActionGroup;
@@ -278,6 +279,7 @@ class CargaViagemsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    FilamentExportBulkAction::make('export'),
                     DeleteBulkAction::make(),
                 ]),
             ]);

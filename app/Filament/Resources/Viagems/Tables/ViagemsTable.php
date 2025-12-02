@@ -42,7 +42,7 @@ class ViagemsTable
                     'checker:id,name',
                     'creator:id,name',
                     'updater:id,name',
-                    'resultadoPeriodo:id,descricao',
+                    'resultadoPeriodo:id,data_inicio',
                 ])
                     // antecipa o cálculo de existência para evitar N+1
                     ->withExists(['comentarios'])
@@ -234,7 +234,7 @@ class ViagemsTable
                 TextColumn::make('resultado_periodo_id')
                     ->label("Resultado Período ID")
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('resultadoPeriodo.descricao')
+                TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
                     ->disabledClick()
                     ->searchable(isIndividual: true)

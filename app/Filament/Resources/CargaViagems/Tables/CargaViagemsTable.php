@@ -142,7 +142,8 @@ class CargaViagemsTable
                     ->size(TextSize::ExtraSmall)
                     ->listWithLineBreaks()
                     ->limitList(1)
-                    ->expandableLimitedList(),
+                    ->expandableLimitedList()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

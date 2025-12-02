@@ -39,7 +39,7 @@ class AbastecimentosTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query): void {
-                $query->with(['veiculo:id,placa,tipo_veiculo_id', 'veiculo.tipoVeiculo:id,meta_media', 'resultadoPeriodo:id,descricao']);
+                $query->with(['veiculo:id,placa,tipo_veiculo_id', 'veiculo.tipoVeiculo:id,meta_media', 'resultadoPeriodo:id,periodo']);
             })
             ->columns([
                 TextColumn::make('id_abastecimento')
@@ -184,7 +184,7 @@ class AbastecimentosTable
                 Group::make('veiculo.tipoVeiculo.descricao')
                     ->label('Tipo de Veículo')
                     ->collapsible(),
-                Group::make('resultadoPeriodo.descricao')
+                Group::make('resultadoPeriodo.periodo')
                     ->label('Resultado Período')
                     ->collapsible(),
             ])

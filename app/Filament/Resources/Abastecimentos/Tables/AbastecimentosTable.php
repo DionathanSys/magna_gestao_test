@@ -160,10 +160,10 @@ class AbastecimentosTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('resultadoPeriodo.descricao')
+                TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
                     ->disabledClick()
-                    ->searchable(isIndividual: true)
+                    ->date('d/m/Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')

@@ -237,6 +237,7 @@ class ViagemsTable
                 TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
                     ->disabledClick()
+                    ->date('d/m/Y')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

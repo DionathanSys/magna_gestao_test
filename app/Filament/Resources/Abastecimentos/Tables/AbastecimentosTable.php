@@ -209,6 +209,13 @@ class AbastecimentosTable
                     ->autoApply()
                     ->firstDayOfWeek(0)
                     ->defaultLast7Days(),
+                DateRangeFilter::make('resultadoPeriodo.data_inicio')
+                    ->label('Dt. Resultado Período')
+                    ->drops(DropDirection::AUTO)
+                    ->icon('heroicon-o-backspace')
+                    ->alwaysShowCalendar()
+                    ->autoApply()
+                    ->firstDayOfWeek(0),
                 Filter::make('considera_no_calculo_media')
                     ->label('Abastecidas p/ cálculo médio')
                     ->toggle()

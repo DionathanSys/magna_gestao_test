@@ -106,7 +106,7 @@ class DocumentoFretesTable
                 TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
                     ->disabledClick()
-                    ->getStateUsing(fn ($record) => optional($record->resultadoPeriodo)->data_inicio)
+                    // ->getStateUsing(fn ($record) => optional($record->resultadoPeriodo)->data_inicio)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')

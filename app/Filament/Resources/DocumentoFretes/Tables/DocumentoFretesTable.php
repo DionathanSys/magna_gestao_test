@@ -37,9 +37,7 @@ class DocumentoFretesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                return $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']);
-            })
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']))
             ->columns([
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
@@ -108,7 +106,7 @@ class DocumentoFretesTable
                 TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
                     ->disabledClick()
-                    ->searchable(isIndividual: true)
+                    ->getStateUsing(fn ($record) => optional($record->resultadoPeriodo)->data_inicio)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')

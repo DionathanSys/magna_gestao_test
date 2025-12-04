@@ -50,8 +50,6 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 
         $errors = [];
 
-        // $this->normalizarDataCampo($row, 'DtNeg');
-
         $this->normalizarValoresMonetarios($row, ['VlrNota', 'VlrdoICMS']);
 
         // Validação básica
@@ -166,6 +164,8 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'data'      => $data,
         ]);
 
+        $this->normalizarDataCampo($data, 'DtNeg');
+        
         $errors = $this->validate($data, $rowNumber);
 
         if (!empty($errors)) {

@@ -47,10 +47,10 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
     public function validate(array $row, int $rowNumber): array
     {
         Log::debug(__METHOD__.'@'.__LINE__);
-        
+
         $errors = [];
 
-        // $this->normalizarDataCampo($row, 'DtNeg');
+        $this->normalizarDataCampo($row, 'DtNeg');
 
         $this->normalizarValoresMonetarios($row, ['VlrNota', 'VlrdoICMS']);
 
@@ -124,43 +124,43 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         ];
     }
 
-    // private function normalizarDataCampo(array &$row, string $campo): void
-    // {
-    //     if (empty($row[$campo])) {
-    //         return;
-    //     }
+    private function normalizarDataCampo(array &$row, string $campo): void
+    {
+        if (empty($row[$campo])) {
+            return;
+        }
 
-    //     $value = trim($row[$campo]);
-    //     $formats = [
-    //         'd/m/Y', // 03/11/2025
-    //         'j/n/Y', // 3/11/2025 ou 11/3/2025
-    //         'd/n/Y', // 03/11/2025 with month single-digit
-    //         'j/m/Y', // day single-digit, month two-digit
-    //         'm/d/Y', // 11/03/2025 (US)
-    //         'n/j/Y', // 1/3/2025 (US without leading zeros)
-    //         'Y-m-d', // already normalized
-    //     ];
+        $value = trim($row[$campo]);
+        $formats = [
+            'd/m/Y', // 03/11/2025
+            'j/n/Y', // 3/11/2025 ou 11/3/2025
+            'd/n/Y', // 03/11/2025 with month single-digit
+            'j/m/Y', // day single-digit, month two-digit
+            'm/d/Y', // 11/03/2025 (US)
+            'n/j/Y', // 1/3/2025 (US without leading zeros)
+            'Y-m-d', // already normalized
+        ];
 
-    //     foreach ($formats as $fmt) {
-    //         try {
-    //             $dt = Carbon::createFromFormat($fmt, $value);
-    //             // normaliza para dd/mm/YYYY
-    //             $row[$campo] = $dt->format('d/m/Y');
-    //             return;
-    //         } catch (\Exception $e) {
-    //             Log::warning('Falha ao normalizar data para o campo ' . $campo, [
-    //                 'metodo' => __METHOD__ . '@' . __LINE__,
-    //                 'value' => $value,
-    //                 'format_attempted' => $fmt,
-    //                 'exception' => $e->getMessage(),
-    //             ]);
-    //         }
-    //     }
-    // }
+        foreach ($formats as $fmt) {
+            try {
+                $dt = Carbon::createFromFormat($fmt, $value);
+                // normaliza para dd/mm/YYYY
+                $row[$campo] = $dt->format('d/m/Y');
+                return;
+            } catch (\Exception $e) {
+                Log::warning('Falha ao normalizar data para o campo ' . $campo, [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'value' => $value,
+                    'format_attempted' => $fmt,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
 
     public function process(array $data, int $rowNumber): ?Models\Viagem
     {
-        Log::debug('Processando linha de importação de documento frete Nutrepampa '. $rowNumber, [
+        Log::debug('Processando linha de importação de documento frete Nutrepampa - Row:'. $rowNumber, [
             'metodo'    => __METHOD__ . '@' . __LINE__,
             'row'       => $rowNumber,
             'data'      => $data,

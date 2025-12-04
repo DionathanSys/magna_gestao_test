@@ -50,7 +50,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 
         $errors = [];
 
-        $this->normalizarDataCampo($row, 'DtNeg');
+        // $this->normalizarDataCampo($row, 'DtNeg');
 
         $this->normalizarValoresMonetarios($row, ['VlrNota', 'VlrdoICMS']);
 
@@ -160,7 +160,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 
     public function process(array $data, int $rowNumber): ?Models\Viagem
     {
-        Log::debug('Processando linha de importação de documento frete Nutrepampa - Row:'. $rowNumber, [
+        Log::debug('Processando linha de importação de documento frete Nutrepampa - Linha: '. $rowNumber, [
             'metodo'    => __METHOD__ . '@' . __LINE__,
             'row'       => $rowNumber,
             'data'      => $data,

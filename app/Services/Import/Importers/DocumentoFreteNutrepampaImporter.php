@@ -46,7 +46,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 
     public function validate(array $row, int $rowNumber): array
     {
-        Log::debug(__METHOD__.'@'.__LINE__);
+        Log::debug(__METHOD__ . '@' . __LINE__);
 
         $errors = [];
 
@@ -97,7 +97,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
 
     public function transform(array $row): array
     {
-        Log::debug(__METHOD__.'@'.__LINE__);
+        Log::debug(__METHOD__ . '@' . __LINE__);
 
         $veiculo    = $this->veiculoService->getVeiculoByPlaca($row['Placa']);
         $veiculo_id = $veiculo->id;
@@ -129,36 +129,39 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         }
 
         $value = trim($row[$campo]);
+
+        // Prioridade: formatos mês/dia/ano (m/d/Y) com/sem zeros
         $formats = [
-            'd/m/Y', // 03/11/2025
-            'j/n/Y', // 3/11/2025 ou 11/3/2025
-            'd/n/Y', // 03/11/2025 with month single-digit
-            'j/m/Y', // day single-digit, month two-digit
-            'm/d/Y', // 11/03/2025 (US)
-            'n/j/Y', // 1/3/2025 (US without leading zeros)
-            'Y-m-d', // already normalized
+            'n/j/Y', // 1/3/2025
+            'n/d/Y', // 1/03/2025
+            'm/j/Y', // 01/3/2025
+            'm/d/Y', // 01/03/2025
         ];
 
+        $parsed = false;
         foreach ($formats as $fmt) {
             try {
                 $dt = Carbon::createFromFormat($fmt, $value);
-                // normaliza para dd/mm/YYYY
-                $row[$campo] = $dt->format('d/m/Y');
-                return;
+                // Se conseguiu parsear, normaliza para YYYY-MM-DD (o formato esperado nas regras/transform)
+                $row[$campo] = $dt->format('Y-m-d');
+                $parsed = true;
+                break;
             } catch (\Exception $e) {
-                Log::warning('Falha ao normalizar data para o campo ' . $campo, [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
-                    'value' => $value,
-                    'format_attempted' => $fmt,
-                    'exception' => $e->getMessage(),
-                ]);
+                // tenta próximo formato
             }
+        }
+
+        if (! $parsed) {
+            Log::warning('Não foi possível normalizar a data para o campo ' . $campo, [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'value' => $value,
+            ]);
         }
     }
 
     public function process(array $data, int $rowNumber): ?Models\Viagem
     {
-        Log::debug('Processando linha de importação de documento frete Nutrepampa - Linha: '. $rowNumber, [
+        Log::debug('Processando linha de importação de documento frete Nutrepampa - Linha: ' . $rowNumber, [
             'metodo'    => __METHOD__ . '@' . __LINE__,
             'row'       => $rowNumber,
             'data'      => $data,

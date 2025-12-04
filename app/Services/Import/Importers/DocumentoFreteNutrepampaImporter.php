@@ -58,7 +58,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'VlrNota'                        => 'required|decimal:2',
             'NroNota'                        => 'required|numeric',
             'VlrdoICMS'                      => 'required|decimal:2',
-            'DtNeg'                          => 'required|date_format:d/m/Y',
+            'DtNeg'                          => 'required|date_format:m/d/Y',
             'Placa'                          => 'required|string|exists:veiculos,placa',
             'NomeParceiroParceiro'           => 'required|string',
             'NomeParceiroParcDestinatrio'    => 'required|string',
@@ -164,8 +164,8 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'data'      => $data,
         ]);
 
-        $this->normalizarDataCampo($data, 'DtNeg');
-        
+        // $this->normalizarDataCampo($data, 'DtNeg');
+
         $errors = $this->validate($data, $rowNumber);
 
         if (!empty($errors)) {

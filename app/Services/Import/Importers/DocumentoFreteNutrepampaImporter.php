@@ -66,9 +66,9 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'Placa.required'                        => 'A Placa é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Placa.string'                          => 'A Placa deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Placa.exists'                          => 'A Placa informada não existe na base de dados ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'NomeParceiroParceiro.required'         => 'O Nome do Parceiro é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),   
+            'NomeParceiroParceiro.required'         => 'O Nome do Parceiro é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'NomeParceiroParceiro.string'           => 'O Nome do Parceiro deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'NomeParceiroParcDestinatrio.required'  => 'O Nome do Destinatário é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),   
+            'NomeParceiroParcDestinatrio.required'  => 'O Nome do Destinatário é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'NomeParceiroParcDestinatrio.string'    => 'O Nome do Destinatário deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'VlrNota.required'                      => 'O Valor da Nota é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'VlrNota.decimal'                       => 'O Valor da Nota deve ser numérico ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
@@ -107,7 +107,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'obs'       => str_contains(Str::lower($row['Observao'] ?? ''), 'complemento')
         ]);
 
-        if(str_contains(Str::lower($row['Observao'] ?? ''), 'complemento')) {
+        if (str_contains(Str::lower($row['Observao'] ?? ''), 'complemento')) {
             $tipoDocumento = TipoDocumentoEnum::CTE_COMPLEMENTO;
         }
 
@@ -122,6 +122,40 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'valor_total'           => $valorTotal,
             'valor_icms'            => isset($row['VlrdoICMS']) ? $valorICMS : 0.0,
         ];
+    }
+
+    private function normalizarDataCampo(array &$row, string $campo): void
+    {
+        if (empty($row[$campo])) {
+            return;
+        }
+
+        $value = trim($row[$campo]);
+        $formats = [
+            'd/m/Y', // 03/11/2025
+            'j/n/Y', // 3/11/2025 ou 11/3/2025
+            'd/n/Y', // 03/11/2025 with month single-digit
+            'j/m/Y', // day single-digit, month two-digit
+            'm/d/Y', // 11/03/2025 (US)
+            'n/j/Y', // 1/3/2025 (US without leading zeros)
+            'Y-m-d', // already normalized
+        ];
+
+        foreach ($formats as $fmt) {
+            try {
+                $dt = Carbon::createFromFormat($fmt, $value);
+                // normaliza para dd/mm/YYYY
+                $row[$campo] = $dt->format('d/m/Y');
+                return;
+            } catch (\Exception $e) {
+                Log::warning('Falha ao normalizar data para o campo ' . $campo, [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'value' => $value,
+                    'format_attempted' => $fmt,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
+        }
     }
 
     public function process(array $data, int $rowNumber): ?Models\Viagem

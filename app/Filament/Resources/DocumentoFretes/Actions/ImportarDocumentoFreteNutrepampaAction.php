@@ -26,14 +26,14 @@ class ImportarDocumentoFreteNutrepampaAction
                 $filePath = $data['arquivo'];
                 $options = [
                     'use_queue' => true,
-                    'descricao' => 'Importação de Viagens Softlog - BRF',
+                    'descricao' => 'Importação de Documento Frete Nutrepampa',
                     'batch_size' => 15,
                 ];
 
                 $result = $importService->importarDocumentosNutrepampa($filePath, $options);
 
                 if ($importService->hasError()) {
-                    Log::error('Erro na importação de viagens: ' . $importService->getMessage(), [
+                    Log::error('Erro na importação de documento frete Nutrepampa: ' . $importService->getMessage(), [
                         'metodo' => __METHOD__,
                         'arquivo' => $filePath,
                     ]);

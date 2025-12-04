@@ -144,6 +144,11 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
                 $dt = Carbon::createFromFormat($fmt, $value);
                 // Se conseguiu parsear, normaliza para YYYY-MM-DD (o formato esperado nas regras/transform)
                 $row[$campo] = $dt->format('Y-m-d');
+                Log::debug('Data normalizada para o campo ' . $campo, [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'original' => $value,
+                    'normalizada' => $row[$campo],
+                ]);
                 $parsed = true;
                 break;
             } catch (\Exception $e) {

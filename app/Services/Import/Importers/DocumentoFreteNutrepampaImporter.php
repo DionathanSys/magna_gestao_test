@@ -101,6 +101,8 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         $valorTotal = $this->converterParaFloat($row['VlrNota']);
         $valorICMS = $this->converterParaFloat($row['VlrdoICMS'] ?? null);
 
+        $dataEmissao = $this->normalizarDataCampo($row, 'DtNeg');
+
         Log::debug('Transformando dados para importação de documento frete Nutrepampa', [
             'metodo'    => __METHOD__ . '@' . __LINE__,
             'row'       => $row,
@@ -118,7 +120,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'numero_documento'      => $row['NroNota'],
             'documento_transporte'  => $row['Nronico'],
             'tipo_documento'        => $tipoDocumento ?? TipoDocumentoEnum::CTE,
-            'data_emissao'          => Carbon::createFromFormat('m/d/Y', $row['DtNeg'])->format('Y-m-d'),
+            'data_emissao'          => Carbon::createFromFormat('d/m/Y', $dataEmissao)->format('Y-m-d'),
             'valor_total'           => $valorTotal,
             'valor_icms'            => isset($row['VlrdoICMS']) ? $valorICMS : 0.0,
         ];

@@ -116,7 +116,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'numero_documento'      => $row['NroNota'],
             'documento_transporte'  => $row['Nronico'],
             'tipo_documento'        => $tipoDocumento ?? TipoDocumentoEnum::CTE,
-            'data_emissao'          => Carbon::createFromFormat('d/m/Y', $row['DtNeg'])->format('Y-m-d'),
+            'data_emissao'          => $row['DtNeg'],
             'valor_total'           => $valorTotal,
             'valor_icms'            => isset($row['VlrdoICMS']) ? $valorICMS : 0.0,
         ];

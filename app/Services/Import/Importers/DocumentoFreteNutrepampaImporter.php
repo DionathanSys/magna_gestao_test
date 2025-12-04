@@ -172,7 +172,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
             'data'      => $data,
         ]);
 
-        // $this->normalizarDataCampo($data, 'DtNeg');
+        $this->normalizarDataCampo($data, 'DtNeg');
 
         $errors = $this->validate($data, $rowNumber);
 

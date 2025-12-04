@@ -10,6 +10,8 @@ class DocumentoFreteImportService extends BaseImportService
 {
     public function importarDocumentosNutrepampa(string $filePath, array $options = []): array
     {
+        Log::debug(__METHOD__.'@'.__LINE__);
+        
         $importer = app(DocumentoFreteNutrepampaImporter::class);
         return $this->import($filePath, $importer, $options);
     }

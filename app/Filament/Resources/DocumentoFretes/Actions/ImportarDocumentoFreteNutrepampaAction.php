@@ -30,6 +30,8 @@ class ImportarDocumentoFreteNutrepampaAction
                     'batch_size' => 15,
                 ];
 
+                Log::debug(__METHOD__.'@'.__LINE__);
+
                 $result = $importService->importarDocumentosNutrepampa($filePath, $options);
 
                 if ($importService->hasError()) {

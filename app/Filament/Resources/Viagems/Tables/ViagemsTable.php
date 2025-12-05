@@ -46,7 +46,8 @@ class ViagemsTable
                 ])
                     // antecipa o cálculo de existência para evitar N+1
                     ->withExists(['comentarios'])
-                    ->withCount('cargas');
+                    ->withCount('cargas')
+                    ->withCount('documentos');
             })
             ->poll(null)
             ->columns([
@@ -239,6 +240,12 @@ class ViagemsTable
                     ->disabledClick()
                     ->date('d/m/Y')
                     ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('documentos_count')
+                    ->label('Qtd. Doc. Frete')
+                    ->count('documentos')
+                    ->width('1%')
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->groups(

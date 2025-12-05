@@ -240,12 +240,12 @@ class ViagemsTable
                     ->date('d/m/Y')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('documentos_count')
-                    ->label('Qtd. Doc. Frete')
-                    ->counts('documentos')
-                    ->width('1%')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // TextColumn::make('documentos_count')
+                //     ->label('Qtd. Doc. Frete')
+                //     ->counts('documentos')
+                //     ->width('1%')
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->groups(
                 [

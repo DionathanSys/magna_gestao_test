@@ -15,7 +15,8 @@ class GerarViagemNutrepampaFromDocumento
     protected array $errors = [];
     protected array $viagensCriadas = [];
 
-    private const VIAGEM_ATE_500_KM     = 4.89;
+    private const VIAGEM_ATE_120_KM     = 5.65;
+    private const VIAGEM_ATE_500_KM     = 5.21;
     private const VIAGEM_ATE_1000_KM    = 4.73;
     private const VIAGEM_ACIMA_1000_KM  = 4.58;
     private const TOLERANCIA_PERCENTUAL = 0.01;
@@ -120,10 +121,17 @@ class GerarViagemNutrepampaFromDocumento
     {
         // Calcular KM para cada faixa
         $opcoes = [
+            'ate_120' => [
+                'km_calculado'  => $valorDocumentos / self::VIAGEM_ATE_120_KM,
+                'valor_km'      => self::VIAGEM_ATE_120_KM,
+                'limite_inferior' => 0,
+                'faixa'         => 'Até 120 km',
+                'limite_km'     => 120,
+            ],
             'ate_500' => [
                 'km_calculado'  => $valorDocumentos / self::VIAGEM_ATE_500_KM,
                 'valor_km'      => self::VIAGEM_ATE_500_KM,
-                'limite_inferior' => 0,
+                'limite_inferior' => 121,
                 'faixa'         => 'Até 500 km',
                 'limite_km'     => 500,
             ],

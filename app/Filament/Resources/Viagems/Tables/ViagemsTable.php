@@ -46,8 +46,7 @@ class ViagemsTable
                 ])
                     // antecipa o cálculo de existência para evitar N+1
                     ->withExists(['comentarios'])
-                    ->withCount('cargas')
-                    ->withCount('documentos');
+                    ->withCount(['cargas', 'documentos']);
             })
             ->poll(null)
             ->columns([

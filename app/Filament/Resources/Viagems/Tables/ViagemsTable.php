@@ -243,7 +243,7 @@ class ViagemsTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('documentos_count')
                     ->label('Qtd. Doc. Frete')
-                    ->count('documentos')
+                    ->counts('documentos')
                     ->width('1%')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -47,7 +47,7 @@ class DefinirResultadoPeriodoBulkAction
                         //         $set('vincular_periodo_registro', false);
                         //     }
                         // })
-                        ->live(onBlur: true)
+                        ->live()
                         ->afterStateUpdatedJs(<<<'JS'
                             if($state) {
                                 $set('vincular_periodo_registro', false)
@@ -62,7 +62,7 @@ class DefinirResultadoPeriodoBulkAction
                         //         $set('data_inicio', null);
                         //     }
                         // })
-                        ->live(onBlur: true)
+                        ->live()
                         ->afterStateUpdatedJs(<<<'JS'
                             if($state) {
                                 $set('data_inicio', null)

@@ -70,7 +70,7 @@ class DocumentoFrete extends Model
     public function dataReferencia(): Attribute
     {
         return Attribute::make(
-            get: fn () => Carbon::parse($this->attributes['data_emissao'])->format('d/m/Y'),
+            get: fn () => Carbon::parse($this->attributes['data_emissao'])->format('Y-m-d'),
         );
     }
 }

@@ -119,14 +119,17 @@ class DefinirResultadoPeriodoBulkAction
             'data_referencia' => $dataReferencia,
             'veiculo_id' => $veiculoId
         ]);
+        
         $resultadoPeriodo = ResultadoPeriodo::query()
             ->where('veiculo_id', $veiculoId)
             ->whereDate('data_inicio', '<=', $dataReferencia)
             ->whereDate('data_fim', '>=', $dataReferencia)
             ->first();
+
         Log::debug('Resultado Período encontrado para o registro.', [
-            'resultado_periodo_id' => $resultadoPeriodo?->id
+            'resultado_periodo' => $resultadoPeriodo
         ]);
+
         return $resultadoPeriodo?->id;
     }
 

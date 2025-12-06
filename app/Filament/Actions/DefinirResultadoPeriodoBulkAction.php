@@ -62,6 +62,7 @@ class DefinirResultadoPeriodoBulkAction
                         // })
                         ->live(onBlur: true)
                         ->afterStateUpdatedJs(<<<'JS'
+                            $set('vincular_periodo_registro', true)
                             $set('data_inicio', null)
                         JS),
                 ])

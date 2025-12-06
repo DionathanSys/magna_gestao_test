@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Log;
 use App\Services\NotificacaoService as notify;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -39,7 +41,17 @@ class DefinirResultadoPeriodoBulkAction
                     DatePicker::make('data_inicio')
                         ->label('Data Início')
                         ->required()
-                        ->columnSpan(4),
+                        ->columnSpan(4)
+                        ->afterStateUpdatedJs(<<<'JS'
+                            $set('vincular_periodo_registro', null)
+                        JS),
+                    Toggle::make('vincular_periodo_registro')
+                        ->label('Vincular Período ao Registro')
+                        ->helperText('Se ativado,será vinculado ao resultado correspondente à data dos registros selecionados.')
+                        ->columnSpan(4)
+                        ->afterStateUpdatedJs(<<<'JS'
+                            $set('data_inicio', null)
+                        JS),
                 ])
             ])
             ->action(function (Collection $records, array $data) {

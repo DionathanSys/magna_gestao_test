@@ -64,12 +64,63 @@ class DefinirResultadoPeriodoBulkAction
                 ])
             ])
             ->action(function (Collection $records, array $data) {
-                $veiculoId = $records->first()->veiculo_id;
-                $records = $records->filter(function ($record) use ($veiculoId) {
-                    return $record->veiculo_id === $veiculoId;
+                $recordsUpdated = 0;
+                $recordsFailed = 0;
+                $records->each(function ($record) use (&$recordsUpdated, &$recordsFailed, $data) {
+                    try {
+                        $resultadoPeriodoId = null;
+
+                        if ($data['vincular_periodo_registro']) {
+                            $resultadoPeriodoId = $this->getResultadoPeriodoIdByRegistro($record);
+                        } else {
+                            $resultadoPeriodoId = $this->getResultadoPeriodoIdByData($data['data_inicio'], $record->veiculo_id);
+                        }
+
+                        if ($resultadoPeriodoId) {
+                            $record->resultado_periodo_id = $resultadoPeriodoId;
+                            $record->save();
+                            $recordsUpdated++;
+                        }
+                    } catch (\Exception $e) {
+                        $recordsFailed++;
+                        Log::error('Erro ao definir Resultado Período no Bulk Action.', [
+                            'metodo' => __METHOD__,
+                            'record_id' => $record->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
                 });
-                dd($records, $data);
             })
             ->deselectRecordsAfterCompletion();
     }
+
+    private function getResultadoPeriodoIdByData(?string $data, int $veiculoId): ?int
+    {
+        if (!$data) {
+            return null;
+        }
+
+        $resultadoPeriodo = ResultadoPeriodo::query()
+            ->where('veiculo_id', $veiculoId)
+            ->whereDate('data_inicio', '<=', $data)
+            ->whereDate('data_fim', '>=', $data)
+            ->first();
+
+        return $resultadoPeriodo?->id;
+    }
+
+    private function getResultadoPeriodoIdByRegistro($record): ?int
+    {
+        $dataAbastecimento  = $record->data_referencia;
+        $veiculoId          = $record->veiculo_id;
+
+        $resultadoPeriodo = ResultadoPeriodo::query()
+            ->where('veiculo_id', $veiculoId)
+            ->whereDate('data_inicio', '<=', $dataAbastecimento)
+            ->whereDate('data_fim', '>=', $dataAbastecimento)
+            ->first();
+
+        return $resultadoPeriodo?->id;
+    }
+
 }

@@ -71,9 +71,9 @@ class DefinirResultadoPeriodoBulkAction
                         $resultadoPeriodoId = null;
 
                         if ($data['vincular_periodo_registro']) {
-                            $resultadoPeriodoId = $this->getResultadoPeriodoIdByRegistro($record);
+                            $resultadoPeriodoId = self::getResultadoPeriodoIdByRegistro($record);
                         } else {
-                            $resultadoPeriodoId = $this->getResultadoPeriodoIdByData($data['data_inicio'], $record->veiculo_id);
+                            $resultadoPeriodoId = self::getResultadoPeriodoIdByData($data['data_inicio'], $record->veiculo_id);
                         }
 
                         if ($resultadoPeriodoId) {
@@ -94,7 +94,7 @@ class DefinirResultadoPeriodoBulkAction
             ->deselectRecordsAfterCompletion();
     }
 
-    private function getResultadoPeriodoIdByData(?string $data, int $veiculoId): ?int
+    private static function getResultadoPeriodoIdByData(?string $data, int $veiculoId): ?int
     {
         if (!$data) {
             return null;
@@ -109,7 +109,7 @@ class DefinirResultadoPeriodoBulkAction
         return $resultadoPeriodo?->id;
     }
 
-    private function getResultadoPeriodoIdByRegistro($record): ?int
+    private static function getResultadoPeriodoIdByRegistro($record): ?int
     {
         $dataAbastecimento  = $record->data_referencia;
         $veiculoId          = $record->veiculo_id;

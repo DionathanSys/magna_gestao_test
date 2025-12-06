@@ -21,7 +21,7 @@ class DefinirResultadoPeriodoBulkAction
             ->label('Definir Resultado Período')
             ->icon('heroicon-o-x-circle')
             ->color('warning')
-            ->requiresConfirmation()
+            // ->requiresConfirmation()
             ->modalHeading('Definir Registros')
             ->modalDescription('Tem certeza que deseja definir os registros selecionados para o resultado do período?')
             ->modalSubmitActionLabel('Sim, definir')

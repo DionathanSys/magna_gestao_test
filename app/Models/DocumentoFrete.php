@@ -22,7 +22,7 @@ class DocumentoFrete extends Model
         'valor_liquido' => MoneyCast::class,
     ];
 
-    protected $appends = ['descricao', 'data_referencia'];
+    protected $appends = ['descricao'];
 
     public function viagem(): BelongsTo
     {
@@ -67,7 +67,7 @@ class DocumentoFrete extends Model
         );
     }
 
-    public function data_referencia(): Attribute
+    public function dataReferencia(): Attribute
     {
         return Attribute::make(
             get: fn () => Carbon::parse($this->attributes['data_emissao'])->format('d/m/Y'),

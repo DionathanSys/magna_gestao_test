@@ -111,15 +111,22 @@ class DefinirResultadoPeriodoBulkAction
 
     private static function getResultadoPeriodoIdByRegistro($record): ?int
     {
-        $dataAbastecimento  = $record->data_referencia;
+        $dataReferencia     = $record->data_referencia;
         $veiculoId          = $record->veiculo_id;
-
+        Log::debug('Buscando Resultado Período para o registro.', [
+            'metodo' => __METHOD__,
+            'record' => $record,
+            'data_referencia' => $dataReferencia,
+            'veiculo_id' => $veiculoId
+        ]);
         $resultadoPeriodo = ResultadoPeriodo::query()
             ->where('veiculo_id', $veiculoId)
-            ->whereDate('data_inicio', '<=', $dataAbastecimento)
-            ->whereDate('data_fim', '>=', $dataAbastecimento)
+            ->whereDate('data_inicio', '<=', $dataReferencia)
+            ->whereDate('data_fim', '>=', $dataReferencia)
             ->first();
-
+        Log::debug('Resultado Período encontrado para o registro.', [
+            'resultado_periodo_id' => $resultadoPeriodo?->id
+        ]);
         return $resultadoPeriodo?->id;
     }
 

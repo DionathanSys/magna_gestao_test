@@ -16,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
 
 class DefinirResultadoPeriodoBulkAction
@@ -27,8 +28,9 @@ class DefinirResultadoPeriodoBulkAction
             ->icon(Heroicon::Link)
             ->color('warning')
             ->modalHeading('Definir Resultado Período')
-            ->modalDescription('Defina o Resultado Período para os Documentos de Frete selecionados. Apenas Documentos de Frete do mesmo veículo serão atualizados.')
+            ->modalDescription('Defina o Resultado Período para os Documentos de Frete selecionados.')
             ->modalSubmitActionLabel('Sim, definir')
+            ->modalAlignment(Alignment::Center)
             ->schema([
                 Grid::make([
                     'default' => 1,
@@ -40,13 +42,8 @@ class DefinirResultadoPeriodoBulkAction
                 ])->schema([
                     DatePicker::make('data_inicio')
                         ->label('Data Início')
-                        ->required()
                         ->columnSpan(4)
-                        // ->afterStateUpdated(function (Set $set, ?\DateTime $state) {
-                        //     if ($state) {
-                        //         $set('vincular_periodo_registro', false);
-                        //     }
-                        // })
+                        ->helperText('Selecione a data de início do período que deseja vincular aos registros selecionados.')
                         ->live()
                         ->afterStateUpdatedJs(<<<'JS'
                             if($state) {
@@ -57,11 +54,7 @@ class DefinirResultadoPeriodoBulkAction
                         ->label('Vincular Período ao Registro')
                         ->helperText('Se ativado,será vinculado ao resultado correspondente à data dos registros selecionados.')
                         ->columnSpan(4)
-                        // ->afterStateUpdated(function (Set $set, ?bool $state) {
-                        //     if ($state) {
-                        //         $set('data_inicio', null);
-                        //     }
-                        // })
+                        ->columnStart(1)
                         ->live()
                         ->afterStateUpdatedJs(<<<'JS'
                             if($state) {

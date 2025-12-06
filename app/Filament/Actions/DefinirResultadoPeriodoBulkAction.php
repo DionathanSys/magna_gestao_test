@@ -42,16 +42,21 @@ class DefinirResultadoPeriodoBulkAction
                         ->label('Data Início')
                         ->required()
                         ->columnSpan(4)
-                        ->afterStateUpdatedJs(<<<'JS'
-                            $set('vincular_periodo_registro', null)
-                        JS),
+                        ->afterStateUpdated(function (Set $set, ?\DateTime $state) {
+                            if ($state) {
+                                $set('vincular_periodo_registro', false);
+                            }
+                        }),
                     Toggle::make('vincular_periodo_registro')
                         ->label('Vincular Período ao Registro')
                         ->helperText('Se ativado,será vinculado ao resultado correspondente à data dos registros selecionados.')
                         ->columnSpan(4)
-                        ->afterStateUpdatedJs(<<<'JS'
-                            $set('data_inicio', null)
-                        JS),
+                        ->afterStateUpdated(function (Set $set, ?bool $state) {
+                            if ($state) {
+                                $set('data_inicio', null);
+                            }
+                        })
+                        ,
                 ])
             ])
             ->action(function (Collection $records, array $data) {

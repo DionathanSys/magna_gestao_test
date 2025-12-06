@@ -25,9 +25,8 @@ class DefinirResultadoPeriodoBulkAction
             ->modalHeading('Definir Registros')
             ->modalDescription('Tem certeza que deseja definir os registros selecionados para o resultado do período?')
             ->modalSubmitActionLabel('Sim, definir')
-            ->schema(function (Schema $schema) {
-                $schema->components([
-                    Select::make('resultado_periodo_id')
+            ->schema([
+                Select::make('resultado_periodo_id')
                         ->label('Resultado Período')
                         ->getSearchResultsUsing(fn(string $search): array => ResultadoPeriodo::query()
                             ->where('title', 'like', "%{$search}%")
@@ -37,8 +36,7 @@ class DefinirResultadoPeriodoBulkAction
                         ->getOptionLabelUsing(fn($value): ?string => ResultadoPeriodo::find($value)?->title)
                         ->searchable()
                         ->required(),
-                ]);
-            })
+            ])
             ->action(function (Collection $records, array $data) {
                 $veiculoId = $records->first()->veiculo_id;
                 $records = $records->filter(function ($record) use ($veiculoId) {

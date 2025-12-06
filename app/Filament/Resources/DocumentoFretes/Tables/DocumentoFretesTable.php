@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DocumentoFretes\Tables;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
+use App\Filament\Actions\DefinirResultadoPeriodoBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions;
@@ -172,6 +173,7 @@ class DocumentoFretesTable
                     DeleteBulkAction::make()
                         ->visible(fn(): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    DefinirResultadoPeriodoBulkAction::make(),
                     VincularResultadoPeriodoBulkAction::make(),
                     CriarViagemBulkAction::make(),
                     FilamentExportBulkAction::make('export')

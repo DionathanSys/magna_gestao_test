@@ -49,7 +49,9 @@ class DefinirResultadoPeriodoBulkAction
                         // })
                         ->live(onBlur: true)
                         ->afterStateUpdatedJs(<<<'JS'
-                            $set('vincular_periodo_registro', null)
+                            if($state) {
+                                $set('vincular_periodo_registro', false)
+                            }
                         JS),
                     Toggle::make('vincular_periodo_registro')
                         ->label('Vincular Período ao Registro')
@@ -62,8 +64,9 @@ class DefinirResultadoPeriodoBulkAction
                         // })
                         ->live(onBlur: true)
                         ->afterStateUpdatedJs(<<<'JS'
-                            $set('vincular_periodo_registro', true)
-                            $set('data_inicio', null)
+                            if($state) {
+                                $set('data_inicio', null)
+                            }
                         JS),
                 ])
             ])

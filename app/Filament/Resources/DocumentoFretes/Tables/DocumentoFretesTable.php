@@ -38,7 +38,7 @@ class DocumentoFretesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']))
+            ->modifyQueryUsing(fn(Builder $query) => $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']))
             ->columns([
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
@@ -142,6 +142,32 @@ class DocumentoFretesTable
                     ->autoApply()
                     ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
+                DateRangeFilter::make('resultadoPeriodo.data_inicio')
+                    ->label('Resultado Período')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['start_date'] ?? null,
+                                fn(Builder $query, $date): Builder =>
+                                $query->whereHas(
+                                    'resultadoPeriodo',
+                                    fn(Builder $q) =>
+                                    $q->whereDate('data_inicio', '>=', $date)
+                                )
+                            )
+                            ->when(
+                                $data['end_date'] ?? null,
+                                fn(Builder $query, $date): Builder =>
+                                $query->whereHas(
+                                    'resultadoPeriodo',
+                                    fn(Builder $q) =>
+                                    $q->whereDate('data_inicio', '<=', $date)
+                                )
+                            );
+                    }),
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')
                     ->toggle()

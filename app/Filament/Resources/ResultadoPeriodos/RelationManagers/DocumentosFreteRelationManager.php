@@ -76,10 +76,12 @@ class DocumentosFreteRelationManager extends RelationManager
                 TextColumn::make('numero_documento')
                     ->label('Nº Documento')
                     ->width('1%')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('documento_transporte')
                     ->label('Documento Transporte')
                     ->width('1%')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Documento')

@@ -45,6 +45,7 @@ class DefinirResultadoPeriodoBulkAction
                         ->columnSpan(4)
                         ->helperText('Selecione a data de início do período que deseja vincular aos registros selecionados.')
                         ->live()
+                        ->debounce(750)
                         ->afterStateUpdatedJs(<<<'JS'
                             if($state) {
                                 $set('vincular_periodo_registro', false)

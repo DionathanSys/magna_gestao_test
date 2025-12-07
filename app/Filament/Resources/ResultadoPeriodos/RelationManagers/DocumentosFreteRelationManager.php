@@ -68,32 +68,38 @@ class DocumentosFreteRelationManager extends RelationManager
                 TextColumn::make('parceiro_origem')
                     ->label('Parceiro Origem')
                     ->width('1%')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('parceiro_destino')
                     ->label('Parceiro Destino')
                     ->width('1%')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('numero_documento')
                     ->label('Nº Documento')
                     ->width('1%')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documento_transporte')
                     ->label('Documento Transporte')
                     ->width('1%')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Documento')
                     ->width('1%')
                     ->badge()
                     ->searchable()
-                    ->formatStateUsing(fn ($state) => $state instanceof TipoDocumentoEnum ? $state->value : $state),
+                    ->formatStateUsing(fn ($state) => $state instanceof TipoDocumentoEnum ? $state->value : $state)
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->width('1%')
                     ->date('d/m/Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('valor_total')
                     ->money('BRL')
                     ->width('1%')
@@ -102,7 +108,8 @@ class DocumentosFreteRelationManager extends RelationManager
                             ->money('BRL', 100)
                             ->label('TT Valor Total')
                     )
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('valor_icms')
                     ->money('BRL')
                     ->width('1%')
@@ -123,9 +130,11 @@ class DocumentosFreteRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('municipio')
                     ->width('1%')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('estado')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

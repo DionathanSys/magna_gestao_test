@@ -171,6 +171,9 @@ class DocumentoFretesTable
                 SelectFilter::make('resultado_periodo_id')
                     ->label('Com Resultado Período')
                     ->relationship('resultadoPeriodo', 'data_inicio')
+                    ->getOptionLabelFromRecordUsing(fn(Models\ResultadoPeriodo $record): string =>
+                        Carbon::parse($record->data_inicio)->format('d/m/Y') . ' (ID: ' . $record->id . ' - Veículo: ' . $record->veiculo->placa . ')'
+                    )
                     ->searchable(),
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')

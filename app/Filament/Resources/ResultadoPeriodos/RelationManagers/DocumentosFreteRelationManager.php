@@ -158,8 +158,8 @@ class DocumentosFreteRelationManager extends RelationManager
                         ->titlePrefixedWithLabel(false)
                         ->getTitleFromRecordUsing(fn(Models\DocumentoFrete $record): string => Carbon::parse($record->data_emissao)->format('d/m/Y'))
                         ->collapsible(),
-                    Group::make('documento_transporte')
-                        ->label('Documento Transporte')
+                    Group::make('parceiro_origem')
+                        ->label('Parceiro Origem')
                         ->titlePrefixedWithLabel(false)
                         ->collapsible(),
                 ]

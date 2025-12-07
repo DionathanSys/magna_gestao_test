@@ -168,6 +168,10 @@ class DocumentoFretesTable
                                 )
                             );
                     }),
+                SelectFilter::make('resultado_periodo_id')
+                    ->label('Com Resultado Período')
+                    ->relationship('resultadoPeriodo', 'data_inicio')
+                    ->searchable(),
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')
                     ->toggle()

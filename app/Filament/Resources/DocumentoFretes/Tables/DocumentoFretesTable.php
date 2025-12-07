@@ -107,6 +107,7 @@ class DocumentoFretesTable
                 TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
                     ->disabledClick()
+                    ->sortable()
                     ->date('d/m/Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
@@ -142,45 +143,6 @@ class DocumentoFretesTable
                     ->autoApply()
                     ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),
-                DateRangeFilter::make('resultadoPeriodo.data_inicio')
-                    ->label('Resultado Período')
-                    ->autoApply()
-                    ->firstDayOfWeek(0)
-                    // ->alwaysShowCalendar()
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['start_date'] ?? null,
-                                fn(Builder $query, $date): Builder =>
-                                $query->whereHas(
-                                    'resultadoPeriodo',
-                                    fn(Builder $q) =>
-                                    $q->whereDate('data_inicio', $date)
-                                )
-                            )
-                            ->when(
-                                $data['end_date'] ?? null,
-                                fn(Builder $query, $date): Builder =>
-                                $query->whereHas(
-                                    'resultadoPeriodo',
-                                    fn(Builder $q) =>
-                                    $q->whereDate('data_inicio', $date)
-                                )
-                            );
-                    }),
-                // SelectFilter::make('resultado_periodo_id')
-                //     ->label('Com Resultado Período')
-                //     // ->relationship('resultadoPeriodo', 'data_inicio')
-                //     ->getSearchResultsUsing(fn(string $search): array => Models\ResultadoPeriodo::query()
-                //         ->where('data_inicio', $search)
-                //         ->limit(50)
-                //         ->pluck('data_inicio', 'id')
-                //         ->all())
-                //     ->getOptionLabelUsing(fn($value): ?string => Models\ResultadoPeriodo::find($value)?->data_inicio . ' (ID: ' . $value . ')')
-                //     // ->getOptionLabelFromRecordUsing(fn(Models\ResultadoPeriodo $record): string =>
-                //     //     Carbon::parse($record->data_inicio)->format('d/m/Y') . ' (ID: ' . $record->id . ' - Veículo: ' . $record->veiculo->placa . ')'
-                //     // )
-                //     ->searchable(),
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')
                     ->toggle()

@@ -206,6 +206,12 @@ class ViagensRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('data_inicio')
+            ->persistSortInSession()
+            ->defaultSortOptionLabel('created_at')
+            ->persistFiltersInSession()
+            ->persistColumnSearchesInSession()
+            ->paginated([25, 50, 100, 250, 500])
+            ->extremePaginationLinks()
             ->filters([
                 //
             ])

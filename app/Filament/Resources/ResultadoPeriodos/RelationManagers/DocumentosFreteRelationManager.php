@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Enum\Frete\TipoDocumentoEnum;
+use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Models;
 use Carbon\Carbon;
 use Filament\Actions\AssociateAction;
@@ -21,8 +22,12 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class DocumentosFreteRelationManager extends RelationManager
 {
@@ -167,7 +172,25 @@ class DocumentosFreteRelationManager extends RelationManager
             ->paginated([10, 25, 50, 100, 'all'])
             ->defaultPaginationPageOption(50)
             ->filters([
-                //
+                SelectFilter::make('veiculo_id')
+                    ->label('Veículo')
+                    ->relationship('veiculo', 'placa')
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('tipo_documento')
+                    ->multiple()
+                    ->options(TipoDocumentoEnum::toSelectArray()),
+                DateRangeFilter::make('data_emissao')
+                    ->label('Dt. Emissão')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar(),
+                Filter::make('sem_vinculo_viagem')
+                    ->label('Sem Viagem')
+                    ->toggle()
+                    ->query(fn(Builder $query): Builder => $query->whereNull('viagem_id')),
+                RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->headerActions([
                 CreateAction::make(),

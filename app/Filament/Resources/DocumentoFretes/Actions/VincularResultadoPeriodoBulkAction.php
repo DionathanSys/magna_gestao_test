@@ -18,7 +18,6 @@ class VincularResultadoPeriodoBulkAction
             ->label('Vincular Resultado Período')
             ->tooltip('Vincula ao Resultado Período baseado na data do registro')
             ->icon('heroicon-o-paper-clip')
-            ->requiresConfirmation()
             ->action(function (Collection $records) {
 
                 $vinculados = 0;

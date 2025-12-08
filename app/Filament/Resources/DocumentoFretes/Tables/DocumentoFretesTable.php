@@ -109,7 +109,6 @@ class DocumentoFretesTable
                     ->disabledClick()
                     ->sortable()
                     ->date('d/m/Y')
-                    ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')

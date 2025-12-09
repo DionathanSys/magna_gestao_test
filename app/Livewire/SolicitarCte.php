@@ -170,12 +170,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             return;
         }
 
-        Log::debug("dados componente solicitar cte", [
-            'método'            => __METHOD__ . '-' . __LINE__,
-            'data'              => $this->data,
-            'dados_processados' => $data,
-        ]);
-
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
         $data['status']     = 'pendente';
@@ -192,10 +186,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     private function validateData(array $data): bool
     {
-        Log::debug(__METHOD__ . '-' . __LINE__, [
-            'data' => $data,
-        ]);
-
         $validator = Validator::make($data, [
             'km_total'                   => 'required|numeric|min:0',
             'valor_frete'                => 'required|numeric|min:0',
@@ -271,13 +261,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                 $hasXml = true;
             }
         }
-
-        Log::debug('Validação de tipos de anexos', [
-            'anexos' => $anexos,
-            'tipos_encontrados' => $tiposEncontrados,
-            'has_pdf' => $hasPdf,
-            'has_xml' => $hasXml,
-        ]);
 
         // Validar se tem pelo menos 1 PDF
         if (!$hasPdf) {

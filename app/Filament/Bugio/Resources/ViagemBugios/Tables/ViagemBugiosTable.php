@@ -32,12 +32,6 @@ class ViagemBugiosTable
                 TextColumn::make('destinos')
                     ->label('Integrados')
                     ->formatStateUsing(function ($state) {
-                        Log::debug('Formatando destinos', [
-                            'state' => $state,
-                            'type' => gettype($state),
-                            'is_array' => is_array($state),
-                        ]);
-
                         if (empty($state)) {
                             return '-';
                         }

@@ -67,10 +67,6 @@ class SolicitacaoCteMail extends Mailable
 
         foreach ($this->payload->anexos as $anexo) {
             try {
-                Log::debug('Anexando arquivo ao email', [
-                    'path' => $anexo ?? 'N/A',
-                ]);
-
                 // Verificar se é array ou objeto
                 if (is_array($anexo)) {
                     $attachments[] = Attachment::fromPath($anexo)

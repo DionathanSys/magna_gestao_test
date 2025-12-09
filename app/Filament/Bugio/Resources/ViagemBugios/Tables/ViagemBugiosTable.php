@@ -65,6 +65,7 @@ class ViagemBugiosTable
             ->filters([
                 //
             ])
+            ->defaultSort('id', 'desc')
             ->recordActions([
                 ViewAction::make(),
                 VincularDocumentoFreteAction::make(),

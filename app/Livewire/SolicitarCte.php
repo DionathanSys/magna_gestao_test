@@ -178,6 +178,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
+        $data['status']     = 'pendente';
 
         SolicitarCteBugio::dispatch($data);
 

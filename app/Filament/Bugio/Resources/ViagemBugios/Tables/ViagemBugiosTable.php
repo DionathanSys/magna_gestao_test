@@ -7,6 +7,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -70,6 +71,16 @@ class ViagemBugiosTable
                         ->money('BRL')),
                 TextColumn::make('condutor')
                     ->label('Motorista')
+                    ->sortable()
+                    ->searchable(),
+                SelectColumn::make('status')
+                    ->label('Status')
+                    ->options([
+                        'pendente' => 'Pendente',
+                        'em_andamento' => 'CTe solicitado',
+                        'concluido' => 'CTe emitido',
+                        'cancelada' => 'Cancelada',
+                    ])
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('creator.name')

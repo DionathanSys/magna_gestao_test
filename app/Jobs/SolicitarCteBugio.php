@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Services\CteService\CteService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 class SolicitarCteBugio implements ShouldQueue
 {
@@ -23,7 +24,14 @@ class SolicitarCteBugio implements ShouldQueue
      */
     public function handle(): void
     {
-        $service = new CteService();
-        $service->solicitarCtePorEmail($this->data);
+        try {
+            $service = new CteService();
+            $service->solicitarCtePorEmail($this->data);
+        } catch (\Exception $e) {
+            Log::error('Erro ao solicitar CTE: ' . $e->getMessage(), [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'data' => $this->data,
+            ]);
+        }
     }
 }

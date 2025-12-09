@@ -171,8 +171,8 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         }
 
         Log::debug("dados componente solicitar cte", [
-            'método' => __METHOD__ . '-' . __LINE__,
-            'data' => $this->data,
+            'método'            => __METHOD__ . '-' . __LINE__,
+            'data'              => $this->data,
             'dados_processados' => $data,
         ]);
 
@@ -196,12 +196,12 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         ]);
 
         $validator = Validator::make($data, [
-            'km_total'          => 'required|numeric|min:0',
-            'valor_frete'       => 'required|numeric|min:0',
-            'motorista.cpf'     => 'required|string',
-            'veiculo'           => 'required|string|exists:veiculos,placa',
-            'anexos'            => 'required|array|min:1',
-            'destinos'          => 'required|array|min:1',
+            'km_total'                   => 'required|numeric|min:0',
+            'valor_frete'                => 'required|numeric|min:0',
+            'motorista.cpf'              => 'required|string',
+            'veiculo'                    => 'required|string|exists:veiculos,placa',
+            'anexos'                     => 'required|array|min:1',
+            'destinos'                   => 'required|array|min:1',
             'destinos.*.integrado_id'    => 'required|integer|exists:integrados,id',
             'destinos.*.km_rota'         => 'required|numeric|min:0',
         ], [
@@ -303,15 +303,15 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     private function mutateData(array $data): array
     {
-        $data['destinos']       = $this->mutateDestinos($data['data-integrados']);
-        $data['veiculo']        = $data['veiculo'] ?? null;
-        $data['veiculo_id']     = \App\Models\Veiculo::where('placa', $data['veiculo'])->first()?->id ?? null;
-        $data['km_pago']        = $data['km_total'] ?? 0;
-        $data['km_rodado']      = 0;
-        $data['data_competencia'] = now()->format('Y-m-d');
-        $data['frete']          = $data['valor_frete'] ?? 0.0;
-        $data['condutor']       = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
-        $data['motorista']      = [
+        $data['destinos']           = $this->mutateDestinos($data['data-integrados']);
+        $data['veiculo']            = $data['veiculo'] ?? null;
+        $data['veiculo_id']         = \App\Models\Veiculo::where('placa', $data['veiculo'])->first()?->id ?? null;
+        $data['km_pago']            = $data['km_total'] ?? 0;
+        $data['km_rodado']          = 0;
+        $data['data_competencia']   = now()->format('Y-m-d');
+        $data['frete']              = $data['valor_frete'] ?? 0.0;
+        $data['condutor']           = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
+        $data['motorista']          = [
             'cpf' => $data['motorista'] ?? null,
         ];
 

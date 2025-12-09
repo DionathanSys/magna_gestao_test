@@ -11,6 +11,10 @@ class SolicitarCteBugio implements ShouldQueue
 {
     use Queueable;
 
+    public $tries = 3; // Tentar 3 vezes
+    public $backoff = 60; // Aguardar 60 segundos entre tentativas
+    public $timeout = 300; // Timeout de 5 minutos
+
     /**
      * Create a new job instance.
      */

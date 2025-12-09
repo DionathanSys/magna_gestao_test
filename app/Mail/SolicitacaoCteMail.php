@@ -36,6 +36,13 @@ class SolicitacaoCteMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        Log::info('Enviando email com anexos', [
+            'anexos' => array_map(fn($a) => [
+                'path' => $a,
+                'size' => Storage::size($a)
+            ], $this->payload->anexos)
+        ]);
+
         return new Envelope(
             subject: 'Solicitação CT-e Magnabosco - Bugio ' . now()->format('d/m/Y H:i'),
             to: $this->toAddress,
@@ -61,7 +68,7 @@ class SolicitacaoCteMail extends Mailable
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
-   public function attachments(): array
+    public function attachments(): array
     {
         $attachments = [];
 
@@ -76,7 +83,6 @@ class SolicitacaoCteMail extends Mailable
                     // Se for string (path direto)
                     $attachments[] = Attachment::fromStorageDisk('local', $anexo);
                 }
-
             } catch (\Exception $e) {
                 Log::error('Erro ao anexar arquivo no email', [
                     'error' => $e->getMessage(),

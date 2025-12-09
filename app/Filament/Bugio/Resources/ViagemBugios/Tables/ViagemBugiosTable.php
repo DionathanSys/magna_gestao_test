@@ -27,7 +27,7 @@ class ViagemBugiosTable
                     ->label('Placa')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('destinos.integrado_nome')
+                TextColumn::make('destinos')
                     ->label('Integrados')
                     ->formatStateUsing(function ($state) {
                         Log::debug('Formatando destinos.integrado_nome', [
@@ -42,11 +42,7 @@ class ViagemBugiosTable
                         return collect($state)
                             ->pluck('integrado_nome')
                             ->join(', ');
-                    })
-                    ->searchable(query: function ($query, $search) {
-                        return $query->where('destinos', 'like', "%{$search}%");
-                    })
-                    ->sortable(false),
+                    }),
                 TextColumn::make('data_competencia')
                     ->label('Data Viagem')
                     ->date('d/m/Y')

@@ -30,17 +30,26 @@ class ViagemBugiosTable
                 TextColumn::make('destinos')
                     ->label('Integrados')
                     ->formatStateUsing(function ($state) {
-                        Log::debug('Formatando destinos.integrado_nome', [
+                        Log::debug('Formatando destinos', [
                             'state' => $state,
+                            'type' => gettype($state),
+                            'is_array' => is_array($state),
                         ]);
 
                         if (empty($state)) {
                             return '-';
                         }
 
-                        // Se houver múltiplos, separar por vírgula
+                        // Verificar se é um array associativo único ou array de arrays
+                        if (isset($state['integrado_nome'])) {
+                            // É um único destino
+                            return $state['integrado_nome'];
+                        }
+
+                        // É um array de destinos
                         return collect($state)
                             ->pluck('integrado_nome')
+                            ->filter()
                             ->join(', ');
                     }),
                 TextColumn::make('data_competencia')

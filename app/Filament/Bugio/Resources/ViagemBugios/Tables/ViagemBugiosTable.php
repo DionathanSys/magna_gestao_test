@@ -100,10 +100,13 @@ class ViagemBugiosTable
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
-                ViewAction::make(),
-                VincularDocumentoFreteAction::make(),
+                ViewAction::make()
+                    ->iconButton(),
+                VincularDocumentoFreteAction::make()
+                    ->iconButton(),
                 EditAction::make()
-                    ->visible(fn() => Auth::user()->is_admin),
+                    ->visible(fn() => Auth::user()->is_admin)
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -27,6 +27,7 @@ class BugioPanelProvider extends PanelProvider
         return $panel
             ->id('bugio')
             ->path('bugio')
+            ->sidebarFullyCollapsibleOnDesktop()
             ->topbar(false)
             ->login()
             ->brandName('Axion Soft - Gestão')

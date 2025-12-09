@@ -11,6 +11,7 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ViagemBugiosTable
 {
@@ -29,12 +30,15 @@ class ViagemBugiosTable
                 TextColumn::make('destinos.integrado_nome')
                     ->label('Integrados')
                     ->formatStateUsing(function ($state) {
+                        Log::debug('Formatando destinos.integrado_nome', [
+                            'state' => $state,
+                        ]);
+
                         if (empty($state)) {
                             return '-';
                         }
 
                         // Se houver múltiplos, separar por vírgula
-                        dd($state);
                         return collect($state)
                             ->pluck('integrado_nome')
                             ->join(', ');

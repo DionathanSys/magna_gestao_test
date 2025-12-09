@@ -323,18 +323,15 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         return $data;
     }
 
-    private function mutateDestinos(array $destinos)
+    private function mutateDestinos(array $destinos): array
     {
-        $destinosProcessados = [];
-
-        foreach ($destinos as $destino) {
-            $destinosProcessados[] = [
+        return array_map(function ($destino) {
+            return [
                 'integrado_id'    => $destino['integrado_id'],
                 'km_rota'         => $destino['km_rota'],
                 'integrado_nome'  => \App\Models\Integrado::find($destino['integrado_id'])?->nome ?? 'N/A',
             ];
-        }
-        return $destinosProcessados;
+        }, $destinos);
     }
 
     private function calcularFrete(float $kmTotal): float
@@ -371,13 +368,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                 // Mover arquivo temporário para storage permanente
                 $path = $anexo->store('private/cte');
                 $arquivosSalvos[] = $path;
-
-                Log::debug('Arquivo processado', [
-                    'original_key' => $key,
-                    'path' => $path,
-                    'size' => $anexo->getSize(),
-                    'mime' => $anexo->getMimeType(),
-                ]);
             } elseif (is_string($anexo)) {
                 // Se já for uma string (path), apenas adicionar
                 $arquivosSalvos[] = $anexo;

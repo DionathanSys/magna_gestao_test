@@ -34,6 +34,7 @@ class ViagemBugiosTable
                         }
 
                         // Se houver múltiplos, separar por vírgula
+                        dd($state);
                         return collect($state)
                             ->pluck('integrado_nome')
                             ->join(', ');

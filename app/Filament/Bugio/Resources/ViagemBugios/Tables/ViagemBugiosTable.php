@@ -28,8 +28,20 @@ class ViagemBugiosTable
                     ->searchable(),
                 TextColumn::make('destinos.integrado_nome')
                     ->label('Integrados')
-                    ->sortable()
-                    ->searchable(),
+                    ->formatStateUsing(function ($state) {
+                        if (empty($state)) {
+                            return '-';
+                        }
+
+                        // Se houver múltiplos, separar por vírgula
+                        return collect($state)
+                            ->pluck('integrado_nome')
+                            ->join(', ');
+                    })
+                    ->searchable(query: function ($query, $search) {
+                        return $query->where('destinos', 'like', "%{$search}%");
+                    })
+                    ->sortable(false),
                 TextColumn::make('data_competencia')
                     ->label('Data Viagem')
                     ->date('d/m/Y')
@@ -70,12 +82,12 @@ class ViagemBugiosTable
                 ViewAction::make(),
                 VincularDocumentoFreteAction::make(),
                 EditAction::make()
-                    ->visible(fn () => Auth::user()->is_admin),
+                    ->visible(fn() => Auth::user()->is_admin),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn () => Auth::user()->is_admin),
+                        ->visible(fn() => Auth::user()->is_admin),
                 ]),
             ]);
     }

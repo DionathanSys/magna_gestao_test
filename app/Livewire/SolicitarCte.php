@@ -323,15 +323,18 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         return $data;
     }
 
-    private function mutateDestinos(array $destinos): array
+    private function mutateDestinos(array $destinos)
     {
-        return array_map(function ($destino) {
-            return [
+        $destinosProcessados = [];
+
+        foreach ($destinos as $destino) {
+            $destinosProcessados[] = [
                 'integrado_id'    => $destino['integrado_id'],
                 'km_rota'         => $destino['km_rota'],
                 'integrado_nome'  => \App\Models\Integrado::find($destino['integrado_id'])?->nome ?? 'N/A',
             ];
-        }, $destinos);
+        }
+        return $destinosProcessados;
     }
 
     private function calcularFrete(float $kmTotal): float

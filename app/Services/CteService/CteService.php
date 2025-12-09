@@ -44,9 +44,9 @@ class CteService
 
         } catch (\Exception $e) {
             Log::error(__METHOD__ . '-' . __LINE__, [
-                'error' => $e->getMessage(),
-                'data' => $data,
-                'user_id' => $data['created_by'] ?? null,
+                'error'     => $e->getMessage(),
+                'data'      => $data,
+                'user_id'   => $data['created_by'] ?? null,
             ]);
             $this->setError('Erro ao enviar solicitação de CTe: ' . $e->getMessage());
         }

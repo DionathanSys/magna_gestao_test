@@ -20,6 +20,7 @@ class PayloadCteDTO
         public readonly array $motorista = [],
         public readonly ?int $userId = null,
         public readonly ?string $observacao = null,
+        public readonly ?string $nro_notas = null,
         public array $errors = [],
     ) {}
 
@@ -39,6 +40,7 @@ class PayloadCteDTO
             motorista: $data['motorista'] ?? [],
             userId: $data['created_by'],
             observacao: $data['observacao'] ?? null,
+            nro_notas: $data['nro_notas'] ?? null,
         );
     }
 

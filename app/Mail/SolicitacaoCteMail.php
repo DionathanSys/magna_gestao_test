@@ -44,7 +44,7 @@ class SolicitacaoCteMail extends Mailable
         ]);
 
         return new Envelope(
-            subject: 'Solicitação CT-e Magnabosco - Bugio ' . now()->format('d/m/Y H:i'),
+            subject: 'Solicitação CT-e Magnabosco - Bugio ' . $this->payload->veiculo . ' - ' . $this->payload->nro_notas . ' - ' . now()->format('d/m/Y H:i'),
             to: $this->toAddress,
             replyTo: $this->replyToAddress,
             cc: $this->ccAddress,

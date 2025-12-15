@@ -94,12 +94,15 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
                             ->required()
                             ->reactive(),
+                        TextInput::make('nro_notas')
+                            ->label('Nº de Notas Fiscais')
+                            ->columnSpan(['md' => 1, 'xl' => 2]),
                         FileUpload::make('anexos')
                             ->columnSpan(['md' => 4, 'xl' => 6])
                             ->label('Anexos')
                             ->multiple()
                             ->maxFiles(10)
-                            // ->panelLayout('grid')
+                            ->preserveFilenames()
                             ->directory('cte')
                             ->visibility('private')
                             ->required(),

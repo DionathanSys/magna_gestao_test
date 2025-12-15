@@ -27,6 +27,7 @@ class BugioPanelProvider extends PanelProvider
         return $panel
             ->id('bugio')
             ->path('bugio')
+            ->databaseNotifications()
             ->sidebarFullyCollapsibleOnDesktop()
             ->topbar(false)
             ->login()

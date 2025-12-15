@@ -6,6 +6,7 @@ use App\Services\CteService\CteService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use App\Services\NotificacaoService as notify;
 
 class SolicitarCteBugio implements ShouldQueue
 {
@@ -31,7 +32,11 @@ class SolicitarCteBugio implements ShouldQueue
         try {
             $service = new CteService();
             $service->solicitarCtePorEmail($this->data);
+
+            notify::success('Solicitação de CTe enviada com sucesso!', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos']['integrado_nome'] ?? 'N/A')), true);
+            
         } catch (\Exception $e) {
+            notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos']['integrado_nome'] ?? 'N/A')), true);
             Log::error('Erro ao solicitar CTE: ' . $e->getMessage(), [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'data' => $this->data,

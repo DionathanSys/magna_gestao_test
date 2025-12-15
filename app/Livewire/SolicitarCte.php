@@ -96,6 +96,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->reactive(),
                         TextInput::make('nro_notas')
                             ->label('Nº de Notas Fiscais')
+                            ->required()
                             ->columnSpan(['md' => 1, 'xl' => 2]),
                         FileUpload::make('anexos')
                             ->columnSpan(['md' => 4, 'xl' => 6])

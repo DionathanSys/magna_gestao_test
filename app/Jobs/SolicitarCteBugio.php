@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use App\Services\NotificacaoService as notify;
+use Carbon\Carbon;
 use Illuminate\Queue\Middleware\RateLimited;
 use Opcodes\LogViewer\Facades\Cache;
 
@@ -30,6 +31,10 @@ class SolicitarCteBugio implements ShouldQueue
 
     public function middleware()
     {
+        Log::debug('Definindo middleware de rate limiting para job de solicitação de CTe', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+        ]);
+
         return [
             new RateLimited('cte-solicitacao'),
         ];
@@ -49,47 +54,43 @@ class SolicitarCteBugio implements ShouldQueue
                 'attempt'   => $this->attempts(),
             ]);
 
-            $lockKey = 'cte:solicitar:bugio';
+            $cacheKey = 'cte:last_email_sent_at';
+            $minInterval = 240; // 4 minutos em segundos
 
-            $lock = Cache::lock($lockKey, self::LOCK_TTL);
+            $lastSentAt = Cache::get($cacheKey);
 
-            $lock->block(self::BLOCK);
+            if ($lastSentAt instanceof Carbon) {
+                $secondsSinceLastSend = now()->diffInSeconds($lastSentAt);
 
-            try {
-                Log::info('Lock adquirido para solicitação de CTe', [
-                    'veiculo' => $this->data['veiculo'] ?? null,
-                    'attempt' => $this->attempts(),
-                ]);
+                if ($secondsSinceLastSend < $minInterval) {
+                    $delay = $minInterval - $secondsSinceLastSend;
 
-                $service = new CteService();
-                $service->solicitarCtePorEmail($this->data);
-
-                if ($service->hasError()) {
-                    Log::error('Erro ao solicitar CTe via serviço', [
-                        'metodo'    => __METHOD__ . '@' . __LINE__,
-                        'veiculo'   => $this->data['veiculo'] ?? null,
-                        'nro_notas' => $this->data['nro_notas'] ?? null,
-                        'errors'    => $service->getErrors(),
-                        'attempt'   => $this->attempts(),
+                    Log::info('Aguardando intervalo mínimo para novo envio de CTe', [
+                        'faltam_segundos' => $delay,
+                        'ultimo_envio'    => $lastSentAt->toDateTimeString(),
+                        'attempt'         => $this->attempts(),
                     ]);
-                    throw new \Exception(implode('; ', $service->getErrors()));
-                }
 
-                Log::alert('Sleep será aplicado', [
+                    $this->release($delay);
+                    return;
+                }
+            }
+
+            $service = new CteService();
+            $service->solicitarCtePorEmail($this->data);
+
+            if ($service->hasError()) {
+                Log::error('Erro ao solicitar CTe via serviço', [
+                    'metodo'    => __METHOD__ . '@' . __LINE__,
                     'veiculo'   => $this->data['veiculo'] ?? null,
                     'nro_notas' => $this->data['nro_notas'] ?? null,
+                    'errors'    => $service->getErrors(),
                     'attempt'   => $this->attempts(),
                 ]);
-
-                sleep(240); // 4 minutos
-
-            } finally {
-                Log::info('Liberando lock para solicitação de CTe', [
-                    'veiculo' => $this->data['veiculo'] ?? null,
-                    'attempt' => $this->attempts(),
-                ]);
-                $lock->release();
+                throw new \Exception(implode('; ', $service->getErrors()));
             }
+
+            Cache::put($cacheKey, now(), 3600); // mantém por 1 hora
 
             Log::info('Solicitação de CTe enviada com sucesso', [
                 'veiculo'   => $this->data['veiculo'] ?? null,

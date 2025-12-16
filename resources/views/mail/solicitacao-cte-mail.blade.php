@@ -13,7 +13,9 @@
     </style>
 </head>
 <body>
-    <p>Solicitamos a emissão de CT-es para a placa {{{$payload->veiculo}}} referente as NF's ({{$payload->nro_notas}}) em anexo.</p>
+    <p>Solicitamos a emissão de CT-e(s) @if ($payload->cte_retroativo)
+        retroativo,
+    @endif para a placa {{{$payload->veiculo}}} referente as NF's ({{$payload->nro_notas}}) em anexo.</p>
 
     <p>Valor total frete R$ {{number_format($payload->valorFreteTotal, 2, ',', '.') }}, sendo {{$payload->quantidadeCte}} CT-e(s), R$ {{number_format($payload->valorFreteUnitario, 2, ',', '.') }} cada CT-e. </p>
 

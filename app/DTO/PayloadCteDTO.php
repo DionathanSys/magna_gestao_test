@@ -21,6 +21,7 @@ class PayloadCteDTO
         public readonly ?int $userId = null,
         public readonly ?string $observacao = null,
         public readonly ?string $nro_notas = null,
+        public readonly bool $cte_retroativo = false,
         public array $errors = [],
     ) {}
 
@@ -41,6 +42,7 @@ class PayloadCteDTO
             userId: $data['created_by'],
             observacao: $data['observacao'] ?? null,
             nro_notas: $data['nro_notas'] ?? null,
+            cte_retroativo: $data['cte_retroativo'] ?? false,
         );
     }
 

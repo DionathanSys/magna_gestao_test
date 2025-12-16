@@ -22,6 +22,7 @@ use Livewire\Component;
 use App\Services\CteService;
 use BackedEnum;
 use App\Services\NotificacaoService as notify;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -99,6 +100,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->label('Nº de Notas Fiscais')
                             ->required()
                             ->columnSpan(['md' => 1, 'xl' => 2]),
+                        Toggle::make('cte_retroativo')
+                            ->label('CTe Retroativo')
+                            ->default(true),
                         FileUpload::make('anexos')
                             ->columnSpan(['md' => 4, 'xl' => 6])
                             ->label('Anexos')

@@ -196,7 +196,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
         unset($data['anexos']);
 
-        // CriarViagemBugioJob::dispatch($data);
+        CriarViagemBugioJob::dispatch($data);
 
         notify::success('Solicitação de CTe enviada com sucesso!');
 

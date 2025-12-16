@@ -164,6 +164,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                     ->live(onBlur: true),
                                 TextInput::make('municipio')
                                     ->label('Municipio')
+                                    ->columnSpanFull()
                                     ->readOnly(),
                             ]),
                     ]),

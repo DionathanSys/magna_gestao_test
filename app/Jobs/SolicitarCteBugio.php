@@ -73,7 +73,6 @@ class SolicitarCteBugio implements ShouldQueue
     {
         Log::error('Job de solicitação de CTe falhou após todas as tentativas', [
             'metodo' => __METHOD__,
-            'attempts' => $this->tries,
             'error' => $exception->getMessage(),
             'data' => $this->data,
         ]);

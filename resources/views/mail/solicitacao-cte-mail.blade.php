@@ -26,8 +26,8 @@
     <h4>Observações:</h4>
     <p>Início no município de Chapecó para PF: ICMS DIFERIDO, CST 051 (campo de observações: ICMS DIFERIDO CFME ARTIGO 122, INCISO II, ANEXO 6, DO RICMS/SC)</p>
     <p>Remetente: Bugio Nutrição – 50.593.076/0001-46</p>
-    @foreach ($payload->destinos as $destino)
-        <p>Destinatário: {{ $destino['integrado_nome'] }}</p>
+    @foreach ($payload->destinos as $key => $destino)
+        <p>Destinatário {{ $key + 1 }}: {{ $destino['integrado_nome'] }}</p>
     @endforeach
     <p>Tomador: Bugio Agropecuária – 82.996.521/0001-05</p>
 

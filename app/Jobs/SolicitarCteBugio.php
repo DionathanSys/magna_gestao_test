@@ -52,13 +52,13 @@ class SolicitarCteBugio implements ShouldQueue
 
             if ($lastSentAt instanceof Carbon) {
 
-                // $secondsSinceLastSend = now()->diffInSeconds($lastSentAt);
                 $secondsSinceLastSend = $lastSentAt->diffInSeconds(now());
 
                 Log::debug('Verificando intervalo desde o último envio de CTe notas - ' . $this->data['nro_notas'], [
                     'seconds_since_last_send' => $secondsSinceLastSend,
                     'min_interval'            => $minInterval,
                     'last_sent_at'            => $lastSentAt->toDateTimeString(),
+                    'now'                     => now()->toDateTimeString(),
                     'teste'                   => $secondsSinceLastSend < $minInterval,
                     'delay'                   => $minInterval - $secondsSinceLastSend,
                     'attempt'                 => $this->attempts(),

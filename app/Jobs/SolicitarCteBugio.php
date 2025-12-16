@@ -31,11 +31,18 @@ class SolicitarCteBugio implements ShouldQueue
     public function handle(): void
     {
         try {
+
+            Log::info('Iniciando job de solicitação de CTe', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'veiculo' => $this->data['veiculo'] ?? null,
+                'attempt' => $this->attempts(),
+            ]);
+
             $lockKey = 'cte:solicitar:bugio';
 
             Cache::lock($lockKey, self::LOCK_TTL)->block(self::BLOCK, function () {
 
-                Log::info('Iniciando job de solicitação de CTe', [
+                Log::info('Lock adquirido para solicitação de CTe', [
                     'metodo' => __METHOD__ . '@' . __LINE__,
                     'veiculo' => $this->data['veiculo'] ?? null,
                     'attempt' => $this->attempts(),
@@ -43,10 +50,8 @@ class SolicitarCteBugio implements ShouldQueue
 
                 $service = new CteService();
                 $service->solicitarCtePorEmail($this->data);
-            });
 
-            $service = new CteService();
-            $service->solicitarCtePorEmail($this->data);
+            });
 
             Log::info('Solicitação de CTe enviada com sucesso', [
                 'veiculo' => $this->data['veiculo'] ?? null,

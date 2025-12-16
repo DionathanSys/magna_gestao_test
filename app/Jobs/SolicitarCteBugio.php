@@ -43,13 +43,25 @@ class SolicitarCteBugio implements ShouldQueue
                 'attempt'   => $this->attempts(),
             ]);
 
-            $cacheKey = 'cte:last_email_sent_at';
+            $cacheKeyLastMail = 'cte:last_email_sent_at';
+            $cacheKeyNext = 'cte:next_allowed_send_at';
+
             $minInterval = 240; // 4 minutos em segundos
 
-            $lastSentAt = Cache::get($cacheKey);
+            $lastSentAt = Cache::get($cacheKeyLastMail);
 
             if ($lastSentAt instanceof Carbon) {
+
                 $secondsSinceLastSend = now()->diffInSeconds($lastSentAt);
+
+                Log::debug('Verificando intervalo desde o último envio de CTe notas - ' . $this->data['nro_notas'], [
+                    'seconds_since_last_send' => $secondsSinceLastSend,
+                    'min_interval'            => $minInterval,
+                    'last_sent_at'            => $lastSentAt->toDateTimeString(),
+                    'teste'                   => $secondsSinceLastSend < $minInterval,
+                    'delay'                   => $minInterval - $secondsSinceLastSend,
+                    'attempt'                 => $this->attempts(),
+                ]);
 
                 if ($secondsSinceLastSend < $minInterval) {
                     $delay = $minInterval - $secondsSinceLastSend;
@@ -79,7 +91,7 @@ class SolicitarCteBugio implements ShouldQueue
                 throw new \Exception(implode('; ', $service->getErrors()));
             }
 
-            Cache::put($cacheKey, now(), 3600); // mantém por 1 hora
+            Cache::put($cacheKeyLastMail, now(), 3600); // mantém por 1 hora
 
             Log::info('Solicitação de CTe enviada com sucesso', [
                 'veiculo'   => $this->data['veiculo'] ?? null,

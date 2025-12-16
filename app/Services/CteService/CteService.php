@@ -19,13 +19,6 @@ class CteService
 
         try {
 
-            Log::debug("dados recebidos do componente livewire", [
-                'método' => __METHOD__.'-'.__LINE__,
-                'data' => $data,
-                'db_config.valor-quilometro' => db_config('config-bugio.valor-quilometro'),
-                'user_id' => $data['created_by'] ?? null,
-            ]);
-
             $data['motorista']['nome'] = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista']['cpf'] ?? null)['motorista'] ?? null;
             $data['valor_frete'] = $data['km_total'] * db_config('config-bugio.valor-quilometro', 0);
 
@@ -44,6 +37,7 @@ class CteService
 
         } catch (\Exception $e) {
             Log::error(__METHOD__ . '-' . __LINE__, [
+                'metodo'    => __METHOD__ . '@' . __LINE__,
                 'error'     => $e->getMessage(),
                 'data'      => $data,
                 'user_id'   => $data['created_by'] ?? null,

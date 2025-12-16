@@ -15,6 +15,8 @@ class SolicitarCteBugio implements ShouldQueue
     use Queueable;
 
     const LOCK_TTL = 300; // Tempo em segundos para o lock
+    const BLOCK = 240; // Tempo em segundos para o lock
+
     /**
      * Create a new job instance.
      */
@@ -31,19 +33,17 @@ class SolicitarCteBugio implements ShouldQueue
         try {
             $lockKey = 'cte:solicitar:bugio';
 
-            $lock = Cache::lock($lockKey, self::LOCK_TTL);
+            Cache::lock($lockKey, self::LOCK_TTL)->block(self::BLOCK, function () {
 
-            if (! $lock->get()) {
-               
-                Log::info('Job de solicitação de CTe já está em execução, reagendando...', [
+                Log::info('Iniciando job de solicitação de CTe', [
                     'metodo' => __METHOD__ . '@' . __LINE__,
                     'veiculo' => $this->data['veiculo'] ?? null,
                     'attempt' => $this->attempts(),
                 ]);
 
-                $this->release(60);
-                return;
-            }
+                $service = new CteService();
+                $service->solicitarCtePorEmail($this->data);
+            });
 
             $service = new CteService();
             $service->solicitarCtePorEmail($this->data);

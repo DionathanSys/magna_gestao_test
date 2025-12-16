@@ -130,9 +130,12 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                     ->live()
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
                                         if ($state) {
-                                            $kmRota = \App\Models\Integrado::find($state)?->km_rota;
+                                            $integrado = \App\Models\Integrado::find($state);
+                                            $kmRota = $integrado?->km_rota;
+                                            $municipio = $integrado?->municipio;
                                             $kmTotal = $get('../../km_total') + ($kmRota ?? 0);
                                             $set('km_rota', $kmRota ?? 0);
+                                            $set('municipio', $municipio ?? '');
                                             $set('../../km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                         } else {
@@ -140,6 +143,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                             $set('../../km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                             $set('km_rota', 0);
+                                            $set('municipio', null);
                                         }
                                     }),
                                 TextInput::make('km_rota')
@@ -157,7 +161,10 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                             $set('../../valor_frete', number_format($this->calcularFrete($kmTotal), 2, '.', ''));
                                         }
                                     })
-                                    ->live(onBlur: true)
+                                    ->live(onBlur: true),
+                                TextInput::make('municipio')
+                                    ->label('Municipio')
+                                    ->readOnly(),
                             ]),
                     ]),
 

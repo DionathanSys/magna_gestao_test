@@ -36,12 +36,6 @@ class SolicitacaoCteMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        Log::info('Enviando email com anexos', [
-            'anexos' => array_map(fn($a) => [
-                'path' => $a,
-                'size' => Storage::size($a)
-            ], $this->payload->anexos)
-        ]);
 
         return new Envelope(
             subject: 'Solicitação CT-e Magnabosco - Bugio ' . $this->payload->veiculo . ' - ' . $this->payload->nro_notas . ' - ' . now()->format('d/m/Y H:i'),

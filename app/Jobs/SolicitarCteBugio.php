@@ -29,17 +29,6 @@ class SolicitarCteBugio implements ShouldQueue
         //
     }
 
-    public function middleware()
-    {
-        Log::debug('Definindo middleware de rate limiting para job de solicitação de CTe', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
-        ]);
-
-        return [
-            new RateLimited('cte-solicitacao'),
-        ];
-    }
-
     /**
      * Execute the job.
      */

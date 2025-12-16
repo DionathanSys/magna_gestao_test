@@ -22,8 +22,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::unguard();
-        RateLimiter::for('cte-solicitacao', function ($job) {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinutes(4, 1);
-        });
+
     }
 }

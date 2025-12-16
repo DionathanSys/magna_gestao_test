@@ -8,11 +8,14 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use App\Services\NotificacaoService as notify;
+use Illuminate\Queue\Middleware\RateLimited;
 use Opcodes\LogViewer\Facades\Cache;
 
 class SolicitarCteBugio implements ShouldQueue
 {
     use Queueable;
+
+    public $tries = 0; // Tentativas ilimitadas
 
     const LOCK_TTL = 300; // Tempo em segundos para o lock
     const BLOCK = 240; // Tempo em segundos para o lock
@@ -25,6 +28,13 @@ class SolicitarCteBugio implements ShouldQueue
         //
     }
 
+    public function middleware()
+    {
+        return [
+            new RateLimited('cte-solicitacao'),
+        ];
+    }
+
     /**
      * Execute the job.
      */
@@ -33,9 +43,10 @@ class SolicitarCteBugio implements ShouldQueue
         try {
 
             Log::info('Iniciando job de solicitação de CTe', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
-                'veiculo' => $this->data['veiculo'] ?? null,
-                'attempt' => $this->attempts(),
+                'metodo'    => __METHOD__ . '@' . __LINE__,
+                'veiculo'   => $this->data['veiculo'] ?? null,
+                'nro_notas' => $this->data['nro_notas'] ?? null,
+                'attempt'   => $this->attempts(),
             ]);
 
             $lockKey = 'cte:solicitar:bugio';
@@ -63,6 +74,12 @@ class SolicitarCteBugio implements ShouldQueue
                     ]);
                     throw new \Exception(implode('; ', $service->getErrors()));
                 }
+
+                Log::alert('Sleep será aplicado', [
+                    'veiculo'   => $this->data['veiculo'] ?? null,
+                    'nro_notas' => $this->data['nro_notas'] ?? null,
+                    'attempt'   => $this->attempts(),
+                ]);
 
                 sleep(240); // 4 minutos
 

@@ -106,6 +106,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                         FileUpload::make('anexos')
                             ->columnSpan(['md' => 4, 'xl' => 6])
                             ->label('Anexos')
+                            ->columnStart(1)
                             ->multiple()
                             ->maxFiles(10)
                             ->preserveFilenames()

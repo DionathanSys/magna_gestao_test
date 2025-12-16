@@ -2,20 +2,19 @@
 
 namespace App\Jobs;
 
+use App\Models\User;
 use App\Services\CteService\CteService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use App\Services\NotificacaoService as notify;
+use Opcodes\LogViewer\Facades\Cache;
 
 class SolicitarCteBugio implements ShouldQueue
 {
     use Queueable;
 
-    public $tries = 3; // Tentar 3 vezes
-    public $backoff = 60; // Aguardar 60 segundos entre tentativas
-    public $timeout = 300; // Timeout de 5 minutos
-
+    const LOCK_TTL = 300; // Tempo em segundos para o lock
     /**
      * Create a new job instance.
      */
@@ -30,18 +29,64 @@ class SolicitarCteBugio implements ShouldQueue
     public function handle(): void
     {
         try {
+            $lockKey = 'cte:solicitar:bugio';
+
+            $lock = Cache::lock($lockKey, self::LOCK_TTL);
+
+            if (! $lock->get()) {
+               
+                Log::info('Job de solicitação de CTe já está em execução, reagendando...', [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'veiculo' => $this->data['veiculo'] ?? null,
+                    'attempt' => $this->attempts(),
+                ]);
+
+                $this->release(60);
+                return;
+            }
+
             $service = new CteService();
             $service->solicitarCtePorEmail($this->data);
 
-            Log::debug($this->data);
-            notify::success('Solicitação de CTe enviada com sucesso!', "#Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true);
-            
-        } catch (\Exception $e) {
-            notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true);
-            Log::error('Erro ao solicitar CTE: ' . $e->getMessage(), [
-                'metodo' => __METHOD__ . '@' . __LINE__,
-                'data' => $this->data,
+            Log::info('Solicitação de CTe enviada com sucesso', [
+                'veiculo' => $this->data['veiculo'] ?? null,
+                'attempt' => $this->attempts(),
             ]);
+
+            notify::success('Solicitação de CTe enviada com sucesso!', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
+        } catch (\Exception $e) {
+            notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
+            Log::error('Erro ao solicitar CTE', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'attempt' => $this->attempts(),
+                'error' => $e->getMessage(),
+                'veiculo' => $this->data['veiculo'] ?? null,
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * Chamado quando o job falha definitivamente após todas as tentativas
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('Job de solicitação de CTe falhou após todas as tentativas', [
+            'metodo' => __METHOD__,
+            'attempts' => $this->tries,
+            'error' => $exception->getMessage(),
+            'data' => $this->data,
+        ]);
+
+        // Notificar o usuário que criou a solicitação
+        if (isset($this->data['created_by'])) {
+            notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
+        }
+
+        // Notificar administradores
+        $admins = User::where('is_admin', true)->get();
+        foreach ($admins as $admin) {
+            notify::error('Admin - Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $admins);
         }
     }
 }

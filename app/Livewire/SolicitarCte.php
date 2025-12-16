@@ -22,6 +22,7 @@ use Livewire\Component;
 use App\Services\CteService;
 use BackedEnum;
 use App\Services\NotificacaoService as notify;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -185,6 +186,11 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         // CriarViagemBugioJob::dispatch($data);
 
         notify::success('Solicitação de CTe enviada com sucesso!');
+        notify::success('Solicitação de CTe enviada com sucesso!', toDataBase: true);
+        Notification::make()
+            ->title('teste')
+            ->sendToDatabase(Auth::user()->id());
+
         $this->resetForm();
     }
 

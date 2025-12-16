@@ -189,7 +189,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         notify::success('Solicitação de CTe enviada com sucesso!', toDataBase: true);
         Notification::make()
             ->title('teste')
-            ->sendToDatabase(Auth::user()->id());
+            ->sendToDatabase(Auth::user());
 
         $this->resetForm();
     }

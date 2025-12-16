@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->sidebarFullyCollapsibleOnDesktop()
             ->databaseNotifications()
+            ->databaseNotificationsPolling(null)
             ->navigationGroups([
                 'Manutenção',
                 'Pneus',

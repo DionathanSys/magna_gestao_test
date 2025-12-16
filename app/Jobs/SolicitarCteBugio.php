@@ -49,6 +49,7 @@ class SolicitarCteBugio implements ShouldQueue
             $minInterval = 240; // 4 minutos em segundos
 
             $lastSentAt = Cache::get($cacheKeyLastMail);
+            $nextRunAt = Cache::get($cacheKeyNext);
 
             if ($lastSentAt instanceof Carbon) {
 
@@ -73,7 +74,40 @@ class SolicitarCteBugio implements ShouldQueue
                         'attempt'         => $this->attempts(),
                     ]);
 
+                    if($nextRunAt instanceof Carbon) {
+
+                        Log::info('Próximo envio agendado em: ' . $nextRunAt->toDateTimeString(), [
+                            'metodo'    => __METHOD__ . '@' . __LINE__,
+                            'attempt'   => $this->attempts(),
+                        ]);
+
+                        $diffToNextRun = now()->diffInSeconds($nextRunAt);
+
+                        if($diffToNextRun > 0) {
+                            $delay = $diffToNextRun + 240; // adiciona mais 4 minutos
+                            Log::info('Ajustando delay para o próximo envio permitido', [
+                                'metodo'    => __METHOD__ . '@' . __LINE__,
+                                'attempt'   => $this->attempts(),
+                                'diff_to_next_run' => $diffToNextRun,
+                                'new_delay'     => $delay,
+                            ]);
+                            
+                        } else {
+                            Log::info('Próximo envio já permitido, mantendo delay calculado', [
+                                'metodo'    => __METHOD__ . '@' . __LINE__,
+                                'attempt'   => $this->attempts(),
+                                'diff_to_next_run' => $diffToNextRun,
+                                'delay'     => $delay,
+                            ]);
+                        }
+
+                    }
+
+                    $newNextRunAt = now()->addSeconds($delay);
                     $this->release($delay);
+
+                    Cache::put($cacheKeyNext, $newNextRunAt, 3600); // mantém por 1 hora
+
                     return;
                 }
             }

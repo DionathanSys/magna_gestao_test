@@ -9,6 +9,7 @@ use App\Models\ImportLog;
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use App\Services\Veiculo\VeiculoCacheService;
 use App\Services\Veiculo\VeiculoService;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +35,14 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        VincularRegistroResultadoJob::dispatch(1032, Models\Abastecimento::class);
+        $nextRunAt = Carbon::parse("2025-12-16 16:40:00");
+        $now = Carbon::parse("2025-12-16 16:36:00");
+
+        $diffInMinutes = $nextRunAt->diffInMinutes($now);
+        echo "Diferença em minutos: " . $diffInMinutes . " minutos\n";
+
+        $diffInMinutes = $now->diffInMinutes($nextRunAt);
+        echo "Diferença em minutos (inversa): " . $diffInMinutes . " minutos\n";
 
     }
 }

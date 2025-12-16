@@ -186,10 +186,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         // CriarViagemBugioJob::dispatch($data);
 
         notify::success('Solicitação de CTe enviada com sucesso!');
-        notify::success('Solicitação de CTe enviada com sucesso!', toDataBase: true);
-        Notification::make()
-            ->title('teste')
-            ->sendToDatabase(Auth::user());
 
         $this->resetForm();
     }

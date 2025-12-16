@@ -40,10 +40,12 @@ class SolicitarCteBugio implements ShouldQueue
 
             $lockKey = 'cte:solicitar:bugio';
 
-            Cache::lock($lockKey, self::LOCK_TTL)->block(self::BLOCK, function () {
+            $lock = Cache::lock($lockKey, self::LOCK_TTL);
 
+            $lock->block(self::BLOCK);
+
+            try {
                 Log::info('Lock adquirido para solicitação de CTe', [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
                     'veiculo' => $this->data['veiculo'] ?? null,
                     'attempt' => $this->attempts(),
                 ]);
@@ -51,11 +53,31 @@ class SolicitarCteBugio implements ShouldQueue
                 $service = new CteService();
                 $service->solicitarCtePorEmail($this->data);
 
-            });
+                if ($service->hasError()) {
+                    Log::error('Erro ao solicitar CTe via serviço', [
+                        'metodo'    => __METHOD__ . '@' . __LINE__,
+                        'veiculo'   => $this->data['veiculo'] ?? null,
+                        'nro_notas' => $this->data['nro_notas'] ?? null,
+                        'errors'    => $service->getErrors(),
+                        'attempt'   => $this->attempts(),
+                    ]);
+                    throw new \Exception(implode('; ', $service->getErrors()));
+                }
+
+                sleep(240); // 4 minutos
+
+            } finally {
+                Log::info('Liberando lock para solicitação de CTe', [
+                    'veiculo' => $this->data['veiculo'] ?? null,
+                    'attempt' => $this->attempts(),
+                ]);
+                $lock->release();
+            }
 
             Log::info('Solicitação de CTe enviada com sucesso', [
-                'veiculo' => $this->data['veiculo'] ?? null,
-                'attempt' => $this->attempts(),
+                'veiculo'   => $this->data['veiculo'] ?? null,
+                'nro_notas' => $this->data['nro_notas'] ?? null,
+                'attempt'   => $this->attempts(),
             ]);
 
             notify::success('Solicitação de CTe enviada com sucesso!', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);

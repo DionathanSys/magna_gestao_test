@@ -84,7 +84,7 @@ class SolicitarCteBugio implements ShouldQueue
                         $diffToNextRun = now()->diffInSeconds($nextRunAt);
 
                         if($diffToNextRun > 0) {
-                            $delay = $diffToNextRun + 240; // adiciona mais 4 minutos
+                            $delay = $diffToNextRun + 255; // adiciona mais 4 minutos
                             Log::info('Ajustando delay para o próximo envio permitido', [
                                 'metodo'    => __METHOD__ . '@' . __LINE__,
                                 'attempt'   => $this->attempts(),
@@ -105,6 +105,13 @@ class SolicitarCteBugio implements ShouldQueue
 
                     $newNextRunAt = now()->addSeconds($delay);
                     $this->release($delay);
+
+                    Log::info('Job de solicitação de CTe re-liberado para execução futura', [
+                        'metodo'        => __METHOD__ . '@' . __LINE__,
+                        'delay_seconds' => $delay,
+                        'new_next_run_at' => $newNextRunAt->toDateTimeString(),
+                        'attempt'       => $this->attempts(),
+                    ]);
 
                     Cache::put($cacheKeyNext, $newNextRunAt, 3600); // mantém por 1 hora
 

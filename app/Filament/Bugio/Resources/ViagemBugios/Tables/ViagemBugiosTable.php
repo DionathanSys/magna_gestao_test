@@ -80,6 +80,14 @@ class ViagemBugiosTable
                     ])
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('viagem.numero_viagem')
+                     ->label('Viagem Vinculada')
+                     ->sortable()
+                     ->searchable(),
+                TextColumn::make('documentoFrete.numero_documento')
+                    ->label('Doc. Frete Vinculado')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('creator.name')
                     ->label('Criado Por')
                     ->sortable(),

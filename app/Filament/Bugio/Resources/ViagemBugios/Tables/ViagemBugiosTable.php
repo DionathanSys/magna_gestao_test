@@ -107,6 +107,9 @@ class ViagemBugiosTable
                 VincularViagemAction::make()
                     ->icon(Heroicon::Link)
                     ->iconButton(),
+                VincularDocumentoFreteAction::make()
+                    ->icon(Heroicon::DocumentText)
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

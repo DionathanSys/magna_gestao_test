@@ -16,7 +16,10 @@ class SelectTableViagem
     {
         return $table
             ->query(fn (): Builder => Viagem::query())
-            ->modifyQueryUsing(function (Builder $query, array $arguments): Builder {
+            ->modifyQueryUsing(function (Builder $query) use ($table): Builder {
+                
+                $arguments = $table->getArguments();
+
                 if (isset($arguments['veiculo_id'])) {
                     $query->where('veiculo_id', $arguments['veiculo_id']);
                 }

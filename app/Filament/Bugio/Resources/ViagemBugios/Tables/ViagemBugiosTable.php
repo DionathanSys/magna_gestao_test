@@ -21,7 +21,7 @@ class ViagemBugiosTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->poll('5s')
+            ->poll(null)
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')

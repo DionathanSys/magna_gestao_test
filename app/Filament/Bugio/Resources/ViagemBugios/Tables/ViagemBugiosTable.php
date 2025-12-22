@@ -107,8 +107,6 @@ class ViagemBugiosTable
             ->recordActions([
                 ViewAction::make()
                     ->iconButton(),
-                VincularDocumentoFreteAction::make()
-                    ->iconButton(),
                 EditAction::make()
                     ->visible(fn() => Auth::user()->is_admin)
                     ->iconButton(),

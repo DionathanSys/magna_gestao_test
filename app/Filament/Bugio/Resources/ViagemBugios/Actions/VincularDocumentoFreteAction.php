@@ -92,7 +92,7 @@ class VincularDocumentoFreteAction
 
 
         $record->update([
-            'documento_frete_id' => $data['documento_frete_id'],
+            'documento_frete_id' => $documentoFreteId,
             'viagem_id' => $viagem->id,
         ]);
 

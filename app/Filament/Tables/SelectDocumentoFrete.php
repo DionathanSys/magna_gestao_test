@@ -7,6 +7,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class SelectDocumentoFrete
 {
@@ -79,7 +80,11 @@ class SelectDocumentoFrete
                     ->searchable(),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('data_inicio')
+                    ->label('Dt. Inicio')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar(),
             ])
             ->headerActions([
                 //

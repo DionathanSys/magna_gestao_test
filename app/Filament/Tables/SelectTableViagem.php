@@ -25,6 +25,7 @@ class SelectTableViagem
                     $query->where('veiculo_id', $arguments['veiculo_id']);
                 }
                 return $query;
+                
             })
             ->columns([
                 TextColumn::make('veiculo.placa')   

@@ -3,10 +3,12 @@
 namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
+use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
@@ -101,6 +103,9 @@ class ViagemBugiosTable
                     ->iconButton(),
                 EditAction::make()
                     ->visible(fn() => Auth::user()->is_admin)
+                    ->iconButton(),
+                VincularViagemAction::make()
+                    ->icon(Heroicon::Link)
                     ->iconButton(),
             ])
             ->toolbarActions([

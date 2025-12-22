@@ -102,6 +102,11 @@ class Viagem extends Model
         return $this->belongsTo(User::class, 'checked_by');
     }
 
+    public function viagemBugio(): HasMany
+    {
+        return $this->hasMany(ViagemBugio::class, 'viagem_id');
+    }
+
     public function getIntegradosNomesAttribute(): string
     {
         return $this->cargas

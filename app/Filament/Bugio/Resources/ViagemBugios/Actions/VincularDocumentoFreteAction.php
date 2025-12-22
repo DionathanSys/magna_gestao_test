@@ -88,6 +88,7 @@ class VincularDocumentoFreteAction
             return null;
         }
 
+        
         $record->update([
             'documento_frete_id' => $data['documento_frete_id'],
             'viagem_id' => $viagem->id,

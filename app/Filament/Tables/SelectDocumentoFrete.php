@@ -15,41 +15,53 @@ class SelectDocumentoFrete
         return $table
             ->query(fn (): Builder => DocumentoFrete::query())
             ->columns([
-                TextColumn::make('veiculo.id')
+                TextColumn::make('veiculo.placa')
+                    ->label('Placa')
                     ->searchable(),
                 TextColumn::make('parceiro_origem')
+                    ->label('Origem')
                     ->searchable(),
                 TextColumn::make('parceiro_destino')
+                    ->label('Destino')
                     ->searchable(),
                 TextColumn::make('numero_documento')
+                    ->label('Nro. Documento')
                     ->searchable(),
                 TextColumn::make('documento_transporte')
+                    ->label('Doc. Transporte')
                     ->searchable(),
                 TextColumn::make('tipo_documento')
+                    ->label('Tipo Doc.')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('data_emissao')
-                    ->date()
+                    ->label('Dt. Emissão')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('valor_total')
-                    ->numeric()
+                    ->label('Vlr. Total')
+                    ->money('BRL')
                     ->sortable(),
                 TextColumn::make('valor_icms')
-                    ->numeric()
+                    ->label('Vlr. ICMS')
+                    ->money('BRL')
                     ->sortable(),
-                TextColumn::make('valor_liquido')
-                    ->numeric()
+                TextColumn::make('valor_liquido')   
+                    ->label('Frete Líquido')
+                    ->money('BRL')
                     ->sortable(),
                 TextColumn::make('municipio')
-                    ->searchable(),
+                    ->label('Município'),
                 TextColumn::make('estado')
-                    ->searchable(),
+                    ->label('Estado'),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('viagem.id')

@@ -102,8 +102,7 @@ class VincularDocumentoFreteAction
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(ViagemResource::getUrl('view', ['record' => $viagem->id]))
-                    ->openUrlInNewTab(),
+                    ->url(ViagemResource::getUrl('view', ['record' => $viagem->id], panel: 'bugio'), true),
                 Action::make('undo')
                     ->color('gray'),
             ])

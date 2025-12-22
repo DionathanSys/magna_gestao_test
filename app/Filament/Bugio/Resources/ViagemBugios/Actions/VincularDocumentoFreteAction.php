@@ -70,6 +70,8 @@ class VincularDocumentoFreteAction
             'numero_viagem'         => 'BG-' . $documentoFrete->documento_transporte,
             'documento_transporte'  => $documentoFrete->documento_transporte,
             'km_rodado'             => 0,
+            'km_cadastro'             => 0,
+            'km_cobrar'             => 0,
             'km_pago'               => $record->km_pago,
             'motivo_divergencia'    => MotivoDivergenciaViagem::SEM_OBS->value,
             'data_competencia'      => $record->data_competencia,
@@ -88,7 +90,7 @@ class VincularDocumentoFreteAction
             return null;
         }
 
-        
+
         $record->update([
             'documento_frete_id' => $data['documento_frete_id'],
             'viagem_id' => $viagem->id,

@@ -6,6 +6,7 @@ use App\Models\Viagem;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -15,6 +16,12 @@ class SelectTableViagem
     {
         return $table
             ->query(fn (): Builder => Viagem::query())
+            ->modifyQueryUsing(function (Builder $query, array $arguments): Builder {
+                if (isset($arguments['veiculo_id'])) {
+                    $query->where('veiculo_id', $arguments['veiculo_id']);
+                }
+                return $query;
+            })
             ->columns([
                 TextColumn::make('veiculo.placa')
                     ->numeric()
@@ -29,15 +36,6 @@ class SelectTableViagem
                 TextColumn::make('km_pago')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('km_cadastro')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('km_cobrar')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('motivo_divergencia')
-                    ->badge()
-                    ->searchable(),
                 TextColumn::make('data_competencia')
                     ->date()
                     ->sortable(),
@@ -47,44 +45,19 @@ class SelectTableViagem
                 TextColumn::make('data_fim')
                     ->dateTime()
                     ->sortable(),
-                IconColumn::make('conferido')
-                    ->boolean(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('updated_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('checked_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('km_dispersao')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('dispersao_percentual')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('condutor')
                     ->searchable(),
-                IconColumn::make('considerar_relatorio')
-                    ->boolean(),
                 TextColumn::make('unidade_negocio')
                     ->searchable(),
                 TextColumn::make('cliente')
                     ->searchable(),
-                TextColumn::make('resultadoPeriodo.id')
-                    ->searchable(),
             ])
+            ->poll(null)
             ->filters([
-                //
             ])
             ->headerActions([
                 //

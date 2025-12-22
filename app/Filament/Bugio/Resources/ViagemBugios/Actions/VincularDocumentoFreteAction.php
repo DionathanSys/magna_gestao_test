@@ -2,8 +2,11 @@
 
 namespace App\Filament\Bugio\Resources\ViagemBugios\Actions;
 
+use App\Filament\Tables\SelectDocumentoFrete;
 use App\Models\DocumentoFrete;
+use App\Models\ViagemBugio;
 use Filament\Actions\Action;
+use Filament\Forms\Components\ModalTableSelect;
 use Filament\Forms\Components\Select;
 
 class VincularDocumentoFreteAction
@@ -13,23 +16,18 @@ class VincularDocumentoFreteAction
         return Action::make('vincular_documento_frete')
             ->label('Vincular Documento de Frete')
             ->schema([
-                Select::make('documento_frete_id')
-                    ->label('Documento de Frete')
-                    ->searchable(['numero_documento', 'parceiro_destino'])
-                    ->preload()
-                    ->relationship('documentos', 'numero_documento')
-                    // ->getSearchResultsUsing(fn(string $search): array => DocumentoFrete::query()
-                    //     // ->where('parceiro_origem', "BUGIO AGROPECUARIA LTDA")
-                    //     ->where('parceiro_destino', 'like', "%{$search}%")
-                    //     ->limit(50)
-                    //     ->pluck('numero_documento', 'id')
-                    //     ->all())
-                    // ->getOptionLabelUsing(fn($value): ?string => DocumentoFrete::find($value)?->descricao)
-                    ->getOptionLabelFromRecordUsing(fn(DocumentoFrete $record) => $record->descricao)
-                    ->required(),
+                ModalTableSelect::make('documento_frete_id')
+                    ->relationship('documento', 'id')
+                    ->tableConfiguration(SelectDocumentoFrete::class)
+                    ->tableArguments(function (ViagemBugio $record): array {
+                        return [
+                            'veiculo_id' => $record->veiculo_id,
+                        ];
+                    })
             ])
             ->action(function (array $data, $record) {
-                dd($data, $record);
+                $record->documento_frete_id = $data['documento_frete_id'];
+                $record->save();
             });
     }
 }

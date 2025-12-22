@@ -27,7 +27,8 @@ class VincularViagemAction
                     })
             ])
             ->action(function (array $data, $record) {
-                dd($data, $record);
+                $record->viagem_id = $data['viagem_id'];
+                $record->save();
             });
     }
 }

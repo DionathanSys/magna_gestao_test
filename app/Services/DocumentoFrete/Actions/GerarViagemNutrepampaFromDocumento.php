@@ -87,7 +87,7 @@ class GerarViagemNutrepampaFromDocumento
                         'veiculo_id'            => $veiculo->id,
                         'unidade_negocio'       => $veiculo->filial,
                         'cliente'               => $veiculo->informacoes_complementares['cliente'],
-                        'numero_viagem'         => $documentosGroupValorTotal->first()->documento_transporte,
+                        'numero_viagem'         => 'NP-'.$documentosGroupValorTotal->first()->documento_transporte,
                         'documento_transporte'  => $documentosGroupValorTotal->first()->documento_transporte,
                         'km_pago'               => $calculoKmPago['km_pago'],
                         'km_cadastro'           => 0,

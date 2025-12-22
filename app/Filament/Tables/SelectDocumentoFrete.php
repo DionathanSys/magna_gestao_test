@@ -14,6 +14,15 @@ class SelectDocumentoFrete
     {
         return $table
             ->query(fn (): Builder => DocumentoFrete::query())
+            ->modifyQueryUsing(function (Builder $query) use ($table): Builder {
+
+                $arguments = $table->getArguments();
+
+                if (isset($arguments['veiculo_id'])) {
+                    $query->where('veiculo_id', $arguments['veiculo_id']);
+                }
+                return $query;
+            })
             ->columns([
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')

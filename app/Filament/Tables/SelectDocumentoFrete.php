@@ -80,8 +80,8 @@ class SelectDocumentoFrete
                     ->searchable(),
             ])
             ->filters([
-                DateRangeFilter::make('data_inicio')
-                    ->label('Dt. Inicio')
+                DateRangeFilter::make('data_emissao')
+                    ->label('Dt. Emissão')
                     ->autoApply()
                     ->firstDayOfWeek(0)
                     ->alwaysShowCalendar(),

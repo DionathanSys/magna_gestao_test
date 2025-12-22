@@ -22,6 +22,10 @@ class SelectDocumentoFrete
                 if (isset($arguments['veiculo_id'])) {
                     $query->where('veiculo_id', $arguments['veiculo_id']);
                 }
+
+                // Exclui documentos que já estão vinculados a uma ViagemBugio
+                $query->whereDoesntHave('viagemBugio');
+
                 return $query;
             })
             ->columns([

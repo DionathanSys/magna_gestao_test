@@ -5,6 +5,8 @@ namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
+use App\Models\ViagemBugio;
+use Carbon\Carbon;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -15,6 +17,8 @@ use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -96,7 +100,8 @@ class ViagemBugiosTable
                 TextColumn::make('condutor')
                     ->label('Motorista')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 SelectColumn::make('status')
                     ->label('Status')
                     ->options([
@@ -110,26 +115,49 @@ class ViagemBugiosTable
                 TextColumn::make('viagem.numero_viagem')
                     ->label('Viagem Vinculada')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documentoFrete.numero_documento')
                     ->label('Doc. Frete Vinculado')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('creator.name')
                     ->label('Criado Por')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label('Atualizado Em')
                     ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('veiculo_id')
+                    ->label('Veículo')
+                    ->relationship('veiculo', 'placa')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
             ])
+            ->defaultGroup('data_competencia')
+            ->groups(
+                [
+                    Group::make('data_competencia')
+                        ->label('Data Competência')
+                        ->titlePrefixedWithLabel(false)
+                        ->getTitleFromRecordUsing(fn(ViagemBugio $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
+                        ->collapsible(),
+                    Group::make('veiculo.placa')
+                        ->label('Veículo')
+                        ->titlePrefixedWithLabel(false)
+                        ->collapsible(),
+                ]
+            )
             ->defaultSort('id', 'desc')
             ->recordActions([
                 ActionGroup::make([

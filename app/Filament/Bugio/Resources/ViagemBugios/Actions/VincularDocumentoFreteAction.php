@@ -16,13 +16,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Auth;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\BulkAction;
 use Filament\Notifications\Notification;
 
 class VincularDocumentoFreteAction
 {
-    public static function make(): Action
+    public static function make(): BulkAction
     {
-        return Action::make('vincular_documento_frete')
+        return BulkAction::make('vincular_documento_frete')
             ->label('Vincular Documento de Frete')
             ->schema([
                 ModalTableSelect::make('documento_frete_id')

@@ -11,6 +11,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TagsInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -96,13 +97,26 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
                             ->required()
                             ->reactive(),
-                        TextInput::make('nro_notas')
+                        TagsInput::make('nro_notas')
                             ->label('Nº de Notas Fiscais')
                             ->required()
+                            ->separator(',')
+                            ->splitKeys(['Tab', ' '])
+                            ->trim()
                             ->columnSpan(['md' => 1, 'xl' => 2]),
                         Toggle::make('cte_retroativo')
                             ->label('CTe Retroativo')
+                            ->inline(false)
                             ->default(true),
+                        Toggle::make('cte_complementar')
+                            ->label('CTe Complementar')
+                            ->inline(false)
+                            ->default(true),
+                        TextInput::make('cte_referencia')
+                            ->label('CTe de Referência')
+                            ->required_if('cte_complementar', true)
+                            ->columnSpan(['md' => 2, 'xl' => 4])
+                            ->nullable(),
                         FileUpload::make('anexos')
                             ->columnSpan(['md' => 4, 'xl' => 6])
                             ->label('Anexos')
@@ -120,7 +134,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->defaultItems(1)
                             ->addActionLabel('Adicionar Integrado')
                             ->deletable(true)
+                            ->addable(false)
                             ->minItems(1)
+                            ->maxItems(1)
                             ->schema([
                                 Select::make('integrado_id')
                                     ->label('Integrado')
@@ -181,6 +197,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     public function handle(): void
     {
 
+        dd($data);
         $data = $this->mutateData($this->data ?? []);
 
         if (!$this->validateData($data)) {

@@ -13,6 +13,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -135,12 +136,13 @@ class ViagemBugiosTable
                 EditAction::make()
                     ->visible(fn() => Auth::user()->is_admin)
                     ->iconButton(),
-                VincularDocumentoFreteAction::make(),
+                VincularDocumentoFreteAction::make()
+                    ->iconButton(),
                 VincularViagemAction::make()
                     ->icon(Heroicon::Link)
                     ->iconButton(),
                 
-            ])
+            ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()

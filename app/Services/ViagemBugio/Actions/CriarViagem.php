@@ -21,6 +21,7 @@ class CriarViagem
         'observacao',
         'status',
         'created_by',
+        'nro_notas',
     ];
 
     public function handle(array $data): ?Models\ViagemBugio
@@ -40,23 +41,27 @@ class CriarViagem
     public function validate(array $data): void
     {
         $validator = Validator::make($data, [
-            'veiculo_id'        => 'required|integer|exists:veiculos,id',
-            'destinos'          => 'required|array|min:1',
+            'veiculo_id'                => 'required|integer|exists:veiculos,id',
+            'destinos'                  => 'required|array|min:1',
             'destinos.*.integrado_id'   => 'required|integer|exists:integrados,id',
             'destinos.*.km_rota'        => 'required|numeric|min:0',
-            'km_rodado'         => 'required|numeric|min:0',
-            'km_pago'           => 'required|numeric|min:0',
-            'data_competencia'  => 'required|date',
-            'frete'             => 'required|numeric|min:0',
-            'condutor'          => 'nullable|string|max:155',
-            'observacao'        => 'nullable|string|max:1000',
-            'status'            => 'nullable|string|max:255',
-            'created_by'        => 'required|integer|exists:users,id',
+            'nro_notas'                 => 'required|array|min:1',
+            'nro_notas.*'               => 'required|string|max:20',
+            'km_rodado'                 => 'required|numeric|min:0',
+            'km_pago'                   => 'required|numeric|min:0',
+            'data_competencia'          => 'required|date',
+            'frete'                     => 'required|numeric|min:0',
+            'condutor'                  => 'nullable|string|max:155',
+            'observacao'                => 'nullable|string|max:1000',
+            'status'                    => 'nullable|string|max:255',
+            'created_by'                => 'required|integer|exists:users,id',
         ], [
             'veiculo_id.required'       => "O campo 'Veículo' é obrigatório.",
             'veiculo_id.exists'         => "O veículo selecionado não existe.",
             'destinos.required'         => "O campo 'Destinos' é obrigatório.",
             'destinos.size'             => "O campo 'Destinos' deve conter ao menos um destino.",
+            'nro_notas.required'        => "O campo 'Nro Notas' é obrigatório.",
+            'nro_notas.size'            => "O campo 'Nro Notas' deve conter ao menos uma nota.",
             'km_rodado.required'        => "O campo 'Km Rodado' é obrigatório.",
             'km_pago.required'          => "O campo 'Km Pago' é obrigatório.",
             'data_competencia.required' => "O campo 'Data de Competência' é obrigatório.",

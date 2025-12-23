@@ -50,6 +50,23 @@ class ViagemBugiosTable
                             ->filter()
                             ->join(', ');
                     }),
+                TextColumn::make('nro_notas')
+                    ->label('Nro Notas')
+                    ->formatStateUsing(function ($state) {
+                        if (empty($state)) {
+                            return '-';
+                        }
+
+                        // Verificar se é um array associativo único ou array de arrays
+                        if (is_string($state)) {
+                            return $state;
+                        }
+
+                        // É um array de notas
+                        return collect($state)
+                            ->filter()
+                            ->join(', ');
+                    }),
                 TextColumn::make('data_competencia')
                     ->label('Data Viagem')
                     ->date('d/m/Y')

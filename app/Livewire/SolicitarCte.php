@@ -199,7 +199,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     public function handle(): void
     {
 
-        dd($this->data);
         $data = $this->mutateData($this->data ?? []);
 
         if (!$this->validateData($data)) {

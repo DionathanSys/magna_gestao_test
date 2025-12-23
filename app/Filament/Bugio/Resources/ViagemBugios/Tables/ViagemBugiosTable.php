@@ -69,6 +69,9 @@ class ViagemBugiosTable
                     }),
                 TextColumn::make('numero_sequencial')
                     ->label('Nº Sequencial')
+                    ->formatStateUsing(function ($state) {
+                        return $state ? str_pad($state, 6, '0', STR_PAD_LEFT) : '-';
+                    })
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('data_competencia')

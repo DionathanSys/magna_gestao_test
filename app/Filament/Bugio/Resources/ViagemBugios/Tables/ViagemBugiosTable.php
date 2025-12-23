@@ -177,7 +177,7 @@ class ViagemBugiosTable
                         ->collapsible(),
                 ]
             )
-            ->defaultSort('id', 'desc')
+            ->defaultSort('data_competencia', 'desc')
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make()

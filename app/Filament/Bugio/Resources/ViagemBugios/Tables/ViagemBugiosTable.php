@@ -32,14 +32,17 @@ class ViagemBugiosTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
+                    ->width('1%')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
+                    ->width('1%')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('destinos')
                     ->label('Integrados')
+                    ->width('1%')
                     ->formatStateUsing(function ($state) {
                         if (empty($state)) {
                             return '-';
@@ -59,6 +62,7 @@ class ViagemBugiosTable
                     }),
                 TextColumn::make('nro_notas')
                     ->label('Nro Notas')
+                    ->width('1%')
                     ->formatStateUsing(function ($state) {
                         if (empty($state)) {
                             return '-';
@@ -76,6 +80,7 @@ class ViagemBugiosTable
                     }),
                 TextColumn::make('numero_sequencial')
                     ->label('Nº Sequencial')
+                    ->width('1%')
                     ->formatStateUsing(function ($state) {
                         return $state ? str_pad($state, 6, '0', STR_PAD_LEFT) : '-';
                     })
@@ -83,27 +88,32 @@ class ViagemBugiosTable
                     ->searchable(),
                 TextColumn::make('data_competencia')
                     ->label('Data Viagem')
+                    ->width('1%')
                     ->date('d/m/Y')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('km_pago')
                     ->label('Km Pago')
+                    ->width('1%')
                     ->numeric(0, ',', '.')
                     ->sortable()
                     ->summarize(Sum::make()),
                 TextColumn::make('frete')
                     ->label('Frete')
+                    ->width('1%')
                     ->money('BRL')
                     ->sortable()
                     ->summarize(Sum::make()
                         ->money('BRL')),
                 TextColumn::make('condutor')
                     ->label('Motorista')
+                    ->width('1%')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 SelectColumn::make('status')
                     ->label('Status')
+                    ->width('1%')
                     ->options([
                         'pendente' => 'Pendente',
                         'em_andamento' => 'CTe solicitado',
@@ -114,22 +124,25 @@ class ViagemBugiosTable
                     ->searchable(),
                 TextColumn::make('viagem.numero_viagem')
                     ->label('Viagem Vinculada')
+                    ->width('1%')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documentoFrete.numero_documento')
                     ->label('Doc. Frete Vinculado')
+                    ->width('1%')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('creator.name')
                     ->label('Criado Por')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('updated_at')
                     ->label('Atualizado Em')
                     ->dateTime('d/m/Y H:i')

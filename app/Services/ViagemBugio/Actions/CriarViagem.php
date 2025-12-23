@@ -36,13 +36,13 @@ class CriarViagem
             'data' => $data
         ]);
 
-        $this->validate($data);
-
         if (empty($data['numero_sequencial'])) {
             $service = new ViagemNumberService();
             $n = $service->next(ClienteEnum::BUGIO->prefixoViagem());
             $data['numero_sequencial'] = $n['numero_sequencial'];
         }
+
+        $this->validate($data);
 
         return Models\ViagemBugio::create($data);
     }

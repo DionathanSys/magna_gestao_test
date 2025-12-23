@@ -21,13 +21,10 @@ return new class extends Migration
         });
 
         Schema::table('viagens_bugio', function (Blueprint $table) {
-            if (! Schema::hasColumn('viagens_bugio', 'numero_sequencial')) {
-                $table->unsignedBigInteger('numero_sequencial')
-                    ->nullable()
-                    ->after('nro_notas');
-            }
+            $table->unsignedBigInteger('numero_sequencial')
+                ->nullable()
+                ->after('nro_notas');
         });
-
     }
 
     /**

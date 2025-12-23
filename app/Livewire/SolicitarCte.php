@@ -114,7 +114,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->default(true),
                         TextInput::make('cte_referencia')
                             ->label('CTe de Referência')
-                            ->required_if('cte_complementar', true)
+                            ->requiredIf('cte_complementar', true)
                             ->columnSpan(['md' => 2, 'xl' => 4])
                             ->nullable(),
                         FileUpload::make('anexos')
@@ -197,7 +197,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     public function handle(): void
     {
 
-        dd($data);
+        dd($this->data);
         $data = $this->mutateData($this->data ?? []);
 
         if (!$this->validateData($data)) {

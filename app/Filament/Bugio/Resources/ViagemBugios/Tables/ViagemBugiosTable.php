@@ -5,6 +5,7 @@ namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -107,9 +108,9 @@ class ViagemBugiosTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('viagem.numero_viagem')
-                     ->label('Viagem Vinculada')
-                     ->sortable()
-                     ->searchable(),
+                    ->label('Viagem Vinculada')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('documentoFrete.numero_documento')
                     ->label('Doc. Frete Vinculado')
                     ->sortable()
@@ -131,17 +132,21 @@ class ViagemBugiosTable
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
-                ViewAction::make()
-                    ->iconButton(),
-                EditAction::make()
-                    ->visible(fn() => Auth::user()->is_admin)
-                    ->iconButton(),
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->iconButton(),
+                    EditAction::make()
+                        ->visible(fn() => Auth::user()->is_admin)
+                        ->iconButton(),
+                    VincularViagemAction::make()
+                        ->icon(Heroicon::Link)
+                        ->iconButton(),
+                ]),
                 VincularDocumentoFreteAction::make()
+                    ->icon(Heroicon::PaperClip)
                     ->iconButton(),
-                VincularViagemAction::make()
-                    ->icon(Heroicon::Link)
-                    ->iconButton(),
-                
+
+
             ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -3,6 +3,7 @@
 namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
+use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -137,14 +138,13 @@ class ViagemBugiosTable
                 VincularViagemAction::make()
                     ->icon(Heroicon::Link)
                     ->iconButton(),
-                VincularDocumentoFreteAction::make()
-                    ->icon(Heroicon::DocumentText)
-                    ->iconButton(),
+                
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(fn() => Auth::user()->is_admin),
+                    VincularDocumentoFreteBulkAction::make(),
                 ]),
             ]);
     }

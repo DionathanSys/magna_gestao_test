@@ -7,6 +7,7 @@ use App\Jobs\VincularRegistroResultadoJob;
 use Illuminate\Console\Command;
 use App\Models;
 use App\Models\ImportLog;
+use App\Models\ViagemBugio;
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use App\Services\Veiculo\VeiculoCacheService;
 use App\Services\Veiculo\VeiculoService;
@@ -36,9 +37,14 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $var = ClienteEnum::BUGIO->prefixoViagem();
+        $destinos = ViagemBugio::query()
+            ->where('numero_sequencial', 1)
+            ->get()
+            ->flatMap(fn($row) => collect($row['destinos'])->pluck('integrado_id'))
+            ->map(fn($v) => (int) $v)
+            ->unique()
+            ->values();
 
-        echo $var;
-
+        dd($destinos);
     }
 }

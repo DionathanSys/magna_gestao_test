@@ -16,14 +16,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Auth;
 use App\Services\NotificacaoService as notify;
-use Filament\Actions\BulkAction;
+use App\Services\ViagemNumberService;
 use Filament\Notifications\Notification;
 
 class VincularDocumentoFreteAction
 {
-    public static function make(): BulkAction
+    public static function make(): Action
     {
-        return BulkAction::make('vincular_documento_frete')
+        return Action::make('vincular_documento_frete')
             ->label('Vincular Documento de Frete')
             ->schema([
                 ModalTableSelect::make('documento_frete_id')
@@ -33,24 +33,9 @@ class VincularDocumentoFreteAction
                         return [
                             'veiculo_id' => $record->veiculo_id,
                         ];
-                    })
-                    ->afterStateUpdated(function (Set $set, $state) {
-                        $documentoFrete = DocumentoFrete::find($state);
-                        if ($documentoFrete) {
-                            $set('documento_transporte', $documentoFrete->documento_transporte);
-                            $set('numero_documento', $documentoFrete->numero_documento);
-                        } else {
-                            $set('documento_transporte', null);
-                            $set('numero_documento', null);
-                        }
                     }),
-                TextInput::make('documento_transporte')
-                    ->label('Documento de Transporte'),
-                TextInput::make('numero_documento')
-                    ->label('Número do Documento'),
             ])
             ->action(function (array $data, $record) {
-
                 self::createViagemFromBugio($record, $data['documento_frete_id']);
             });
     }
@@ -61,14 +46,31 @@ class VincularDocumentoFreteAction
         $veiculo = $documentoFrete?->veiculo;
 
         if (!$documentoFrete) {
+            notify::error('Documento de Frete não encontrado para o ID: ' . $documentoFreteId);
             return null;
         }
+
+        if($record->numero_sequencial === null){
+            notify::alert('O registro de Viagem Bugio ID: ' . $record->id . ' não possui número sequencial. Gerando um novo número.');
+            $service = new ViagemNumberService();
+            $n = $service->next(ClienteEnum::BUGIO->prefixoViagem());
+            $record->numero_sequencial = $n['numero_sequencial'];
+            $record->save();
+        }
+
+        $destinos = ViagemBugio::query()
+            ->where('numero_sequencial', $record->numero_sequencial)
+            ->get()
+            ->flatMap(fn($row) => collect($row['destinos'])->pluck('integrado_id'))
+            ->map(fn($v) => (int) $v)
+            ->unique()
+            ->values();
 
         $data = [
             'veiculo_id'            => $documentoFrete->veiculo_id,
             'unidade_negocio'       => $veiculo->filial,
             'cliente'               => ClienteEnum::BUGIO->value,
-            'numero_viagem'         => 'BG-' . $documentoFrete->documento_transporte,
+            'numero_viagem'         => 'BG-' . $record->numero_sequencial,
             'documento_transporte'  => $documentoFrete->documento_transporte,
             'km_rodado'             => 0,
             'km_cadastro'             => 0,
@@ -91,22 +93,18 @@ class VincularDocumentoFreteAction
             return null;
         }
 
+        notify::success('Viagem criada com sucesso! ID da Viagem: ' . $viagem->id);
 
-        $record->update([
-            'documento_frete_id' => $documentoFreteId,
-            'viagem_id' => $viagem->id,
-        ]);
+        ViagemBugio::query()
+            ->where('numero_sequencial', $record->numero_sequencial)
+            ->update([
+                'documento_frete_id' => $documentoFreteId,
+                'viagem_id' => $viagem->id,
+            ]);
 
         Notification::make()
-            ->title('Viagem BG-' . $documentoFrete->documento_transporte . ' criada com sucesso!')
+            ->title('Viagem BG-' . $record->numero_sequencial . ' criada com sucesso!')
             ->success()
-            ->actions([
-                Action::make('view')
-                    ->button()
-                    ->url(ViagemResource::getUrl('view', ['record' => $viagem->id], panel: 'bugio'), true),
-                Action::make('undo')
-                    ->color('gray'),
-            ])
             ->send();
 
         return $viagem;

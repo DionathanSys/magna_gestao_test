@@ -141,7 +141,13 @@ class SolicitarCteBugio implements ShouldQueue
                 'attempt'   => $this->attempts(),
             ]);
 
-            notify::success('Solicitação de CTe enviada com sucesso!', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
+            notify::success(
+                'Solicitação de CTe enviada com sucesso!', 
+                "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), 
+                true, 
+                $this->data['created_by']
+            );
+            
         } catch (\Exception $e) {
             notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . ($this->data['nro_notas'] ?? 'N/A' . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
             Log::error('Erro ao solicitar CTE', [

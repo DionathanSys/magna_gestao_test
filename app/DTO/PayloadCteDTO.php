@@ -20,8 +20,10 @@ class PayloadCteDTO
         public readonly array $motorista = [],
         public readonly ?int $userId = null,
         public readonly ?string $observacao = null,
-        public readonly ?string $nro_notas = null,
+        public readonly array $nro_notas = [],
         public readonly bool $cte_retroativo = false,
+        public readonly bool $cte_complementar = false,
+        public readonly ?string $cte_referencia = null,
         public array $errors = [],
     ) {}
 
@@ -41,8 +43,10 @@ class PayloadCteDTO
             motorista: $data['motorista'] ?? [],
             userId: $data['created_by'],
             observacao: $data['observacao'] ?? null,
-            nro_notas: $data['nro_notas'] ?? null,
+            nro_notas: $data['nro_notas'] ?? [],
             cte_retroativo: $data['cte_retroativo'] ?? false,
+            cte_complementar: $data['cte_complementar'] ?? false,
+            cte_referencia: $data['cte_referencia'] ?? null,
         );
     }
 

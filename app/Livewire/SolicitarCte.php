@@ -106,16 +106,18 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->columnSpan(['md' => 1, 'xl' => 2]),
                         Toggle::make('cte_retroativo')
                             ->label('CTe Retroativo')
+                            ->columnSpan(2)
                             ->inline(false)
                             ->default(true),
                         Toggle::make('cte_complementar')
                             ->label('CTe Complementar')
+                            ->columnSpan(2)
                             ->inline(false)
                             ->default(true),
                         TextInput::make('cte_referencia')
                             ->label('CTe de Referência')
                             ->requiredIf('cte_complementar', true)
-                            ->columnSpan(['md' => 2, 'xl' => 4])
+                            ->columnSpan(['md' => 1, 'xl' => 2])
                             ->nullable(),
                         FileUpload::make('anexos')
                             ->columnSpan(['md' => 4, 'xl' => 6])
@@ -227,7 +229,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'valor_frete'                => 'required|numeric|min:0',
             'motorista.cpf'              => 'required|string',
             'veiculo'                    => 'required|string|exists:veiculos,placa',
-            'nro_notas'                  => 'required|string',
+            'nro_notas'                  => 'required|array|min:1',
+            'cte_complementar'           => 'boolean',
+            'cte_referencia'             => 'required_if:cte_complementar,1|string|nullable',
             'anexos'                     => 'required|array|min:1',
             'destinos'                   => 'required|array|min:1',
             'destinos.*.integrado_id'    => 'required|integer|exists:integrados,id',
@@ -239,7 +243,10 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'veiculo.required'             => "O campo 'Veículo' é obrigatório.",
             'veiculo.exists'               => "O veículo selecionado não foi encontrado.",
             'nro_notas.required'           => "O campo 'Nº de Notas Fiscais' é obrigatório.",
-            'nro_notas.string'             => "O campo 'Nº de Notas Fiscais' deve ser uma string.",
+            'nro_notas.array'              => "O campo 'Nº de Notas Fiscais' deve ser um array.",
+            'nro_notas.min'                => "É necessário adicionar pelo menos 1 nota fiscal.",
+            'cte_referencia.required_if'   => "O campo 'CTe de Referência' é obrigatório quando 'CTe Complementar' está marcado.",
+            'cte_referencia.string'        => "O campo 'CTe de Referência' deve ser uma string.",
             'anexos.required'              => "O campo 'Anexos' é obrigatório.",
             'anexos.array'                 => "O campo 'Anexos' deve ser um array.",
             'anexos.min'                   => "É necessário anexar pelo menos 1 arquivo.",

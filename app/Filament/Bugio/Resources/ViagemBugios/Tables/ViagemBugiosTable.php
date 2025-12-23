@@ -135,6 +135,7 @@ class ViagemBugiosTable
                 EditAction::make()
                     ->visible(fn() => Auth::user()->is_admin)
                     ->iconButton(),
+                VincularDocumentoFreteAction::make(),
                 VincularViagemAction::make()
                     ->icon(Heroicon::Link)
                     ->iconButton(),
@@ -144,7 +145,6 @@ class ViagemBugiosTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(fn() => Auth::user()->is_admin),
-                    VincularDocumentoFreteBulkAction::make(),
                 ]),
             ]);
     }

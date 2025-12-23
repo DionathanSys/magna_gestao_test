@@ -113,10 +113,14 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->label('CTe Complementar')
                             ->columnSpan(2)
                             ->inline(false)
-                            ->default(true),
+                            ->default(false),
                         TextInput::make('cte_referencia')
                             ->label('CTe de Referência')
                             ->requiredIf('cte_complementar', true)
+                            ->columnSpan(['md' => 1, 'xl' => 2])
+                            ->nullable(),
+                        TextInput::make('numero_sequencial')
+                            ->label('Nº Sequencial')
                             ->columnSpan(['md' => 1, 'xl' => 2])
                             ->nullable(),
                         FileUpload::make('anexos')
@@ -231,6 +235,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'nro_notas'                  => 'required|array|min:1',
             'cte_complementar'           => 'boolean',
             'cte_referencia'             => 'required_if:cte_complementar,1|string|nullable',
+            'numero_sequencial'          => 'nullable|integer|exists:viagem_sequences,last_number',
             'anexos'                     => 'required|array|min:1',
             'destinos'                   => 'required|array|min:1',
             'destinos.*.integrado_id'    => 'required|integer|exists:integrados,id',
@@ -246,6 +251,9 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
             'nro_notas.min'                => "É necessário adicionar pelo menos 1 nota fiscal.",
             'cte_referencia.required_if'   => "O campo 'CTe de Referência' é obrigatório quando 'CTe Complementar' está marcado.",
             'cte_referencia.string'        => "O campo 'CTe de Referência' deve ser uma string.",
+            'numero_sequencial.integer'    => "O campo 'Nº Sequencial' deve ser um número inteiro.",
+            'numero_sequencial.nullable'   => "O campo 'Nº Sequencial' deve ser um número inteiro.",
+            'numero_sequencial.exists'     => "O número sequencial informado não existe.",
             'anexos.required'              => "O campo 'Anexos' é obrigatório.",
             'anexos.array'                 => "O campo 'Anexos' deve ser um array.",
             'anexos.min'                   => "É necessário anexar pelo menos 1 arquivo.",

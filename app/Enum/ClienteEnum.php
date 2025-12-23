@@ -18,4 +18,17 @@ enum ClienteEnum: string
             ->mapWithKeys(fn ($item) => [$item->value => $item->value])
             ->toArray();
     }
+
+    public function prefixoViagem(): string
+    {
+        return match ($this) {
+            self::BRF_CCO => 'BRFCCO',
+            self::BRF_CTV => 'BRFCTV',
+            self::BRF_FBT => 'BRFFBT',
+            self::BRF_CNC => 'BRFCNC',
+            self::BUGIO => 'BG',
+            self::NUTREPAMPA_RS => 'NPRS',
+            self::NUTREPAMPA_SC => 'NPSC',
+        };  
+    }
 }

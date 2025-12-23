@@ -3,6 +3,8 @@
 namespace App\Services\ViagemBugio\Actions;
 
 use App\{Models, Services, Enum};
+use App\Enum\ClienteEnum;
+use App\Services\ViagemNumberService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -22,6 +24,7 @@ class CriarViagem
         'status',
         'created_by',
         'nro_notas',
+        'numero_sequencial',
     ];
 
     public function handle(array $data): ?Models\ViagemBugio
@@ -34,7 +37,13 @@ class CriarViagem
         ]);
 
         $this->validate($data);
-        
+
+        if (empty($data['numero_sequencial'])) {
+            $service = new ViagemNumberService();
+            $n = $service->next(ClienteEnum::BUGIO->prefixoViagem());
+            $data['numero_sequencial'] = $n['numero_sequencial'];
+        }
+
         return Models\ViagemBugio::create($data);
     }
 
@@ -55,6 +64,7 @@ class CriarViagem
             'observacao'                => 'nullable|string|max:1000',
             'status'                    => 'nullable|string|max:255',
             'created_by'                => 'required|integer|exists:users,id',
+            'numero_sequencial'         => 'required|integer',
         ], [
             'veiculo_id.required'       => "O campo 'Veículo' é obrigatório.",
             'veiculo_id.exists'         => "O veículo selecionado não existe.",
@@ -62,6 +72,8 @@ class CriarViagem
             'destinos.size'             => "O campo 'Destinos' deve conter ao menos um destino.",
             'nro_notas.required'        => "O campo 'Nro Notas' é obrigatório.",
             'nro_notas.size'            => "O campo 'Nro Notas' deve conter ao menos uma nota.",
+            'numero_sequencial.required' => "O campo 'Número Sequencial' é obrigatório.",
+            'numero_sequencial.integer'  => "O campo 'Número Sequencial' deve ser um número inteiro.",
             'km_rodado.required'        => "O campo 'Km Rodado' é obrigatório.",
             'km_pago.required'          => "O campo 'Km Pago' é obrigatório.",
             'data_competencia.required' => "O campo 'Data de Competência' é obrigatório.",

@@ -67,6 +67,10 @@ class ViagemBugiosTable
                             ->filter()
                             ->join(', ');
                     }),
+                TextColumn::make('numero_sequencial')
+                    ->label('Nº Sequencial')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('data_competencia')
                     ->label('Data Viagem')
                     ->date('d/m/Y')

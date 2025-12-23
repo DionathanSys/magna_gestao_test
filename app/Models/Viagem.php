@@ -21,6 +21,7 @@ class Viagem extends Model
         'divergencias'          => 'array',
         'conferido'             => 'boolean',
         'motivo_divergencia'    => MotivoDivergenciaViagem::class,
+        'numero_sequencial'     => 'integer',
     ];
 
     protected $appends = ['integrados_nomes'];

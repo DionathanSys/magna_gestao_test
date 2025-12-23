@@ -12,6 +12,7 @@ class ViagemBugio extends Model
     protected $casts = [
         'destinos' => 'array',
         'nro_notas' => 'array',
+        'numero_sequencial' => 'integer',
     ];
 
     public function veiculo(): BelongsTo

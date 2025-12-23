@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enum\ClienteEnum;
 use App\Jobs\VincularRegistroResultadoJob;
 use Illuminate\Console\Command;
 use App\Models;
@@ -35,14 +36,9 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $nextRunAt = Carbon::parse("2025-12-16 16:40:00");
-        $now = Carbon::parse("2025-12-16 16:36:00");
+        $var = ClienteEnum::BUGIO->prefixoViagem();
 
-        $diffInMinutes = $nextRunAt->diffInMinutes($now);
-        echo "Diferença em minutos: " . $diffInMinutes . " minutos\n";
-
-        $diffInMinutes = $now->diffInMinutes($nextRunAt);
-        echo "Diferença em minutos (inversa): " . $diffInMinutes . " minutos\n";
+        echo $var;
 
     }
 }

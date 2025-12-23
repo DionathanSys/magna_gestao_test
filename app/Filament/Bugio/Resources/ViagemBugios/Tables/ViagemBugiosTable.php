@@ -157,6 +157,12 @@ class ViagemBugiosTable
                     ->preload()
                     ->multiple(),
             ])
+            ->reorderableColumns()
+            ->persistSortInSession()
+            ->searchOnBlur()
+            ->deferFilters()
+            ->persistFiltersInSession()
+            ->deselectAllRecordsWhenFiltered(false)
             ->defaultGroup('data_competencia')
             ->groups(
                 [

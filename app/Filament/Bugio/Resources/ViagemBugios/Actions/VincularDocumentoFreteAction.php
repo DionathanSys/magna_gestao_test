@@ -9,6 +9,7 @@ use App\Filament\Tables\SelectDocumentoFrete;
 use App\Models\DocumentoFrete;
 use App\Models\Viagem;
 use App\Models\ViagemBugio;
+use App\Services\Carga\CargaService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ModalTableSelect;
 use Filament\Forms\Components\Select;
@@ -50,7 +51,7 @@ class VincularDocumentoFreteAction
             return null;
         }
 
-        if($record->numero_sequencial === null){
+        if ($record->numero_sequencial === null) {
             notify::alert('O registro de Viagem Bugio ID: ' . $record->id . ' não possui número sequencial. Gerando um novo número.');
             $service = new ViagemNumberService();
             $n = $service->next(ClienteEnum::BUGIO->prefixoViagem());
@@ -102,8 +103,20 @@ class VincularDocumentoFreteAction
                 'viagem_id' => $viagem->id,
             ]);
 
+        foreach ($destinos as $integradoId) {
+            $integrado = \App\Models\Integrado::find($integradoId);
+            if (!$integrado) {
+                notify::alert('Integrado ID: ' . $integradoId . ' não encontrado. Pulando criação de carga.');
+                continue;
+            }
+
+            $cargaService = new CargaService();
+            $cargaService->create($integrado, $viagem);
+            notify::success('Carga criada para Integrado ID: ' . $integrado->nome . ' na Viagem ID: ' . $viagem->id);
+        }
+
         Notification::make()
-            ->title('Viagem BG-' . $record->numero_sequencial . ' criada com sucesso!')
+            ->title('Cadastro da viagem BG-' . $record->numero_sequencial . ' finalizada com sucesso!')
             ->success()
             ->send();
 

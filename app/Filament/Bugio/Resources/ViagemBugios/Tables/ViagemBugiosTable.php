@@ -128,7 +128,7 @@ class ViagemBugiosTable
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('documentoFrete.numero_documento')
+                TextColumn::make('documento.numero_documento')
                     ->label('Doc. Frete Vinculado')
                     ->width('1%')
                     ->sortable()
@@ -169,6 +169,7 @@ class ViagemBugiosTable
                     Group::make('data_competencia')
                         ->label('Data Competência')
                         ->titlePrefixedWithLabel(false)
+                        
                         ->getTitleFromRecordUsing(fn(ViagemBugio $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
                         ->collapsible(),
                     Group::make('veiculo.placa')

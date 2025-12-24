@@ -63,7 +63,7 @@ class ViagemBugioForm
                                     ->splitKeys(['Tab', ' '])
                                     ->trim()
                                     ->columnSpan(['md' => 1, 'xl' => 2]),
-                                ToggleButtons::make('tipo_documento')
+                                ToggleButtons::make('info_adicionais.tipo_documento')
                                     ->label('Tipo de Documento')
                                     ->inline()
                                     ->options([
@@ -81,18 +81,18 @@ class ViagemBugioForm
                                     ->default('cte')
                                     ->required()
                                     ->reactive(),
-                                Toggle::make('cte_retroativo')
+                                Toggle::make('info_adicionais.cte_retroativo')
                                     ->label('CTe Retroativo')
                                     ->columnStart(1)
                                     ->columnSpan(2)
                                     ->inline(false)
                                     ->default(true),
-                                Toggle::make('cte_complementar')
+                                Toggle::make('info_adicionais.cte_complementar')
                                     ->label('CTe Complementar')
                                     ->columnSpan(2)
                                     ->inline(false)
                                     ->default(false),
-                                TextInput::make('cte_referencia')
+                                TextInput::make('info_adicionais.cte_referencia')
                                     ->label('CTe de Referência')
                                     ->requiredIf('cte_complementar', true)
                                     ->columnSpan(['md' => 1, 'xl' => 2])

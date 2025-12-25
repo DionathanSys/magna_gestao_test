@@ -71,8 +71,8 @@ class ViagemBugioForm
                                     ->default(TipoDocumentoEnum::CTE->value)
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
                                         if ($state === TipoDocumentoEnum::NFS->value) {
-                                            $set('cte_retroativo', false);
-                                            $set('cte_referencia', null);
+                                            $set('info_adicionais.cte_retroativo', false);
+                                            $set('info_adicionais.cte_referencia', null);
                                         }
                                     })
                                     ->columnSpan(['md' => 1, 'xl' => 2])

@@ -54,8 +54,8 @@ class CriarViagem
         $validator = Validator::make($data, [
             'veiculo_id'                        => 'required|integer|exists:veiculos,id',
             'destinos'                          => 'required|array|min:1',
-            'destinos.*.integrado_id'           => 'required|integer|exists:integrados,id',
-            'destinos.*.km_rota'                => 'required|numeric|min:0',
+            'destinos.integrado_id'             => 'required|integer|exists:integrados,id',
+            'destinos.km_rota'                  => 'required|numeric|min:0',
             'nro_notas'                         => 'required|array|min:1',
             'nro_notas.*'                       => 'required|string|max:20',
             'km_rodado'                         => 'required|numeric|min:0',

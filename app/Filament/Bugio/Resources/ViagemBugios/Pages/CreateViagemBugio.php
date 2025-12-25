@@ -3,11 +3,13 @@
 namespace App\Filament\Bugio\Resources\ViagemBugios\Pages;
 
 use App\Filament\Bugio\Resources\ViagemBugios\ViagemBugioResource;
+use App\Models\Integrado;
 use App\Models\Veiculo;
 use App\Services\ViagemBugio\ViagemBugioService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\NotificacaoService as notify;
+use Carbon\Carbon;
 
 class CreateViagemBugio extends CreateRecord
 {
@@ -15,9 +17,19 @@ class CreateViagemBugio extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['veiculo_id'] = Veiculo::query()
-            ->where('placa', $data['veiculo'])
-            ->value('id');
+
+        $data['destinos']['integrado_nome']  = Integrado::find($data['destinos']['integrado_id'])?->nome ?? 'N/A';
+        $data['veiculo_id']         = Veiculo::query()->where('placa', $data['veiculo'])->value('id');
+        $data['km_pago']            = $data['km_total'] ?? 0;
+        $data['km_rodado']          = 0;
+        $data['data_competencia']   = $data['data_competencia'] ? Carbon::parse($data['data_competencia'])->format('Y-m-d') : now()->format('Y-m-d');
+        $data['frete']              = $data['valor_frete'] ?? 0.0;
+        $data['condutor']           = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
+        $data['motorista']          = [
+            'cpf' => $data['motorista'] ?? null,
+        ];
+
+        unset($data['data-integrados']);
 
         return $data;
     }

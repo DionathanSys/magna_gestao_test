@@ -4,6 +4,7 @@ namespace App\Services\ViagemBugio\Actions;
 
 use App\{Models, Services, Enum};
 use App\Enum\ClienteEnum;
+use App\Enum\Frete\TipoDocumentoEnum;
 use App\Services\ViagemNumberService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -68,10 +69,9 @@ class CriarViagem
             'numero_sequencial'                 => 'required|integer',
             'info_adicionais'                   => 'required|array',
             'info_adicionais.km_rota'           => 'required|numeric|min:0',
-            'info_adicionais.tipo_documento'    => 'required|string|in:cte,nfse',
-            'info_adicionais.cte_complementar'  => 'required|boolean',
+            'info_adicionais.tipo_documento'    => 'required|string|in:' . implode(',', TipoDocumentoEnum::toSelectArray()),
             'info_adicionais.cte_retroativo'    => 'required|boolean',
-            'info_adicionais.cte_referencia'    => 'required|string|max:20',
+            'info_adicionais.cte_referencia'    => 'required_if:info_adicionais.tipo_documento,cte_complemento|string|max:20',
 
         ], [
             'veiculo_id.required'           => "O campo 'Veículo' é obrigatório.",
@@ -92,7 +92,6 @@ class CriarViagem
             'info_adicionais.km_rota.required'          => "O campo 'Km Rota' em Informações Adicionais é obrigatório.",
             'info_adicionais.tipo_documento.required'   => "O campo 'Tipo de Documento' em Informações Adicionais é obrigatório.",
             'info_adicionais.tipo_documento.in'         => "O campo 'Tipo de Documento' em Informações Adicionais deve ser 'cte' ou 'nfse'.",
-            'info_adicionais.cte_complementar.required' => "O campo 'CTE Complementar' em Informações Adicionais é obrigatório.",
             'info_adicionais.cte_retroativo.required'   => "O campo 'CTE Retroativo' em Informações Adicionais é obrigatório.",
             'info_adicionais.cte_referencia.required'   => "O campo 'CTE Referência' em Informações Adicionais é obrigatório.",
             'info_adicionais.cte_referencia.max'        => "O campo 'CTE Referência' em Informações Adicionais deve ter no máximo 20 caracteres.",

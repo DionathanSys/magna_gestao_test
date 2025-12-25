@@ -10,6 +10,7 @@ use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use App\Enum\ClienteEnum;
+use App\Enum\Frete\TipoDocumentoEnum;
 use Filament\Schemas\Components\Section;
 
 class ViagemBugioForm
@@ -66,19 +67,15 @@ class ViagemBugioForm
                                 ToggleButtons::make('info_adicionais.tipo_documento')
                                     ->label('Tipo de Documento')
                                     ->inline()
-                                    ->options([
-                                        'cte' => 'CT-e',
-                                        'nfse' => 'NFS-e',
-                                    ])
+                                    ->options(TipoDocumentoEnum::toSelectArray())
+                                    ->default(TipoDocumentoEnum::CTE->value)
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
-                                        if ($state === 'nfse') {
+                                        if ($state === TipoDocumentoEnum::NFS->value) {
                                             $set('cte_retroativo', false);
-                                            $set('cte_complementar', false);
                                             $set('cte_referencia', null);
                                         }
                                     })
                                     ->columnSpan(['md' => 1, 'xl' => 2])
-                                    ->default('cte')
                                     ->required()
                                     ->reactive(),
                                 Toggle::make('info_adicionais.cte_retroativo')
@@ -87,14 +84,9 @@ class ViagemBugioForm
                                     ->columnSpan(2)
                                     ->inline(false)
                                     ->default(true),
-                                Toggle::make('info_adicionais.cte_complementar')
-                                    ->label('CTe Complementar')
-                                    ->columnSpan(2)
-                                    ->inline(false)
-                                    ->default(false),
                                 TextInput::make('info_adicionais.cte_referencia')
                                     ->label('CTe de Referência')
-                                    ->requiredIf('cte_complementar', true)
+                                    ->requiredIf('info_adicionais.tipo_documento', TipoDocumentoEnum::CTE_COMPLEMENTO->value)
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->nullable(),
                                 TextInput::make('km_total')

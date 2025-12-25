@@ -64,7 +64,6 @@ class ViagemBugioForm
                                     ->label('Nº de Notas Fiscais')
                                     ->columnStart(1)
                                     ->required()
-                                    ->separator(',')
                                     ->splitKeys(['Tab', ' '])
                                     ->trim()
                                     ->columnSpan(['md' => 1, 'xl' => 2]),

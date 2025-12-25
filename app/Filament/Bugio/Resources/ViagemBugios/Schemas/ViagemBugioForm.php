@@ -130,8 +130,8 @@ class ViagemBugioForm
                                             $municipio = $integrado?->municipio;
                                             $kmTotal = $get('km_total') + ($kmRota ?? 0);
                                             $frete = self::calcularFrete($kmTotal);
-                                            $set('km_rota', $kmRota ?? 0);
-                                            $set('municipio', $municipio ?? '');
+                                            $set('destinos.km_rota', $kmRota ?? 0);
+                                            $set('destinos.municipio', $municipio ?? '');
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
                                         } else {
@@ -139,8 +139,8 @@ class ViagemBugioForm
                                             $frete = self::calcularFrete($kmTotal);
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
-                                            $set('km_rota', 0);
-                                            $set('municipio', null);
+                                            $set('destinos.km_rota', 0);
+                                            $set('destinos.municipio', null);
                                         }
                                     }),
                                 TextInput::make('destinos.km_rota')

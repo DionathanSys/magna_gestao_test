@@ -70,7 +70,7 @@ class CriarViagem
             'info_adicionais'                   => 'required|array',
             'info_adicionais.tipo_documento'    => 'required|string|in:' . implode(',', TipoDocumentoEnum::toSelectArray()),
             'info_adicionais.cte_retroativo'    => 'required|boolean',
-            'info_adicionais.cte_referencia'    => 'required_if:info_adicionais.tipo_documento,cte_complemento|string|max:20',
+            'info_adicionais.cte_referencia'    => 'required_if:info_adicionais.tipo_documento,cte_complemento|nullable|string|max:20',
 
         ], [
             'veiculo_id.required'           => "O campo 'Veículo' é obrigatório.",

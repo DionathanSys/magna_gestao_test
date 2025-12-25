@@ -58,7 +58,8 @@ class ViagemBugioForm
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->nullable(),
                                 DatePicker::make('data_competencia')
-                                    ->format('d/m/Y'),
+                                    ->format('d/m/Y')
+                                    ->columnSpan(['md' => 1, 'xl' => 2]),
                                 TagsInput::make('nro_notas')
                                     ->label('Nº de Notas Fiscais')
                                     ->columnStart(1)
@@ -78,7 +79,7 @@ class ViagemBugioForm
                                             $set('info_adicionais.cte_referencia', null);
                                         }
                                     })
-                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->columnSpan(['md' => 3, 'xl' => 4])
                                     ->required()
                                     ->reactive(),
                                 Toggle::make('info_adicionais.cte_retroativo')

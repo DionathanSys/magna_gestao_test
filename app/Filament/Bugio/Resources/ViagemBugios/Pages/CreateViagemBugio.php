@@ -10,6 +10,7 @@ use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\NotificacaoService as notify;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class CreateViagemBugio extends CreateRecord
 {
@@ -28,6 +29,7 @@ class CreateViagemBugio extends CreateRecord
         $data['motorista']          = [
             'cpf' => $data['motorista'] ?? null,
         ];
+        $data['created_by']         = Auth::id();
 
         unset($data['data-integrados']);
 

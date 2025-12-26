@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enum\ClienteEnum;
+use App\Enum\Frete\TipoDocumentoEnum;
 use App\Jobs\VincularRegistroResultadoJob;
 use Illuminate\Console\Command;
 use App\Models;
@@ -37,13 +38,7 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $destinos = ViagemBugio::query()
-            ->where('numero_sequencial', 1)
-            ->get()
-            ->flatMap(fn($row) => collect($row['destinos'])->pluck('integrado_id'))
-            ->map(fn($v) => (int) $v)
-            ->unique()
-            ->values();
+        $destinos = 'required|string|in:' . implode(',', TipoDocumentoEnum::toSelectArray());
 
         dd($destinos);
     }

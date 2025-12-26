@@ -183,6 +183,7 @@ class ResultadoPeriodosTable
                     ->default(StatusDiversosEnum::PENDENTE->value),
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
+                    ->multiple()
                     ->options(VeiculoCacheService::getPlacasAtivasForSelect())
                     ->searchable(),
                 DateRangeFilter::make('data_inicio')

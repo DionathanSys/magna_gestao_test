@@ -42,6 +42,7 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
         $metaFaturamento = $metaFaturamentoVeiculo * $registrosCount;
 
         $faturamento = $records->sum('documentos_sum_valor_liquido') / 100;
+        $faturamentoMedio = $faturamento > 0 ? $faturamento / $registrosCount : 0;
         $percentualFaturamentoMeta = $faturamento > 0 ? ($faturamento / $metaFaturamento) * 100 : 0;
         $manutencao = $records->sum('manutencao_sum_custo_total');
         $manutencaoMedia = $manutencao > 0 ? $manutencao / $registrosCount : 0;
@@ -52,7 +53,7 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
 
         return [
             Stat::make('Faturamento','R$ ' .  number_format($faturamento, 2, ',', '.')  . ' - ' . number_format($percentualFaturamentoMeta, 2, ',', '.') . '%')
-                ->description($registrosCount . ' Registros')
+                ->description('Faturameto/Veículo R$ '. $faturamentoMedio)
                 ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),
             Stat::make('Combustível','R$ ' .  number_format($combustivel, 2, ',', '.') . ' - ' . number_format($percentualCombustivelFaturamento, 2, ',', '.') . '%')

@@ -18,11 +18,11 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
 
     public function getColumns(): int | array
     {
-        return [
-            'md' => 2,
-            'lg' => 3,
-            'xl' => 5,
-        ];
+        // return [
+        //     'md' => 2,
+        //     'lg' => 3,
+        //     'xl' => 5,
+        // ];
     }
 
     protected function getTablePage(): string

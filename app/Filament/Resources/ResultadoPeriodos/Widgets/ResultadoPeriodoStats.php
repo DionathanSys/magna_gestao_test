@@ -23,6 +23,8 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
         //     'lg' => 3,
         //     'xl' => 5,
         // ];
+        return 3;
+    
     }
 
     protected function getTablePage(): string

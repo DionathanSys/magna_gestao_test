@@ -35,24 +35,29 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
         $records = $this->getPageTableQuery()->get();
 
         $registrosCount = $records->count();
+
+        $metaFaturamentoVeiculo = 59000;
+        $metaFaturamento = $metaFaturamentoVeiculo * $registrosCount;
+
         $faturamento = $records->sum('documentos_sum_valor_liquido') / 100;
+        $percentualFaturamentoMeta = $faturamento > 0 ? ($faturamento / $metaFaturamento) * 100 : 0;
         $manutencao = $records->sum('manutencao_sum_custo_total') / 100;
         $manutencaoMedia = $manutencao > 0 ? $manutencao / $registrosCount : 0;
-        $percentualManutencaoFaturamento = $manutencao > 0 ? $manutencao / $faturamento : 0;
+        $percentualManutencaoFaturamento = $manutencao > 0 ? ($manutencao / $faturamento) * 100 : 0;
         $combustivel = $records->sum('abastecimentos_sum_preco_total') / 100;
         $combustivelMedio = $combustivel > 0 ? $combustivel / $registrosCount : 0;
-        $percentualCombustivelFaturamento = $combustivel > 0 ? $combustivel / $faturamento : 0;
+        $percentualCombustivelFaturamento = $combustivel > 0 ? ($combustivel / $faturamento) * 100 : 0;
 
         return [
-            Stat::make('Faturamento','R$ ' .  number_format($faturamento, 2, ',', '.'))
+            Stat::make('Faturamento','R$ ' .  number_format($faturamento, 2, ',', '.')  . ' - ' . number_format($percentualFaturamentoMeta, 2, ',', '.') . '%')
                 ->description($registrosCount . ' Registros')
                 ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),
-            Stat::make('Combustível','R$ ' .  number_format($combustivel, 2, ',', '.') . '-' . number_format($percentualCombustivelFaturamento, 2, ',', '.') . '%')
+            Stat::make('Combustível','R$ ' .  number_format($combustivel, 2, ',', '.') . ' - ' . number_format($percentualCombustivelFaturamento, 2, ',', '.') . '%')
                 ->description('Combustível/Veículo R$ '. number_format($combustivelMedio, 2, ',', '.'))
                 ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),
-            Stat::make('Manutenção','R$ ' .  number_format($manutencao, 2, ',', '.') . '-' . number_format($percentualManutencaoFaturamento, 2, ',', '.') . '%')
+            Stat::make('Manutenção','R$ ' .  number_format($manutencao, 2, ',', '.') . ' - ' . number_format($percentualManutencaoFaturamento, 2, ',', '.') . '%')
                 ->description('Manutenção/Veículo R$ '. $manutencaoMedia)
                 ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),

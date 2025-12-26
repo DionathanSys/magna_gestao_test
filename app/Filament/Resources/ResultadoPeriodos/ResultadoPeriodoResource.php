@@ -12,6 +12,7 @@ use App\Filament\Resources\ResultadoPeriodos\RelationManagers\ViagensRelationMan
 use App\Filament\Resources\ResultadoPeriodos\Schemas\ResultadoPeriodoForm;
 use App\Filament\Resources\ResultadoPeriodos\Schemas\ResultadoPeriodoInfolist;
 use App\Filament\Resources\ResultadoPeriodos\Tables\ResultadoPeriodosTable;
+use App\Filament\Resources\ResultadoPeriodos\Widgets\ResultadoPeriodoStats;
 use App\Models\ResultadoPeriodo;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -56,6 +57,13 @@ class ResultadoPeriodoResource extends Resource
             // 'create' => CreateResultadoPeriodo::route('/create'),
             // 'view' => ViewResultadoPeriodo::route('/{record}'),
             'edit' => EditResultadoPeriodo::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            ResultadoPeriodoStats::class,
         ];
     }
 }

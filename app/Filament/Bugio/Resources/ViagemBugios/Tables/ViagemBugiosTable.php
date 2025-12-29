@@ -161,26 +161,38 @@ class ViagemBugiosTable
                     ->preload()
                     ->multiple(),
                 DateRangeFilter::make('data_competencia'),
-                Filter::make('viagem_id')
+                Filter::make('viagem')
                     ->schema([
-                        Toggle::make('sem_viagem')
-                            ->reactive()
-                            ->afterStateUpdated(fn($state, callable $set) => $state ? $set('com_viagem', false) : null),
-
-                        Toggle::make('com_viagem')
-                            ->reactive()
-                            ->afterStateUpdated(fn($state, callable $set) => $state ? $set('sem_viagem', false) : null),
+                        Select::make('status_viagem')
+                            ->options([
+                                'com' => 'Com viagem',
+                                'sem' => 'Sem viagem',
+                            ])
+                            ->placeholder('Todos'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['sem_viagem'],
-                                fn(Builder $query): Builder => $query->whereDoesntHave('viagem'),
+                                $data['status_viagem'] === 'com',
+                                fn(Builder $query) => $query->whereHas('viagem'),
                             )
                             ->when(
-                                $data['com_viagem'],
-                                fn(Builder $query): Builder => $query->whereHas('viagem'),
+                                $data['status_viagem'] === 'sem',
+                                fn(Builder $query) => $query->whereDoesntHave('viagem'),
                             );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        $status = $data['status_viagem'] ?? null;
+
+                        if (! $status) {
+                            return null;
+                        }
+
+                        return match ($status) {
+                            'com' => 'Com viagem',
+                            'sem' => 'Sem viagem',
+                            default => null,
+                        };
                     })
 
             ])

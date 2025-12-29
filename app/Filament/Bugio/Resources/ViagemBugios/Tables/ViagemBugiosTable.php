@@ -12,16 +12,20 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Toggle;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemBugiosTable
 {
@@ -156,6 +160,29 @@ class ViagemBugiosTable
                     ->searchable()
                     ->preload()
                     ->multiple(),
+                DateRangeFilter::make('data_competencia'),
+                Filter::make('viagem_id')
+                    ->schema([
+                        Toggle::make('sem_viagem')
+                            ->reactive()
+                            ->afterStateUpdated(fn($state, callable $set) => $state ? $set('com_viagem', false) : null),
+
+                        Toggle::make('com_viagem')
+                            ->reactive()
+                            ->afterStateUpdated(fn($state, callable $set) => $state ? $set('sem_viagem', false) : null),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['sem_viagem'],
+                                fn(Builder $query): Builder => $query->whereDoesntHave('viagem'),
+                            )
+                            ->when(
+                                $data['com_viagem'],
+                                fn(Builder $query): Builder => $query->whereHas('viagem'),
+                            );
+                    })
+
             ])
             ->reorderableColumns()
             ->persistSortInSession()
@@ -169,7 +196,7 @@ class ViagemBugiosTable
                     Group::make('data_competencia')
                         ->label('Data Competência')
                         ->titlePrefixedWithLabel(false)
-                        
+
                         ->getTitleFromRecordUsing(fn(ViagemBugio $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
                         ->collapsible(),
                     Group::make('veiculo.placa')

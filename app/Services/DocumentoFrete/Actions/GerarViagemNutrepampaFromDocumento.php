@@ -79,7 +79,7 @@ class GerarViagemNutrepampaFromDocumento
                 $documentosDataEmissao->groupBy('valor_total')->each(function (Collection $documentosGroupValorTotal, $valorTotal) use ($veiculoId, $dataEmissao) {
 
                     $documentosIds = $documentosGroupValorTotal->pluck('id')->toArray();
-                    $valorTotalDocumentos = $documentosGroupValorTotal->sum('valor_total');
+                    $valorTotalDocumentos = $documentosGroupValorTotal->sum('valor_liquido');
                     $veiculo = Models\Veiculo::find($veiculoId);
                     $calculoKmPago = $this->calcularKmPago($valorTotalDocumentos);
 

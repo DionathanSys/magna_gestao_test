@@ -24,6 +24,7 @@ class IntegradosTable
                     ->searchable(isIndividual: true),
                 TextColumn::make('nome')
                     ->width('1%')
+                    ->disabledClick()
                     ->searchable(isIndividual: true),
                 TextColumn::make('km_rota')
                     ->label('KM Rota')
@@ -31,6 +32,7 @@ class IntegradosTable
                     ->numeric(2, ',', '.'),
                 TextColumn::make('municipio')
                     ->label('Município')
+                    ->disabledClick()
                     ->width('1%')
                     ->searchable(),
                 TextColumn::make('estado')

@@ -53,7 +53,7 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
 
         return [
             Stat::make('Faturamento','R$ ' .  number_format($faturamento, 2, ',', '.')  . ' - ' . number_format($percentualFaturamentoMeta, 2, ',', '.') . '%')
-                ->description('Faturameto/Veículo R$ '. $faturamentoMedio)
+                ->description('Faturameto/Veículo R$ '. number_format($faturamentoMedio, 2, ',', '.'))
                 ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),
             Stat::make('Combustível','R$ ' .  number_format($combustivel, 2, ',', '.') . ' - ' . number_format($percentualCombustivelFaturamento, 2, ',', '.') . '%')
@@ -61,7 +61,7 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
                 ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),
             Stat::make('Manutenção','R$ ' .  number_format($manutencao, 2, ',', '.') . ' - ' . number_format($percentualManutencaoFaturamento, 2, ',', '.') . '%')
-                ->description('Manutenção/Veículo R$ '. $manutencaoMedia)
+                ->description('Manutenção/Veículo R$ '. number_format($manutencaoMedia, 2, ',', '.'))
                 ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('success'),
         ];

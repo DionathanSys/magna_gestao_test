@@ -31,6 +31,7 @@ class CriarViagemBulkAction
                 $viagem = $documentoFreteService->createViagemNutrepampaFromDocumentoFrete($records);
 
                 notify::success('Importação de Documento Frete iniciada com sucesso.');
-            });
+            })
+            ->deselectRecordsAfterCompletion();
     }
 }

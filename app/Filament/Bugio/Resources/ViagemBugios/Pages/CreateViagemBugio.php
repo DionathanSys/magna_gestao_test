@@ -55,6 +55,8 @@ class CreateViagemBugio extends CreateRecord
             'updated_by' => $result->updated_by,
         ]);
 
+        $result->with('anexos');
+        
         $this->solicitarCte($result);
 
         return $result;

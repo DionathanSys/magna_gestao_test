@@ -25,9 +25,9 @@ class CteService
             $payloadDto = PayloadCteDTO::fromArray($data);
 
             Log::debug("dados do payload DTO", [
-                'método' => __METHOD__.'-'.__LINE__,
-                'payloadDto' => $payloadDto->toArray(),
-                'user_id' => $data['created_by'],
+                'método'        => __METHOD__.'-'.__LINE__,
+                'payloadDto'    => $payloadDto->toArray(),
+                'user_id'       => $data['created_by'],
             ]);
 
             $action = new Actions\EnviarSolicitacaoCte();

@@ -7,6 +7,7 @@ use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteBulk
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
 use App\Models\ViagemBugio;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -230,6 +231,9 @@ class ViagemBugiosTable
                         ->icon(Heroicon::Link)
                         ->iconButton(),
                 ]),
+                Action::make('solicitar-email')
+                    ->label('Solicitar CTe')
+                    ->action(fn(ViagemBugio $record) => self::solicitarCte($record)),
                 VincularDocumentoFreteAction::make()
                     ->icon(Heroicon::PaperClip)
                     ->iconButton(),
@@ -242,5 +246,41 @@ class ViagemBugiosTable
                         ->visible(fn() => Auth::user()->is_admin),
                 ]),
             ]);
+    }
+
+    protected static function solicitarCte(ViagemBugio $viagemBugio)
+    {
+        $anexos = [];
+        Log::debug('anexos antes do ajustes', [
+            'anexos' => $viagemBugio->anexos]);
+        
+        foreach ($viagemBugio->anexos->first()->attachments as $index => $anexo){
+            $anexos[$index] = 'private/' . $anexo;
+        }
+        
+        Log::debug('anexos depois do ajustes', $anexos);
+
+        $data = [
+            'km_total'          => $viagemBugio->km_pago,
+            'valor_frete'       => $viagemBugio->frete,
+            'anexos'            => $anexos,
+            'destinos'          => $viagemBugio->destinos,
+            'veiculo'           => $viagemBugio->veiculo->placa,
+            'created_by'        => $viagemBugio->created_by,
+            'nro_notas'         => $viagemBugio->nro_notas,
+            'cte_retroativo'    => $viagemBugio->info_adicionais['cte_retroativo'] ?? false,
+            'cte_complementar'  => $viagemBugio->info_adicionais['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
+            'cte_referencia'    => $viagemBugio->info_adicionais['cte_referencia'] ?? null,
+            'motorista'         => [
+                'cpf' => $viagemBugio->info_adicionais['motorista-cpf'],
+            ],
+
+        ];
+
+        Log::debug('dados do form novo para solicitar email', [
+            'data' => $data,
+        ]);
+
+        SolicitarCteBugio::dispatch($data);
     }
 }

@@ -62,7 +62,7 @@ class CreateViagemBugio extends CreateRecord
         $anexos = [];
 
         Log::debug('anexos antes do ajustes', [
-            'anexos' => $viagemBugio->anexos
+            'anexos' => $viagemBugio
         ]);
         
         foreach ($viagemBugio->anexos as $index => $anexo){
@@ -92,7 +92,7 @@ class CreateViagemBugio extends CreateRecord
             'data' => $data,
         ]);
 
-        SolicitarCteBugio::dispatch($data);
+        // SolicitarCteBugio::dispatch($data);
     }
 
     private function calcularFrete(float $kmTotal): float

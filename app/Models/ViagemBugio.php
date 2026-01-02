@@ -13,6 +13,7 @@ class ViagemBugio extends Model
     protected $casts = [
         'destinos' => 'array',
         'nro_notas' => 'array',
+        'info_adicionais' => 'array',
         'numero_sequencial' => 'integer',
     ];
 

@@ -65,30 +65,30 @@ class SolicitacaoCteMail extends Mailable
     {
         $attachments = [];
 
-        Log::debug(__METHOD__.'@'.__LINE__, ['anexo' => $this->payload->anexos]);
+        // Log::debug(__METHOD__.'@'.__LINE__, ['anexo' => $this->payload->anexos]);
 
-        foreach ($this->payload->anexos as $anexo) {
-            Log::alert('ver o erro aqui?', [
-                'anexo' => $anexo,
-            ]);
-            
-            try {
-                // Verificar se é array ou objeto
-                if (is_array($anexo)) {
-                    $attachments[] = Attachment::fromPath($anexo)
-                        ->as($anexo['name'])
-                        ->withMime($anexo['mime']);
-                } else {
-                    // Se for string (path direto)
-                    $attachments[] = Attachment::fromStorageDisk('local', $anexo);
-                }
-            } catch (\Exception $e) {
-                Log::error('Erro ao anexar arquivo no email', [
-                    'error' => $e->getMessage(),
-                    'anexo' => $anexo,
-                ]);
-            }
-        }
+        // foreach ($this->payload->anexos as $anexo) {
+        //     Log::alert('ver o erro aqui?', [
+        //         'anexo' => $anexo,
+        //     ]);
+
+        //     try {
+        //         // Verificar se é array ou objeto
+        //         if (is_array($anexo)) {
+        //             $attachments[] = Attachment::fromPath($anexo)
+        //                 ->as($anexo['name'])
+        //                 ->withMime($anexo['mime']);
+        //         } else {
+        //             // Se for string (path direto)
+        //             $attachments[] = Attachment::fromStorageDisk('local', $anexo);
+        //         }
+        //     } catch (\Exception $e) {
+        //         Log::error('Erro ao anexar arquivo no email', [
+        //             'error' => $e->getMessage(),
+        //             'anexo' => $anexo,
+        //         ]);
+        //     }
+        // }
 
         return $attachments;
     }

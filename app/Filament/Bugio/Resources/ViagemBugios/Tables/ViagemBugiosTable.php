@@ -256,7 +256,7 @@ class ViagemBugiosTable
         Log::debug('anexos antes do ajustes', [
             'anexos' => $viagemBugio->anexos]);
         
-        foreach ($viagemBugio->anexos->first()->attachments as $index => $anexo){
+        foreach ($viagemBugio->anexos as $index => $anexo){
             $anexos[$index] = 'private/' . $anexo;
         }
         

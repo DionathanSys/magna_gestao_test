@@ -24,6 +24,7 @@ class CreateViagemBugio extends CreateRecord
     {
 
         $data['destinos']['integrado_nome']  = Integrado::find($data['destinos']['integrado_id'])?->nome ?? 'N/A';
+        $data['destinos']           = [$data['destinos']];
         $data['veiculo_id']         = Veiculo::query()->where('placa', $data['veiculo'])->value('id');
         $data['km_pago']            = $data['km_total'] ?? 0;
         $data['km_rodado']          = 0;

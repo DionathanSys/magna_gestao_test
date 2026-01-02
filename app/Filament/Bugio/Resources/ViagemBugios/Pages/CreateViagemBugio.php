@@ -82,7 +82,6 @@ class CreateViagemBugio extends CreateRecord
             'veiculo_id'        => $data['veiculo_id'],
             'status'            => 'pendente',
             'created_by'        => $data['created_by'],
-            'updated_by'        => $data['updated_by'],
             'condutor'          => $data['condutor'],
 
         ];

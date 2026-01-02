@@ -29,6 +29,10 @@ class PayloadCteDTO
 
     public static function fromArray(array $data): self
     {
+        Log::debug('dados para payload', [
+            'data' => $data
+        ]);
+        
         $quantidadeCte = count($data['destinos'] ?? []);
         $valorFreteUnitario = $quantidadeCte > 0 ? (float) ($data['valor_frete'] ?? 0) / $quantidadeCte : 0;
 

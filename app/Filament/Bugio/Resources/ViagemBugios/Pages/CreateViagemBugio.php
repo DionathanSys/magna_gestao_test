@@ -19,6 +19,7 @@ class CreateViagemBugio extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
 
+        dd($data);
         $data['destinos']['integrado_nome']  = Integrado::find($data['destinos']['integrado_id'])?->nome ?? 'N/A';
         $data['veiculo_id']         = Veiculo::query()->where('placa', $data['veiculo'])->value('id');
         $data['km_pago']            = $data['km_total'] ?? 0;

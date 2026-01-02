@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
 use Filament\Schemas\Components\Section;
+use Illuminate\Support\Str;
 
 class ViagemBugioForm
 {
@@ -133,6 +134,11 @@ class ViagemBugioForm
                                             $set('destinos.municipio', $municipio ?? '');
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
+
+                                            if(Str::upper($integrado->municipio) == 'GUATAMBU'){
+                                                $set('info_adicionais.tipo_documento', TipoDocumentoEnum::NFS->value);
+                                            }
+
                                         } else {
                                             $kmTotal = $get('km_total') - $get('km_rota', 0);
                                             $frete = self::calcularFrete($kmTotal);

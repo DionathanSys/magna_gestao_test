@@ -65,7 +65,7 @@ class SolicitacaoCteMail extends Mailable
     {
         $attachments = [];
 
-        // Log::debug(__METHOD__.'@'.__LINE__, ['anexo' => $this->payload->anexos]);
+        Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
 
         // foreach ($this->payload->anexos as $anexo) {
         //     Log::alert('ver o erro aqui?', [
@@ -90,6 +90,33 @@ class SolicitacaoCteMail extends Mailable
         //     }
         // }
 
+        foreach ($this->payload->anexos as $anexo) {
+            try {
+                // Caso seja estrutura [xml, pdf] ou ['xml'=>..., 'pdf'=>...]
+                if (is_array($anexo)) {
+
+                    if (isset($anexo['xml'])) {
+                        $attachments[] = Attachment::fromStorageDisk('local', $anexo['xml']);
+                    }
+
+                    if (isset($anexo['pdf'])) {
+                        $attachments[] = Attachment::fromStorageDisk('local', $anexo['pdf']);
+                    }
+
+                    continue;
+                }
+
+                // Caso seja string direta
+                if (is_string($anexo)) {
+                    $attachments[] = Attachment::fromStorageDisk('local', $anexo);
+                }
+            } catch (\Throwable $e) {
+                Log::error('Erro ao anexar arquivo no email', [
+                    'error' => $e->getMessage(),
+                    'anexo' => $anexo,
+                ]);
+            }
+        }
         return $attachments;
     }
 }

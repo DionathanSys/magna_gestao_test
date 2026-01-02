@@ -63,7 +63,8 @@ class CreateViagemBugio extends CreateRecord
     protected function solicitarCte(ViagemBugio $viagemBugio)
     {
         $anexos = [];
-        Log::debug('anexos antes do ajustes', $viagemBugio->anexos);
+        Log::debug('anexos antes do ajustes', [
+            'anexos' => $viagemBugio->anexos]);
         
         foreach ($viagemBugio->anexos->attachments as $index => $anexo){
             $anexos['index'] = 'private/' . $anexo;

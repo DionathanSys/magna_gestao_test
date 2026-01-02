@@ -11,6 +11,7 @@ class ViagemBugio extends Model
     protected $table = 'viagens_bugio';
 
     protected $casts = [
+        'anexos' => 'array',
         'destinos' => 'array',
         'nro_notas' => 'array',
         'info_adicionais' => 'array',
@@ -35,11 +36,6 @@ class ViagemBugio extends Model
     public function viagem(): BelongsTo
     {
         return $this->belongsTo(Viagem::class, 'viagem_id');
-    }
-
-    public function anexos(): MorphMany
-    {
-        return $this->morphMany(Anexo::class, 'anexavel');
     }
 
 }

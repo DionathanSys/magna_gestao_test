@@ -56,6 +56,8 @@ class ViagemBugiosTable
                             return '-';
                         }
 
+                        Log::debug('state', $state);
+
                         // Verificar se é um array associativo único ou array de arrays
                         if (isset($state['integrado_nome'])) {
                             // É um único destino
@@ -252,7 +254,6 @@ class ViagemBugiosTable
 
     protected static function solicitarCte(ViagemBugio $viagemBugio)
     {
-        dd($viagemBugio->anexos);
         $anexos = [];
         Log::debug('anexos antes do ajustes', [
             'anexos' => $viagemBugio->anexos]);

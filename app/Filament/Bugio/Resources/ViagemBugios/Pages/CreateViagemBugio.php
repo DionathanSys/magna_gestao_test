@@ -48,16 +48,11 @@ class CreateViagemBugio extends CreateRecord
             $this->halt();
         }
 
-        $data['anexos'] = $result->anexos()->create([
-            'descricao' => 'Doc. Viagem ID: ' . $result->id . ' - Nro. Notas ' . implode(',', $data['nro_notas']),
-            'attachments' => $data['anexos'],
-            'created_by' => $result->created_by,
-            'updated_by' => $result->updated_by,
-        ]);
-
-        $result->with('anexos');
+        notify::success('Viagem Criada com Sucesso');
 
         $this->solicitarCte($result);
+
+        notify::success('Solicitado CTe');
 
         return $result;
     }
@@ -65,10 +60,12 @@ class CreateViagemBugio extends CreateRecord
     protected function solicitarCte(ViagemBugio $viagemBugio)
     {
         $anexos = [];
+
         Log::debug('anexos antes do ajustes', [
-            'anexos' => $viagemBugio->anexos]);
+            'anexos' => $viagemBugio->anexos
+        ]);
         
-        foreach ($viagemBugio->anexos->first()->attachments as $index => $anexo){
+        foreach ($viagemBugio->anexos as $index => $anexo){
             $anexos[$index] = 'private/' . $anexo;
         }
         

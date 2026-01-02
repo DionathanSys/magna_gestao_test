@@ -26,6 +26,7 @@ class CriarViagem
         'created_by',
         'nro_notas',
         'numero_sequencial',
+        'anexos',
         'info_adicionais',
     ];
 
@@ -51,6 +52,8 @@ class CriarViagem
 
     public function validate(array $data): void
     {
+        //TODO: Validar dados pendentes 
+
         $validator = Validator::make($data, [
             'veiculo_id'                        => 'required|integer|exists:veiculos,id',
             'destinos'                          => 'required|array|min:1',

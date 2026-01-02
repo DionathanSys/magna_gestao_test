@@ -12,7 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('viagens_bugio', function (Blueprint $table) {
-            $table->json('info_adicionais')->nullable()->after('observacao');
+            $table->json('info_adicionais')
+                ->nullable()
+                ->after('observacao');
+            $table->json('anexos')
+                ->nullable()
+                ->after('observacao');
         });
     }
 
@@ -23,6 +28,7 @@ return new class extends Migration
     {
         Schema::table('viagens_bugio', function (Blueprint $table) {
             $table->dropColumn('info_adicionais');
+            $table->dropColumn('anexos');
         });
     }
 };

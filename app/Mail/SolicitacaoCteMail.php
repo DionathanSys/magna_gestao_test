@@ -65,54 +65,54 @@ class SolicitacaoCteMail extends Mailable
     {
         $attachments = [];
 
-        // Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
+        Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
 
-        // foreach ($this->payload->anexos as $anexo) {
-        //     Log::alert('ver o erro aqui?', [
-        //         'anexo' => $anexo,
-        //     ]);
+        foreach ($this->payload->anexos as $anexo) {
+            Log::alert('ver o erro aqui?', [
+                'anexo' => $anexo,
+            ]);
 
-        //     try {
-        //         // Verificar se é array ou objeto
-        //         if (is_array($anexo)) {
-        //             $attachments[] = Attachment::fromPath($anexo)
-        //                 ->as($anexo['name'])
-        //                 ->withMime($anexo['mime']);
-        //         } else {
-        //             // Se for string (path direto)
-        //             $attachments[] = Attachment::fromStorageDisk('local', $anexo);
-        //         }
-        //     } catch (\Exception $e) {
-        //         Log::error('Erro ao anexar arquivo no email', [
-        //             'error' => $e->getMessage(),
-        //             'anexo' => $anexo,
-        //         ]);
-        //     }
-        // }
-
-        foreach ($this->payload->anexos as $path) {
             try {
-
-                if (! is_string($path) || trim($path) === '') {
-                    continue;
+                // Verificar se é array ou objeto
+                if (is_array($anexo)) {
+                    $attachments[] = Attachment::fromPath($anexo)
+                        ->as($anexo['name'])
+                        ->withMime($anexo['mime']);
+                } else {
+                    // Se for string (path direto)
+                    $attachments[] = Attachment::fromStorageDisk('local', $anexo);
                 }
-
-                // Verifica se o arquivo realmente existe no disk
-                if (! Storage::disk('local')->exists($path)) {
-                    Log::warning('Arquivo de anexo não encontrado', [
-                        'path' => $path,
-                    ]);
-                    continue;
-                }
-
-                $attachments[] = Attachment::fromStorageDisk('local', $path);
-            } catch (\Throwable $e) {
-                Log::error('Erro ao montar anexo de e-mail', [
-                    'path'  => is_string($path) ? $path : gettype($path),
+            } catch (\Exception $e) {
+                Log::error('Erro ao anexar arquivo no email', [
                     'error' => $e->getMessage(),
+                    'anexo' => $anexo,
                 ]);
             }
         }
+
+        // foreach ($this->payload->anexos as $path) {
+        //     try {
+
+        //         if (! is_string($path) || trim($path) === '') {
+        //             continue;
+        //         }
+
+        //         // Verifica se o arquivo realmente existe no disk
+        //         if (! Storage::disk('local')->exists($path)) {
+        //             Log::warning('Arquivo de anexo não encontrado', [
+        //                 'path' => $path,
+        //             ]);
+        //             continue;
+        //         }
+
+        //         $attachments[] = Attachment::fromStorageDisk('local', $path);
+        //     } catch (\Throwable $e) {
+        //         Log::error('Erro ao montar anexo de e-mail', [
+        //             'path'  => is_string($path) ? $path : gettype($path),
+        //             'error' => $e->getMessage(),
+        //         ]);
+        //     }
+        // }
 
         return $attachments;
     }

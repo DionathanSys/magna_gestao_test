@@ -56,8 +56,6 @@ class ViagemBugiosTable
                             return '-';
                         }
 
-                        Log::debug('state', $state);
-
                         // Verificar se é um array associativo único ou array de arrays
                         if (isset($state['integrado_nome'])) {
                             // É um único destino

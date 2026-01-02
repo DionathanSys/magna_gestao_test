@@ -68,18 +68,15 @@ class SolicitacaoCteMail extends Mailable
 
         Log::debug(__METHOD__.'@'.__LINE__, $this->payload->anexos);
         foreach ($this->payload->anexos as $anexo) {
-            Log::debug(__LINE__, $anexo);
             try {
                 // Verificar se é array ou objeto
                 if (is_array($anexo)) {
                     $attachments[] = Attachment::fromPath($anexo)
                         ->as($anexo['name'])
                         ->withMime($anexo['mime']);
-                        Log::debug(__LINE__. ' - é Array', $attachments);
                 } else {
                     // Se for string (path direto)
                     $attachments[] = Attachment::fromStorageDisk('local', $anexo);
-                    Log::debug(__LINE__. ' - Não é Array', $attachments);
                 }
             } catch (\Exception $e) {
                 Log::error('Erro ao anexar arquivo no email', [

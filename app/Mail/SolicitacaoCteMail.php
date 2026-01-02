@@ -53,7 +53,6 @@ class SolicitacaoCteMail extends Mailable
     {
         return new Content(
             markdown: 'mail.solicitacao-cte-mail',
-
         );
     }
 
@@ -66,8 +65,13 @@ class SolicitacaoCteMail extends Mailable
     {
         $attachments = [];
 
-        Log::debug(__METHOD__.'@'.__LINE__, $this->payload->anexos);
+        Log::debug(__METHOD__.'@'.__LINE__, ['anexo' => $this->payload->anexos]);
+
         foreach ($this->payload->anexos as $anexo) {
+            Log::alert('ver o erro aqui?', [
+                'anexo' => $anexo,
+            ]);
+            
             try {
                 // Verificar se é array ou objeto
                 if (is_array($anexo)) {

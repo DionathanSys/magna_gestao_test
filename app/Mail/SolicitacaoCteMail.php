@@ -114,6 +114,9 @@ class SolicitacaoCteMail extends Mailable
         //     }
         // }
 
+        Log::debug('atta', [
+            'atta' => $attachments,
+        ]);
         return $attachments;
     }
 }

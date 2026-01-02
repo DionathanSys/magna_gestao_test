@@ -67,7 +67,7 @@ class CreateViagemBugio extends CreateRecord
             'km_total'          => $data['km_total'],
             'valor_frete'       => $data['frete'],
             'motorista'         => [
-                'cpf' => $data['info_adicionais']['motorista'],
+                'cpf' => $data['info_adicionais']['motorista']['cpf'],
             ],
             'veiculo'           => $data['veiculo'],
             'nro_notas'         => $data['nro_notas'],

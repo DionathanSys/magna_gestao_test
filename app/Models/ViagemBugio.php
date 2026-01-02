@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ViagemBugio extends Model
 {
@@ -33,6 +34,11 @@ class ViagemBugio extends Model
     public function viagem(): BelongsTo
     {
         return $this->belongsTo(Viagem::class, 'viagem_id');
+    }
+
+    public function anexos(): MorphMany
+    {
+        return $this->morphMany(Anexo::class, 'anexavel');
     }
 
 }

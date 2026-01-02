@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Services\NotificacaoService as notify;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CreateViagemBugio extends CreateRecord
 {
@@ -46,6 +47,16 @@ class CreateViagemBugio extends CreateRecord
             notify::error(mensagem: 'Falha ao criar viagem Bugio');
             $this->halt();
         }
+
+
+        $anexos = $result->anexos()->create([
+            'descricao' => 'Doc. Viagem ID: ' . $result->id,
+            'attachments' => $data['anexos'],
+            'created_by' => $result->created_by,
+            'updated_by' => $result->updated_by,
+        ]);
+
+        Log::debug($anexos, $result);
 
         return $result;
     }

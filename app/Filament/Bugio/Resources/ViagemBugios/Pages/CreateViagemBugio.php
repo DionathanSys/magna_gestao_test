@@ -55,7 +55,7 @@ class CreateViagemBugio extends CreateRecord
             'updated_by' => $result->updated_by,
         ]);
 
-        Log::debug($anexos, $result);
+        Log::debug('r', [$anexos, $result]);
 
         return $result;
     }

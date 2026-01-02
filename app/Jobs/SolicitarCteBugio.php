@@ -74,7 +74,7 @@ class SolicitarCteBugio implements ShouldQueue
                         'attempt'         => $this->attempts(),
                     ]);
 
-                    if($nextRunAt instanceof Carbon) {
+                    if ($nextRunAt instanceof Carbon) {
 
                         Log::info('Próximo envio agendado em: ' . $nextRunAt->toDateTimeString(), [
                             'metodo'    => __METHOD__ . '@' . __LINE__,
@@ -83,7 +83,7 @@ class SolicitarCteBugio implements ShouldQueue
 
                         $diffToNextRun = now()->diffInSeconds($nextRunAt);
 
-                        if($diffToNextRun > 0) {
+                        if ($diffToNextRun > 0) {
                             $delay = $diffToNextRun + 255; // adiciona mais 4 minutos
                             Log::info('Ajustando delay para o próximo envio permitido', [
                                 'metodo'    => __METHOD__ . '@' . __LINE__,
@@ -91,7 +91,6 @@ class SolicitarCteBugio implements ShouldQueue
                                 'diff_to_next_run' => $diffToNextRun,
                                 'new_delay'     => $delay,
                             ]);
-                            
                         } else {
                             Log::info('Próximo envio já permitido, mantendo delay calculado', [
                                 'metodo'    => __METHOD__ . '@' . __LINE__,
@@ -100,7 +99,6 @@ class SolicitarCteBugio implements ShouldQueue
                                 'delay'     => $delay,
                             ]);
                         }
-
                     }
 
                     $newNextRunAt = now()->addSeconds($delay);
@@ -142,21 +140,24 @@ class SolicitarCteBugio implements ShouldQueue
             ]);
 
             notify::success(
-                'Solicitação de CTe enviada com sucesso!', 
-                "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . (implode(', ', $this->data['nro_notas'] ?? []) . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), 
-                true, 
+                'Solicitação de CTe enviada com sucesso!',
+                "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . (implode(', ', $this->data['nro_notas'] ?? []) . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')),
+                true,
                 $this->data['created_by']
             );
-            
-        } catch (\Exception $e) {
-            notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . (implode(', ', $this->data['nro_notas'] ?? []) . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
+        } catch (\Throwable $e) {
+            // notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . (implode(', ', $this->data['nro_notas'] ?? []) . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
             Log::error('Erro ao solicitar CTE', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo'  => __METHOD__ . '@' . __LINE__,
                 'attempt' => $this->attempts(),
-                'error' => $e->getMessage(),
+                'tipo'    => get_class($e),
+                'error'   => $e->getMessage(),
+                'arquivo' => $e->getFile(),
+                'linha'   => $e->getLine(),
                 'veiculo' => $this->data['veiculo'] ?? null,
-                'trace' => $e->getTraceAsString(),
+                'trace'   => $e->getTraceAsString(),
             ]);
+            throw $e;
         }
     }
 
@@ -180,7 +181,7 @@ class SolicitarCteBugio implements ShouldQueue
         // Notificar administradores
         $admins = User::where('is_admin', true)->get();
         foreach ($admins as $admin) {
-            notify::error('Admin - Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . (implode(', ', $this->data['nro_notas'] ?? []) . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $admins);
+            notify::error('Admin - Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . (implode(', ', $this->data['nro_notas'] ?? []) . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $admin);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
+use App\Jobs\SolicitarCteBugio;
 use App\Models\ViagemBugio;
 use Carbon\Carbon;
 use Filament\Actions\Action;

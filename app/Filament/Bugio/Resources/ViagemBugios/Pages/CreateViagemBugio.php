@@ -56,7 +56,7 @@ class CreateViagemBugio extends CreateRecord
         ]);
 
         $result->with('anexos');
-        
+
         $this->solicitarCte($result);
 
         return $result;
@@ -68,7 +68,10 @@ class CreateViagemBugio extends CreateRecord
         Log::debug('anexos antes do ajustes', [
             'anexos' => $viagemBugio->anexos]);
         
-        foreach ($viagemBugio->anexos->attachments as $index => $anexo){
+        dump($viagemBugio->anexos);
+        dump($viagemBugio->anexos->first());
+        
+        foreach ($viagemBugio->anexos->first()->attachments as $index => $anexo){
             $anexos['index'] = 'private/' . $anexo;
         }
         

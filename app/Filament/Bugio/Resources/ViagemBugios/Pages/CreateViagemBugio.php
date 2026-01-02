@@ -72,7 +72,7 @@ class CreateViagemBugio extends CreateRecord
             'veiculo'           => $data['veiculo'],
             'nro_notas'         => $data['nro_notas'],
             'cte_retroativo'    => $data['info_adicionais']['cte_retroativo'] ?? false,
-            'cte_complementar'  => $data['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
+            'cte_complementar'  => $data['info_adicionais']['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
             'destinos'          => [
                 $data['destinos']
             ],

@@ -68,11 +68,8 @@ class CreateViagemBugio extends CreateRecord
         Log::debug('anexos antes do ajustes', [
             'anexos' => $viagemBugio->anexos]);
         
-        dump($viagemBugio->anexos);
-        dump($viagemBugio->anexos->first());
-        
         foreach ($viagemBugio->anexos->first()->attachments as $index => $anexo){
-            $anexos['index'] = 'private/' . $anexo;
+            $anexos[$index] = 'private/' . $anexo;
         }
         
         Log::debug('anexos depois do ajustes', $anexos);

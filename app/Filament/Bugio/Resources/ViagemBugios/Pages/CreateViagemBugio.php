@@ -7,6 +7,7 @@ use App\Filament\Bugio\Resources\ViagemBugios\ViagemBugioResource;
 use App\Jobs\SolicitarCteBugio;
 use App\Models\Integrado;
 use App\Models\Veiculo;
+use App\Models\ViagemBugio;
 use App\Services\ViagemBugio\ViagemBugioService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -29,9 +30,7 @@ class CreateViagemBugio extends CreateRecord
         $data['data_competencia']   = $data['data_competencia'] ? Carbon::createFromFormat('d/m/Y', $data['data_competencia'])->format('Y-m-d') : now()->format('Y-m-d');
         $data['frete']              = $this->calcularFrete($data['km_total']);
         $data['condutor']           = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
-        $data['info_adicionais']['motorista'] = [
-            'cpf' => $data['motorista'] ?? null,
-        ];
+        $data['info_adicionais']['motorista-cpf'] = $data['motorista'] ?? null;
         $data['created_by']         = Auth::id();
 
         unset($data['data-integrados']);
@@ -56,46 +55,42 @@ class CreateViagemBugio extends CreateRecord
             'updated_by' => $result->updated_by,
         ]);
 
-        $this->solicitarCte($data);
+        $this->solicitarCte($result);
 
         return $result;
     }
 
-    protected function solicitarCte(array $data)
+    protected function solicitarCte(ViagemBugio $viagemBugio)
     {
 
-        foreach ($data['anexos'] as $index => $anexo){
-            $data['anexos']['index'] = 'private/' . $anexo;
-        }
+        $anexos = $viagemBugio->anexos->attachments;
 
+        Log::debug('anexos antes do ajustes', $anexos);
+        
+        foreach ($anexos as $index => $anexo){
+            $anexos['index'] = 'private/' . $anexo;
+        }
+        
+        Log::debug('anexos depois do ajustes', $anexos);
 
         $data = [
-            'km_total'          => $data['km_total'],
-            'valor_frete'       => $data['frete'],
+            'km_total'          => $viagemBugio->km_pago,
+            'valor_frete'       => $viagemBugio->frete,
+            'anexos'            => $anexos,
+            'destinos'          => $viagemBugio->destinos,
+            'veiculo'           => $viagemBugio->veiculo->placa,
+            'created_by'        => $viagemBugio->created_by,
+            'nro_notas'         => $viagemBugio->nro_notas,
+            'cte_retroativo'    => $viagemBugio->info_adicionais['cte_retroativo'] ?? false,
+            'cte_complementar'  => $viagemBugio->info_adicionais['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
+            'cte_referencia'    => $viagemBugio->info_adicionais['cte_referencia'] ?? null,
             'motorista'         => [
-                'cpf' => $data['info_adicionais']['motorista']['cpf'],
+                'cpf' => $viagemBugio->info_adicionais['motorista-cpf'],
             ],
-            'veiculo'           => $data['veiculo'],
-            'nro_notas'         => $data['nro_notas'],
-            'cte_retroativo'    => $data['info_adicionais']['cte_retroativo'] ?? false,
-            'cte_complementar'  => $data['info_adicionais']['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
-            'destinos'          => [
-                $data['destinos']
-            ],
-            'veiculo_id'        => $data['veiculo_id'],
-            'km_pago'           => $data['km_pago'],
-            'km_rodado'         => $data['km_rodado'],
-            'veiculo_id'        => $data['veiculo_id'],
-            'status'            => 'pendente',
-            'created_by'        => $data['created_by'],
-            'updated_by'        => $data['created_by'],
-            'condutor'          => $data['condutor'],
-            'data_competencia'  => $data['data_competencia'],
-            'frete'             => $data['frete'],
-            'anexos'            => $data['anexos'],
+
         ];
 
-        Log::debug('dados do form novo', [
+        Log::debug('dados do form novo para solicitar email', [
             'data' => $data,
         ]);
 

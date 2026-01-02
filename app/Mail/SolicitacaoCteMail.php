@@ -65,7 +65,7 @@ class SolicitacaoCteMail extends Mailable
     {
         $attachments = [];
 
-        Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
+        // Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
 
         // foreach ($this->payload->anexos as $anexo) {
         //     Log::alert('ver o erro aqui?', [
@@ -90,33 +90,30 @@ class SolicitacaoCteMail extends Mailable
         //     }
         // }
 
-        foreach ($this->payload->anexos as $anexo) {
+        foreach ($this->payload->anexos as $path) {
             try {
-                // Caso seja estrutura [xml, pdf] ou ['xml'=>..., 'pdf'=>...]
-                if (is_array($anexo)) {
 
-                    if (isset($anexo['xml'])) {
-                        $attachments[] = Attachment::fromStorageDisk('local', $anexo['xml']);
-                    }
-
-                    if (isset($anexo['pdf'])) {
-                        $attachments[] = Attachment::fromStorageDisk('local', $anexo['pdf']);
-                    }
-
+                if (! is_string($path) || trim($path) === '') {
                     continue;
                 }
 
-                // Caso seja string direta
-                if (is_string($anexo)) {
-                    $attachments[] = Attachment::fromStorageDisk('local', $anexo);
+                // Verifica se o arquivo realmente existe no disk
+                if (! Storage::disk('local')->exists($path)) {
+                    Log::warning('Arquivo de anexo não encontrado', [
+                        'path' => $path,
+                    ]);
+                    continue;
                 }
+
+                $attachments[] = Attachment::fromStorageDisk('local', $path);
             } catch (\Throwable $e) {
-                Log::error('Erro ao anexar arquivo no email', [
+                Log::error('Erro ao montar anexo de e-mail', [
+                    'path'  => is_string($path) ? $path : gettype($path),
                     'error' => $e->getMessage(),
-                    'anexo' => $anexo,
                 ]);
             }
         }
+
         return $attachments;
     }
 }

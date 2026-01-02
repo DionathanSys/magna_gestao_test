@@ -203,7 +203,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     public function handle(): void
     {
 
-        dd($this->data);
         $data = $this->mutateData($this->data ?? []);
 
         if (!$this->validateData($data)) {
@@ -215,6 +214,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $data['updated_by'] = Auth::id();
         $data['status']     = 'pendente';
 
+        dd($data);
         SolicitarCteBugio::dispatch($data);
 
         unset($data['anexos']);

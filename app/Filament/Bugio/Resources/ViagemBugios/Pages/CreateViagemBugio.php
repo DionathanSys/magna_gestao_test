@@ -3,6 +3,7 @@
 namespace App\Filament\Bugio\Resources\ViagemBugios\Pages;
 
 use App\Filament\Bugio\Resources\ViagemBugios\ViagemBugioResource;
+use App\Jobs\SolicitarCteBugio;
 use App\Models\Integrado;
 use App\Models\Veiculo;
 use App\Services\ViagemBugio\ViagemBugioService;
@@ -47,16 +48,20 @@ class CreateViagemBugio extends CreateRecord
             $this->halt();
         }
 
-
         $anexos = $result->anexos()->create([
-            'descricao' => 'Doc. Viagem ID: ' . $result->id,
+            'descricao' => 'Doc. Viagem ID: ' . $result->id . ' - Nro. Notas ' . implode(',', $data['nro_notas']),
             'attachments' => $data['anexos'],
             'created_by' => $result->created_by,
             'updated_by' => $result->updated_by,
         ]);
 
-        Log::debug('r', [$anexos, $result]);
+        SolicitarCteBugio::dispatch($data);
 
         return $result;
+    }
+
+    protected function solicitarCte(array $data)
+    {
+        
     }
 }

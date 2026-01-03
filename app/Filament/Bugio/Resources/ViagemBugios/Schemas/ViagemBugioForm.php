@@ -178,7 +178,6 @@ class ViagemBugioForm
                                     ->columnStart(1)
                                     ->multiple()
                                     ->maxFiles(10)
-                                    ->preserveFilenames()
                                     ->directory('cte')
                                     ->visibility('private')
                                     ->required(),

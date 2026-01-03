@@ -203,7 +203,6 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     public function handle(): void
     {
 
-        dd($this->data);
         $data = $this->mutateData($this->data ?? []);
 
         if (!$this->validateData($data)) {
@@ -404,6 +403,11 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         $arquivosSalvos = [];
 
         foreach ($anexos as $key => $anexo) {
+
+            Log::debug(__METHOD__.'@'.__LINE__, [
+                'anexo' => $anexo,
+            ]);
+
             // Verificar se é um objeto TemporaryUploadedFile
             if ($anexo instanceof TemporaryUploadedFile) {
                 // Mover arquivo temporário para storage permanente
@@ -420,6 +424,10 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                 ]);
             }
         }
+
+        Log::debug('Arquivos Salvos . '.__METHOD__.'@'.__LINE__, [
+            'arquivos' => $arquivosSalvos,
+        ]);
 
         return $arquivosSalvos;
     }

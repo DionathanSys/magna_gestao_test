@@ -239,6 +239,7 @@ class ViagemBugiosTable
                     ->label('Solicitar CTe')
                     ->tooltip('Solicitar CTe')
                     ->icon(Heroicon::PaperAirplane)
+                    ->color('info')
                     ->iconButton()
                     ->action(function(ViagemBugio $record) {
                         $bugioService = new ViagemBugioService();

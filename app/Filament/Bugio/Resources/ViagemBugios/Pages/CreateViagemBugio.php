@@ -93,7 +93,7 @@ class CreateViagemBugio extends CreateRecord
             'data' => $data,
         ]);
 
-        // SolicitarCteBugio::dispatch($data);
+        SolicitarCteBugio::dispatch($data);
     }
 
     private function calcularFrete(float $kmTotal): float

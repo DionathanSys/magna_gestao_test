@@ -67,19 +67,15 @@ class SolicitacaoCteMail extends Mailable
 
         Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
 
-        foreach ($this->payload->anexos as $anexo) {
+        foreach ($this->payload->anexos as $index => $anexo) {
             Log::alert(__METHOD__ . '@' . __LINE__, [
                 'anexo' => $anexo,
+                'as' => $index. '.' . explode('.', $anexo)[1]
             ]);
 
             try {
-                // Verificar se é array ou objeto
-                if (is_array($anexo)) {
-                    $attachments[] = Attachment::fromPath($anexo);
-                } else {
-                    // Se for string (path direto)
-                    $attachments[] = Attachment::fromStorageDisk('local', $anexo);
-                }
+                $attachments[] = Attachment::fromStorageDisk('local', $anexo)
+                    ->as($index. '.' . explode('.', $anexo)[1]);
                 Log::debug('anexo processado para anexar', [
                     'attachments' => $attachments,
                 ]);
@@ -94,7 +90,7 @@ class SolicitacaoCteMail extends Mailable
         Log::debug('attachments', [
             'attachments' => $attachments,
         ]);
-        
+
         return $attachments;
     }
 }

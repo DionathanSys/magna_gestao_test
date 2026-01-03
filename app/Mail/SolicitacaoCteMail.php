@@ -70,7 +70,7 @@ class SolicitacaoCteMail extends Mailable
         foreach ($this->payload->anexos as $index => $anexo) {
             Log::alert(__METHOD__ . '@' . __LINE__, [
                 'anexo' => $anexo,
-                'as' => $index. '.' . explode('.', $anexo)[1]
+                'exists' => Storage::disk('local')->exists($anexo),
             ]);
 
             try {

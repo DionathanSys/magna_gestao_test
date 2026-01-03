@@ -176,6 +176,7 @@ class ViagemBugioForm
                                     ->columnSpan(['md' => 4, 'xl' => 6])
                                     ->label('Anexos')
                                     ->columnStart(1)
+                                    ->preserveFilenames()
                                     ->multiple()
                                     ->maxFiles(10)
                                     ->directory('cte')

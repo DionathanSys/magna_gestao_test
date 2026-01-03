@@ -236,10 +236,11 @@ class ViagemBugiosTable
                 ]),
                 Action::make('solicitar-email')
                     ->label('Solicitar CTe')
-                    ->action(fn(ViagemBugio $record) => self::solicitarCte($record)),
-                VincularDocumentoFreteAction::make()
-                    ->icon(Heroicon::PaperClip)
-                    ->iconButton(),
+                    ->tooltip('Solicitar CTe')
+                    ->icon(Heroicon::PaperAirplane)
+                    ->iconButton()
+                    ->action(fn(ViagemBugio $record) => self::solicitarCte($record))
+                    ->disabled(fn(ViagemBugio $record) => $record->info_adicionais['tipo_documento'] == TipoDocumentoEnum::NFS->value || $record->status == 'concluido'),
 
 
             ], position: RecordActionsPosition::BeforeColumns)

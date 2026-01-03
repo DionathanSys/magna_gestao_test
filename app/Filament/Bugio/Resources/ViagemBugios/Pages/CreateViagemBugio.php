@@ -5,6 +5,7 @@ namespace App\Filament\Bugio\Resources\ViagemBugios\Pages;
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Bugio\Resources\ViagemBugios\ViagemBugioResource;
 use App\Jobs\SolicitarCteBugio;
+use App\Models\DocumentoFrete;
 use App\Models\Integrado;
 use App\Models\Veiculo;
 use App\Models\ViagemBugio;
@@ -15,6 +16,7 @@ use App\Services\NotificacaoService as notify;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CreateViagemBugio extends CreateRecord
 {
@@ -51,49 +53,17 @@ class CreateViagemBugio extends CreateRecord
 
         notify::success('Viagem Criada com Sucesso');
 
-        $this->solicitarCte($result);
+        $bugioService = new ViagemBugioService();
 
-        notify::success('Solicitado CTe');
+        if($result->info_adicionais['tipo_documento'] !== TipoDocumentoEnum::NFS->value){
+            $bugioService->solicitarCte($result);
+            notify::success('Solicitado emissão de CTe via email');
+            return $result;
+        }
+
+        $bugioService->createViagemFromBugio($result);
 
         return $result;
-    }
-
-    protected function solicitarCte(ViagemBugio $viagemBugio)
-    {
-        $anexos = [];
-
-        Log::debug('anexos antes do ajustes', [
-            'viagem' => $viagemBugio
-        ]);
-        
-        foreach ($viagemBugio->anexos as $index => $anexo){
-            $anexos[$index] = 'private/' . $anexo;
-        }
-        
-        Log::debug('anexos depois do ajustes', $anexos);
-
-        $data = [
-            'km_total'          => $viagemBugio->km_pago,
-            'valor_frete'       => $viagemBugio->frete,
-            'anexos'            => $anexos,
-            'destinos'          => $viagemBugio->destinos,
-            'veiculo'           => $viagemBugio->veiculo->placa,
-            'created_by'        => $viagemBugio->created_by,
-            'nro_notas'         => $viagemBugio->nro_notas,
-            'cte_retroativo'    => $viagemBugio->info_adicionais['cte_retroativo'] ?? false,
-            'cte_complementar'  => $viagemBugio->info_adicionais['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
-            'cte_referencia'    => $viagemBugio->info_adicionais['cte_referencia'] ?? null,
-            'motorista'         => [
-                'cpf' => $viagemBugio->info_adicionais['motorista-cpf'],
-            ],
-
-        ];
-
-        Log::debug('dados do form novo para solicitar email', [
-            'data' => $data,
-        ]);
-
-        SolicitarCteBugio::dispatch($data);
     }
 
     private function calcularFrete(float $kmTotal): float

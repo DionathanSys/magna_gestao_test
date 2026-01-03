@@ -54,6 +54,7 @@ class ViagemBugioService
             if (Storage::disk('local')->exists($anexo)) {
                 $anexos[$index] = $anexo;
             } else {
+                notify::alert(mensagem: 'Arquivo não encontrado');
                 Log::alert($anexo . ' Não encontrado');
             }
         }
@@ -84,7 +85,7 @@ class ViagemBugioService
         SolicitarCteBugio::dispatch($data);
     }
 
-    public static function createViagemFromBugio(ViagemBugio $viagemBugio): ?Viagem
+    public static function createViagemFromBugio(ViagemBugio $viagemBugio)
     {
 
         try {

@@ -12,9 +12,7 @@ class EnviarSolicitacaoCte
 
     public function handle(PayloadCteDTO $payloadCteDTO): void
     {
-        Log::debug('antes do mail'. __METHOD__.'@'.__LINE__);
         Mail::send(new \App\Mail\SolicitacaoCteMail($payloadCteDTO));
-        Log::debug('depois do mail'. __METHOD__.'@'.__LINE__);
     }
 
 }

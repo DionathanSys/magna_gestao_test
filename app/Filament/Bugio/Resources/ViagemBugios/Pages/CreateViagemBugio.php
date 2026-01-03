@@ -63,7 +63,7 @@ class CreateViagemBugio extends CreateRecord
         $anexos = [];
 
         Log::debug('anexos antes do ajustes', [
-            'anexos' => $viagemBugio
+            'viagem' => $viagemBugio
         ]);
         
         foreach ($viagemBugio->anexos as $index => $anexo){

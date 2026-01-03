@@ -16,7 +16,7 @@ class SolicitarCteBugio implements ShouldQueue
 {
     use Queueable;
 
-    public $tries = 0; // Tentativas ilimitadas
+    public $tries = 10; // Tentativas ilimitadas
 
     const LOCK_TTL = 300; // Tempo em segundos para o lock
     const BLOCK = 240; // Tempo em segundos para o lock

@@ -18,6 +18,9 @@ return new class extends Migration
             $table->json('anexos')
                 ->nullable()
                 ->after('observacao');
+            $table->string('nro_documento')
+                ->nullable()
+                ->after('nro_notas');
         });
     }
 
@@ -29,6 +32,7 @@ return new class extends Migration
         Schema::table('viagens_bugio', function (Blueprint $table) {
             $table->dropColumn('info_adicionais');
             $table->dropColumn('anexos');
+            $table->dropColumn('nro_documento');
         });
     }
 };

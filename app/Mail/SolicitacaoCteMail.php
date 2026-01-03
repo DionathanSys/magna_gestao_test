@@ -38,7 +38,7 @@ class SolicitacaoCteMail extends Mailable
     {
 
         return new Envelope(
-            // subject: 'Solicitação CT-e Magnabosco - Bugio ' . $this->payload->veiculo . ' - ' . implode(', ', $this->payload->nro_notas ?? []) . ' - ' . now()->format('d/m/Y H:i'),
+            subject: 'Solicitação CT-e Magnabosco - Bugio ' . $this->payload->veiculo . ' - ' . implode(', ', $this->payload->nro_notas ?? []) . ' - ' . now()->format('d/m/Y H:i'),
             to: $this->toAddress,
             replyTo: $this->replyToAddress,
             cc: $this->ccAddress,
@@ -65,24 +65,11 @@ class SolicitacaoCteMail extends Mailable
     {
         $attachments = [];
 
-        Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
-
         foreach ($this->payload->anexos as $index => $anexo) {
-            
-            Log::alert(__METHOD__ . '@' . __LINE__, [
-                'anexo' => $anexo,
-                'exists' => Storage::disk('local')->exists($anexo),
-                'url'   => Storage::url($anexo),
-                'disk' => Storage::disk(),
-                'disk_com_local' => Storage::disk('local'),
-            ]);
 
             try {
-                $attachments[] = Attachment::fromStorageDisk('local', $anexo)
-                    ->as($index. '.' . explode('.', $anexo)[1]);
-                Log::debug('anexo processado para anexar', [
-                    'attachments' => $attachments,
-                ]);
+                $attachments[] = Attachment::fromStorageDisk('local', $anexo);
+
             } catch (\Exception $e) {
                 Log::error('Erro ao anexar arquivo no email', [
                     'error' => $e->getMessage(),
@@ -90,10 +77,6 @@ class SolicitacaoCteMail extends Mailable
                 ]);
             }
         }
-
-        Log::debug('attachments', [
-            'attachments' => $attachments,
-        ]);
 
         return $attachments;
     }

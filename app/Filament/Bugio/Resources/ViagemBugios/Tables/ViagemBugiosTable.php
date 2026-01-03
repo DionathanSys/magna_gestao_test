@@ -257,10 +257,10 @@ class ViagemBugiosTable
         Log::debug('anexos antes do ajustes', [
             'anexos' => $viagemBugio->anexos]);
         
-        foreach ($viagemBugio->anexos as $index => $anexo){
-            Storage::disk('local')->exists($anexo);
-            $anexos[$index] = 'private/' . $anexo;
-        }
+        // foreach ($viagemBugio->anexos as $index => $anexo){
+        //     Storage::disk('local')->exists($anexo);
+        //     $anexos[$index] = 'private/' . $anexo;
+        // }
         
         Log::debug('anexos depois do ajustes', $anexos);
 

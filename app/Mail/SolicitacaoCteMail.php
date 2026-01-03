@@ -72,7 +72,7 @@ class SolicitacaoCteMail extends Mailable
             Log::alert(__METHOD__ . '@' . __LINE__, [
                 'anexo' => $anexo,
                 'exists' => Storage::disk('local')->exists($anexo),
-                'url'   => Storage::url('private/'.$anexo),
+                'url'   => Storage::url($anexo),
                 'disk' => Storage::disk(),
                 'disk_com_local' => Storage::disk('local'),
             ]);

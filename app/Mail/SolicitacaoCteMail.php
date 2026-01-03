@@ -68,9 +68,13 @@ class SolicitacaoCteMail extends Mailable
         Log::debug(__METHOD__ . '@' . __LINE__, ['anexo' => $this->payload->anexos]);
 
         foreach ($this->payload->anexos as $index => $anexo) {
+            
             Log::alert(__METHOD__ . '@' . __LINE__, [
                 'anexo' => $anexo,
                 'exists' => Storage::disk('local')->exists($anexo),
+                'url'   => Storage::url('private/'.$anexo),
+                'disk' => Storage::disk(),
+                'disk_com_local' => Storage::disk('local'),
             ]);
 
             try {

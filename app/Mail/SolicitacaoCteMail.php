@@ -75,9 +75,7 @@ class SolicitacaoCteMail extends Mailable
             try {
                 // Verificar se é array ou objeto
                 if (is_array($anexo)) {
-                    $attachments[] = Attachment::fromPath($anexo)
-                        ->as($anexo['name'])
-                        ->withMime($anexo['mime']);
+                    $attachments[] = Attachment::fromPath($anexo);
                 } else {
                     // Se for string (path direto)
                     $attachments[] = Attachment::fromStorageDisk('local', $anexo);
@@ -93,33 +91,10 @@ class SolicitacaoCteMail extends Mailable
             }
         }
 
-        // foreach ($this->payload->anexos as $path) {
-        //     try {
-
-        //         if (! is_string($path) || trim($path) === '') {
-        //             continue;
-        //         }
-
-        //         // Verifica se o arquivo realmente existe no disk
-        //         if (! Storage::disk('local')->exists($path)) {
-        //             Log::warning('Arquivo de anexo não encontrado', [
-        //                 'path' => $path,
-        //             ]);
-        //             continue;
-        //         }
-
-        //         $attachments[] = Attachment::fromStorageDisk('local', $path);
-        //     } catch (\Throwable $e) {
-        //         Log::error('Erro ao montar anexo de e-mail', [
-        //             'path'  => is_string($path) ? $path : gettype($path),
-        //             'error' => $e->getMessage(),
-        //         ]);
-        //     }
-        // }
-
         Log::debug('attachments', [
             'attachments' => $attachments,
         ]);
+        
         return $attachments;
     }
 }

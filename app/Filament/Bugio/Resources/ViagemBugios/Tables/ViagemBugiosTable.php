@@ -29,6 +29,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemBugiosTable
@@ -257,6 +258,7 @@ class ViagemBugiosTable
             'anexos' => $viagemBugio->anexos]);
         
         foreach ($viagemBugio->anexos as $index => $anexo){
+            Storage::disk('local')->exists($anexo);
             $anexos[$index] = 'private/' . $anexo;
         }
         

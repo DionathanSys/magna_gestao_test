@@ -9,13 +9,9 @@ use Illuminate\Console\Command;
 use App\Models;
 use App\Models\ImportLog;
 use App\Models\ViagemBugio;
-use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
-use App\Services\Veiculo\VeiculoCacheService;
 use App\Services\Veiculo\VeiculoService;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Casts\Json;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class TesteCommand extends Command
 {
@@ -38,8 +34,10 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $destinos = 'required|string|in:' . implode(',', TipoDocumentoEnum::toSelectArray());
+        $viagem = ViagemBugio::find(252);
 
-        dd($destinos);
+        $this->info('viagem id: '.$viagem->id);
+        dump($viagem->anexos);
+        dd(Storage::disk('local')->exists($viagem->anexos[0]));
     }
 }

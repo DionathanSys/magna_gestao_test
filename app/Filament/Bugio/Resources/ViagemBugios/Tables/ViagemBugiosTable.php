@@ -209,6 +209,7 @@ class ViagemBugiosTable
             ->persistFiltersInSession()
             ->deselectAllRecordsWhenFiltered(false)
             ->defaultGroup('data_competencia')
+            ->groupingDirectionSettingHidden()
             ->groups(
                 [
                     Group::make('data_competencia')

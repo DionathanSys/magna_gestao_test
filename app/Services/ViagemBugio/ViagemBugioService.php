@@ -140,9 +140,7 @@ class ViagemBugioService
                 'veiculo_id'            => $viagemBugio->veiculo_id,
                 'parceiro_destino'      => 'BUGIO NUTRICAO',
                 'parceiro_origem'       => 'BUGIO AGROPECUARIA',
-                'numero_documento'      => $viagemBugio->info_adicionais['tipo_documento'] == TipoDocumentoEnum::NFS->value ?
-                    $viagemBugio->numero_sequencial . '-' . $viagemBugio->id :
-                    $viagemBugio->nro_documento,
+                'numero_documento'      => $viagemBugio->nro_documento,
                 'documento_transporte'  => 'DocT-' . $viagemBugio->numero_sequencial,
                 'data_emissao'          => $viagemBugio->data_emissao,
                 'valor_total'           => $viagemBugio->frete,
@@ -181,7 +179,7 @@ class ViagemBugioService
 
                 $cargaService = new CargaService();
                 $carga = $cargaService->create($integrado, $viagem);
-                
+
                 Log::debug('Carga criada', [
                     'carga' => $carga,
                 ]);

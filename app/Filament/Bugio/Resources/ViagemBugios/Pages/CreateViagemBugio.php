@@ -37,6 +37,7 @@ class CreateViagemBugio extends CreateRecord
         $data['condutor']                    = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
         $data['created_by']                  = Auth::id();
         $data['numero_sequencial']           = $data['numero_sequencial'] ?? $this->getNroSequencial();
+        $data['status']                      = 'pendente';
         $data['info_adicionais']['motorista-cpf'] = $data['motorista'] ?? null;
 
         unset($data['data-integrados']);

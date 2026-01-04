@@ -87,6 +87,7 @@ class ViagemBugioForm
                                     ->columnStart(1)
                                     ->columnSpan(2)
                                     ->inline(false)
+                                    ->grow()
                                     ->default(true),
                                 TextInput::make('info_adicionais.cte_referencia')
                                     ->label('CTe de Referência')
@@ -114,6 +115,7 @@ class ViagemBugioForm
                                     ->reactive(),
                                 Select::make('destinos.integrado_id')
                                     ->label('Integrado')
+                                    ->columnStart(1)
                                     ->searchable()
                                     ->columnSpan(['md' => 2, 'xl' => 4])
                                     ->preload()

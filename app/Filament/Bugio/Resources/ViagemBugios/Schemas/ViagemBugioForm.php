@@ -101,7 +101,7 @@ class ViagemBugioForm
                                     ->required()
                                     ->readOnly()
                                     ->default(0)
-                                    ->minValue(0)
+                                    // ->minValue(0)
                                     ->reactive(),
                                 TextInput::make('valor_frete')
                                     ->label('Valor do Frete')
@@ -128,7 +128,7 @@ class ViagemBugioForm
                                             $integrado = \App\Models\Integrado::find($state);
                                             $kmRota = $integrado?->km_rota;
                                             $municipio = $integrado?->municipio;
-                                            $kmTotal = $get('km_total') + ($kmRota ?? 0);
+                                            $kmTotal = $kmRota ?? 0;
                                             $frete = self::calcularFrete($kmTotal);
                                             $set('destinos.km_rota', $kmRota ?? 0);
                                             $set('destinos.municipio', $municipio ?? '');

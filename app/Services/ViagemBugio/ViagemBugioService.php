@@ -147,6 +147,7 @@ class ViagemBugioService
                 'valor_icms'            => 0,
                 'tipo_documento'        => $viagemBugio->info_adicionais['tipo_documento'],
                 'viagem_id'             => $viagem->id,
+                'data_emissao'          => now(),
             ];
 
             $documentoService = new DocumentoFreteService();

@@ -73,6 +73,7 @@ class ViagemBugiosTable
                 TextColumn::make('nro_notas')
                     ->label('Nro Notas')
                     ->width('1%')
+                    ->disabledClick()
                     ->formatStateUsing(function ($state) {
                         if (empty($state)) {
                             return '-';
@@ -91,6 +92,7 @@ class ViagemBugiosTable
                 TextColumn::make('numero_sequencial')
                     ->label('Nº Sequencial')
                     ->width('1%')
+                    ->disabledClick()
                     ->formatStateUsing(function ($state) {
                         return $state ? str_pad($state, 6, '0', STR_PAD_LEFT) : '-';
                     })

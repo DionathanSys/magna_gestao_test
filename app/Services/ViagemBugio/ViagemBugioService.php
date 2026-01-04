@@ -112,7 +112,7 @@ class ViagemBugioService
                 'unidade_negocio'       => $viagemBugio->veiculo->filial,
                 'cliente'               => ClienteEnum::BUGIO->value,
                 'numero_viagem'         => 'BG-' . $viagemBugio->numero_sequencial,
-                'documento_transporte'  => 'DocT-' . $viagemBugio->numero_sequencial,
+                'documento_transporte'  => $viagemBugio->numero_sequencial,
                 'km_rodado'             => 0,
                 'km_cadastro'           => $viagemBugio->km_pago,
                 'km_cobrar'             => 0,

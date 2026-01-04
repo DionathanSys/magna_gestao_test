@@ -21,7 +21,7 @@ class ViagemBugioForm
         return $schema
             ->components([
                 Grid::make()
-                    ->columns(2)
+                    ->columns(['lg' => 2])
                     ->columnSpanFull()
                     ->schema([
                         Section::make('Detalhes da Viagem')

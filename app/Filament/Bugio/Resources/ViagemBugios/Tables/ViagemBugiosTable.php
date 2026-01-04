@@ -72,6 +72,11 @@ class ViagemBugiosTable
                             ->filter()
                             ->join(', ');
                     }),
+                TextColumn::make('nro_documento')
+                    ->label('Nº Doc. Frete')
+                    ->width('1%')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('nro_notas')
                     ->label('Nro Notas')
                     ->width('1%')
@@ -221,7 +226,7 @@ class ViagemBugiosTable
                         ->titlePrefixedWithLabel(false)
                         ->getTitleFromRecordUsing(fn(ViagemBugio $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
                         ->collapsible()
-                        ->orderQueryUsing(fn (Builder $query, string $direction) => $query->orderBy('data_competencia', 'desc')),
+                        ->orderQueryUsing(fn(Builder $query, string $direction) => $query->orderBy('data_competencia', 'desc')),
                     Group::make('veiculo.placa')
                         ->label('Veículo')
                         ->titlePrefixedWithLabel(false)
@@ -246,7 +251,7 @@ class ViagemBugiosTable
                     ->icon(Heroicon::PaperAirplane)
                     ->color('info')
                     ->iconButton()
-                    ->action(function(ViagemBugio $record) {
+                    ->action(function (ViagemBugio $record) {
                         $bugioService = new ViagemBugioService();
                         $bugioService->solicitarCte($record);
                     })
@@ -262,7 +267,7 @@ class ViagemBugiosTable
                     ->iconButton()
                     ->icon(Heroicon::ClipboardDocumentCheck)
                     ->disabled(fn(ViagemBugio $record) => $record->nro_documento != null)
-                    ->action(function(ViagemBugio $record, $data) {
+                    ->action(function (ViagemBugio $record, $data) {
 
                         Validator::make($data, [
                             'nro_documento' => 'required|numeric|min:1'
@@ -274,7 +279,6 @@ class ViagemBugiosTable
 
                         $bugioService = new ViagemBugioService();
                         $bugioService->createViagemFromBugio($record);
-
                     })
 
 
@@ -286,5 +290,4 @@ class ViagemBugiosTable
                 ]),
             ]);
     }
-
 }

@@ -258,6 +258,10 @@ class ViagemBugiosTable
                             ->minValue(0)
                             ->required()
                     ])
+                    ->color('success')
+                    ->iconButton()
+                    ->icon(Heroicon::ClipboardDocumentCheck)
+                    ->disabled(fn(ViagemBugio $record) => $record->nro_documento != null)
                     ->action(function(ViagemBugio $record, $data) {
 
                         Validator::make($data, [

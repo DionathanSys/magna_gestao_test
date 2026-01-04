@@ -141,7 +141,7 @@ class ViagemBugioService
                 'parceiro_destino'      => 'BUGIO NUTRICAO',
                 'parceiro_origem'       => 'BUGIO AGROPECUARIA',
                 'numero_documento'      => (string) $viagemBugio->nro_documento,
-                'documento_transporte'  => 'DocT-' . $viagemBugio->numero_sequencial,
+                'documento_transporte'  => $viagemBugio->numero_sequencial,
                 'data_emissao'          => $viagemBugio->data_emissao,
                 'valor_total'           => $viagemBugio->frete,
                 'valor_icms'            => 0,

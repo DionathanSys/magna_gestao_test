@@ -139,10 +139,17 @@ class ViagemBugioService
                     return null;
                 }
 
+                $totalKm = ViagemBugio::query()
+                    ->where('numero_sequencial', $viagemBugio->numero_sequencial)
+                    ->sum('km_pago');
+
+                $viagem->update([
+                    'km_pago' => $totalKm,
+                ]);
+
             } else {
                 notify::success('Viagem criada com sucesso! ID da Viagem: ' . $viagem->id);
             }
-
 
             $dataDocFrete = [
                 'veiculo_id'            => $viagemBugio->veiculo_id,

@@ -112,7 +112,7 @@ class ViagemBugioService
                 'unidade_negocio'       => $viagemBugio->veiculo->filial,
                 'cliente'               => ClienteEnum::BUGIO->value,
                 'numero_viagem'         => 'BG-' . $viagemBugio->numero_sequencial,
-                'documento_transporte'  => $viagemBugio->numero_sequencial,
+                'documento_transporte'  => (string) $viagemBugio->numero_sequencial,
                 'km_rodado'             => 0,
                 'km_cadastro'           => $viagemBugio->km_pago,
                 'km_cobrar'             => 0,
@@ -131,10 +131,20 @@ class ViagemBugioService
 
             if (!$viagem) {
                 notify::error('Erro ao criar viagem para o registro ID: ' . $viagemBugio->id);
-                return null;
+
+                $query = Viagem::query()->where('numero_viagem', 'BG-'.$viagemBugio->numero_sequencial);
+
+                if(!$query->exists){
+                    notify::error(mensagem: 'Viagem não encontrada');
+                    return null;
+                }
+
+                $viagem = $query->get()->first();
+
+            } else {
+                notify::success('Viagem criada com sucesso! ID da Viagem: ' . $viagem->id);
             }
 
-            notify::success('Viagem criada com sucesso! ID da Viagem: ' . $viagem->id);
 
             $dataDocFrete = [
                 'veiculo_id'            => $viagemBugio->veiculo_id,
@@ -146,7 +156,7 @@ class ViagemBugioService
                 'valor_total'           => $viagemBugio->frete,
                 'valor_icms'            => 0,
                 'tipo_documento'        => $viagemBugio->info_adicionais['tipo_documento'],
-                'viagem_id'             => $viagem->id,
+                'viagem_id'             => $viagem->id ?? null,
                 'data_emissao'          => now(),
             ];
 
@@ -159,7 +169,7 @@ class ViagemBugioService
                 ->where('numero_sequencial', $viagemBugio->numero_sequencial)
                 ->update([
                     'documento_frete_id' => $documentoFrete?->id,
-                    'viagem_id' => $viagem->id,
+                    'viagem_id' => $viagem->id ?? null,
                 ]);
 
             foreach ($destinos as $integradoId) {

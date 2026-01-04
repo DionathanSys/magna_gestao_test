@@ -137,10 +137,11 @@ class ViagemBugioForm
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
 
-                                            if(Str::upper($integrado->municipio) == 'GUATAMBU'){
+                                            if (Str::upper($integrado->municipio) == 'GUATAMBU') {
                                                 $set('info_adicionais.tipo_documento', TipoDocumentoEnum::NFS->value);
+                                                $set('info_adicionais.cte_retroativo', false);
+                                                $set('info_adicionais.cte_referencia', null);
                                             }
-
                                         } else {
                                             $kmTotal = $get('km_total') - $get('km_rota', 0);
                                             $frete = self::calcularFrete($kmTotal);

@@ -132,14 +132,12 @@ class ViagemBugioService
             if (!$viagem) {
                 notify::error('Erro ao criar viagem para o registro ID: ' . $viagemBugio->id);
 
-                $query = Viagem::query()->where('numero_viagem', 'BG-'.$viagemBugio->numero_sequencial);
+                $viagem = Viagem::query()->where('numero_viagem', 'BG-'.$viagemBugio->numero_sequencial)->get()->first();
 
-                if(!$query->exists){
+                if(!$viagem){
                     notify::error(mensagem: 'Viagem não encontrada');
                     return null;
                 }
-
-                $viagem = $query->get()->first();
 
             } else {
                 notify::success('Viagem criada com sucesso! ID da Viagem: ' . $viagem->id);

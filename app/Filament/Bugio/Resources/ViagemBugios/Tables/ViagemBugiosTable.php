@@ -236,14 +236,11 @@ class ViagemBugiosTable
             ->defaultSort('data_competencia', 'desc')
             ->recordActions([
                 ActionGroup::make([
-                    ViewAction::make()
-                        ->iconButton(),
+                    ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn() => Auth::user()->is_admin)
-                        ->iconButton(),
+                        ->visible(fn() => Auth::user()->is_admin),
                     VincularViagemAction::make()
-                        ->icon(Heroicon::Link)
-                        ->iconButton(),
+                        ->icon(Heroicon::Link),
                 ]),
                 Action::make('solicitar-email')
                     ->label('Solicitar CTe')

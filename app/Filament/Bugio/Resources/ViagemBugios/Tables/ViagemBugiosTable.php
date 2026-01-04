@@ -17,6 +17,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemBugiosTable
@@ -249,6 +251,27 @@ class ViagemBugiosTable
                         $bugioService->solicitarCte($record);
                     })
                     ->requiresConfirmation(),
+                Action::make('inserir_nro_documento')
+                    ->schema([
+                        TextInput::make('nro_documento')
+                            ->label('Nro. CTe emitido')
+                            ->minValue(0)
+                            ->required()
+                    ])
+                    ->action(function(ViagemBugio $record, $data) {
+                        
+                        Validator::make($data, [
+                            'nro_documento' => 'required|existis:documentos_frete,nro_documento'
+                        ])->validate();
+
+                        $record->update([
+                            'nro_documento' => $data['nro_documento'],
+                        ]);
+
+                        $bugioService = new ViagemBugioService();
+                        $bugioService->createViagemFromBugio($record);
+
+                    })
 
 
             ], position: RecordActionsPosition::BeforeColumns)

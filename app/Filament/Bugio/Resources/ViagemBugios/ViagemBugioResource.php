@@ -22,11 +22,11 @@ class ViagemBugioResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Map;
 
-    protected static ?string $modelLabel = 'Viagem';
+    protected static ?string $modelLabel = 'Solicitação';
 
-    protected static ?string $pluralModelLabel = 'Viagens';
+    protected static ?string $pluralModelLabel = 'Solicitações';
 
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'numero_sequencial';
 
     public static function form(Schema $schema): Schema
     {

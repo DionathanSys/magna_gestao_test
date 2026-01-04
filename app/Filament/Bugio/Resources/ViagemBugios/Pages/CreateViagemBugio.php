@@ -2,6 +2,7 @@
 
 namespace App\Filament\Bugio\Resources\ViagemBugios\Pages;
 
+use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Bugio\Resources\ViagemBugios\ViagemBugioResource;
 use App\Jobs\SolicitarCteBugio;
@@ -13,6 +14,7 @@ use App\Services\ViagemBugio\ViagemBugioService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\NotificacaoService as notify;
+use App\Services\ViagemNumberService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -26,15 +28,16 @@ class CreateViagemBugio extends CreateRecord
     {
 
         $data['destinos']['integrado_nome']  = Integrado::find($data['destinos']['integrado_id'])?->nome ?? 'N/A';
-        $data['destinos']           = [$data['destinos']];
-        $data['veiculo_id']         = Veiculo::query()->where('placa', $data['veiculo'])->value('id');
-        $data['km_pago']            = $data['km_total'] ?? 0;
-        $data['km_rodado']          = 0;
-        $data['data_competencia']   = $data['data_competencia'] ? Carbon::createFromFormat('d/m/Y', $data['data_competencia'])->format('Y-m-d') : now()->format('Y-m-d');
-        $data['frete']              = $this->calcularFrete($data['km_total']);
-        $data['condutor']           = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
+        $data['destinos']                    = [$data['destinos']];
+        $data['veiculo_id']                  = Veiculo::query()->where('placa', $data['veiculo'])->value('id');
+        $data['km_pago']                     = $data['km_total'] ?? 0;
+        $data['km_rodado']                   = 0;
+        $data['data_competencia']            = $data['data_competencia'] ? Carbon::createFromFormat('d/m/Y', $data['data_competencia'])->format('Y-m-d') : now()->format('Y-m-d');
+        $data['frete']                       = $this->calcularFrete($data['km_total']);
+        $data['condutor']                    = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
+        $data['created_by']                  = Auth::id();
+        $data['numero_sequencial']           = $data['numero_sequencial'] ?? $this->getNroSequencial();
         $data['info_adicionais']['motorista-cpf'] = $data['motorista'] ?? null;
-        $data['created_by']         = Auth::id();
 
         unset($data['data-integrados']);
 
@@ -53,15 +56,15 @@ class CreateViagemBugio extends CreateRecord
 
         notify::success('Viagem Criada com Sucesso');
 
-        $bugioService = new ViagemBugioService();
+        // $bugioService = new ViagemBugioService();
 
-        if($result->info_adicionais['tipo_documento'] !== TipoDocumentoEnum::NFS->value){
-            $bugioService->solicitarCte($result);
-            notify::success('Solicitado emissão de CTe via email');
-            return $result;
-        }
+        // if($result->info_adicionais['tipo_documento'] !== TipoDocumentoEnum::NFS->value){
+        //     $bugioService->solicitarCte($result);
+        //     notify::success('Solicitado emissão de CTe via email');
+        //     return $result;
+        // }
 
-        $bugioService->createViagemFromBugio($result);
+        // $bugioService->createViagemFromBugio($result);
 
         return $result;
     }
@@ -71,5 +74,12 @@ class CreateViagemBugio extends CreateRecord
         $valorQuilometro = db_config('config-bugio.valor-quilometro', 0);
 
         return $valorQuilometro * $kmTotal;
+    }
+
+    private function getNroSequencial()
+    {
+        $service = new ViagemNumberService();
+        $n = $service->next(ClienteEnum::BUGIO->prefixoViagem());
+        return $n['numero_sequencial'];
     }
 }

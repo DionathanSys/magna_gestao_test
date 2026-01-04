@@ -245,7 +245,7 @@ class ViagemBugiosTable
                         $bugioService = new ViagemBugioService();
                         $bugioService->solicitarCte($record);
                     })
-                    ->disabled(fn(ViagemBugio $record) => ($record->info_adicionais['tipo_documento'] ?? TipoDocumentoEnum::NFS->value )== TipoDocumentoEnum::NFS->value || $record->status == 'concluido'),
+                    ->requiresConfirmation(),
 
 
             ], position: RecordActionsPosition::BeforeColumns)

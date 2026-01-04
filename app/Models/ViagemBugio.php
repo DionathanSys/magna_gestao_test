@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Log;
 
 class ViagemBugio extends Model
 {
@@ -38,4 +39,15 @@ class ViagemBugio extends Model
         return $this->belongsTo(Viagem::class, 'viagem_id');
     }
 
+    protected static function booted()
+    {
+        static::created(function(self $model){
+            Log::info('Solicitação Viagem Bugio Criada - ' . __METHOD__, [
+                'id' => $model->id,
+            ]);
+
+        });
+
+        
+    } 
 }

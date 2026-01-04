@@ -23,7 +23,7 @@ class DocumentoFreteService
 
     public function __construct() {}
 
-    public function criarDocumentoFrete(array $dados): void
+    public function criarDocumentoFrete(array $dados)
     {
 
         try {
@@ -46,6 +46,8 @@ class DocumentoFreteService
             $this->setSuccess('Documento registrado com sucesso.');
 
             VincularViagemDocumentoFrete::dispatch($dados['documento_transporte']);
+
+            return $documentoFrete;
         } catch (\Exception $e) {
 
             Log::error('Erro ao criar documento de frete.', [

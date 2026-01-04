@@ -162,10 +162,6 @@ class ViagemBugioService
                     'viagem_id' => $viagem->id,
                 ]);
 
-            // Log::debug('após atualizar os id', [
-            //     'var' => $atualizacaoSolicitacao,
-            // ]);
-
             foreach ($destinos as $integradoId) {
                 $integrado = \App\Models\Integrado::find($integradoId);
 

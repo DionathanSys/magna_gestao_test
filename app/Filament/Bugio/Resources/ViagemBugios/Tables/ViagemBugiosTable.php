@@ -259,9 +259,9 @@ class ViagemBugiosTable
                             ->required()
                     ])
                     ->action(function(ViagemBugio $record, $data) {
-                        
+
                         Validator::make($data, [
-                            'nro_documento' => 'required|existis:documentos_frete,nro_documento'
+                            'nro_documento' => 'required|numeric|min:1'
                         ])->validate();
 
                         $record->update([

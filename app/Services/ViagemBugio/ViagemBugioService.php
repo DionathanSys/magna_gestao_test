@@ -155,16 +155,16 @@ class ViagemBugioService
 
             notify::success('Documento de frete criado');
 
-            $atualizacaoSolicitacao = ViagemBugio::query()
+            ViagemBugio::query()
                 ->where('numero_sequencial', $viagemBugio->numero_sequencial)
                 ->update([
-                    'documento_frete_id' => $$documentoFrete->id,
+                    'documento_frete_id' => $documentoFrete?->id,
                     'viagem_id' => $viagem->id,
                 ]);
 
-            Log::debug('após atualizar os id', [
-                'var' => $atualizacaoSolicitacao,
-            ]);
+            // Log::debug('após atualizar os id', [
+            //     'var' => $atualizacaoSolicitacao,
+            // ]);
 
             foreach ($destinos as $integradoId) {
                 $integrado = \App\Models\Integrado::find($integradoId);

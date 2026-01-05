@@ -126,10 +126,10 @@
             <thead>
                 <tr>
                     <th width="10%">ID</th>
-                    <th width="39%">Descrição</th>
+                    <th width="42%">Descrição</th>
                     <th width="10%">Pos.</th>
                     <th width="35%">Observação</th>
-                    <th width="6%">Observação</th>
+                    <th width="3%">OK</th>
                 </tr>
             </thead>
             <tbody>

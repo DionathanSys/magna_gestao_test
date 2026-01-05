@@ -233,9 +233,8 @@
     <div class="footer">
         @if ($osSankhya->isNotEmpty())
             <p>
-                Associado às ordens
+                Este documento está associado ao sistema Sankhya através da(s) ordem(ns)
                 {{ $osSankhya->pluck('ordem_sankhya_id')->implode(', ') }}
-                do sistema Sankhya
             </p>
         @endif
     </div>

@@ -155,7 +155,7 @@
         <table>
             <thead>
                 <tr>
-                    <th width="45%">Mecânico</th>
+                    <th width="45%">Serviço</th>
                     <th width="15%">Início</th>
                     <th width="15%">Fim</th>
                     <th width="25%">Assinatura</th>

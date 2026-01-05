@@ -126,9 +126,10 @@
             <thead>
                 <tr>
                     <th width="10%">ID</th>
-                    <th width="45%">Descrição</th>
+                    <th width="39%">Descrição</th>
                     <th width="10%">Pos.</th>
                     <th width="35%">Observação</th>
+                    <th width="6%">Observação</th>
                 </tr>
             </thead>
             <tbody>
@@ -138,6 +139,7 @@
                         <td>{{ $item->servico->descricao }}</td>
                         <td class="center">{{ $item->posicao }}</td>
                         <td>{{ $item->observacao }}</td>
+                        <td></td>
                     </tr>
                 @endforeach
             </tbody>

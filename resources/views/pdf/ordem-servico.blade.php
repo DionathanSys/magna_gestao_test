@@ -228,7 +228,7 @@
             {{ date('d/m/Y H:i:s') }}</p>
     </div>
 
-    {{-- <div class="footer">
+    <div class="footer">
         @if ($osSankhya->isNotEmpty())
             <p>
                 Associado às ordens
@@ -236,7 +236,7 @@
                 do sistema Sankhya
             </p>
         @endif
-    </div> --}}
+    </div>
 </body>
 
 </html>

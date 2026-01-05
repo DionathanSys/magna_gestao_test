@@ -137,7 +137,7 @@
                         <td class="center">{{ $item->id }}</td>
                         <td>{{ $item->servico->descricao }}</td>
                         <td class="center">{{ $item->posicao }}</td>
-                        <td>{{ $item->servico->observacao }}</td>
+                        <td>{{ $item->observacao }}</td>
                     </tr>
                 @endforeach
             </tbody>

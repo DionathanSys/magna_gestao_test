@@ -5,6 +5,7 @@ namespace App\Services\OrdemServico;
 use App\Models\OrdemServico;
 use App\Services\Pdf\MakePdf;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class OrdemServicoPdfService
 {
@@ -26,6 +27,7 @@ class OrdemServicoPdfService
 
         $data = [
             'ordemServico' => $ordemServico,
+            'osSankhya'    => $ordemServico->sankhyaId,
             'dataGeracao' => now()->format('d/m/Y H:i:s')
         ];
 
@@ -34,8 +36,9 @@ class OrdemServicoPdfService
         return response()->streamDownload(
             function () use ($pdf) {
                 echo $pdf->stream();
-            }, 'ordem-servico-' . date('Y-m-d-H-i') . '.pdf');
-
+            },
+            'ordem-servico-' . date('Y-m-d-H-i') . '.pdf'
+        );
     }
 
     /**
@@ -56,6 +59,7 @@ class OrdemServicoPdfService
 
         $data = [
             'ordemServico' => $ordemServico,
+            'osSankhya'    => $ordemServico->sankhyaId,
             'dataGeracao' => now()->format('d/m/Y H:i:s')
         ];
 
@@ -91,7 +95,9 @@ class OrdemServicoPdfService
         return response()->streamDownload(
             function () use ($pdf) {
                 echo $pdf->stream();
-            }, 'ordem-servico-tailwind-' . date('Y-m-d-H-i') . '.pdf');
+            },
+            'ordem-servico-tailwind-' . date('Y-m-d-H-i') . '.pdf'
+        );
     }
 
     /**

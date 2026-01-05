@@ -61,6 +61,10 @@ class ViagemBugioForm
                                 DatePicker::make('data_competencia')
                                     ->format('d/m/Y')
                                     ->columnSpan(['md' => 1, 'xl' => 2]),
+                                TextInput::make('info_adicionais.peso')
+                                    ->label('Peso Carga')
+                                    ->minValue(0)
+                                    ->required(),
                                 TagsInput::make('nro_notas')
                                     ->label('Nº de Notas Fiscais')
                                     ->columnStart(1)

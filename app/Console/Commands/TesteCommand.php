@@ -12,6 +12,8 @@ use App\Models\ViagemBugio;
 use App\Services\Veiculo\VeiculoService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class TesteCommand extends Command
 {
@@ -34,10 +36,11 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $viagem = ViagemBugio::find(252);
-
-        $this->info('viagem id: '.$viagem->id);
-        dump($viagem->anexos);
-        dd(Storage::disk('local')->exists($viagem->anexos[0]));
+        $itens_ordem_servico = Schema::getColumnListing('itens_ordem_servico');
+        dump('itens_ordem_servico', $itens_ordem_servico);
+        $veiculos = Schema::getColumnListing('veiculos');
+        dump('veiculos', $veiculos);
+        $ordens_servico = Schema::getColumnListing('ordens_servico');
+        dd('ordens_servico', $ordens_servico);
     }
 }

@@ -67,11 +67,13 @@ class ViagensRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('numero_viagem')
                     ->label('Nº Viagem')
+                    ->disabledClick()
                     ->width('1%')
                     ->searchable(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transporte')
                     ->width('1%')
+                    ->disabledClick()
                     ->searchable(),
                 TextColumn::make('integrados_nomes')
                     ->label('Integrado')

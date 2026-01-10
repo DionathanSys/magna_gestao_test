@@ -57,7 +57,7 @@ class ViagemForm
                             ->required()
                             ->columnSpan(4),
                         TextInput::make('resultado_periodo_id')
-                            ->label('resultado_periodo_id'),
+                            ->label('ID Resultado período'),
                         TextInput::make('numero_viagem')
                             ->required()
                             ->columnStart(1)

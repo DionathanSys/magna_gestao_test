@@ -516,7 +516,14 @@ class ViagemsTable
                             'created_by',
                             'updated_by',
                             'checked_by',
-                            'resultado_periodo_id'
+                            'resultado_periodo_id',
+                            'integrados_nomes',
+                            'km_dispersao',
+                            'dispersao_percentual',
+                            'km_rota_corrigido',
+                            'documentos_count',
+                            'comentarios_exists',
+                            'cargas_count',
                             ]),
                     DeleteAction::make(),
                 ])->link()

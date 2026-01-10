@@ -524,7 +524,7 @@ class ViagemsTable
                             'km_cadastro'           => $record->km_cadastro,
                             'motivo_divergencia'    => $record->motivo_divergencia,
                         ])
-                        ->schema(fn(Schema $schema) => ViagemResource::form($schema)->columns(4))
+                        ->schema(fn(Schema $schema) => ViagemResource::form($schema))
                         ->successNotificationTitle('Viagem Duplicada')
                         ->excludeAttributes([
                             'id',
@@ -536,7 +536,6 @@ class ViagemsTable
                             'created_by',
                             'updated_by',
                             'checked_by',
-                            'resultado_periodo_id',
                             'integrados_nomes',
                             'km_dispersao',
                             'dispersao_percentual',

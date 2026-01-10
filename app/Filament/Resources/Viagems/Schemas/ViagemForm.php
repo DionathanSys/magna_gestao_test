@@ -56,6 +56,8 @@ class ViagemForm
                             ->native(false)
                             ->required()
                             ->columnSpan(4),
+                        TextInput::make('resultado_periodo_id')
+                            ->label('resultado_periodo_id'),
                         TextInput::make('numero_viagem')
                             ->required()
                             ->columnStart(1)

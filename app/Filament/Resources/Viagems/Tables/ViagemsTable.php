@@ -508,6 +508,7 @@ class ViagemsTable
                         })
                         ->successNotificationTitle('Viagem Duplicada')
                         ->excludeAttributes([
+                            'id',
                             'documento_transporte',
                             'conferido',
                             'divergencias',

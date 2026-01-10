@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Viagems\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
-use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction,};
+use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction, ReplicateAction,};
 use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn,};
 use Filament\Tables\Table;
 use App\{Models, Services, Enum};
@@ -495,6 +495,29 @@ class ViagemsTable
                         ->url(fn(Models\Viagem $record): ?string => $record->maps_integrados['directions_url'] ?? null)
                         ->openUrlInNewTab()
                         ->visible(fn(Models\Viagem $record): bool => ! empty($record->maps_integrados)),
+                    ReplicateAction::make()
+                        ->label('Duplicar')
+                        ->mutateRecordDataUsing(function (array $data): array {
+                            $data['created_by'] = Auth::id();
+                            $data['updated_by'] = Auth::id();
+                            $data['conferido'] = false;
+                            $data['numero_viagem'] = $data['numero_viagem'] . '-B';
+                            $data['updated_by'] = Auth::id();
+
+                            return $data;
+                        })
+                        ->successNotificationTitle('Viagem Duplicada')
+                        ->excludeAttributes([
+                            'documento_transporte',
+                            'conferido',
+                            'divergencias',
+                            'created_at',
+                            'updated_at',
+                            'created_by',
+                            'updated_by',
+                            'checked_by',
+                            'resultado_periodo_id'
+                            ]),
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),

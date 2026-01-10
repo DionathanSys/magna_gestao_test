@@ -10,11 +10,14 @@ use App\{Models, Services, Enum};
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\{DocumentoFretes, Viagems};
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Resources\Viagems\ViagemResource;
+use App\Models\Viagem;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\{DatePicker, Select, TextInput};
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Filters\{Filter, Indicator, QueryBuilder, SelectFilter, TernaryFilter};
 use Filament\Tables\Grouping\Group;
@@ -506,6 +509,22 @@ class ViagemsTable
 
                             return $data;
                         })
+                        ->fillForm(fn(Viagem $record) => [
+                            'veiculo_id'            => $record->veiculo_id,
+                            'unidade_negocio'       => $record->unidade_negocio,
+                            'numero_viagem'         => $record->numero_viagem,
+                            'data_aquisicao'        => $record->data_aquisicao,
+                            'considerar_relatorio'  => $record->considerar_relatorio,
+                            'data_competencia'      => $record->data_competencia,
+                            'data_inicio'           => $record->data_inicio,
+                            'data_fim'              => $record->data_fim,
+                            'km_rodado'             => $record->km_rodado,
+                            'km_pago'               => $record->km_pago,
+                            'km_cobrar'             => $record->km_cobrar,
+                            'km_cadastro'           => $record->km_cadastro,
+                            'motivo_divergencia'    => $record->motivo_divergencia,
+                        ])
+                        ->schema(fn(Schema $schema) => ViagemResource::form($schema)->columns(4))
                         ->successNotificationTitle('Viagem Duplicada')
                         ->excludeAttributes([
                             'id',
@@ -525,7 +544,7 @@ class ViagemsTable
                             'documentos_count',
                             'comentarios_exists',
                             'cargas_count',
-                            ]),
+                        ]),
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),

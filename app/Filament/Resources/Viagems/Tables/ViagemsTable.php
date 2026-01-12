@@ -40,6 +40,7 @@ class ViagemsTable
                         $query->select(['id', 'viagem_id', 'integrado_id', 'km_dispersao', 'km_dispersao_rateio'])
                             ->with('integrado:id,nome,municipio,codigo,latitude,longitude');
                     },
+                    'documentos',
                     'veiculo:id,placa',
                     'comentarios.creator:id,name',
                     'checker:id,name',
@@ -82,6 +83,12 @@ class ViagemsTable
                     ->disabledClick()
                     ->default('Sem Doc. Transp.')
                     ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('documentos_frete_resumo')
+                    ->label('Fretes')
+                    ->html()
+                    ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo))
+                    ->wrap()
+                    ->toggleable(),
                 ColumnGroup::make('KM', [
                     TextColumn::make('km_rodado')
                         ->width('1%')

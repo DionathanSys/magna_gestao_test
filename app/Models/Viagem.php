@@ -24,7 +24,7 @@ class Viagem extends Model
         'numero_sequencial'     => 'integer',
     ];
 
-    protected $appends = ['integrados_nomes'];
+    protected $appends = ['integrados_nomes', 'documentos_frete_resumo',];
 
     /**
      * Relação com o modelo ResultadoPeriodo
@@ -132,8 +132,8 @@ class Viagem extends Model
                     ->unique()
                     ->values();
 
-                return $nomes->isEmpty() 
-                    ? 'Sem Integrado' 
+                return $nomes->isEmpty()
+                    ? 'Sem Integrado'
                     : $nomes->implode('<br>');
             }
         );
@@ -154,10 +154,11 @@ class Viagem extends Model
                 // ✅ Usa as cargas já carregadas para pegar os integrados
                 $integrados = $this->cargas
                     ->pluck('integrado')
-                    ->filter(fn($integrado) => 
-                        $integrado !== null && 
-                        !empty($integrado->latitude) && 
-                        !empty($integrado->longitude)
+                    ->filter(
+                        fn($integrado) =>
+                        $integrado !== null &&
+                            !empty($integrado->latitude) &&
+                            !empty($integrado->longitude)
                     )
                     ->unique('id') // Remove duplicados
                     ->values();
@@ -199,5 +200,34 @@ class Viagem extends Model
                 (new CargaService())->atualizarKmDispersao($model->id);
             }
         });
+    }
+
+    protected function documentosFreteResumo(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                // Evita N+1 no Filament
+                if (! $this->relationLoaded('documentos')) {
+                    return 'N/A';
+                }
+
+                $docs = $this->documentos
+                    ->whereNotNull('viagem_id') // somente vinculados
+                    ->map(fn($doc) => [
+                        'numero' => $doc->numero_documento,
+                        'valor'  => $doc->valor_liquido,
+                    ])
+                    ->values();
+
+                if ($docs->isEmpty()) {
+                    return 'Sem frete';
+                }
+
+                // Formato amigável para Table do Filament
+                return $docs
+                    ->map(fn($d) => "Doc {$d['numero']} - R$ " . number_format($d['valor'], 2, ',', '.'))
+                    ->implode('<br>');
+            }
+        );
     }
 }

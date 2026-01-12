@@ -225,7 +225,7 @@ class Viagem extends Model
 
                 // Formato amigável para Table do Filament
                 return $docs
-                    ->map(fn($d) => "Doc {$d['numero']} - R$ " . number_format($d['valor'], 2, ',', '.'))
+                    ->map(fn($d) => "Nº {$d['numero']} - R$" . number_format($d['valor'], 2, ',', '.'))
                     ->implode('<br>');
             }
         );

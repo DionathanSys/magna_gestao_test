@@ -84,6 +84,7 @@ class ViagensRelationManager extends RelationManager
                     ->disabledClick(),
                 TextColumn::make('documentos_frete_resumo')
                     ->label('Fretes')
+                    ->width('1%')
                     ->html()
                     ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo))
                     ->wrap()
@@ -170,7 +171,6 @@ class ViagensRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_inicio')
                     ->label('Dt. Início')
-                    ->width('1%')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),

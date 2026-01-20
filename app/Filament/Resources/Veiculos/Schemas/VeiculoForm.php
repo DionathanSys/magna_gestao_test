@@ -96,6 +96,15 @@ class VeiculoForm
                         DatePicker::make('informacoes_complementares.data_ultimo_checklist')
                             ->label('Dt. Último Checklist')
                             ->columnSpan(2),
+                            TextInput::make('informacoes_complementares.ano_modelo')
+                                ->label('Ano Modelo')
+                                ->columnSpan(2),
+                            TextInput::make('informacoes_complementares.ano_fabricacao')
+                                ->label('Ano Fabricação')
+                                ->columnSpan(2),
+                            TextInput::make('informacoes_complementares.ano_silo')
+                                ->label('Ano Fab. Silo')
+                                ->columnSpan(2),
                     ])
 
 

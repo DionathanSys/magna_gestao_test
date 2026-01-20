@@ -143,7 +143,8 @@ class ViagensRelationManager extends RelationManager
                                 )->value('aggregate');
                             })
                             ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                    ),
+                    )
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('km_cobrar')
                     ->label('Km Cobrar')
                     ->width('1%')
@@ -153,29 +154,35 @@ class ViagensRelationManager extends RelationManager
                             ->numeric(2, ',', '.')
                             ->label('Total Km Cobrar')
                     )
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('motivo_divergencia')
                     ->label('Motivo Divergência')
                     ->width('1%')
                     ->badge()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('data_competencia')
                     ->label('Dt. Competência')
                     ->width('1%')
                     ->date('d/m/Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_inicio')
                     ->label('Dt. Início')
                     ->width('1%')
                     ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_fim')
                     ->label('Dt. Fim')
                     ->width('1%')
                     ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('conferido')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

@@ -85,6 +85,7 @@ class ViagemsTable
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documentos_frete_resumo')
                     ->label('Fretes')
+                    ->width('1%')
                     ->html()
                     ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo))
                     ->wrap()
@@ -576,5 +577,5 @@ class ViagemsTable
             ]);
     }
 
-    
+
 }

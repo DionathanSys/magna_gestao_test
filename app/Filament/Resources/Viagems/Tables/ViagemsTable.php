@@ -575,4 +575,6 @@ class ViagemsTable
                 ]),
             ]);
     }
+
+    
 }

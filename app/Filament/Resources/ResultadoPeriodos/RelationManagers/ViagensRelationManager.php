@@ -8,6 +8,7 @@ use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
 use App\Filament\Resources\Viagems\Actions\VisualizarComentarioAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
+use App\Models\Viagem;
 use App\Services\ViagemService;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -61,7 +62,7 @@ class ViagensRelationManager extends RelationManager
                 ])
                     // antecipa o cálculo de existência para evitar N+1
                     ->withExists(['comentarios'])
-                    ->withCount('cargas');
+                    ->withCount(['cargas', 'documentos']);
             })
             ->recordTitleAttribute('resultado_periodo_id')
             ->columns([
@@ -81,6 +82,12 @@ class ViagensRelationManager extends RelationManager
                     ->html()
                     ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes))
                     ->disabledClick(),
+                TextColumn::make('documentos_frete_resumo')
+                    ->label('Fretes')
+                    ->html()
+                    ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo))
+                    ->wrap()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('km_rodado')
                     ->label('Km Rodado')
                     ->width('1%')
@@ -122,21 +129,21 @@ class ViagensRelationManager extends RelationManager
                     ->numeric(2, ',', '.')
                     ->sortable()
                     ->summarize(
-                            Summarizer::make()
-                                ->label('Dispersão %')
-                                ->using(function ($query) {
-                                    // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
-                                    return $query->selectRaw(
-                                        <<<'SQL'
+                        Summarizer::make()
+                            ->label('Dispersão %')
+                            ->using(function ($query) {
+                                // calcula (SUM(km_dispersao) / SUM(km_rodado)) * 100, trata divisão por zero
+                                return $query->selectRaw(
+                                    <<<'SQL'
                                     CASE
                                         WHEN COALESCE(SUM(km_rodado), 0) = 0 THEN NULL
                                         ELSE (SUM(km_dispersao) / SUM(km_rodado)) * 100
                                     END AS aggregate
                                 SQL
-                                    )->value('aggregate');
-                                })
-                                ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ),
+                                )->value('aggregate');
+                            })
+                            ->numeric(decimalPlaces: 2, locale: 'pt-BR')
+                    ),
                 TextColumn::make('km_cobrar')
                     ->label('Km Cobrar')
                     ->width('1%')

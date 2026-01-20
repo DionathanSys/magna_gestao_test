@@ -105,6 +105,9 @@ class VeiculoForm
                             TextInput::make('informacoes_complementares.ano_silo')
                                 ->label('Ano Fab. Silo')
                                 ->columnSpan(2),
+                            TextInput::make('informacoes_complementares.marca_silo')
+                                ->label('Marca Silo')
+                                ->columnSpan(2),
                     ])
 
 

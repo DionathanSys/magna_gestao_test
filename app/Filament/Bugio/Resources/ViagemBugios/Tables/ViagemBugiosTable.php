@@ -104,7 +104,7 @@ class ViagemBugiosTable
                     })
                     ->sortable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('tipo_documento')
+                TextColumn::make('info_adicionais')
                     ->label('Tipo Doc.')
                     ->width('1%')
                     ->formatStateUsing(function ($state, ViagemBugio $record) {

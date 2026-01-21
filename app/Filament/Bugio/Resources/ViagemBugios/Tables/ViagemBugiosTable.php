@@ -114,9 +114,16 @@ class ViagemBugiosTable
                                 ? json_decode($record->info_adicionais, true) 
                                 : $record->info_adicionais;
                             
-                            return is_array($info) && isset($info['tipo_documento']) 
-                                ? $info['tipo_documento'] 
-                                : '-';
+                            if (is_array($info) && isset($info['tipo_documento'])) {
+                                $tipoDocumento = $info['tipo_documento'];
+                                
+                                // Se for CTe Complemento, retorna o valor de cte_referencia
+                                if ($tipoDocumento === 'CTe Complemento' && isset($info['cte_referencia'])) {
+                                    return 'Complemto ao CTe ' . $info['cte_referencia'];
+                                }
+                                
+                                return $tipoDocumento;
+                            }
                         }
                         return '-';
                     })

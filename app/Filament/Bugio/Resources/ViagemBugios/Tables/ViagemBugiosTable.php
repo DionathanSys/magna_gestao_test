@@ -234,6 +234,7 @@ class ViagemBugiosTable
             ->deferFilters()
             ->persistFiltersInSession()
             ->deselectAllRecordsWhenFiltered(false)
+            ->defaultSort('created_at', 'desc')
             ->defaultGroup('data_competencia')
             ->groupingDirectionSettingHidden()
             ->paginated([15, 25, 50, 100])

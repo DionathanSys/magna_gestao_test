@@ -113,6 +113,7 @@ class ViagemBugiosTable
                             $info = is_array($record->info_adicionais) 
                                 ? $record->info_adicionais 
                                 : json_decode($record->info_adicionais, true);
+                            Log::debug('Info Adicionais:', $info);
                             return $info['tipo_documento'] ?? $state ?? '-';
                         }
                         return $state ?? '-';

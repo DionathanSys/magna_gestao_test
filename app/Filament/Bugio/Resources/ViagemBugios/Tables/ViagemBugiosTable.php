@@ -107,6 +107,16 @@ class ViagemBugiosTable
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Doc.')
                     ->width('1%')
+                    ->formatStateUsing(function ($state, ViagemBugio $record) {
+                        // Recupera o valor do JSON em info_adicionais
+                        if ($record->info_adicionais) {
+                            $info = is_array($record->info_adicionais) 
+                                ? $record->info_adicionais 
+                                : json_decode($record->info_adicionais, true);
+                            return $info['tipo_documento'] ?? $state ?? '-';
+                        }
+                        return $state ?? '-';
+                    })
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),

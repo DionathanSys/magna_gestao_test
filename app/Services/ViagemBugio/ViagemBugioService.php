@@ -77,6 +77,12 @@ class ViagemBugioService
 
             ];
 
+            Log::debug('Dispatching job to solicitar CTe Bugio', [
+                'data' => $data,
+                'cte_complementar' => $viagemBugio->info_adicionais['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
+                'valor de Tipo Doc CTe Complemento' => TipoDocumentoEnum::CTE_COMPLEMENTO->value,
+            ]);
+
             SolicitarCteBugio::dispatch($data);
 
             $viagemBugio->update([

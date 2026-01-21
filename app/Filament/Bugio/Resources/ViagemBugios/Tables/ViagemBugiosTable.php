@@ -50,8 +50,7 @@ class ViagemBugiosTable
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
-                    ->sortable()
-                    ->searchable(isIndividual: true),
+                    ->sortable(),
                 TextColumn::make('destinos')
                     ->label('Integrados')
                     ->width('1%')
@@ -106,7 +105,7 @@ class ViagemBugiosTable
                     ->sortable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('tipo_documento')
-                    ->label('Motorista')
+                    ->label('Tipo Doc.')
                     ->width('1%')
                     ->sortable()
                     ->searchable(isIndividual: true)
@@ -145,8 +144,7 @@ class ViagemBugiosTable
                         'concluido' => 'CTe emitido',
                         'cancelada' => 'Cancelada',
                     ])
-                    ->sortable()
-                    ->searchable(isIndividual: true),
+                    ->sortable(),
                 TextColumn::make('viagem.numero_viagem')
                     ->label('Viagem Vinculada')
                     ->width('1%')
@@ -236,8 +234,10 @@ class ViagemBugiosTable
             ->deferFilters()
             ->persistFiltersInSession()
             ->deselectAllRecordsWhenFiltered(false)
-            ->defaultGroup('data_competencia')
+            ->defaultGroup('created_at', 'desc')
             ->groupingDirectionSettingHidden()
+            ->paginated([15, 25, 50, 100])
+            ->defaultPaginationPageOption(15)
             ->groups(
                 [
                     Group::make('data_competencia')

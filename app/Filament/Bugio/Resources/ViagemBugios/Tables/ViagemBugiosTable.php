@@ -94,7 +94,8 @@ class ViagemBugiosTable
                         return collect($state)
                             ->filter()
                             ->join(', ');
-                    }),
+                    })
+                    ->searchable(isIndividual: true),
                 TextColumn::make('numero_sequencial')
                     ->label('Nº Sequencial')
                     ->width('1%')
@@ -104,19 +105,21 @@ class ViagemBugiosTable
                     })
                     ->sortable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('info_adicionais')
+                TextColumn::make('tipo_documento_extraido')
                     ->label('Tipo Doc.')
                     ->width('1%')
-                    ->formatStateUsing(function ($state, ViagemBugio $record) {
-                        // Recupera o valor do JSON em info_adicionais
+                    ->state(function ($record) {
                         if ($record->info_adicionais) {
-                            Log::debug('Info Adicionais:', $record->info_adicionais);
-                            return $record->info_adicionais['tipo_documento'] ?? '-';
+                            $info = is_string($record->info_adicionais) 
+                                ? json_decode($record->info_adicionais, true) 
+                                : $record->info_adicionais;
+                            
+                            return is_array($info) && isset($info['tipo_documento']) 
+                                ? $info['tipo_documento'] 
+                                : '-';
                         }
-                        return '--';
+                        return '-';
                     })
-                    ->sortable()
-                    ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_competencia')
                     ->label('Data Viagem')

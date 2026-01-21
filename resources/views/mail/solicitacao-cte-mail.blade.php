@@ -16,11 +16,11 @@
     <p>Solicitamos a emissão de CT-e para a placa {{{$payload->veiculo}}} referente as NF's ({{is_array($payload->nro_notas) ? implode(', ', $payload->nro_notas) : $payload->nro_notas}}) em anexo.</p>
 
      @if ($payload->cte_retroativo)
-        <p>CTe Retroativo</p>
+        <p style='font-weight: bold; color: #000000;'>CTe Retroativo</p>
     @endif 
 
     @if ($payload->cte_complementar)
-        <p>Complementar ao CT-e: {{$payload->cte_referencia}}</p>
+        <p style='font-weight: bold; color: #000000;'>Complementar ao CT-e: {{$payload->cte_referencia}}</p>
     @endif
 
     <p>Valor total frete R$ {{number_format($payload->valorFreteTotal, 2, ',', '.') }}, sendo {{$payload->quantidadeCte}} CT-e(s), R$ {{number_format($payload->valorFreteUnitario, 2, ',', '.') }} cada CT-e. </p>

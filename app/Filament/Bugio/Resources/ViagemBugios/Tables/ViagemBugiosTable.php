@@ -46,12 +46,12 @@ class ViagemBugiosTable
                     ->label('ID')
                     ->width('1%')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('destinos')
                     ->label('Integrados')
                     ->width('1%')
@@ -76,7 +76,7 @@ class ViagemBugiosTable
                     ->label('Nº Doc. Frete')
                     ->width('1%')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('nro_notas')
                     ->label('Nro Notas')
                     ->width('1%')
@@ -104,13 +104,19 @@ class ViagemBugiosTable
                         return $state ? str_pad($state, 6, '0', STR_PAD_LEFT) : '-';
                     })
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
+                TextColumn::make('tipo_documento')
+                    ->label('Motorista')
+                    ->width('1%')
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_competencia')
                     ->label('Data Viagem')
                     ->width('1%')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('km_pago')
                     ->label('Km Pago')
                     ->width('1%')
@@ -128,7 +134,7 @@ class ViagemBugiosTable
                     ->label('Motorista')
                     ->width('1%')
                     ->sortable()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 SelectColumn::make('status')
                     ->label('Status')
@@ -140,18 +146,18 @@ class ViagemBugiosTable
                         'cancelada' => 'Cancelada',
                     ])
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('viagem.numero_viagem')
                     ->label('Viagem Vinculada')
                     ->width('1%')
                     ->sortable()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documento.numero_documento')
                     ->label('Doc. Frete Vinculado')
                     ->width('1%')
                     ->sortable()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('creator.name')
                     ->label('Criado Por')
@@ -175,7 +181,20 @@ class ViagemBugiosTable
                     ->searchable()
                     ->preload()
                     ->multiple(),
-                DateRangeFilter::make('data_competencia'),
+                DateRangeFilter::make('data_competencia')
+                    ->label('Data da Viagem')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar(),
+                DateRangeFilter::make('created_at')
+                    ->label('Data de Criação')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar(),
+                SelectFilter::make('tipo_documento')
+                    ->label('Tipo Documento')
+                    ->options(TipoDocumentoEnum::toSelectArray())
+                    ->multiple(),
                 Filter::make('viagem')
                     ->schema([
                         Select::make('status_viagem')

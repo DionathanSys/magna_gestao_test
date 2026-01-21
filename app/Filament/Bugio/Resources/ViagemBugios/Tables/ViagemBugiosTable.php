@@ -110,13 +110,10 @@ class ViagemBugiosTable
                     ->formatStateUsing(function ($state, ViagemBugio $record) {
                         // Recupera o valor do JSON em info_adicionais
                         if ($record->info_adicionais) {
-                            $info = is_array($record->info_adicionais) 
-                                ? $record->info_adicionais 
-                                : json_decode($record->info_adicionais, true);
-                            Log::debug('Info Adicionais:', $info);
-                            return $info['tipo_documento'] ?? $state ?? '-';
+                            Log::debug('Info Adicionais:', $record->info_adicionais);
+                            return $record->info_adicionais['tipo_documento'] ?? '-';
                         }
-                        return $state ?? '-';
+                        return '--';
                     })
                     ->sortable()
                     ->searchable(isIndividual: true)

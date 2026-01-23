@@ -70,6 +70,12 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
+                TextColumn::make('quantidade')
+                    ->label('Quantidade')
+                    ->width('1%')
+                    ->sortable()
+                    ->disabledClick()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('integrados_nomes')
                     ->label('Integrado')
                     ->width('1%')

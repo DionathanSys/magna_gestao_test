@@ -35,6 +35,7 @@ class ViagemImporter implements ExcelImportInterface
             'CondutorViagem',
             'KmRodado',
             'KmSugerida',
+            'Quantidade',
         ];
     }
 
@@ -51,7 +52,8 @@ class ViagemImporter implements ExcelImportInterface
         $validator = Validator::make($row, [
             'Viagem'            => 'required|string',
             'Carga Cliente'     => 'nullable|string',
-            'Destino'           => 'nullable|string',
+            'Destino'           => 'integer',
+            'Quantidade'        => 'nullable|string',
             'Placa'             => 'required|string',
             'Condutor Viagem'   => 'nullable|string',
             'Inicio'            => 'required|date_format:d/m/Y H:i',
@@ -66,6 +68,7 @@ class ViagemImporter implements ExcelImportInterface
             'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Fim.required'              => 'A Data de Fim é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Fim.date_format'           => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Destino.integer'           => 'O Destino deve ser um número inteiro ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
         ]);
 
         if ($validator->fails()) {
@@ -116,6 +119,7 @@ class ViagemImporter implements ExcelImportInterface
             'unidade_negocio'       => $unidade_negocio,
             'cliente'               => $cliente,
             'numero_viagem'         => $row['Viagem'],
+            'quantidade'            => $row['Quantidade'],
             'documento_transporte'  => $row['CargaCliente'] ?? null,
             'data_competencia'      => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d'),
             'data_inicio'           => Carbon::createFromFormat('d/m/Y H:i', $row['Inicio'])->format('Y-m-d H:i'),

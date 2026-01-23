@@ -32,9 +32,9 @@ class ImportarViagens
 
         if ($this->viagens->isEmpty()) {
             Log::info('Nenhuma viagem para importar encontrada.', [
-                'metodo' => __METHOD__,
-                'veiculo_id' => $this->resultadoPeriodo->veiculo_id,
-                'data_inicial' => $this->resultadoPeriodo->data_inicial,
+                'metodo'        => __METHOD__,
+                'veiculo_id'    => $this->resultadoPeriodo->veiculo_id,
+                'data_inicial'  => $this->resultadoPeriodo->data_inicial,
             ]);
         }
 
@@ -61,11 +61,7 @@ class ImportarViagens
     private function vincularViagens(): void
     {
         $viagemIds = $this->viagens->pluck('id')->toArray();
-
-        if (empty($viagemIds)) {
-            return;
-        }
-
+        
         Models\Viagem::query()
             ->whereIn('id', $viagemIds)
             ->update([

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Viagem;
+use App\Models\DocumentoFrete;
+use App\Observers\ViagemObserver;
+use App\Observers\DocumentoFreteObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -23,5 +27,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
 
+        // Registrar Observers
+        Viagem::observe(ViagemObserver::class);
+        DocumentoFrete::observe(DocumentoFreteObserver::class);
     }
 }

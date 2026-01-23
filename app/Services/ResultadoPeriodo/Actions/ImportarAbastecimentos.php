@@ -21,7 +21,7 @@ class ImportarAbastecimentos
     {
         Log::debug('Iniciando importação de abastecimentos para Resultado Período ID: ' . $this->resultadoPeriodo->id, [
             'metodo' => __METHOD__,
-            'resultado_periodo' => $this->resultadoPeriodo,
+            'resultado_periodo->data_inicio' => $this->resultadoPeriodo->data_inicio,
         ]);
 
         if ($this->resultadoPeriodo->status !== StatusDiversosEnum::PENDENTE->value) {
@@ -66,10 +66,6 @@ class ImportarAbastecimentos
     private function vincularAbastecimentos(): void
     {
         $abastecimentoIds = $this->abastecimentos->pluck('id')->toArray();
-
-        if (empty($abastecimentoIds)) {
-            return;
-        }
 
         Models\Abastecimento::query()
             ->whereIn('id', $abastecimentoIds)

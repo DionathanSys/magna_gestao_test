@@ -41,5 +41,10 @@ class ResultadoPeriodoService
         }
     }
 
+    public function importarViagem()
+    {
+
+    }
+
 
 }

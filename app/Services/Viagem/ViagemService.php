@@ -28,6 +28,10 @@ class ViagemService
     {
         try {
 
+            Log::debug(__METHOD__, [
+                'data' => $data,
+            ]);
+            
             $action = new Actions\CriarViagem();
             $viagem = $action->handle($data);
 

@@ -30,6 +30,7 @@ class CriarViagem
         'data_competencia',
         'data_inicio',
         'data_fim',
+        'quantidade',
         'conferido',
         'condutor',
         'created_by',

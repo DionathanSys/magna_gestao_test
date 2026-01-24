@@ -52,8 +52,8 @@ class ViagemImporter implements ExcelImportInterface
         $validator = Validator::make($row, [
             'Viagem'            => 'required|string',
             'Carga Cliente'     => 'nullable|string',
-            'Destino'           => 'integer',
-            'Quantidade'        => 'nullable|string',
+            'Destino'           => 'nullable|string',
+            'Quantidade'        => 'integer',
             'Placa'             => 'required|string',
             'Condutor Viagem'   => 'nullable|string',
             'Inicio'            => 'required|date_format:d/m/Y H:i',
@@ -68,7 +68,7 @@ class ViagemImporter implements ExcelImportInterface
             'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Fim.required'              => 'A Data de Fim é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
             'Fim.date_format'           => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Destino.integer'           => 'O Destino deve ser um número inteiro ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Quantidade.integer'           => 'O Destino deve ser um número inteiro ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
         ]);
 
         if ($validator->fails()) {

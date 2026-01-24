@@ -24,7 +24,7 @@ class Viagem extends Model
         'numero_sequencial'     => 'integer',
     ];
 
-    protected $appends = ['integrados_nomes', 'documentos_frete_resumo',];
+    protected $appends = ['integrados_nomes', 'documentos_frete_resumo', 'parceiro_frete',];
 
     /**
      * Relação com o modelo ResultadoPeriodo
@@ -226,6 +226,35 @@ class Viagem extends Model
                 // Formato amigável para Table do Filament
                 return $docs
                     ->map(fn($d) => "Nº {$d['numero']} - R$" . number_format($d['valor'], 2, ',', '.'))
+                    ->implode('<br>');
+            }
+        );
+    }
+    
+    protected function parceiroFrete(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                // Evita N+1 no Filament
+                if (! $this->relationLoaded('documentos')) {
+                    return 'N/A';
+                }
+
+                $docs = $this->documentos
+                    ->whereNotNull('viagem_id') // somente vinculados
+                    ->map(fn($doc) => [
+                        'destino' => $doc->parceiro_destino,
+                        'numero'  => $doc->numero_documento,
+                    ])
+                    ->values();
+
+                if ($docs->isEmpty()) {
+                    return 'Sem frete';
+                }
+
+                // Formato amigável para Table do Filament
+                return $docs
+                    ->map(fn($d) => "Nº {$d['numero']} - {$d['destino']}")
                     ->implode('<br>');
             }
         );

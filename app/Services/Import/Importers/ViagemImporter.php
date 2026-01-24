@@ -72,6 +72,11 @@ class ViagemImporter implements ExcelImportInterface
         ]);
 
         if ($validator->fails()) {
+            Log::error('Validação falhou para a linha ' . $rowNumber, [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'row' => $row,
+                'errors' => $validator->errors()->all(),
+            ]);
             $errors = array_merge($errors, $validator->errors()->all());
         }
 
@@ -109,7 +114,11 @@ class ViagemImporter implements ExcelImportInterface
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'error' => $e->getMessage(),
                 'row' => $row
-            ]);
+                
+            ]);Log::error("Erro na busca da Placa/Integrado", [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'error' => $e->getMessage(),
+                    'row' => $row
         }
 
         $km_pago = (float) str_replace(',', '.', $row['KmSugerida']);

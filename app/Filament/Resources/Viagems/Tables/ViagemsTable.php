@@ -96,6 +96,13 @@ class ViagemsTable
                     ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('parceiro_frete')
+                    ->label('Fretes')
+                    ->width('1%')
+                    ->html()
+                    ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete))
+                    ->wrap()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [
                     TextColumn::make('km_rodado')
                         ->width('1%')

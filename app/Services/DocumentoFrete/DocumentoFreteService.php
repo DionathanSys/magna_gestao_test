@@ -182,9 +182,6 @@ class DocumentoFreteService
             $documentoFrete = $queries->byDocumentoTransporte($documentoTransporte);
 
             if (!$documentoFrete) {
-                Log::info("Documento de frete com número de transporte {$documentoTransporte} não encontrado ou já vinculado a uma viagem.", [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
-                ]);
                 $this->setError("Documento de frete com número de transporte {$documentoTransporte} não encontrado ou já vinculado a uma viagem.");
                 return null;
             }
@@ -193,9 +190,6 @@ class DocumentoFreteService
             $viagem = $queriesViagem->byDocumentoTransporte($documentoTransporte);
 
             if (!$viagem) {
-                Log::info("Viagem com número de transporte {$documentoTransporte} não encontrada.", [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
-                ]);
                 $this->setError("Viagem com número de transporte {$documentoTransporte} não encontrada.");
                 return null;
             }
@@ -204,9 +198,6 @@ class DocumentoFreteService
             $documentoFrete = $action->handle($documentoFrete, $viagem);
 
             if (!$documentoFrete) {
-                Log::error("Falha ao vincular documento de frete à viagem {$viagem->numero_viagem}.", [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
-                ]);
                 $this->setError("Falha ao vincular documento de frete à viagem {$viagem->numero_viagem}.");
                 return null;
             }

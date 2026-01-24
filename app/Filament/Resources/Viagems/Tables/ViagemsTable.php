@@ -97,8 +97,7 @@ class ViagemsTable
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('parceiro_frete')
-                    ->label('Fretes')
-                    ->width('1%')
+                    ->label('Destinos Frete')
                     ->html()
                     ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete))
                     ->wrap()

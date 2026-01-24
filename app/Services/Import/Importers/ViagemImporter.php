@@ -115,10 +115,12 @@ class ViagemImporter implements ExcelImportInterface
                 'error' => $e->getMessage(),
                 'row' => $row
                 
-            ]);Log::error("Erro na busca da Placa/Integrado", [
+            ]);
+            Log::error("Erro na busca da Placa/Integrado", [
                     'metodo' => __METHOD__ . '@' . __LINE__,
                     'error' => $e->getMessage(),
                     'row' => $row
+            ]);
         }
 
         $km_pago = (float) str_replace(',', '.', $row['KmSugerida']);

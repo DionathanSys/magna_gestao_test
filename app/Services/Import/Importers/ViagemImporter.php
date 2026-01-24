@@ -130,7 +130,7 @@ class ViagemImporter implements ExcelImportInterface
             'unidade_negocio'       => $unidade_negocio,
             'cliente'               => $cliente,
             'numero_viagem'         => $row['Viagem'],
-            'quantidade'            => $row['Quantidade'],
+            'qtde_destino_viagem'   => $row['Quantidade'],
             'documento_transporte'  => $row['CargaCliente'] ?? null,
             'data_competencia'      => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d'),
             'data_inicio'           => Carbon::createFromFormat('d/m/Y H:i', $row['Inicio'])->format('Y-m-d H:i'),

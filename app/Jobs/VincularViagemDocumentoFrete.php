@@ -32,6 +32,7 @@ class VincularViagemDocumentoFrete implements ShouldQueue
         if($documentoFreteService->hasError()) {
             Log::error('Erro ao vincular documento de frete à viagem', [
                 'documento_transporte'  => $this->documentoTransporte,
+                'message'               =>$documentoFreteService->getMessage(),
                 'errors'                => $documentoFreteService->getData(),
             ]);
         }

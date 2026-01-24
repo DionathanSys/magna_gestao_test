@@ -52,6 +52,10 @@ class CriarViagem
                 'updated_by' => $this->getUserIdChecked(),
             ];
 
+            Log::info(__METHOD__ . '@' . __LINE__, [
+                'data' => $data,
+            ]);
+            
             $viagem = Models\Viagem::create($data);
             return $viagem;
         }

@@ -70,7 +70,7 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
-                TextColumn::make('quantidade')
+                TextColumn::make('qtde_destino_viagem')
                     ->label('Quantidade')
                     ->width('1%')
                     ->sortable()

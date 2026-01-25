@@ -377,11 +377,15 @@ class ViagemsTable
                     ),
                 TernaryFilter::make('sem_frete')
                     ->label('Possui Doc. Frete?')
-                    ->attribute('documentos_count')
                     ->nullable()
                     ->placeholder('Todos')
                     ->trueLabel('Com Doc. Frete')
-                    ->falseLabel('Sem Doc. Frete'),
+                    ->falseLabel('Sem Doc. Frete')
+                    ->queries(
+                        true: fn(Builder $query) => $query->whereHas('documentos'),
+                        false: fn(Builder $query) => $query->whereDoesntHave('documentos'),
+                        blank: fn(Builder $query) => $query,
+                    ),
                 TernaryFilter::make('conferido')
                     ->label('Conferido')
                     ->trueLabel('Sim')

@@ -526,20 +526,20 @@ class ViagemsTable
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')
                         ->icon('heroicon-o-x-circle')
-                        ->action(function (Component $livewire, Models\Viagem $record) {
-                            $record->update([
-                                'motivo_divergencia' => Enum\MotivoDivergenciaViagem::SEM_VIAGEM->value,
-                                'conferido' => true,
-                            ]);
-                            $record->carga()->create([
-                                'integrado_id' => 517,  //BRF CCO
-                                'created_by' => Auth::id(),
-                                'updated_by' => Auth::id(),
-                            ]);
-                            
+                        ->selectable()
+                        ->action(function (Collection $selectedRecords) {
+                            $selectedRecords->each(function (Models\Viagem $record) {
+                                $record->update([
+                                    'motivo_divergencia' => Enum\MotivoDivergenciaViagem::SEM_VIAGEM->value,
+                                    'conferido' => true,
+                                ]);
+                                $record->carga()->create([
+                                    'integrado_id' => 517,  //BRF CCO
+                                    'created_by' => Auth::id(),
+                                    'updated_by' => Auth::id(),
+                                ]);
+                            });
                         })
-                        ->closeModalByClickingAway(true)
-                        ->alpineClickHandler('console.log(open); open = false')
                         ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),
                     Viagems\Actions\AdicionarComentarioAction::make(),

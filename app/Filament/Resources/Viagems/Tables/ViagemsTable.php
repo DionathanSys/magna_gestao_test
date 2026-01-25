@@ -375,6 +375,13 @@ class ViagemsTable
                         })->orWhereDoesntHave('cargas'),
                         blank: fn(Builder $query) => $query,
                     ),
+                TernaryFilter::make('sem_frete')
+                    ->label('Possui Doc. Frete?')
+                    ->attribute('documentos_count')
+                    ->nullable()
+                    ->placeholder('Todos')
+                    ->trueLabel('Com Doc. Frete')
+                    ->falseLabel('Sem Doc. Frete'),
                 TernaryFilter::make('conferido')
                     ->label('Conferido')
                     ->trueLabel('Sim')

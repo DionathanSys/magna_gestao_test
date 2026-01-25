@@ -27,7 +27,7 @@ class VincularViagensBatch implements ShouldQueue
     public function handle(): void
     {
         $this->viagens->each(function ($viagem) {
-            if(!$viagem->documento_transporte || is_int($viagem->documento_transporte) === false) {
+            if(!$viagem->documento_transporte || !is_numeric($viagem->documento_transporte)) {
                 Log::warning('Viagem sem documento de transporte ou valor inválido, não será vinculada.', [
                     'metodo' => __METHOD__ . '@' . __LINE__,
                     'viagem_id' => $viagem->id,

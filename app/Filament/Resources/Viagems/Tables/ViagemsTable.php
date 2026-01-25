@@ -527,7 +527,7 @@ class ViagemsTable
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')
                         ->icon('heroicon-o-x-circle')
-                        
+                        ->accessSelectedRecords()
                         ->action(function (Collection $selectedRecords) {
                             $selectedRecords->each(function (Models\Viagem $record) {
                                 $record->update([

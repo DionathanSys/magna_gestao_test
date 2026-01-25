@@ -536,8 +536,8 @@ class ViagemsTable
                                 'created_by' => Auth::id(),
                                 'updated_by' => Auth::id(),
                             ]);
-                            $livewire->dispatchBrowserEvent('filament-close-action-group');
                         })
+                        ->closeModalByClickingAway(true)
                         ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),
                     Viagems\Actions\AdicionarComentarioAction::make(),

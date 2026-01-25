@@ -536,7 +536,6 @@ class ViagemsTable
                                 'updated_by' => Auth::id(),
                             ]);
                         })
-                        ->requiresConfirmation()
                         ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),
                     Viagems\Actions\AdicionarComentarioAction::make(),

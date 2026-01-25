@@ -106,7 +106,7 @@ class ViagemsTable
                     ->label('Doc. Transp.')
                     ->width('1%')
                     ->disabledClick()
-                    ->default('Sem Doc. Transp.')
+                    ->placeholder('Sem Doc. Transp.')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documentos_frete_resumo_view')
                     ->label('Fretes')
@@ -522,6 +522,23 @@ class ViagemsTable
             ->deselectAllRecordsWhenFiltered(false)
             ->recordActions([
                 ActionGroup::make([
+                    Action::make('sem-viagem')
+                        ->label('Sem Viagem')
+                        ->icon('heroicon-o-x-circle')
+                        ->action(function (Models\Viagem $record) {
+                            $record->update([
+                                'motivo_divergencia' => Enum\MotivoDivergenciaViagem::SEM_VIAGEM->value,
+                                'conferido' => true,
+                            ]);
+                            $record->carga()->create([
+                                'integrado_id' => 517,  //BRF CCO
+                                'created_by' => Auth::id(),
+                                'updated_by' => Auth::id(),
+                            ]);
+                        })
+                        ->requiresConfirmation()
+                        ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
+                        ->color('danger'),
                     Viagems\Actions\AdicionarComentarioAction::make(),
                     Viagems\Actions\VisualizarComentarioAction::make(),
                     EditAction::make()

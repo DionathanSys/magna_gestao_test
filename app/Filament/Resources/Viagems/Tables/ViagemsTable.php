@@ -83,7 +83,8 @@ class ViagemsTable
                     ->html()
                     // ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
                     ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes))
-                    ->disabledClick(),
+                    ->disabledClick()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transp.')
                     ->width('1%')

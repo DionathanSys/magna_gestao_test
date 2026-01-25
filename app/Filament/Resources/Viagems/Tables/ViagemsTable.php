@@ -98,6 +98,7 @@ class ViagemsTable
                     ->label('Integrado')
                     ->width('1%')
                     ->html()
+                    ->placeholder('Sem Carga Vinculada')
                     ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes_view))
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: false),
@@ -110,6 +111,7 @@ class ViagemsTable
                 TextColumn::make('documentos_frete_resumo_view')
                     ->label('Fretes')
                     ->width('1%')
+                    ->placeholder('Sem Frete')
                     ->html()
                     ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo_view))
                     ->wrap()
@@ -117,6 +119,7 @@ class ViagemsTable
                 TextColumn::make('parceiro_frete_view')
                     ->label('Destinos Frete')
                     ->html()
+                    ->placeholder('Sem Frete')
                     ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete_view))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),

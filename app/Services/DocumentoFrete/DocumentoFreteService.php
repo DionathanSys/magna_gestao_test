@@ -176,6 +176,11 @@ class DocumentoFreteService
     {
         try {
 
+            Log::debug(__METHOD__ . '@' . __LINE__, [
+                'documento_transporte' => $documentoTransporte,
+                'viagem_id' => $viagemId,
+            ]);
+            
             if (!$viagemId) {
                 $viagemId = Viagem::query()
                     ->where('documento_transporte', $documentoTransporte)

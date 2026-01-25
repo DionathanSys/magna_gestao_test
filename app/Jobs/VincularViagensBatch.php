@@ -35,7 +35,13 @@ class VincularViagensBatch implements ShouldQueue
                 ]);
                 return;
             }
-
+            Log::info('Despachando job de vinculação do documento de frete à viagem em lote', [
+                'metodo'                    => __METHOD__ . '@' . __LINE__,
+                'viagem_id'                 => $viagem->id,
+                'documento_transporte'      => $viagem->documento_transporte,
+                'viagemIdType'              => gettype($viagem->id),
+                'documento_transporteType'  => gettype($viagem->documento_transporte),
+            ]);
             VincularViagemDocumentoFrete::dispatch($viagem->documento_transporte, $viagem->id);
         });
     }

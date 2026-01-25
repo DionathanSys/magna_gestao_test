@@ -28,6 +28,7 @@ use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Illuminate\Support\Collection;
+use Livewire\Component;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemsTable
@@ -525,7 +526,7 @@ class ViagemsTable
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')
                         ->icon('heroicon-o-x-circle')
-                        ->action(function (Models\Viagem $record) {
+                        ->action(function (Component $livewire, Models\Viagem $record) {
                             $record->update([
                                 'motivo_divergencia' => Enum\MotivoDivergenciaViagem::SEM_VIAGEM->value,
                                 'conferido' => true,
@@ -535,6 +536,7 @@ class ViagemsTable
                                 'created_by' => Auth::id(),
                                 'updated_by' => Auth::id(),
                             ]);
+                            $livewire->dispatch('close-action-group');
                         })
                         ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),

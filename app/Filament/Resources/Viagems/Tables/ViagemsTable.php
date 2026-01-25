@@ -521,12 +521,13 @@ class ViagemsTable
             ->deferFilters()
             ->persistFiltersInSession()
             ->deselectAllRecordsWhenFiltered(false)
+            ->selectable()
             ->recordActions([
                 ActionGroup::make([
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')
                         ->icon('heroicon-o-x-circle')
-                        ->selectable()
+                        
                         ->action(function (Collection $selectedRecords) {
                             $selectedRecords->each(function (Models\Viagem $record) {
                                 $record->update([

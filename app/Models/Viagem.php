@@ -24,7 +24,7 @@ class Viagem extends Model
         'numero_sequencial'     => 'integer',
     ];
 
-    protected $appends = ['integrados_nomes', 'documentos_frete_resumo', 'parceiro_frete',];
+    protected $appends = []; // Accessors removidos para evitar N+1/Lazy Loading em listagens
 
     /**
      * Relação com o modelo ResultadoPeriodo
@@ -108,15 +108,7 @@ class Viagem extends Model
         return $this->hasMany(ViagemBugio::class, 'viagem_id');
     }
 
-    public function getIntegradosNomesAttribute(): string
-    {
-        return $this->cargas
-            ->whereNotNull('integrado')
-            ->map(fn($carga) => $carga->integrado->nome . ' - ' . $carga->integrado->municipio)
-            ->unique()
-            ->whenEmpty(fn() => collect(['Sem Integrado']))
-            ->implode('<br>');
-    }
+
 
     protected function integradosNomes(): Attribute
     {

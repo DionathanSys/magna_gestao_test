@@ -36,19 +36,36 @@ class ViagemsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $query->with([
-                    'cargas' => function ($query) {
-                        $query->select(['id', 'viagem_id', 'integrado_id', 'km_dispersao', 'km_dispersao_rateio'])
-                            ->with('integrado:id,nome,municipio,codigo,latitude,longitude');
-                    },
-                    'documentos',
-                    'veiculo:id,placa',
-                    'comentarios.creator:id,name',
-                    'checker:id,name',
-                    'creator:id,name',
-                    'updater:id,name',
-                    'resultadoPeriodo:id,data_inicio',
-                ])
+                $query->select('viagens.*')
+                    ->selectRaw("
+                        (SELECT GROUP_CONCAT(DISTINCT CONCAT(integrados.nome, ' - ', integrados.municipio) SEPARATOR '<br>')
+                         FROM cargas_viagem
+                         JOIN integrados ON integrados.id = cargas_viagem.integrado_id
+                         WHERE cargas_viagem.viagem_id = viagens.id
+                        ) as integrados_nomes_view
+                    ")
+                    ->selectRaw("
+                        (SELECT GROUP_CONCAT(CONCAT('Nº ', documento_fretes.numero_documento, ' - R$', REPLACE(FORMAT(documento_fretes.valor_liquido, 2), '.', ',')) SEPARATOR '<br>')
+                         FROM documento_fretes
+                         WHERE documento_fretes.viagem_id = viagens.id
+                        ) as documentos_frete_resumo_view
+                    ")
+                    ->selectRaw("
+                        (SELECT GROUP_CONCAT(documento_fretes.parceiro_destino SEPARATOR ';<br>')
+                         FROM documento_fretes
+                         WHERE documento_fretes.viagem_id = viagens.id
+                        ) as parceiro_frete_view
+                    ")
+                    ->with([
+                        // 'cargas' load removed to save performance (calculated via subquery)
+                        // 'documentos' load removed to save performance
+                        'veiculo:id,placa',
+                        'comentarios.creator:id,name',
+                        'checker:id,name',
+                        'creator:id,name',
+                        'updater:id,name',
+                        'resultadoPeriodo:id,data_inicio',
+                    ])
                     // antecipa o cálculo de existência para evitar N+1
                     ->withExists(['comentarios'])
                     ->withCount(['cargas', 'documentos']);
@@ -77,12 +94,11 @@ class ViagemsTable
                     ->sortable()
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('integrados_nomes')
+                TextColumn::make('integrados_nomes_view')
                     ->label('Integrado')
                     ->width('1%')
                     ->html()
-                    // ->tooltip(fn(Models\Viagem $record) => $record->integrados_nomes)
-                    ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes))
+                    ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes_view))
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documento_transporte')
@@ -91,17 +107,17 @@ class ViagemsTable
                     ->disabledClick()
                     ->default('Sem Doc. Transp.')
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('documentos_frete_resumo')
+                TextColumn::make('documentos_frete_resumo_view')
                     ->label('Fretes')
                     ->width('1%')
                     ->html()
-                    ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo))
+                    ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo_view))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('parceiro_frete')
+                TextColumn::make('parceiro_frete_view')
                     ->label('Destinos Frete')
                     ->html()
-                    ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete))
+                    ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete_view))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [
@@ -529,9 +545,13 @@ class ViagemsTable
                     Action::make('directions')
                         ->label('Direções')
                         ->icon('heroicon-o-map')
-                        ->url(fn(Models\Viagem $record): ?string => $record->maps_integrados['directions_url'] ?? null)
-                        ->openUrlInNewTab()
-                        ->visible(fn(Models\Viagem $record): bool => ! empty($record->maps_integrados)),
+                        ->action(function (Models\Viagem $record) {
+                            $url = $record->maps_integrados['directions_url'] ?? null;
+                            if ($url) {
+                                redirect()->away($url); // 'away' for external URLs
+                            }
+                        })
+                        ->visible(fn(Models\Viagem $record): bool => $record->cargas_count > 0),
                     ReplicateAction::make()
                         ->label('Duplicar')
                         ->mutateRecordDataUsing(function (array $data): array {

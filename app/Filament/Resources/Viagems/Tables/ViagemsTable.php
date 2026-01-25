@@ -45,15 +45,15 @@ class ViagemsTable
                         ) as integrados_nomes_view
                     ")
                     ->selectRaw("
-                        (SELECT GROUP_CONCAT(CONCAT('Nº ', documento_fretes.numero_documento, ' - R$', REPLACE(FORMAT(documento_fretes.valor_liquido, 2), '.', ',')) SEPARATOR '<br>')
-                         FROM documento_fretes
-                         WHERE documento_fretes.viagem_id = viagens.id
+                        (SELECT GROUP_CONCAT(CONCAT('Nº ', documentos_frete.numero_documento, ' - R$', REPLACE(FORMAT(documentos_frete.valor_liquido, 2), '.', ',')) SEPARATOR '<br>')
+                         FROM documentos_frete
+                         WHERE documentos_frete.viagem_id = viagens.id
                         ) as documentos_frete_resumo_view
                     ")
                     ->selectRaw("
-                        (SELECT GROUP_CONCAT(documento_fretes.parceiro_destino SEPARATOR ';<br>')
-                         FROM documento_fretes
-                         WHERE documento_fretes.viagem_id = viagens.id
+                        (SELECT GROUP_CONCAT(documentos_frete.parceiro_destino SEPARATOR ';<br>')
+                         FROM documentos_frete
+                         WHERE documentos_frete.viagem_id = viagens.id
                         ) as parceiro_frete_view
                     ")
                     ->with([

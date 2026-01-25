@@ -536,8 +536,10 @@ class ViagemsTable
                                 'created_by' => Auth::id(),
                                 'updated_by' => Auth::id(),
                             ]);
+                            
                         })
                         ->closeModalByClickingAway(true)
+                        ->alpineClickHandler('console.log(open); open = false')
                         ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),
                     Viagems\Actions\AdicionarComentarioAction::make(),

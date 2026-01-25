@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Viagems\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
-use Filament\Actions\{ActionGroup, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction, ReplicateAction,};
+use Filament\Actions\{ActionGroup, BulkAction, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction, ReplicateAction,};
 use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn,};
 use Filament\Tables\Table;
 use App\{Models, Services, Enum};
@@ -27,6 +27,7 @@ use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Illuminate\Support\Collection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemsTable
@@ -588,6 +589,4 @@ class ViagemsTable
                 ]),
             ]);
     }
-
-
 }

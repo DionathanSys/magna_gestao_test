@@ -3,29 +3,25 @@
 namespace App\Services\DocumentoFrete\Actions;
 
 use App\Models;
+use App\Models\DocumentoFrete;
+use Illuminate\Support\Facades\Log;
 
 class VincularViagemDocumento
 {
-    public function handle(Models\DocumentoFrete $documentoFrete, Models\Viagem $viagem): ?Models\DocumentoFrete
+    public function handle(int $documentoTransporte, int $viagemId): int
     {
+        $updated = DocumentoFrete::query()
+            ->where('documento_transporte', $documentoTransporte)
+            ->update([
+                'viagem_id' => $viagemId,
+            ]);
 
-        $this->validate($documentoFrete, $viagem);
-
-        $documentoFrete->update([
-            'viagem_id' => $viagem->id,
-        ]);
-
-        return $documentoFrete;
-    }
-
-    private function validate(Models\DocumentoFrete $documentoFrete, Models\Viagem $viagem): void
-    {
-        if ($documentoFrete->viagem_id) {
-            throw new \Exception("DocumentoFrete já vinculado a uma viagem.");
+        if ($updated === 0) {
+            Log::warning('Nenhum documento de frete encontrado', [
+                'documento_transporte' => $documentoTransporte,
+            ]);
         }
 
-        if( $documentoFrete->documento_transporte !== $viagem->documento_transporte ) {
-            throw new \Exception("DocumentoFrete e Viagem possuem documentos de transporte diferentes.");
-        }
+        return $updated;
     }
 }

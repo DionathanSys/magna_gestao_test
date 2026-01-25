@@ -7,6 +7,7 @@ use App\Jobs\ProcessXlsxRowJob;
 use App\{Models, Services};
 use App\Jobs\VincularRegistroResultadoJob;
 use App\Jobs\VincularViagemDocumentoFrete;
+use App\Models\Viagem;
 use App\Services\DocumentoFrete\Actions\VincularViagemDocumento;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Database\Eloquent\Collection;
@@ -171,39 +172,42 @@ class DocumentoFreteService
         return;
     }
 
-    public function vincularDocumentoFrete(int $documentoTransporte): ?Models\DocumentoFrete
+    public function vincularDocumentoFrete(int $documentoTransporte, int|null $viagemId = null): void
     {
         try {
 
-            $queries = new \App\Services\DocumentoFrete\Queries\GetDocumentoFrete([
-                'sem_vinculo_viagem' => true
-            ]);
-
-            $documentoFrete = $queries->byDocumentoTransporte($documentoTransporte);
-
-            if (!$documentoFrete) {
-                $this->setError("Documento de frete com número de transporte {$documentoTransporte} não encontrado ou já vinculado a uma viagem.");
-                return null;
+            if (!$viagemId) {
+                $viagemId = Viagem::query()
+                    ->where('documento_transporte', $documentoTransporte)
+                    ->value('id');
             }
 
-            $queriesViagem = new \App\Services\Viagem\Queries\GetViagem();
-            $viagem = $queriesViagem->byDocumentoTransporte($documentoTransporte);
-
-            if (!$viagem) {
-                $this->setError("Viagem com número de transporte {$documentoTransporte} não encontrada.");
-                return null;
+            if(!$viagemId) {
+                Log::warning('Viagem não encontrada para vinculação do documento de frete', [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'documento_transporte' => $documentoTransporte,
+                ]);
+                $this->setError("Viagem não encontrada para o documento de transporte {$documentoTransporte}.");
+                return;
             }
 
             $action = new Actions\VincularViagemDocumento();
-            $documentoFrete = $action->handle($documentoFrete, $viagem);
+            $documentosFreteAtualizados = $action->handle($documentoTransporte, $viagemId);
 
-            if (!$documentoFrete) {
-                $this->setError("Falha ao vincular documento de frete à viagem {$viagem->numero_viagem}.");
-                return null;
+            Log::info('Vinculação do documento de frete à viagem concluída', [
+                'metodo'                => __METHOD__ . '@' . __LINE__,
+                'documento_transporte'  => $documentoTransporte,
+                'viagem_id'             => $viagemId,
+                'documentos_frete_atualizados' => $documentosFreteAtualizados,
+            ]);
+
+            if (!$documentosFreteAtualizados) {
+                $this->setError("Falha ao vincular documento de frete à viagem {$viagemId}.");
+                return;
             }
 
-            $this->setSuccess("Documento de frete vinculado à viagem {$viagem->id} com sucesso.");
-            return $documentoFrete;
+            $this->setSuccess("Documento de frete vinculado à viagem {$viagemId} com sucesso.");
+
         } catch (\Exception $e) {
             Log::error(__METHOD__ . '@' . __LINE__, [
                 'error' => $e->getMessage(),
@@ -213,7 +217,6 @@ class DocumentoFreteService
                 'metodo' => __METHOD__,
                 'error' => $e->getMessage(),
             ]);
-            return null;
         }
     }
 

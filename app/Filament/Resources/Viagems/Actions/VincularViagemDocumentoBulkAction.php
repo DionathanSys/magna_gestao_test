@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Viagems\Actions;
 
 use App\Jobs\VincularViagemDocumentoFrete;
+use App\Jobs\VincularViagensBatch;
 use App\Models;
 use App\Services;
 use App\Services\NotificacaoService as notify;
@@ -18,16 +19,8 @@ class VincularViagemDocumentoBulkAction
             ->label('Vincular Documento')
             ->icon('heroicon-o-paper-clip')
             ->action(function (Collection $records) {
-
-                $records->each(function (Models\Viagem $record){
-                    if(!$record->documento_transporte){
-                        Log::warning('Viagem sem documento de transporte', [
-                            'viagem_id' => $record->id,
-                        ]);
-                        return;
-                    }
-                    VincularViagemDocumentoFrete::dispatch($record->documento_transporte);
-                    return;
+                $records->chunk(250)->each(function (Collection $chunk) {
+                    VincularViagensBatch::dispatch($chunk);
                 });
             })
             ->deselectRecordsAfterCompletion();

@@ -255,7 +255,7 @@ class Viagem extends Model
                 // Formato amigável para Table do Filament
                 return $docs
                     ->map(fn($d) => "{$d['destino']}")
-                    ->implode('<br>');
+                    ->implode(';<br>');
             }
         );
     }

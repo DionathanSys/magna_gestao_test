@@ -536,7 +536,7 @@ class ViagemsTable
                                 'created_by' => Auth::id(),
                                 'updated_by' => Auth::id(),
                             ]);
-                            $livewire->dispatch(('$refresh'));
+                            $livewire->dispatchBrowserEvent('filament-close-action-group');
                         })
                         ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),

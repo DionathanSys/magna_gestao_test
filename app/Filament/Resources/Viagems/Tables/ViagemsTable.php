@@ -117,6 +117,7 @@ class ViagemsTable
                     ->label('Integrado')
                     ->width('1%')
                     ->html()
+                    ->formatStateUsing(fn(?string $state): string => $state ?: 'Sem Carga Vinculada')
                     ->placeholder('Sem Carga Vinculada')
                     ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes_view ?: ''))
                     ->disabledClick()

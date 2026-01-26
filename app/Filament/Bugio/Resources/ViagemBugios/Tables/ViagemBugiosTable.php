@@ -164,13 +164,13 @@ class ViagemBugiosTable
                         'cancelada' => 'Cancelada',
                     ])
                     ->sortable(),
-                TextColumn::make('viagem.numero_viagem')
+                TextColumn::make('viagem.id')
                     ->label('Viagem Vinculada')
                     ->width('1%')
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('documento.numero_documento')
+                TextColumn::make('documento.id')
                     ->label('Doc. Frete Vinculado')
                     ->width('1%')
                     ->sortable()

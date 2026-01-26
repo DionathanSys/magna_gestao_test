@@ -47,13 +47,15 @@ class DocumentoFretesTable
                 TextColumn::make('numero_documento')
                     ->label('Nro. Documento')
                     ->disabledClick()
+                    ->sortable()
                     ->width('1%')
                     ->searchable(isIndividual: true),
                 TextColumn::make('documento_transporte')
                     ->label('Nro. Doc. Transp.')
                     ->disabledClick()
                     ->width('1%')
-                    ->searchable(isIndividual: true),
+                    ->searchable(isIndividual: true)
+                    ->sortable(),
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Documento')
                     ->width('1%')

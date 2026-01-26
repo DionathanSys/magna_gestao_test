@@ -109,6 +109,7 @@ class ViagemBugiosTable
                 TextColumn::make('tipo_documento_extraido')
                     ->label('Tipo Doc.')
                     ->width('1%')
+                    ->wrap()
                     ->state(function ($record) {
                         if ($record->info_adicionais) {
                             $info = is_string($record->info_adicionais) 
@@ -120,7 +121,7 @@ class ViagemBugiosTable
                                 
                                 // Se for CTe Complemento, retorna o valor de cte_referencia
                                 if ($tipoDocumento === 'CTe Complemento' && isset($info['cte_referencia'])) {
-                                    return 'Complemto ao CTe ' . $info['cte_referencia'];
+                                    return 'Complemento ao CTe ' . $info['cte_referencia'];
                                 }
                                 
                                 return $tipoDocumento;
@@ -248,14 +249,18 @@ class ViagemBugiosTable
 
             ])
             ->reorderableColumns()
-            ->persistSortInSession()
             ->searchOnBlur()
             ->deferFilters()
-            ->persistFiltersInSession()
             ->deselectAllRecordsWhenFiltered(false)
             ->defaultSort('created_at', 'desc')
             ->defaultGroup('data_competencia')
             ->groupingDirectionSettingHidden()
+            ->searchDebounce(850)
+            ->persistSortInSession()
+            ->persistFiltersInSession()
+            ->persistColumnSearchesInSession()
+            ->paginated([25, 50, 100, 250, 500])
+            ->extremePaginationLinks()
             ->paginated([15, 25, 50, 100])
             ->defaultPaginationPageOption(15)
             ->groups(

@@ -108,7 +108,7 @@ class ExportarViagensExcelBulkAction
             $sheet->setCellValue('I' . $row, number_format($record->km_cobrar, 2, ',', '.'));
             $sheet->setCellValue('J' . $row, number_format($record->km_dispersao, 2, ',', '.'));
             $sheet->setCellValue('K' . $row, number_format($record->dispersao_percentual, 2, ',', '.') . '%');
-            $sheet->setCellValue('L' . $row, $record->motivo_divergencia ?? '');
+            $sheet->setCellValue('L' . $row, $record->motivo_divergencia?->value ?? '');
             $sheet->setCellValue('M' . $row, $record->data_competencia ? \Carbon\Carbon::parse($record->data_competencia)->format('d/m/Y') : '');
             $sheet->setCellValue('N' . $row, $record->data_inicio ? \Carbon\Carbon::parse($record->data_inicio)->format('d/m/Y H:i') : '');
             $sheet->setCellValue('O' . $row, $record->data_fim ? \Carbon\Carbon::parse($record->data_fim)->format('d/m/Y H:i') : '');

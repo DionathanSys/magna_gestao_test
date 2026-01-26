@@ -114,6 +114,7 @@ class ViagemBugioForm
                                     ->label('Valor do Frete')
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->prefix('R$')
+                                    ->visibleOn('create')
                                     ->disabled()
                                     ->numeric()
                                     ->default(0)
@@ -121,6 +122,7 @@ class ViagemBugioForm
                                     ->reactive(),
                                 Select::make('destinos.integrado_id')
                                     ->label('Integrado')
+                                    ->visibleOn('create')
                                     ->columnStart(1)
                                     ->searchable()
                                     ->columnSpan(['md' => 2, 'xl' => 4])
@@ -159,6 +161,7 @@ class ViagemBugioForm
                                     }),
                                 TextInput::make('destinos.km_rota')
                                     ->label('KM Rota')
+                                    ->visibleOn('create')
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->numeric()
                                     ->minValue(0)
@@ -175,6 +178,7 @@ class ViagemBugioForm
                                     ->live(onBlur: true),
                                 TextInput::make('destinos.municipio')
                                     ->label('Municipio')
+                                    ->visibleOn('create')
                                     ->columnSpanFull()
                                     ->readOnly(),
                                 TextInput::make('viagem_id')

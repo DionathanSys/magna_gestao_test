@@ -44,11 +44,19 @@ class ViagemBugio extends Model
     protected static function booted()
     {
         static::created(function(self $model){
+
             Log::info('Solicitação Viagem Bugio Criada - ' . __METHOD__, [
-                'id' => $model->id,
+                'id'                => $model->id,
+                'nro_notas'         => $model->nro_notas,
+                'tipo_documento'    => $model->info_adicionais['tipo_documento'] ?? null,
+                'numero_sequencial' => $model->numero_sequencial,
+                'destinos'          => $model->destinos,
             ]);
 
             if($model->info_adicionais['tipo_documento'] == TipoDocumentoEnum::NFS->value){
+                    
+                Log::info('Iniciando criação de Viagem a partir da solicitação Bugio nro sequencial: ' . $model->numero_sequencial);
+
                 $model->update([
                     'nro_documento' => $model->numero_sequencial,
                     'status'        => 'concluido',

@@ -34,7 +34,7 @@ class CriarViagem
     {
         $data = Arr::only($data, $this->fields);
 
-        Log::debug('Dados para criar viagem Bugio', [
+        Log::info('Dados para criar viagem Bugio', [
             'metodo' => __METHOD__ . '@' . __LINE__,
             'data' => $data
         ]);

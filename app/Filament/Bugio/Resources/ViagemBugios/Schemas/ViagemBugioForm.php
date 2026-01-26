@@ -103,6 +103,7 @@ class ViagemBugioForm
                                 TextInput::make('km_total')
                                     ->label('KM Total')
                                     ->columnStart(1)
+                                    ->visibleOn('create')
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->numeric()
                                     ->required()

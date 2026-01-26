@@ -137,11 +137,14 @@ class ViagemsTable
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [
-                    TextColumn::make('km_rodado')
-                        ->width('1%')
-                        ->wrapHeader()
-                        ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->summarize(Sum::make()->label('TT Km Rodado')->numeric(decimalPlaces: 2, locale: 'pt-BR')),
+                    TextInputColumn::make('km_rodado')
+                        ->type('number')
+                        ->rules(['numeric', 'min:0', 'required']),
+                    // TextColumn::make('km_rodado')
+                    //     ->width('1%')
+                    //     ->wrapHeader()
+                    //     ->numeric(decimalPlaces: 2, locale: 'pt-BR')
+                    //     ->summarize(Sum::make()->label('TT Km Rodado')->numeric(decimalPlaces: 2, locale: 'pt-BR')),
                     TextColumn::make('km_pago')
                         ->width('1%')
                         ->wrapHeader()

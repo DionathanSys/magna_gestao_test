@@ -39,34 +39,40 @@ class ViagemsTable
             ->modifyQueryUsing(function (Builder $query) {
                 $query->select('viagens.*')
                     ->selectRaw("
-                        (SELECT GROUP_CONCAT(DISTINCT CONCAT(integrados.nome, ' - ', integrados.municipio) SEPARATOR '<br>')
-                         FROM cargas_viagem
-                         JOIN integrados ON integrados.id = cargas_viagem.integrado_id
-                         WHERE cargas_viagem.viagem_id = viagens.id
+                        COALESCE(
+                            (SELECT GROUP_CONCAT(DISTINCT CONCAT(integrados.nome, ' - ', integrados.municipio) SEPARATOR '<br>')
+                             FROM cargas_viagem
+                             JOIN integrados ON integrados.id = cargas_viagem.integrado_id
+                             WHERE cargas_viagem.viagem_id = viagens.id
+                            ), ''
                         ) as integrados_nomes_view
                     ")
                     ->selectRaw("
-                                (
-                                    SELECT GROUP_CONCAT(
-                                        CONCAT(
-                                            'Nº ',
-                                            documentos_frete.numero_documento,
-                                            ' - R$ ',
-                                            REPLACE(
-                                                ROUND(documentos_frete.valor_liquido / 100, 2),
-                                                '.', ','
-                                            )
+                        COALESCE(
+                            (
+                                SELECT GROUP_CONCAT(
+                                    CONCAT(
+                                        'Nº ',
+                                        documentos_frete.numero_documento,
+                                        ' - R$ ',
+                                        REPLACE(
+                                            ROUND(documentos_frete.valor_liquido / 100, 2),
+                                            '.', ','
                                         )
-                                        SEPARATOR '<br>'
                                     )
-                                    FROM documentos_frete
-                                    WHERE documentos_frete.viagem_id = viagens.id
-                                ) as documentos_frete_resumo_view
-                            ")
+                                    SEPARATOR '<br>'
+                                )
+                                FROM documentos_frete
+                                WHERE documentos_frete.viagem_id = viagens.id
+                            ), ''
+                        ) as documentos_frete_resumo_view
+                    ")
                     ->selectRaw("
-                        (SELECT GROUP_CONCAT(documentos_frete.parceiro_destino SEPARATOR ';<br>')
-                         FROM documentos_frete
-                         WHERE documentos_frete.viagem_id = viagens.id
+                        COALESCE(
+                            (SELECT GROUP_CONCAT(documentos_frete.parceiro_destino SEPARATOR ';<br>')
+                             FROM documentos_frete
+                             WHERE documentos_frete.viagem_id = viagens.id
+                            ), ''
                         ) as parceiro_frete_view
                     ")
                     ->with([
@@ -112,7 +118,7 @@ class ViagemsTable
                     ->width('1%')
                     ->html()
                     ->placeholder('Sem Carga Vinculada')
-                    ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes_view))
+                    ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes_view ?: ''))
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documento_transporte')
@@ -126,14 +132,14 @@ class ViagemsTable
                     ->width('1%')
                     ->placeholder('Sem Frete')
                     ->html()
-                    ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo_view))
+                    ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo_view ?: ''))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('parceiro_frete_view')
                     ->label('Destinos Frete')
                     ->html()
                     ->placeholder('Sem Frete')
-                    ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete_view))
+                    ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete_view ?: ''))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [

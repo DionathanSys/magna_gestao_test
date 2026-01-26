@@ -215,14 +215,23 @@ class Viagem extends Model
                     return 'Sem frete';
                 }
 
+
                 // Formato amigável para Table do Filament
-                return $docs
+                $result = $docs
                     ->map(fn($d) => "Nº {$d['numero']} - R$" . number_format($d['valor'], 2, ',', '.'))
                     ->implode('<br>');
+
+                Log::debug('Documentos de frete para Viagem', [
+                    'viagem_id' => $this->id,
+                    'documentos' => $docs->toArray(),
+                    'result' => $result
+                ]);
+                
+                return $result;
             }
         );
     }
-    
+
     protected function parceiroFrete(): Attribute
     {
         return Attribute::make(

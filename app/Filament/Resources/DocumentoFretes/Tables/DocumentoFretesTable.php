@@ -40,6 +40,10 @@ class DocumentoFretesTable
         return $table
             ->modifyQueryUsing(fn(Builder $query) => $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']))
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->width('1%')
+                    ->searchable(isIndividual: false),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')

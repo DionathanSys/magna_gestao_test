@@ -177,6 +177,12 @@ class ViagemBugioForm
                                     ->label('Municipio')
                                     ->columnSpanFull()
                                     ->readOnly(),
+                                TextInput::make('viagem_id')
+                                    ->label('Viagem ID')
+                                    ->visibleOn('edit'),
+                                TextInput::make('documento_frete_id')
+                                    ->label('Documento Frete ID')
+                                    ->visibleOn('edit'),
                             ]),
                         Section::make('Documentos Fiscais')
                             ->columnSpan(1)

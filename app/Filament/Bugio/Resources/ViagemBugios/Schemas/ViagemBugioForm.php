@@ -63,7 +63,6 @@ class ViagemBugioForm
                                 DatePicker::make('data_competencia')
                                     ->label('Data de Competência')
                                     ->readOnlyOn('edit')
-                                    ->displayFormat('d/m/Y')
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->default(now()),
                                 TextInput::make('info_adicionais.peso')

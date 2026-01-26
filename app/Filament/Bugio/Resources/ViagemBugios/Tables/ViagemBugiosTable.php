@@ -261,8 +261,7 @@ class ViagemBugiosTable
             ->persistColumnSearchesInSession()
             ->paginated([25, 50, 100, 250, 500])
             ->extremePaginationLinks()
-            ->paginated([15, 25, 50, 100])
-            ->defaultPaginationPageOption(15)
+            ->defaultPaginationPageOption(50)
             ->groups(
                 [
                     Group::make('data_competencia')

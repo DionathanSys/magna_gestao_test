@@ -59,6 +59,7 @@ class DocumentoFretesTable
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Documento')
                     ->width('1%')
+                    ->formatStateUsing(fn($state) => $state?->value ?? $state)
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_emissao')

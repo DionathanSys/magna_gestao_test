@@ -32,7 +32,7 @@ class CreateViagemBugio extends CreateRecord
         $data['veiculo_id']                  = Veiculo::query()->where('placa', $data['veiculo'])->value('id');
         $data['km_pago']                     = $data['km_total'] ?? 0;
         $data['km_rodado']                   = 0;
-        $data['data_competencia']            = $data['data_competencia'] ? Carbon::createFromFormat('d/m/Y', $data['data_competencia'])->format('Y-m-d') : now()->format('Y-m-d');
+        $data['data_competencia']            = $data['data_competencia'] ?? now()->format('Y-m-d');
         $data['frete']                       = $this->calcularFrete($data['km_total']);
         $data['condutor']                    = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
         $data['created_by']                  = Auth::id();

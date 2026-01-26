@@ -18,7 +18,21 @@ class ExportarViagensExcelBulkAction
             ->label('Exportar Excel')
             ->icon('heroicon-o-arrow-down-tray')
             ->color('success')
+            ->requiresConfirmation()
+            ->modalDescription(fn (Collection $records) => 
+                'Você está prestes a exportar ' . $records->count() . ' viagen(s) para Excel.'
+            )
             ->action(function (Collection $records) {
+                // Limitar exportação para evitar problemas de memória
+                if ($records->count() > 5000) {
+                    \Filament\Notifications\Notification::make()
+                        ->danger()
+                        ->title('Muitos registros')
+                        ->body('Por favor, selecione no máximo 5000 registros para exportar.')
+                        ->send();
+                    return;
+                }
+                
                 return static::exportToExcel($records);
             })
             ->deselectRecordsAfterCompletion();
@@ -26,9 +40,19 @@ class ExportarViagensExcelBulkAction
 
     protected static function exportToExcel(Collection $records): StreamedResponse
     {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Viagens');
+        // Aumentar limite de memória temporariamente
+        $originalMemoryLimit = ini_get('memory_limit');
+        ini_set('memory_limit', '512M');
+        
+        try {
+            $spreadsheet = new Spreadsheet();
+            
+            // Otimizações do PhpSpreadsheet
+            $spreadsheet->getDefaultStyle()->getFont()->setName('Arial');
+            $spreadsheet->getDefaultStyle()->getFont()->setSize(10);
+            
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Viagens');
 
         // Definir cabeçalhos
         $headers = [
@@ -97,7 +121,7 @@ class ExportarViagensExcelBulkAction
                 ->unique()
                 ->implode('; ');
 
-            $sheet->setCellValue('A' . $row, $record->id);
+            $sheet->setCellValueExplicit('A' . $row, $record->id, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC);
             $sheet->setCellValue('B' . $row, $record->veiculo->placa ?? '');
             $sheet->setCellValue('C' . $row, $record->numero_viagem);
             $sheet->setCellValue('D' . $row, $integrados ?: 'Sem Carga Vinculada');
@@ -118,6 +142,11 @@ class ExportarViagensExcelBulkAction
             $sheet->setCellValue('S' . $row, $record->unidade_negocio ?? '');
 
             $row++;
+            
+            // Liberar memória a cada 100 registros
+            if ($row % 100 === 0) {
+                $spreadsheet->garbageCollect();
+            }
         }
 
         // Aplicar bordas em todas as células com dados
@@ -154,5 +183,9 @@ class ExportarViagensExcelBulkAction
                 'Cache-Control' => 'max-age=0',
             ]
         );
+        } finally {
+            // Restaurar limite de memória original
+            ini_set('memory_limit', $originalMemoryLimit);
+        }
     }
 }

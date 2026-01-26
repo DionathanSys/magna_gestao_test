@@ -131,7 +131,7 @@ class ViagemsTable
                 TextColumn::make('documentos_frete_resumo_view')
                     ->label('Fretes')
                     // ->width('1%')
-                    ->placeholder('Sem Frete')
+                    ->formatStateUsing(fn(?string $state): string => $state ?: 'Sem Frete')
                     ->html()
                     ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo_view ?: ''))
                     ->wrap()
@@ -292,6 +292,7 @@ class ViagemsTable
                 ]),
                 TextColumn::make('condutor')
                     ->label('Motorista')
+                    ->default('Sem Motorista')
                     ->grow(false)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('cliente')

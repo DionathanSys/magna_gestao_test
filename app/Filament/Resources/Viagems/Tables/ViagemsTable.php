@@ -664,6 +664,7 @@ class ViagemsTable
                     DeleteBulkAction::make()
                         ->visible(fn(): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    Viagems\Actions\ExportarViagensExcelBulkAction::make(),
                     FilamentExportBulkAction::make('export')
                 ]),
             ]);

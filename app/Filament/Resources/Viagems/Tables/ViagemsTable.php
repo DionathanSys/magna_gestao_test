@@ -130,7 +130,7 @@ class ViagemsTable
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documentos_frete_resumo_view')
                     ->label('Fretes')
-                    ->width('1%')
+                    // ->width('1%')
                     ->placeholder('Sem Frete')
                     ->html()
                     ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo_view ?: ''))

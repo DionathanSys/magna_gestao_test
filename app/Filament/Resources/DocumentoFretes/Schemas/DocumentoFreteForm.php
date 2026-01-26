@@ -63,6 +63,9 @@ class DocumentoFreteForm
                             ->default(0.0),
 
                     ]),
+                    TextInput::make('viagem_id')
+                        ->label('Viagem ID')
+                        ->visibleOn('edit'),
 
 
             ]);

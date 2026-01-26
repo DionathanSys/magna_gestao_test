@@ -30,6 +30,7 @@ class ViagemBugioForm
                             ->components([
                                 Select::make('motorista')
                                     ->label('Motorista')
+                                    ->visibleOn('create')
                                     ->columnSpan(['md' => 3, 'xl' => 4])
                                     ->searchable()
                                     ->preload()
@@ -47,6 +48,7 @@ class ViagemBugioForm
                                     }),
                                 Select::make('veiculo')
                                     ->label('Veículo')
+                                    ->visibleOn('create')
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->searchable()
                                     ->preload()

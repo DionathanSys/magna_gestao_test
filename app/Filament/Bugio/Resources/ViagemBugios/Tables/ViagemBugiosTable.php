@@ -312,6 +312,10 @@ class ViagemBugiosTable
                             'nro_documento' => $data['nro_documento'],
                         ]);
 
+                        Log::info("Nro. CTe {$data['nro_documento']} inserido para ViagemBugio ID {$record->id} pelo usuário " . Auth::user()->id, [
+                            'record' => $record->toArray(),
+                        ]);
+
                         $bugioService = new ViagemBugioService();
                         $bugioService->createViagemFromBugio($record);
                     })

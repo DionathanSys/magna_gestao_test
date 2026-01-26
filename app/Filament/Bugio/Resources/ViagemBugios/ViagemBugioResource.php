@@ -55,8 +55,8 @@ class ViagemBugioResource extends Resource
         return [
             'index' => ListViagemBugios::route('/'),
             'create' => CreateViagemBugio::route('/create'),
-            'view' => ViewViagemBugio::route('/{record}'),
-            'edit' => EditViagemBugio::route('/{record}/edit'),
+            // 'view' => ViewViagemBugio::route('/{record}'),
+            // 'edit' => EditViagemBugio::route('/{record}/edit'),
         ];
     }
 }

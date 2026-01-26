@@ -62,6 +62,7 @@ class ViagemBugioForm
                                     ->nullable(),
                                 DatePicker::make('data_competencia')
                                     ->label('Data de Competência')
+                                    ->readOnlyOn('edit')
                                     ->format('d/m/Y')
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->default(now()),

@@ -164,7 +164,7 @@ class ExportarViagemBugioExcelBulkAction
                         
                         // Extrair peso
                         if (isset($info['peso'])) {
-                            $peso = number_format($info['peso'], 0, ',', '.');
+                            $peso = $info['peso']; // Manter como número
                         }
                     }
                 }
@@ -186,7 +186,7 @@ class ExportarViagemBugioExcelBulkAction
                 $sheet->setCellValue('F' . $row, $numeroSequencial);
                 $sheet->setCellValue('G' . $row, $tipoDocumento);
                 $sheet->setCellValue('H' . $row, $record->data_competencia ? \Carbon\Carbon::parse($record->data_competencia)->format('d/m/Y') : '');
-                $sheet->setCellValue('I' . $row, $peso);
+                $sheet->setCellValueExplicit('I' . $row, $peso !== '-' ? $peso : '', $peso !== '-' ? \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC : \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
                 $sheet->setCellValue('J' . $row, number_format($record->km_pago, 0, ',', '.'));
                 $sheet->setCellValue('K' . $row, 'R$ ' . number_format($record->frete / 100, 2, ',', '.'));
                 $sheet->setCellValue('L' . $row, $record->condutor ?? '');

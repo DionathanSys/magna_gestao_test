@@ -64,15 +64,16 @@ class ExportarViagemBugioExcelBulkAction
                 'F' => 'Nº Sequencial',
                 'G' => 'Tipo Doc.',
                 'H' => 'Data Viagem',
-                'I' => 'Km Pago',
-                'J' => 'Frete',
-                'K' => 'Motorista',
-                'L' => 'Status',
-                'M' => 'Viagem Vinculada',
-                'N' => 'Doc. Frete Vinculado',
-                'O' => 'Criado Por',
-                'P' => 'Criado Em',
-                'Q' => 'Atualizado Em',
+                'I' => 'Peso',
+                'J' => 'Km Pago',
+                'K' => 'Frete',
+                'L' => 'Motorista',
+                'M' => 'Status',
+                'N' => 'Viagem Vinculada',
+                'O' => 'Doc. Frete Vinculado',
+                'P' => 'Criado Por',
+                'Q' => 'Criado Em',
+                'R' => 'Atualizado Em',
             ];
 
             // Escrever cabeçalhos
@@ -82,7 +83,7 @@ class ExportarViagemBugioExcelBulkAction
             }
 
             // Estilizar cabeçalho
-            $headerRange = 'A1:Q1';
+            $headerRange = 'A1:R1';
             $sheet->getStyle($headerRange)->applyFromArray([
                 'font' => [
                     'bold' => true,
@@ -145,17 +146,25 @@ class ExportarViagemBugioExcelBulkAction
 
                 // Extrair tipo documento
                 $tipoDocumento = '-';
+                $peso = '-';
                 if ($record->info_adicionais) {
                     $info = is_string($record->info_adicionais) 
                         ? json_decode($record->info_adicionais, true) 
                         : $record->info_adicionais;
                     
-                    if (is_array($info) && isset($info['tipo_documento'])) {
-                        $tipoDocumento = $info['tipo_documento'];
+                    if (is_array($info)) {
+                        if (isset($info['tipo_documento'])) {
+                            $tipoDocumento = $info['tipo_documento'];
+                            
+                            // Se for CTe Complemento, retorna o valor de cte_referencia
+                            if ($tipoDocumento === 'CTe Complemento' && isset($info['cte_referencia'])) {
+                                $tipoDocumento = 'Complemto ao CTe ' . $info['cte_referencia'];
+                            }
+                        }
                         
-                        // Se for CTe Complemento, retorna o valor de cte_referencia
-                        if ($tipoDocumento === 'CTe Complemento' && isset($info['cte_referencia'])) {
-                            $tipoDocumento = 'Complemto ao CTe ' . $info['cte_referencia'];
+                        // Extrair peso
+                        if (isset($info['peso'])) {
+                            $peso = number_format($info['peso'], 0, ',', '.');
                         }
                     }
                 }
@@ -177,15 +186,16 @@ class ExportarViagemBugioExcelBulkAction
                 $sheet->setCellValue('F' . $row, $numeroSequencial);
                 $sheet->setCellValue('G' . $row, $tipoDocumento);
                 $sheet->setCellValue('H' . $row, $record->data_competencia ? \Carbon\Carbon::parse($record->data_competencia)->format('d/m/Y') : '');
-                $sheet->setCellValue('I' . $row, number_format($record->km_pago, 0, ',', '.'));
-                $sheet->setCellValue('J' . $row, 'R$ ' . number_format($record->frete / 100, 2, ',', '.'));
-                $sheet->setCellValue('K' . $row, $record->condutor ?? '');
-                $sheet->setCellValue('L' . $row, $status);
-                $sheet->setCellValue('M' . $row, $record->viagem->numero_viagem ?? '-');
-                $sheet->setCellValue('N' . $row, $record->documento->numero_documento ?? '-');
-                $sheet->setCellValue('O' . $row, $record->creator->name ?? '');
-                $sheet->setCellValue('P' . $row, $record->created_at ? \Carbon\Carbon::parse($record->created_at)->format('d/m/Y H:i') : '');
-                $sheet->setCellValue('Q' . $row, $record->updated_at ? \Carbon\Carbon::parse($record->updated_at)->format('d/m/Y H:i') : '');
+                $sheet->setCellValue('I' . $row, $peso);
+                $sheet->setCellValue('J' . $row, number_format($record->km_pago, 0, ',', '.'));
+                $sheet->setCellValue('K' . $row, 'R$ ' . number_format($record->frete / 100, 2, ',', '.'));
+                $sheet->setCellValue('L' . $row, $record->condutor ?? '');
+                $sheet->setCellValue('M' . $row, $status);
+                $sheet->setCellValue('N' . $row, $record->viagem->numero_viagem ?? '-');
+                $sheet->setCellValue('O' . $row, $record->documento->numero_documento ?? '-');
+                $sheet->setCellValue('P' . $row, $record->creator->name ?? '');
+                $sheet->setCellValue('Q' . $row, $record->created_at ? \Carbon\Carbon::parse($record->created_at)->format('d/m/Y H:i') : '');
+                $sheet->setCellValue('R' . $row, $record->updated_at ? \Carbon\Carbon::parse($record->updated_at)->format('d/m/Y H:i') : '');
 
                 $row++;
                 
@@ -196,7 +206,7 @@ class ExportarViagemBugioExcelBulkAction
             }
 
             // Aplicar bordas em todas as células com dados
-            $dataRange = 'A1:Q' . ($row - 1);
+            $dataRange = 'A1:R' . ($row - 1);
             $sheet->getStyle($dataRange)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
@@ -207,7 +217,7 @@ class ExportarViagemBugioExcelBulkAction
             ]);
 
             // Auto-ajustar largura das colunas
-            foreach (range('A', 'Q') as $col) {
+            foreach (range('A', 'R') as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
 

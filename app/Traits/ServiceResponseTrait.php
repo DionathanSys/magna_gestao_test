@@ -104,6 +104,21 @@ trait ServiceResponseTrait
         return $this->message;
     }
 
+    public function getMessageUser(): string
+    {
+        $message = ucfirst(strtolower($this->message));
+        
+        if (!empty($this->errors)) {
+            $errorsText = is_array($this->errors) 
+                ? implode('; ', array_map(fn($error) => is_array($error) ? implode(', ', $error) : $error, $this->errors))
+                : $this->errors;
+            
+            $message .= ' - ' . $errorsText;
+        }
+        
+        return $message;
+    }
+
     /**
      * Retorna o tipo da mensagem
      */

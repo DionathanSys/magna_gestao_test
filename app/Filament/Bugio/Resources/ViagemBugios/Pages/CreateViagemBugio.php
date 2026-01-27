@@ -51,7 +51,7 @@ class CreateViagemBugio extends CreateRecord
         $result = $service->criarViagem($data);
 
         if ($service->hasError()) {
-            notify::error(mensagem: 'Falha ao criar viagem Bugio');
+            notify::error(mensagem: $service->getMessage());
             $this->halt();
         }
 

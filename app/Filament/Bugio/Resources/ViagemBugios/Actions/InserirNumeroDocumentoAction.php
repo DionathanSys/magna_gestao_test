@@ -90,6 +90,13 @@ class InserirNumeroDocumentoAction
                         ->body("Já existe um documento de frete com o número {$nroDocumento} e as mesmas informações (ID: {$documentoExistente->id}).")
                         ->send();
                     return;
+                } else {
+                    Log::debug('Nenhum documento existente encontrado com os mesmos dados.', [
+                        'numero_documento' => $nroDocumento,
+                        'parceiro_origem' => $parceiroOrigem,
+                        'parceiro_destino' => $parceiroDestino,
+                        'tipo_documento' => $tipoDocumento,
+                    ]);
                 }
 
                 // Atualizar ViagemBugio com o número do documento

@@ -184,6 +184,7 @@ class DocumentoFretesTable
                     DefinirResultadoPeriodoBulkAction::make(),
                     VincularResultadoPeriodoBulkAction::make(),
                     CriarViagemBulkAction::make(),
+                    Actions\ExportarDocumentoFreteExcelBulkAction::make(),
                     FilamentExportBulkAction::make('export')
                 ]),
                 ActionGroup::make([

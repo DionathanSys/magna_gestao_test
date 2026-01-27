@@ -188,7 +188,7 @@ class ExportarViagemBugioExcelBulkAction
                 $sheet->setCellValue('H' . $row, $record->data_competencia ? \Carbon\Carbon::parse($record->data_competencia)->format('d/m/Y') : '');
                 $sheet->setCellValueExplicit('I' . $row, $peso !== '-' ? $peso : '', $peso !== '-' ? \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC : \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
                 $sheet->setCellValue('J' . $row, number_format($record->km_pago, 0, ',', '.'));
-                $sheet->setCellValue('K' . $row, 'R$ ' . number_format($record->frete / 100, 2, ',', '.'));
+                $sheet->setCellValue('K' . $row, 'R$ ' . number_format($record->frete, 2, ',', '.'));
                 $sheet->setCellValue('L' . $row, $record->condutor ?? '');
                 $sheet->setCellValue('M' . $row, $status);
                 $sheet->setCellValue('N' . $row, $record->viagem->numero_viagem ?? '-');

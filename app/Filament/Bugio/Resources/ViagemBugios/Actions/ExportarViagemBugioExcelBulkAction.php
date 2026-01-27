@@ -205,6 +205,9 @@ class ExportarViagemBugioExcelBulkAction
                 }
             }
 
+            // Aplicar formatação de número na coluna de peso
+            $sheet->getStyle('I2:I' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0');
+
             // Aplicar bordas em todas as células com dados
             $dataRange = 'A1:R' . ($row - 1);
             $sheet->getStyle($dataRange)->applyFromArray([

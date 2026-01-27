@@ -102,5 +102,20 @@ class CriarViagem
             throw new \InvalidArgumentException($validator->errors()->first());
         }
 
+        // Validar se alguma nota já existe em outra ViagemBugio
+        $notasExistentes = [];
+        foreach ($data['nro_notas'] as $nota) {
+            $viagemExistente = Models\ViagemBugio::whereJsonContains('nro_notas', $nota)->first();
+            
+            if ($viagemExistente) {
+                $notasExistentes[] = $nota . " (Viagem Bugio ID: {$viagemExistente->id})";
+            }
+        }
+
+        if (!empty($notasExistentes)) {
+            $notasFormatadas = implode(', ', $notasExistentes);
+            throw new \InvalidArgumentException("As seguintes notas já estão vinculadas a outras viagens: {$notasFormatadas}");
+        }
+
     }
 }

@@ -159,8 +159,8 @@ class ViagemBugioService
 
             $dataDocFrete = [
                 'veiculo_id'            => $viagemBugio->veiculo_id,
-                'parceiro_destino'      => 'BUGIO NUTRICAO',
-                'parceiro_origem'       => 'BUGIO AGROPECUARIA',
+                'parceiro_destino'      => 'BUGIO AGROPECUARIA',
+                'parceiro_origem'       => 'BUGIO NUTRICAO',
                 'numero_documento'      => (string) $viagemBugio->nro_documento,
                 'documento_transporte'  => $viagemBugio->numero_sequencial,
                 'data_emissao'          => $viagemBugio->data_emissao,

@@ -4,6 +4,7 @@ namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\ExportarViagemBugioExcelBulkAction;
+use App\Filament\Bugio\Resources\ViagemBugios\Actions\InserirNumeroDocumentoAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
@@ -33,7 +34,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemBugiosTable
@@ -313,36 +313,7 @@ class ViagemBugiosTable
                         $bugioService->solicitarCte($record);
                     })
                     ->requiresConfirmation(),
-                Action::make('inserir_nro_documento')
-                    ->schema([
-                        TextInput::make('nro_documento')
-                            ->label('Nro. CTe emitido')
-                            ->minValue(0)
-                            ->required()
-                    ])
-                    ->color('success')
-                    ->iconButton()
-                    ->icon(Heroicon::ClipboardDocumentCheck)
-                    ->disabled(fn(ViagemBugio $record) => $record->nro_documento != null)
-                    ->action(function (ViagemBugio $record, $data) {
-
-                        Validator::make($data, [
-                            'nro_documento' => 'required|numeric|min:1'
-                        ])->validate();
-
-                        $record->update([
-                            'nro_documento' => $data['nro_documento'],
-                        ]);
-
-                        Log::info("Nro. CTe {$data['nro_documento']} inserido para ViagemBugio ID {$record->id} pelo usuário " . Auth::user()->id, [
-                            'record' => $record->toArray(),
-                        ]);
-
-                        $bugioService = new ViagemBugioService();
-                        $bugioService->createViagemFromBugio($record);
-                    })
-
-
+                InserirNumeroDocumentoAction::make(),
             ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([

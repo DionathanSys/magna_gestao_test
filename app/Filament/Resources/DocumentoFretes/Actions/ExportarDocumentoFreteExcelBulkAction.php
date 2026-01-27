@@ -116,9 +116,9 @@ class ExportarDocumentoFreteExcelBulkAction
                 $sheet->setCellValue('D' . $row, $record->documento_transporte ?? '');
                 $sheet->setCellValue('E' . $row, $record->tipo_documento?->value ?? $record->tipo_documento ?? '');
                 $sheet->setCellValue('F' . $row, $record->data_emissao ? \Carbon\Carbon::parse($record->data_emissao)->format('d/m/Y') : '');
-                $sheet->setCellValue('G' . $row, 'R$ ' . number_format($record->valor_total / 100, 2, ',', '.'));
-                $sheet->setCellValue('H' . $row, 'R$ ' . number_format($record->valor_icms / 100, 2, ',', '.'));
-                $sheet->setCellValue('I' . $row, 'R$ ' . number_format($record->valor_liquido / 100, 2, ',', '.'));
+                $sheet->setCellValue('G' . $row, 'R$ ' . number_format($record->valor_total, 2, ',', '.'));
+                $sheet->setCellValue('H' . $row, 'R$ ' . number_format($record->valor_icms, 2, ',', '.'));
+                $sheet->setCellValue('I' . $row, 'R$ ' . number_format($record->valor_liquido, 2, ',', '.'));
                 $sheet->setCellValue('J' . $row, $record->parceiro_origem ?? '');
                 $sheet->setCellValue('K' . $row, $record->parceiro_destino ?? '');
                 $sheet->setCellValue('L' . $row, $record->viagem_id ?? '');

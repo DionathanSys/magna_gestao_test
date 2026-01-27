@@ -136,6 +136,23 @@ class ViagemBugiosTable
                     ->date('d/m/Y')
                     ->sortable()
                     ->searchable(isIndividual: true),
+                TextColumn::make('peso')
+                    ->label('Peso')
+                    ->width('1%')
+                    ->state(function ($record) {
+                        if ($record->info_adicionais) {
+                            $info = is_string($record->info_adicionais) 
+                                ? json_decode($record->info_adicionais, true) 
+                                : $record->info_adicionais;
+                            
+                            if (is_array($info) && isset($info['peso'])) {
+                                return number_format($info['peso'], 0, ',', '.');
+                            }
+                        }
+                        return '-';
+                    })
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('km_pago')
                     ->label('Km Pago')
                     ->width('1%')

@@ -46,8 +46,7 @@ class ViagemBugiosTable
                 TextColumn::make('id')
                     ->label('ID')
                     ->width('1%')
-                    ->sortable()
-                    ->searchable(isIndividual: true),
+                    ->sortable(),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')

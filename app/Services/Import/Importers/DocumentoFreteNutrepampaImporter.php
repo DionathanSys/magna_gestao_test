@@ -164,7 +164,7 @@ class DocumentoFreteNutrepampaImporter implements ExcelImportInterface
         }
     }
 
-    public function process(array $data, int $rowNumber): ?Models\Viagem
+    public function process(array $data, int $rowNumber): ?Models\DocumentoFrete
     {
         Log::debug('Processando linha de importação de documento frete Nutrepampa - Linha: ' . $rowNumber, [
             'metodo'    => __METHOD__ . '@' . __LINE__,

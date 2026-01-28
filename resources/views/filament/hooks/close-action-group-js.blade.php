@@ -93,5 +93,49 @@ document.addEventListener('livewire:init', () => {
             }
         });
     });
+    
+    // Listener adicional para wire:loading do Livewire v3
+    document.addEventListener('wire:loading', () => {
+        if (!document.getElementById('loading-toast')) {
+            const toast = document.createElement('div');
+            toast.id = 'loading-toast';
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #f59e0b;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 9999;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                animation: slideIn 0.3s ease-out;
+            `;
+            toast.innerHTML = `
+                <svg class="animate-spin" style="width: 20px; height: 20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Carregando dados...</span>
+            `;
+            document.body.appendChild(toast);
+        }
+    });
+    
+    document.addEventListener('wire:loaded', () => {
+        const toast = document.getElementById('loading-toast');
+        if (toast) {
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.3s, transform 0.3s';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 300);
+        }
+    });
 });
 </script>

@@ -549,7 +549,6 @@ class ViagemsTable
                 ActionGroup::make([
                     Action::make('atualizar')
                         ->label('Atualizar')
-                        ->icon('heroicon-o-arrows-rotate')
                         ->action(function (Component $livewire) {
                             // Força o refresh da tabela
                             $livewire->dispatch('$refresh');

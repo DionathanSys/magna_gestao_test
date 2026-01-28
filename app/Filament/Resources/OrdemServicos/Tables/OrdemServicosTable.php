@@ -166,6 +166,7 @@ class OrdemServicosTable
             ], RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
+                    Actions\GerarRelatorioOrdemServicoPdfBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ])

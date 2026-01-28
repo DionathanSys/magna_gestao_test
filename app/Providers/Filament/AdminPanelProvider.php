@@ -72,8 +72,12 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->renderHook(
-            PanelsRenderHook::BODY_END,
-            fn (): View => view('filament.hooks.close-action-group-js'),
-        );
+                PanelsRenderHook::BODY_END,
+                fn (): View => view('filament.hooks.close-action-group-js'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): View => view('filament.hooks.loading-toast'),
+            );
     }
 }

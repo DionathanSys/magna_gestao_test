@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Illuminate\Support\Collection;
@@ -595,7 +596,7 @@ class ViagemsTable
                 ActionGroup::make([
                     Action::make('atualizar')
                         ->label('Atualizar')
-                        ->icon('heroicon-o-arrows-rotate')
+                        ->icon(Heroicon::ArrowLeftCircle)
                         ->action(function () {
                             // Não faz nada no backend - evita refresh imediato
                         })

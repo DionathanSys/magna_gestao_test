@@ -547,6 +547,14 @@ class ViagemsTable
             ->selectable()
             ->recordActions([
                 ActionGroup::make([
+                    Action::make('atualizar')
+                        ->label('Atualizar')
+                        ->icon('heroicon-o-arrows-rotate')
+                        ->action(function (Component $livewire) {
+                            // Força o refresh da tabela
+                            $livewire->dispatch('$refresh');
+                        })
+                        ->color('primary'),
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')
                         ->icon('heroicon-o-x-circle')
@@ -657,13 +665,14 @@ class ViagemsTable
             ])
             ->toolbarActions([
                 CreateAction::make(),
-                Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
+                
                 Viagems\Actions\RegistrarComplementoViagem::make(),
                 Viagems\Actions\MarcarViagemConferidaAction::make(),
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(fn(): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                     Viagems\Actions\ExportarViagensExcelBulkAction::make(),
                     FilamentExportBulkAction::make('export')
                 ]),

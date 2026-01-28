@@ -40,7 +40,6 @@ class GerarRelatorioOrdemServicoPdfBulkAction
 
     protected static function gerarPdf(Collection $records, string $modelo = 'padrao')
     {
-    {
         // Carregar relacionamentos necessários
         $ordensServico = OrdemServico::whereIn('id', $records->pluck('id'))
             ->with([

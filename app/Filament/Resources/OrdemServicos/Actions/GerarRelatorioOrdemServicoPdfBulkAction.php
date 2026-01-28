@@ -16,6 +16,7 @@ class GerarRelatorioOrdemServicoPdfBulkAction
             ->icon('heroicon-o-document-arrow-down')
             ->color('primary')
             ->requiresConfirmation()
+            ->accessSelectedRecords()
             ->modalDescription(fn (Collection $records) => 
                 'Você está prestes a gerar um relatório PDF com ' . $records->count() . ' ordem(ns) de serviço.'
             )
@@ -32,6 +33,7 @@ class GerarRelatorioOrdemServicoPdfBulkAction
             ->with([
                 'veiculo:id,placa',
                 'itens.servico:id,descricao',
+                'itens.comentarios.user:id,name',
                 'sankhyaId:id,ordem_servico_id,ordem_sankhya_id',
                 'parceiro:id,nome'
             ])

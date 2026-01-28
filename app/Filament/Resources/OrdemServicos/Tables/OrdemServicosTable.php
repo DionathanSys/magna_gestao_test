@@ -142,6 +142,8 @@ class OrdemServicosTable
                     ->autoApply()
                     ->firstDayOfWeek(0),
             ])
+            ->deselectAllRecordsWhenFiltered(false)
+            ->selectable()
             ->recordActions([
                 ActionGroup::make([
                     Actions\EncerrarOrdemServicoAction::make(),
@@ -173,6 +175,6 @@ class OrdemServicosTable
             ->headerActions([
             ])
             ->striped()
-            ->poll('5s');
+            ->poll('10s');
     }
 }

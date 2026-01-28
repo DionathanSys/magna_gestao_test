@@ -202,10 +202,6 @@
                         {{ $ordem->status?->value ?? 'N/A' }}
                     </span>
                 </div>
-                <div class="info-label">Fornecedor:</div>
-                <div class="info-value">{{ $ordem->parceiro?->nome ?? 'N/A' }}</div>
-            </div>
-            <div class="info-row">
                 <div class="info-label">Criado em:</div>
                 <div class="info-value" colspan="3">{{ $ordem->created_at->format('d/m/Y H:i:s') }}</div>
             </div>
@@ -236,32 +232,27 @@
                         </span>
                     </td>
                 </tr>
+                @if($item->comentarios->isNotEmpty())
+                <tr>
+                    <td colspan="5" style="background-color: #f8f9fa; padding: 8px;">
+                        <strong style="color: #2c3e50;">Comentários:</strong>
+                        @foreach($item->comentarios as $comentario)
+                        <div style="margin-top: 5px; padding: 5px; border-left: 3px solid #3498db; background-color: white;">
+                            <div style="font-size: 8px; color: #7f8c8d; margin-bottom: 2px;">
+                                <strong>{{ $comentario->user?->name ?? 'Sistema' }}</strong> - {{ $comentario->created_at->format('d/m/Y H:i') }}
+                            </div>
+                            <div style="font-size: 9px;">{{ $comentario->comentario }}</div>
+                        </div>
+                        @endforeach
+                    </td>
+                </tr>
+                @endif
                 @endforeach
             </tbody>
         </table>
         @else
         <div class="section-title">Itens da Ordem de Serviço</div>
         <div class="no-data">Nenhum item cadastrado</div>
-        @endif
-
-        @if($ordem->sankhyaId->isNotEmpty())
-        <div class="section-title">Ordens Sankhya Vinculadas</div>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 20%;">ID</th>
-                    <th style="width: 80%;">Ordem Sankhya ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($ordem->sankhyaId as $sankhya)
-                <tr>
-                    <td>{{ $sankhya->id }}</td>
-                    <td>{{ $sankhya->ordem_sankhya_id }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
         @endif
     </div>
 

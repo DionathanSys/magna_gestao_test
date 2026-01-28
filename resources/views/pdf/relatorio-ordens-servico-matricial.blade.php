@@ -169,7 +169,7 @@
             <div class="comentario">
                 <strong>COMENTARIO - {{ $comentario->creator?->name ?? 'Sistema' }}</strong><br>
                 {{ $comentario->created_at->format('d/m/Y H:i') }}<br>
-                {{ $comentario->conteudo }}
+                {{ strip_tags($comentario->conteudo) }}
             </div>
             @endforeach
             @endif

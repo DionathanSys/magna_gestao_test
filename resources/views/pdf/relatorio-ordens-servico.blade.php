@@ -241,7 +241,7 @@
                             <div style="font-size: 8px; color: #7f8c8d; margin-bottom: 2px;">
                                 <strong>{{ $comentario->creator?->name ?? 'Sistema' }}</strong> - {{ $comentario->created_at->format('d/m/Y H:i') }}
                             </div>
-                            <div style="font-size: 9px;">{{ $comentario->conteudo }}</div>
+                            <div style="font-size: 9px;">{{ strip_tags($comentario->conteudo) }}</div>
                         </div>
                         @endforeach
                     </td>

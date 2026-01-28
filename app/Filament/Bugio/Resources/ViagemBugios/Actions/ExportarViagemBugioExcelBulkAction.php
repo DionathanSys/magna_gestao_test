@@ -6,6 +6,7 @@ use App\Models\Integrado;
 use App\Models\ViagemBugio;
 use Filament\Actions\BulkAction;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border, Fill};
@@ -173,6 +174,12 @@ class ExportarViagemBugioExcelBulkAction
                 } else {
                     $valorCtrc = $record->frete ?? 0;
                 }
+
+                Log::debug('Exportando ViagemBugio ID: ' . $record->id . ', Nº de viag: ' . $numeroSequencial, [
+                    'Valor CTRC' => $valorCtrc,
+                    'Vl. Recibo' => $valorRecibo,
+                    'tipo_documento' => $tipoDocumento,
+                ]);
 
                 // Preencher as colunas
                 $sheet->setCellValue('A' . $row, 150); // Tipo de Fr - valor padrão

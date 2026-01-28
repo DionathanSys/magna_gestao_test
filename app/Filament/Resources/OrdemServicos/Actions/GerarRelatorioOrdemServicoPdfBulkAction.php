@@ -53,15 +53,26 @@ class GerarRelatorioOrdemServicoPdfBulkAction
             ->orderBy('id', 'asc')
             ->get();
 
+        // Selecionar a view baseada no modelo
+        $view = $modelo === 'termico' 
+            ? 'pdf.relatorio-ordens-servico-termico' 
+            : 'pdf.relatorio-ordens-servico';
+
         // Gerar PDF
-        $pdf = Pdf::loadView('pdf.relatorio-ordens-servico', [
+        $pdf = Pdf::loadView($view, [
             'ordensServico' => $ordensServico,
             'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ]);
 
-        $pdf->setPaper('a4', 'portrait');
+        // Configurar papel baseado no modelo
+        if ($modelo === 'termico') {
+            $pdf->setPaper([0, 0, 226.77, 841.89], 'portrait'); // 80mm x 297mm
+        } else {
+            $pdf->setPaper('a4', 'portrait');
+        }
 
-        $fileName = 'relatorio_ordens_servico_' . now()->format('Y-m-d_His') . '.pdf';
+        $sufixo = $modelo === 'termico' ? '_termico' : '';
+        $fileName = 'relatorio_ordens_servico' . $sufixo . '_' . now()->format('Y-m-d_His') . '.pdf';
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();

@@ -550,8 +550,12 @@ class ViagemsTable
                     Action::make('atualizar')
                         ->label('Atualizar')
                         ->action(function (Component $livewire) {
-                            // Força o refresh da tabela
-                            $livewire->dispatch('$refresh');
+                            // Agenda o refresh para acontecer após alguns minutos
+                            $livewire->js(<<<'JS'
+                                setTimeout(() => {
+                                    $wire.$refresh();
+                                }, 20); // 2 minutos (120000ms)
+                            JS);
                         })
                         ->color('primary'),
                     Action::make('sem-viagem')

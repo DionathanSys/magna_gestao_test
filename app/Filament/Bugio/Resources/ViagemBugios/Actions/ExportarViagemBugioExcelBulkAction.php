@@ -2,6 +2,7 @@
 
 namespace App\Filament\Bugio\Resources\ViagemBugios\Actions;
 
+use App\Models\Integrado;
 use App\Models\ViagemBugio;
 use Filament\Actions\BulkAction;
 use Illuminate\Support\Collection;
@@ -54,26 +55,28 @@ class ExportarViagemBugioExcelBulkAction
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('Viagens Bugio');
 
-            // Definir cabeçalhos
+            // Definir cabeçalhos conforme especificação
             $headers = [
-                'A' => 'ID',
-                'B' => 'Placa',
-                'C' => 'Integrados',
-                'D' => 'Nº Doc. Frete',
-                'E' => 'Nro Notas',
-                'F' => 'Nº Sequencial',
-                'G' => 'Tipo Doc.',
-                'H' => 'Data Viagem',
-                'I' => 'Peso',
-                'J' => 'Km Pago',
-                'K' => 'Frete',
-                'L' => 'Motorista',
-                'M' => 'Status',
-                'N' => 'Viagem Vinculada',
-                'O' => 'Doc. Frete Vinculado',
-                'P' => 'Criado Por',
-                'Q' => 'Criado Em',
-                'R' => 'Atualizado Em',
+                'A' => 'Tipo de Fr',
+                'B' => 'Transporta',
+                'C' => 'Nome Transportador',
+                'D' => 'Placa',
+                'E' => 'Nota F',
+                'F' => 'Nº de viag',
+                'G' => 'Destino',
+                'H' => 'Local',
+                'I' => 'N. Ext.',
+                'J' => 'Status',
+                'K' => 'Dta.criação',
+                'L' => 'Valor CTRC',
+                'M' => 'Vl. Recibo',
+                'N' => 'KM',
+                'O' => 'Entregas',
+                'P' => 'Ad. Entreg',
+                'Q' => 'Peso',
+                'R' => 'Valor Brut',
+                'S' => 'Frete Líqu',
+                'T' => 'Valor do F',
             ];
 
             // Escrever cabeçalhos
@@ -83,7 +86,7 @@ class ExportarViagemBugioExcelBulkAction
             }
 
             // Estilizar cabeçalho
-            $headerRange = 'A1:R1';
+            $headerRange = 'A1:T1';
             $sheet->getStyle($headerRange)->applyFromArray([
                 'font' => [
                     'bold' => true,
@@ -107,95 +110,91 @@ class ExportarViagemBugioExcelBulkAction
             ]);
 
             // Carregar relacionamentos necessários
-            $records->load(['veiculo:id,placa', 'viagem:id,numero_viagem', 'documento:id,numero_documento', 'creator:id,name']);
+            $records->load(['veiculo:id,placa']);
 
             // Preencher dados
             $row = 2;
             foreach ($records as $record) {
-                // Formatar integrados
-                $destinos = $record->destinos;
-                $integrados = '-';
-                if (!empty($destinos)) {
-                    if (isset($destinos['integrado_nome'])) {
-                        // É um único destino
-                        $integrados = $destinos['integrado_nome'];
-                    } else {
-                        // É um array de destinos
-                        $integrados = collect($destinos)
-                            ->pluck('integrado_nome')
-                            ->filter()
-                            ->implode('; ');
-                    }
-                }
-
-                // Formatar notas
-                $nroNotas = $record->nro_notas;
-                $notasFormatadas = '-';
-                if (!empty($nroNotas)) {
-                    if (is_string($nroNotas)) {
-                        $notasFormatadas = $nroNotas;
-                    } else {
-                        $notasFormatadas = collect($nroNotas)
-                            ->filter()
-                            ->implode('; ');
-                    }
-                }
-
-                // Formatar número sequencial
-                $numeroSequencial = $record->numero_sequencial ? str_pad($record->numero_sequencial, 6, '0', STR_PAD_LEFT) : '-';
-
-                // Extrair tipo documento
-                $tipoDocumento = '-';
-                $peso = '-';
+                // Extrair informações adicionais
+                $info = null;
+                $tipoDocumento = null;
+                $peso = null;
+                
                 if ($record->info_adicionais) {
                     $info = is_string($record->info_adicionais) 
                         ? json_decode($record->info_adicionais, true) 
                         : $record->info_adicionais;
                     
                     if (is_array($info)) {
-                        if (isset($info['tipo_documento'])) {
-                            $tipoDocumento = $info['tipo_documento'];
-                            
-                            // Se for CTe Complemento, retorna o valor de cte_referencia
-                            if ($tipoDocumento === 'CTe Complemento' && isset($info['cte_referencia'])) {
-                                $tipoDocumento = 'Complemto ao CTe ' . $info['cte_referencia'];
-                            }
+                        $tipoDocumento = $info['tipo_documento'] ?? null;
+                        $peso = $info['peso'] ?? null;
+                    }
+                }
+
+                // Buscar informações do integrado
+                $destinos = $record->destinos;
+                $integradoNome = '';
+                $integradoMunicipio = '';
+                
+                if (!empty($destinos)) {
+                    $integradoId = null;
+                    
+                    // Verificar se é um array associativo único ou array de arrays
+                    if (isset($destinos['integrado_id'])) {
+                        $integradoId = $destinos['integrado_id'];
+                        $integradoNome = $destinos['integrado_nome'] ?? '';
+                    } elseif (is_array($destinos) && count($destinos) > 0) {
+                        // É um array de destinos, pegar o primeiro
+                        $primeiroDestino = reset($destinos);
+                        if (isset($primeiroDestino['integrado_id'])) {
+                            $integradoId = $primeiroDestino['integrado_id'];
+                            $integradoNome = $primeiroDestino['integrado_nome'] ?? '';
                         }
-                        
-                        // Extrair peso
-                        if (isset($info['peso'])) {
-                            $peso = $info['peso']; // Manter como número
+                    }
+                    
+                    // Buscar município do integrado
+                    if ($integradoId) {
+                        $integrado = Integrado::find($integradoId);
+                        if ($integrado) {
+                            $integradoMunicipio = $integrado->municipio ?? '';
                         }
                     }
                 }
 
-                // Formatar status
-                $statusMap = [
-                    'pendente' => 'Pendente',
-                    'em_andamento' => 'CTe solicitado',
-                    'concluido' => 'CTe emitido',
-                    'cancelada' => 'Cancelada',
-                ];
-                $status = $statusMap[$record->status] ?? $record->status;
+                // Formatar número sequencial
+                $numeroSequencial = $record->numero_sequencial ? str_pad($record->numero_sequencial, 6, '0', STR_PAD_LEFT) : '';
 
-                $sheet->setCellValueExplicit('A' . $row, $record->id, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC);
-                $sheet->setCellValue('B' . $row, $record->veiculo->placa ?? '');
-                $sheet->setCellValue('C' . $row, $integrados);
-                $sheet->setCellValue('D' . $row, $record->nro_documento ?? '-');
-                $sheet->setCellValue('E' . $row, $notasFormatadas);
-                $sheet->setCellValue('F' . $row, $numeroSequencial);
-                $sheet->setCellValue('G' . $row, $tipoDocumento);
-                $sheet->setCellValue('H' . $row, $record->data_competencia ? \Carbon\Carbon::parse($record->data_competencia)->format('d/m/Y') : '');
-                $sheet->setCellValueExplicit('I' . $row, $peso !== '-' ? $peso : '', $peso !== '-' ? \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC : \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
-                $sheet->setCellValue('J' . $row, number_format($record->km_pago, 0, ',', '.'));
-                $sheet->setCellValue('K' . $row, 'R$ ' . number_format($record->frete, 2, ',', '.'));
-                $sheet->setCellValue('L' . $row, $record->condutor ?? '');
-                $sheet->setCellValue('M' . $row, $status);
-                $sheet->setCellValue('N' . $row, $record->viagem->numero_viagem ?? '-');
-                $sheet->setCellValue('O' . $row, $record->documento->numero_documento ?? '-');
-                $sheet->setCellValue('P' . $row, $record->creator->name ?? '');
-                $sheet->setCellValue('Q' . $row, $record->created_at ? \Carbon\Carbon::parse($record->created_at)->format('d/m/Y H:i') : '');
-                $sheet->setCellValue('R' . $row, $record->updated_at ? \Carbon\Carbon::parse($record->updated_at)->format('d/m/Y H:i') : '');
+                // Calcular Valor CTRC e Vl. Recibo
+                $valorCtrc = 0;
+                $valorRecibo = 0;
+                
+                if ($tipoDocumento === 'NFSe') {
+                    $valorRecibo = $record->frete ?? 0;
+                } else {
+                    $valorCtrc = $record->frete ?? 0;
+                }
+
+                // Preencher as colunas
+                $sheet->setCellValue('A' . $row, 150); // Tipo de Fr - valor padrão
+                $sheet->setCellValue('B' . $row, 384033); // Transporta - valor padrão
+                $sheet->setCellValue('C' . $row, 'MAGNABOSCO COM E TRANSPORTES LTDA'); // Nome Transportador - valor padrão
+                $sheet->setCellValue('D' . $row, $record->veiculo->placa ?? ''); // Placa
+                $sheet->setCellValue('E' . $row, $record->nro_documento ?? ''); // Nota F
+                $sheet->setCellValue('F' . $row, $numeroSequencial); // Nº de viag
+                $sheet->setCellValue('G' . $row, $integradoNome); // Destino
+                $sheet->setCellValue('H' . $row, $integradoMunicipio); // Local
+                $sheet->setCellValue('I' . $row, 'v'); // N. Ext. - valor padrão
+                $sheet->setCellValue('J' . $row, ''); // Status - em branco
+                $sheet->setCellValue('K' . $row, $record->data_competencia ? \Carbon\Carbon::parse($record->data_competencia)->format('d/m/Y') : ''); // Dta.criação
+                $sheet->setCellValue('L' . $row, $valorCtrc); // Valor CTRC
+                $sheet->setCellValue('M' . $row, $valorRecibo); // Vl. Recibo
+                $sheet->setCellValue('N' . $row, $record->km_pago ?? 0); // KM
+                $sheet->setCellValue('O' . $row, 1); // Entregas - valor padrão
+                $sheet->setCellValue('P' . $row, 1); // Ad. Entreg - valor padrão
+                $sheet->setCellValue('Q' . $row, $peso ?? 0); // Peso
+                $sheet->setCellValue('R' . $row, 0); // Valor Brut - valor padrão
+                $sheet->setCellValue('S' . $row, $record->frete ?? 0); // Frete Líqu
+                $sheet->setCellValue('T' . $row, $record->frete ?? 0); // Valor do F
 
                 $row++;
                 
@@ -205,11 +204,17 @@ class ExportarViagemBugioExcelBulkAction
                 }
             }
 
-            // Aplicar formatação de número na coluna de peso
-            $sheet->getStyle('I2:I' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0');
+            // Aplicar formatação de número nas colunas de valores
+            $sheet->getStyle('L2:L' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('M2:M' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('N2:N' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('Q2:Q' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('R2:R' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('S2:S' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('T2:T' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
 
             // Aplicar bordas em todas as células com dados
-            $dataRange = 'A1:R' . ($row - 1);
+            $dataRange = 'A1:T' . ($row - 1);
             $sheet->getStyle($dataRange)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
@@ -220,7 +225,7 @@ class ExportarViagemBugioExcelBulkAction
             ]);
 
             // Auto-ajustar largura das colunas
-            foreach (range('A', 'R') as $col) {
+            foreach (range('A', 'T') as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
 
@@ -228,7 +233,7 @@ class ExportarViagemBugioExcelBulkAction
             $sheet->freezePane('A2');
 
             // Criar response de download
-            $fileName = 'viagens_bugio_' . date('Y-m-d_His') . '.xlsx';
+            $fileName = 'viagens_bugio_export_' . date('Y-m-d_His') . '.xlsx';
 
             return new StreamedResponse(
                 function () use ($spreadsheet) {

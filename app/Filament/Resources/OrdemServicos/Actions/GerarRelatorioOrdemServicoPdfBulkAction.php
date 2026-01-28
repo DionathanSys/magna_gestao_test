@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrdemServicos\Actions;
 
 use App\Models\OrdemServico;
 use Filament\Actions\BulkAction;
+use Filament\Forms\Components\Select;
 use Illuminate\Support\Collection;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -15,18 +16,30 @@ class GerarRelatorioOrdemServicoPdfBulkAction
             ->label('Gerar Relatório PDF')
             ->icon('heroicon-o-document-arrow-down')
             ->color('primary')
-            ->requiresConfirmation()
             ->accessSelectedRecords()
+            ->form([
+                Select::make('modelo')
+                    ->label('Modelo do Relatório')
+                    ->options([
+                        'padrao' => 'Padrão (A4)',
+                        'termico' => 'Térmico (80mm)',
+                    ])
+                    ->default('padrao')
+                    ->required()
+                    ->native(false)
+                    ->helperText('Escolha o formato de impressão do relatório'),
+            ])
             ->modalDescription(fn (Collection $records) => 
                 'Você está prestes a gerar um relatório PDF com ' . $records->count() . ' ordem(ns) de serviço.'
             )
-            ->action(function (Collection $records) {
-                return static::gerarPdf($records);
+            ->action(function (Collection $records, array $data) {
+                return static::gerarPdf($records, $data['modelo']);
             })
             ->deselectRecordsAfterCompletion();
     }
 
-    protected static function gerarPdf(Collection $records)
+    protected static function gerarPdf(Collection $records, string $modelo = 'padrao')
+    {
     {
         // Carregar relacionamentos necessários
         $ordensServico = OrdemServico::whereIn('id', $records->pluck('id'))
@@ -37,7 +50,7 @@ class GerarRelatorioOrdemServicoPdfBulkAction
                 'sankhyaId:id,ordem_servico_id,ordem_sankhya_id',
                 'parceiro:id,nome'
             ])
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
             ->get();
 
         // Gerar PDF

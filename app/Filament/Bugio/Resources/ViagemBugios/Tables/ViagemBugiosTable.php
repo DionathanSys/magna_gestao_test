@@ -21,6 +21,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
@@ -297,7 +298,8 @@ class ViagemBugiosTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn() => Auth::user()->is_admin),
+                        ->visible(fn() => Auth::user()->is_admin)
+                        ->modalWidth(Width::FiveExtraLarge),
                     VincularViagemAction::make()
                         ->icon(Heroicon::Link),
                 ]),

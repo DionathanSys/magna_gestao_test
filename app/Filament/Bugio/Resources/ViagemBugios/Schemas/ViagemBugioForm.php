@@ -26,7 +26,7 @@ class ViagemBugioForm
                     ->schema([
                         Section::make('Detalhes da Viagem')
                             ->columns(['md' => 4, 'xl' => 6])
-                            ->columnSpan(1)
+                            ->columnSpan(fn($operation) => $operation === 'create' ? 1 : 2)
                             ->components([
                                 Select::make('motorista')
                                     ->label('Motorista')
@@ -62,7 +62,6 @@ class ViagemBugioForm
                                     ->nullable(),
                                 DatePicker::make('data_competencia')
                                     ->label('Data de Competência')
-                                    ->readOnlyOn('edit')
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->default(now()),
                                 TextInput::make('info_adicionais.peso')
@@ -193,6 +192,7 @@ class ViagemBugioForm
                             ]),
                         Section::make('Documentos Fiscais')
                             ->columnSpan(1)
+                            ->hiddenOn('edit')
                             ->components([
                                 FileUpload::make('anexos')
                                     ->columnSpan(['md' => 4, 'xl' => 6])

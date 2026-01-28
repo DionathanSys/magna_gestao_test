@@ -65,7 +65,7 @@ class BugioPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::BODY_END,
-                fn (): View => view('filament.hooks.loading-toast'),
+                fn (): View => view('filament.hooks.close-action-group-js'),
             );
     }
 }

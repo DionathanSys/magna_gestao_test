@@ -74,10 +74,6 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): View => view('filament.hooks.close-action-group-js'),
-            )
-            ->renderHook(
-                PanelsRenderHook::BODY_END,
-                fn (): View => view('filament.hooks.loading-toast'),
             );
     }
 }

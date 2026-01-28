@@ -90,6 +90,52 @@ class ViagemsTable
                     ->withCount(['cargas', 'documentos']);
             })
             ->poll(null)
+            ->extraAttributes([
+                'x-data' => '{}',
+                'x-init' => <<<'JS'
+                    // Escuta eventos do Livewire para mostrar loading toast
+                    Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+                        // Remove toast anterior se existir
+                        const toastAnterior = document.getElementById('loading-toast');
+                        if (toastAnterior) {
+                            toastAnterior.remove();
+                        }
+                        
+                        // Cria o toast de loading
+                        const toast = document.createElement('div');
+                        toast.id = 'loading-toast';
+                        toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #f59e0b; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; font-weight: 600; display: flex; align-items: center; gap: 10px;';
+                        toast.innerHTML = `
+                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Carregando dados...</span>
+                        `;
+                        document.body.appendChild(toast);
+                        
+                        succeed(() => {
+                            // Remove o toast quando terminar de carregar
+                            setTimeout(() => {
+                                const toastElement = document.getElementById('loading-toast');
+                                if (toastElement) {
+                                    toastElement.style.transition = 'opacity 0.3s';
+                                    toastElement.style.opacity = '0';
+                                    setTimeout(() => toastElement.remove(), 300);
+                                }
+                            }, 500);
+                        });
+                        
+                        fail(() => {
+                            // Remove o toast em caso de erro
+                            const toastElement = document.getElementById('loading-toast');
+                            if (toastElement) {
+                                toastElement.remove();
+                            }
+                        });
+                    });
+                JS
+            ])
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -549,36 +595,11 @@ class ViagemsTable
                 ActionGroup::make([
                     Action::make('atualizar')
                         ->label('Atualizar')
-                        ->action(function (Component $livewire) {
-                            $livewire->js(<<<'JS'
-                                let segundosRestantes = 20;
-                                
-                                // Cria e exibe o alerta
-                                const alerta = document.createElement('div');
-                                alerta.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #3b82f6; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; font-weight: 600;';
-                                alerta.innerHTML = `Atualizando em <span id="countdown">${segundosRestantes}</span>s...`;
-                                document.body.appendChild(alerta);
-                                
-                                // Atualiza o contador a cada segundo
-                                const intervalo = setInterval(() => {
-                                    segundosRestantes--;
-                                    const countdown = document.getElementById('countdown');
-                                    if (countdown) {
-                                        countdown.textContent = segundosRestantes;
-                                    }
-                                    
-                                    if (segundosRestantes <= 0) {
-                                        clearInterval(intervalo);
-                                    }
-                                }, 1000);
-                                
-                                // Executa o refresh e remove o alerta após 20 segundos
-                                setTimeout(() => {
-                                    alerta.remove();
-                                    $wire.$refresh();
-                                }, 20000);
-                            JS);
+                        ->icon('heroicon-o-arrows-rotate')
+                        ->action(function () {
+                            // Não faz nada no backend - evita refresh imediato
                         })
+                        
                         ->color('primary'),
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')

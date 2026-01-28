@@ -239,9 +239,9 @@
                         @foreach($item->comentarios as $comentario)
                         <div style="margin-top: 5px; padding: 5px; border-left: 3px solid #3498db; background-color: white;">
                             <div style="font-size: 8px; color: #7f8c8d; margin-bottom: 2px;">
-                                <strong>{{ $comentario->user?->name ?? 'Sistema' }}</strong> - {{ $comentario->created_at->format('d/m/Y H:i') }}
+                                <strong>{{ $comentario->creator?->name ?? 'Sistema' }}</strong> - {{ $comentario->created_at->format('d/m/Y H:i') }}
                             </div>
-                            <div style="font-size: 9px;">{{ $comentario->comentario }}</div>
+                            <div style="font-size: 9px;">{{ $comentario->conteudo }}</div>
                         </div>
                         @endforeach
                     </td>

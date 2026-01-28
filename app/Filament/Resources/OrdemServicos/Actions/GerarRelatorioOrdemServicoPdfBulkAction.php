@@ -45,7 +45,7 @@ class GerarRelatorioOrdemServicoPdfBulkAction
             ->with([
                 'veiculo:id,placa',
                 'itens.servico:id,descricao',
-                'itens.comentarios.user:id,name',
+                'itens.comentarios.creator:id,name',
                 'sankhyaId:id,ordem_servico_id,ordem_sankhya_id',
                 'parceiro:id,nome'
             ])

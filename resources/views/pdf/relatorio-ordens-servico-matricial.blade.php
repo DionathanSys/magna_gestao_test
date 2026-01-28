@@ -167,9 +167,9 @@
             @if($item->comentarios->isNotEmpty())
             @foreach($item->comentarios as $comentario)
             <div class="comentario">
-                <strong>COMENTARIO - {{ $comentario->user?->name ?? 'Sistema' }}</strong><br>
+                <strong>COMENTARIO - {{ $comentario->creator?->name ?? 'Sistema' }}</strong><br>
                 {{ $comentario->created_at->format('d/m/Y H:i') }}<br>
-                {{ $comentario->comentario }}
+                {{ $comentario->conteudo }}
             </div>
             @endforeach
             @endif

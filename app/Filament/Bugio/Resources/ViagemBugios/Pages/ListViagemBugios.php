@@ -41,4 +41,24 @@ class ListViagemBugios extends ListRecords
                 ->badge(ViagemBugio::whereDate('created_at', now()->toDateString())->count()),
         ];
     }
+
+    public function getDefaultActiveTab(): string | int | null
+    {
+        $lastActiveTab = session('viagem_bugio_last_active_tab');
+        
+        if ($lastActiveTab && array_key_exists($lastActiveTab, $this->getTabs())) {
+            return $lastActiveTab;
+        } 
+        return 'criados_hoje';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [];
+    }
+
+    public function updatedActiveTab(): void
+    {
+        session(['viagem_bugio_last_active_tab' => $this->activeTab]);
+    }
 }

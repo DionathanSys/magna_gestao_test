@@ -18,7 +18,6 @@ class VincularViagemDocumentoBulkAction
         return BulkAction::make('vincular-documento')
             ->label('Vincular Documento')
             ->icon('heroicon-o-paper-clip')
-            ->fetchSelectedRecords(false)
             ->action(function (Collection $records) {
                 $records->chunk(250)->each(function (Collection $chunk) {
                     VincularViagensBatch::dispatch($chunk);

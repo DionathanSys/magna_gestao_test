@@ -29,6 +29,8 @@ class RelatorioPlanoManutencao extends Page
 
     public ?array $data = [];
 
+    public ?array $dadosRelatorio = [];
+
     public function mount(): void
     {
         $this->data = $this->getDefaultData();
@@ -140,6 +142,37 @@ class RelatorioPlanoManutencao extends Page
                 ->send();
 
             return response('Erro ao visualizar relatório', 500);
+        }
+    }
+
+    public function carregarDados()
+    {
+        try {
+            $service = new RelatorioPlanoManutencaoService();
+
+            $filtros = [
+                'veiculo_id' => $this->data['veiculo_id'] ?? null,
+                'plano_preventivo_id' => $this->data['plano_preventivo_id'] ?? null,
+                'km_restante_maximo' => $this->data['km_restante_maximo'] ?? null,
+            ];
+
+            $this->dadosRelatorio = $service->obterDadosRelatorio($filtros);
+
+            Notification::make()
+                ->title('Dados carregados com sucesso')
+                ->success()
+                ->body(count($this->dadosRelatorio) . ' registro(s) encontrado(s)')
+                ->send();
+        } catch (\Exception $e) {
+            Log::error('Erro ao carregar dados do relatório: ' . $e->getMessage());
+
+            Notification::make()
+                ->title('Erro ao carregar dados')
+                ->danger()
+                ->body($e->getMessage())
+                ->send();
+
+            $this->dadosRelatorio = [];
         }
     }
 }

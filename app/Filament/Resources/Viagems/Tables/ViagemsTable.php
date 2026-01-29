@@ -29,6 +29,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
@@ -571,6 +572,7 @@ class ViagemsTable
                                     'created_by' => Auth::id(),
                                     'updated_by' => Auth::id(),
                                 ]);
+                                Log::info("Viagem ID {$record->id} marcada como SEM VIAGEM e vinculada ao integrado BRF CCO pelo usuário ID " . Auth::id());
                             });
                         })
                         ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)

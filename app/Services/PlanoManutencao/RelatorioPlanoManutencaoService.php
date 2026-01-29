@@ -98,16 +98,16 @@ class RelatorioPlanoManutencaoService
             }
 
             $dados[] = [
-                'veiculo_id' => $veiculo->id,
-                'placa' => $veiculo->placa,
-                'plano_descricao' => $planoPreventivo->descricao,
-                'periodicidade' => $planoPreventivo->intervalo,
-                'km_atual' => $kmAtual,
-                'km_ultima_execucao' => $kmUltimaExecucao,
+                'veiculo_id' => (int) $veiculo->id,
+                'placa' => (string) $veiculo->placa,
+                'plano_descricao' => (string) $planoPreventivo->descricao,
+                'periodicidade' => (float) $planoPreventivo->intervalo,
+                'km_atual' => (float) $kmAtual,
+                'km_ultima_execucao' => (float) $kmUltimaExecucao,
                 'data_ultima_execucao' => $dataUltimaExecucao ? $dataUltimaExecucao->format('Y-m-d') : null,
-                'proxima_execucao' => $proximaExecucao,
-                'km_restante' => $kmRestante,
-                'km_medio_diario' => $kmMedioDiario,
+                'proxima_execucao' => (float) $proximaExecucao,
+                'km_restante' => (float) $kmRestante,
+                'km_medio_diario' => (float) $kmMedioDiario,
                 'data_prevista' => $dataPrevista,
             ];
         }

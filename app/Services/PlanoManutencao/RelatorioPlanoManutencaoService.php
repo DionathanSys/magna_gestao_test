@@ -7,6 +7,7 @@ use App\Models\PlanoPreventivo;
 use App\Models\Veiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RelatorioPlanoManutencaoService
 {
@@ -45,6 +46,8 @@ class RelatorioPlanoManutencaoService
 
         $planosVeiculos = $query->get();
 
+        Log::info('Total de planos de manutenção veicular encontrados: ' . $planosVeiculos->count());
+
         $dados = [];
 
         foreach ($planosVeiculos as $planoVeiculo) {
@@ -62,6 +65,13 @@ class RelatorioPlanoManutencaoService
             
             $proximaExecucao = $kmUltimaExecucao + $planoPreventivo->intervalo;
             $kmRestante = $proximaExecucao - $kmAtual;
+
+            Log::info("Veículo ID {$veiculo->id} - KM Restante: {$kmRestante}", [
+                'plano_preventivo_id' => $planoPreventivo->descricao,
+                'km_atual' => $kmAtual,
+                'km_ultima_execucao' => $kmUltimaExecucao,
+                'proxima_execucao' => $proximaExecucao,
+            ]);
 
             // Filtrar por km_restante_maximo se especificado
             if (isset($filtros['km_restante_maximo']) && $filtros['km_restante_maximo'] !== null) {
@@ -89,12 +99,15 @@ class RelatorioPlanoManutencaoService
             ];
         }
 
+        Log::info('Total de registros após aplicação dos filtros: ' . count($dados));
+
         // Ordenar por placa do veículo e depois por km_restante (menor primeiro)
         usort($dados, function ($a, $b) {
             $placaCompare = strcmp($a['placa'], $b['placa']);
             if ($placaCompare !== 0) {
                 return $placaCompare;
             }
+            Log::debug("Comparando KM Restante: {$a['km_restante']} com {$b['km_restante']}");
             return $a['km_restante'] <=> $b['km_restante'];
         });
 
@@ -117,6 +130,8 @@ class RelatorioPlanoManutencaoService
             'totalRegistros' => count($dados),
             'dataGeracao' => now()->format('d/m/Y H:i:s')
         ];
+
+        Log::info('Dados do relatório de plano de manutenção preparados para PDF.', $data);
 
         $pdf = Pdf::loadView('pdf.relatorio-plano-manutencao', $data);
         $pdf->setPaper('A4', 'landscape');

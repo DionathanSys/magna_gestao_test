@@ -100,6 +100,8 @@ class RelatorioPlanoManutencao extends Page
                 'km_restante_maximo' => $this->data['km_restante_maximo'] ?? null,
             ];
 
+            Log::info('Gerando relatório de plano de manutenção com filtros: ', $filtros);
+            
             return $service->gerarRelatorio($filtros);
         } catch (\Exception $e) {
             Log::error('Erro ao gerar relatório de plano de manutenção: ' . $e->getMessage());

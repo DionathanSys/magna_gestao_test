@@ -198,7 +198,7 @@
                 </td>
                 <td class="text-center">
                     @if($item['data_ultima_execucao'])
-                        {{ $item['data_ultima_execucao']->format('d/m/Y') }}
+                        {{ \Carbon\Carbon::parse($item['data_ultima_execucao'])->format('d/m/Y') }}
                     @else
                         <span style="color: #999;">-</span>
                     @endif
@@ -223,8 +223,10 @@
                     @endif
                 </td>
                 <td class="text-center">
-                    @if($item['data_prevista'])
-                        {{ $item['data_prevista']->format('d/m/Y') }}
+                    @if($item['data_prevista'] === 'Atrasado')
+                        <span class="status-danger">Atrasado</span>
+                    @elseif($item['data_prevista'])
+                        {{ \Carbon\Carbon::parse($item['data_prevista'])->format('d/m/Y') }}
                     @else
                         <span style="color: #999;">N/D</span>
                     @endif

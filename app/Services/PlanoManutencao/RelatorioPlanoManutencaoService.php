@@ -88,7 +88,14 @@ class RelatorioPlanoManutencaoService
 
             // Calcular km médio e data prevista
             $kmMedioDiario = $veiculo->calcularKmMedioDiario(30);
-            $dataPrevista = $veiculo->calcularDataPrevista($kmRestante);
+            
+            // Se km_restante for negativo, marcar como "Atrasado"
+            if ($kmRestante < 0) {
+                $dataPrevista = 'Atrasado';
+            } else {
+                $dataPrevistaObj = $veiculo->calcularDataPrevista($kmRestante);
+                $dataPrevista = $dataPrevistaObj ? $dataPrevistaObj->format('Y-m-d') : null;
+            }
 
             $dados[] = [
                 'veiculo_id' => $veiculo->id,
@@ -97,7 +104,7 @@ class RelatorioPlanoManutencaoService
                 'periodicidade' => $planoPreventivo->intervalo,
                 'km_atual' => $kmAtual,
                 'km_ultima_execucao' => $kmUltimaExecucao,
-                'data_ultima_execucao' => $dataUltimaExecucao,
+                'data_ultima_execucao' => $dataUltimaExecucao ? $dataUltimaExecucao->format('Y-m-d') : null,
                 'proxima_execucao' => $proximaExecucao,
                 'km_restante' => $kmRestante,
                 'km_medio_diario' => $kmMedioDiario,
@@ -139,8 +146,6 @@ class RelatorioPlanoManutencaoService
             'totalRegistros' => count($dados),
             'dataGeracao' => now()->format('d/m/Y H:i:s')
         ];
-
-        Log::info('Dados do relatório de plano de manutenção preparados para PDF.', $data);
 
         $pdf = Pdf::loadView('pdf.relatorio-plano-manutencao', $data);
         $pdf->setPaper('A4', 'landscape');

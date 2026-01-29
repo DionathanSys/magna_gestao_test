@@ -98,13 +98,20 @@
         .buttons-container {
             display: flex;
             gap: 12px;
+            margin-top: 20px;
+        }
+        .buttons-container > * {
+            margin-right: 12px;
+        }
+        .buttons-container > *:last-child {
+            margin-right: 0;
         }
     </style>
 
     <div>
         {{ $this->form }}
 
-        <div class="buttons-container" style="margin-top: 20px;">
+        <div class="buttons-container">
             <x-filament::button
                 wire:click="carregarDados"
                 icon="heroicon-o-magnifying-glass"

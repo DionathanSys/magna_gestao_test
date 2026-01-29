@@ -114,15 +114,28 @@ class RelatorioPlanoManutencaoService
 
         Log::info('Total de registros após aplicação dos filtros: ' . count($dados));
 
-        // Ordenar por placa do veículo e depois por km_restante (menor primeiro)
-        usort($dados, function ($a, $b) {
-            $placaCompare = strcmp($a['placa'], $b['placa']);
-            if ($placaCompare !== 0) {
-                return $placaCompare;
-            }
-            Log::debug("Comparando KM Restante: {$a['km_restante']} com {$b['km_restante']}");
-            return $a['km_restante'] <=> $b['km_restante'];
-        });
+        // Ordenar conforme o agrupamento escolhido
+        $agrupamento = $filtros['agrupamento'] ?? 'veiculo';
+        
+        if ($agrupamento === 'plano') {
+            // Ordenar por plano preventivo e depois por km_restante
+            usort($dados, function ($a, $b) {
+                $planoCompare = strcmp($a['plano_descricao'], $b['plano_descricao']);
+                if ($planoCompare !== 0) {
+                    return $planoCompare;
+                }
+                return $a['km_restante'] <=> $b['km_restante'];
+            });
+        } else {
+            // Ordenar por placa do veículo e depois por km_restante (padrão)
+            usort($dados, function ($a, $b) {
+                $placaCompare = strcmp($a['placa'], $b['placa']);
+                if ($placaCompare !== 0) {
+                    return $placaCompare;
+                }
+                return $a['km_restante'] <=> $b['km_restante'];
+            });
+        }
 
         return $dados;
     }

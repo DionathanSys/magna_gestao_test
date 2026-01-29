@@ -147,6 +147,10 @@
             <span class="info-label">Total de Registros:</span> {{ $totalRegistros }}
         </div>
         <div class="info-item">
+            <span class="info-label">Agrupamento:</span> 
+            {{ ($filtros['agrupamento'] ?? 'veiculo') === 'veiculo' ? 'Por Veículo' : 'Por Plano Preventivo' }}
+        </div>
+        <div class="info-item">
             <span class="info-label">Filtros Aplicados:</span>
             @if(!empty($filtros['veiculo_id']))
                 Veículo

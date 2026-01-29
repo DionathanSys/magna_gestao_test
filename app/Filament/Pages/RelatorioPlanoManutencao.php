@@ -46,6 +46,7 @@ class RelatorioPlanoManutencao extends Page
             'veiculo_id' => null,
             'plano_preventivo_id' => null,
             'km_restante_maximo' => null,
+            'agrupamento' => 'veiculo',
         ];
     }
 
@@ -92,6 +93,16 @@ class RelatorioPlanoManutencao extends Page
                             ->suffix('km')
                             ->helperText('Deixe vazio para trazer todos')
                             ->minValue(0),
+
+                        Select::make('agrupamento')
+                            ->label('Agrupamento no PDF')
+                            ->options([
+                                'veiculo' => 'Por Veículo',
+                                'plano' => 'Por Plano Preventivo',
+                            ])
+                            ->default('veiculo')
+                            ->helperText('Define como os dados serão agrupados no PDF')
+                            ->required(),
                     ]),
             ])
             ->statePath('data');
@@ -106,6 +117,7 @@ class RelatorioPlanoManutencao extends Page
                 'veiculo_id' => $this->data['veiculo_id'] ?? null,
                 'plano_preventivo_id' => $this->data['plano_preventivo_id'] ?? null,
                 'km_restante_maximo' => $this->data['km_restante_maximo'] ?? null,
+                'agrupamento' => $this->data['agrupamento'] ?? 'veiculo',
             ];
 
             Log::info('Gerando relatório de plano de manutenção com filtros: ', $filtros);

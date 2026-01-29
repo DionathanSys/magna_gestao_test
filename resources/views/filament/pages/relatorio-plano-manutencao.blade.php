@@ -23,6 +23,26 @@
         .relatorio-table th.text-center {
             text-align: center;
         }
+        .relatorio-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 24px;
+        }
+        .relatorio-table th.sortable:hover {
+            background-color: #f3f4f6;
+        }
+        .relatorio-table th.sortable .sort-icon {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        .relatorio-table th.sortable.active .sort-icon {
+            color: #4b5563;
+        }
         .relatorio-table td {
             padding: 12px 8px;
             border-bottom: 1px solid #e5e7eb;
@@ -121,7 +141,21 @@
                             <th class="text-center">KM Última<br>Execução</th>
                             <th class="text-center">Data Última<br>Execução</th>
                             <th class="text-center">Próxima<br>Execução (km)</th>
-                            <th class="text-center">KM<br>Restante</th>
+                            <th class="text-center sortable {{ $ordenarPor === 'km_restante' ? 'active' : '' }}" 
+                                wire:click="ordenarPorColuna('km_restante')">
+                                KM<br>Restante
+                                <span class="sort-icon">
+                                    @if($ordenarPor === 'km_restante')
+                                        @if($direcaoOrdenacao === 'asc')
+                                            ▲
+                                        @else
+                                            ▼
+                                        @endif
+                                    @else
+                                        ⇅
+                                    @endif
+                                </span>
+                            </th>
                             <th class="text-center">KM Médio<br>Diário</th>
                             <th class="text-center">Data Prevista<br>Próxima Exec.</th>
                         </tr>

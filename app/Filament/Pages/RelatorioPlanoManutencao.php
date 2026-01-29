@@ -31,6 +31,10 @@ class RelatorioPlanoManutencao extends Page
 
     public ?array $dadosRelatorio = [];
 
+    public string $ordenarPor = 'km_restante';
+
+    public string $direcaoOrdenacao = 'asc';
+
     public function mount(): void
     {
         $this->data = $this->getDefaultData();
@@ -173,6 +177,32 @@ class RelatorioPlanoManutencao extends Page
                 ->send();
 
             $this->dadosRelatorio = [];
+        }
+    }
+
+    public function ordenarPorColuna(string $coluna)
+    {
+        if ($this->ordenarPor === $coluna) {
+            // Inverte a direção se clicar na mesma coluna
+            $this->direcaoOrdenacao = $this->direcaoOrdenacao === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Define nova coluna e direção padrão ascendente
+            $this->ordenarPor = $coluna;
+            $this->direcaoOrdenacao = 'asc';
+        }
+
+        // Reordena os dados
+        if (!empty($this->dadosRelatorio)) {
+            usort($this->dadosRelatorio, function ($a, $b) {
+                $valorA = $a[$this->ordenarPor] ?? 0;
+                $valorB = $b[$this->ordenarPor] ?? 0;
+
+                if ($this->direcaoOrdenacao === 'asc') {
+                    return $valorA <=> $valorB;
+                } else {
+                    return $valorB <=> $valorA;
+                }
+            });
         }
     }
 }

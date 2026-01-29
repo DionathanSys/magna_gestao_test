@@ -604,12 +604,8 @@ class ViagemsTable
                     Action::make('directions')
                         ->label('Direções')
                         ->icon('heroicon-o-map')
-                        ->action(function (Models\Viagem $record) {
-                            $url = $record->maps_integrados['directions_url'] ?? null;
-                            if ($url) {
-                                redirect()->away($url); // 'away' for external URLs
-                            }
-                        })
+                        ->url(fn(Models\Viagem $record) => $record->maps_integrados['directions_url'] ?? null)
+                        ->openUrlInNewTab()
                         ->visible(fn(Models\Viagem $record): bool => $record->cargas_count > 0),
                     ReplicateAction::make()
                         ->label('Duplicar')

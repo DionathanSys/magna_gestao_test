@@ -203,12 +203,8 @@ class RelatorioPlanoManutencaoService
             if (is_array($item)) {
                 return $this->sanitizeUtf8Data($item);
             } elseif ($item instanceof \Carbon\Carbon) {
-                // Converter objetos Carbon para null se inválidos
-                try {
-                    return $item;
-                } catch (\Exception $e) {
-                    return null;
-                }
+                // Converter objetos Carbon para string
+                return $item->format('Y-m-d H:i:s');
             } elseif (is_object($item)) {
                 // Converter outros objetos para string ou null
                 try {
@@ -219,11 +215,16 @@ class RelatorioPlanoManutencaoService
             } elseif (is_string($item)) {
                 // Garantir codificação UTF-8 correta
                 if (!mb_check_encoding($item, 'UTF-8')) {
-                    $item = mb_convert_encoding($item, 'UTF-8', 'auto');
+                    $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
                 }
                 // Remover caracteres inválidos
-                $item = mb_scrub($item, 'UTF-8');
+                return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $item);
+            } elseif (is_numeric($item)) {
                 return $item;
+            } elseif (is_bool($item)) {
+                return $item;
+            } elseif (is_null($item)) {
+                return null;
             }
             return $item;
         }, $data);

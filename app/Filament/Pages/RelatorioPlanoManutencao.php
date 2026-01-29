@@ -63,7 +63,8 @@ class RelatorioPlanoManutencao extends Page
                                     ->pluck('placa', 'id')
                             )
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->multiple(),
 
                         Select::make('plano_preventivo_id')
                             ->label('Plano Preventivo')
@@ -75,7 +76,8 @@ class RelatorioPlanoManutencao extends Page
                                     ->pluck('descricao', 'id')
                             )
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->multiple(),
 
                         TextInput::make('km_restante_maximo')
                             ->label('KM Restante Máximo')
@@ -101,7 +103,7 @@ class RelatorioPlanoManutencao extends Page
             ];
 
             Log::info('Gerando relatório de plano de manutenção com filtros: ', $filtros);
-            
+
             return $service->gerarRelatorio($filtros);
         } catch (\Exception $e) {
             Log::error('Erro ao gerar relatório de plano de manutenção: ' . $e->getMessage());

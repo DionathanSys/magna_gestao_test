@@ -64,7 +64,7 @@ class VeiculoService
 
     public static function getQuilometragemAtualByVeiculoId(int $veiculoId): int
     {
-        return Cache::remember('km_atual_veiculo_id_' . $veiculoId, 86400, function () use ($veiculoId) {
+        return Cache::remember('km_atual_veiculo_id_' . $veiculoId, 43200, function () use ($veiculoId) {
             $veiculo = \App\Models\Veiculo::query()
                 ->select('id', 'placa')
                 ->findOrFail($veiculoId);

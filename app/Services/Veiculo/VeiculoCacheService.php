@@ -11,7 +11,7 @@ class VeiculoCacheService
 {
     private const CACHE_KEY_PLACAS_ATIVAS = 'veiculos_placas_ativas';
     private const CACHE_KEY_PLACAS_TODAS = 'veiculos_placas';
-    private const CACHE_TTL = 604800; // 7 dias
+    private const CACHE_TTL = 43200; // 1 dia
 
     /**
      * Retorna placas de veículos ativos para SelectFilter
@@ -90,6 +90,15 @@ class VeiculoCacheService
                 'km_atual_veiculo_id_' . $veiculoId,
                 'km_ultimo_movimento_veiculo_id_' . $veiculoId,
             ]);
+        } else {
+            // Se não especificou veículo, limpa cache de todos os veículos
+            $veiculosIds = Veiculo::pluck('id')->toArray();
+            foreach ($veiculosIds as $id) {
+                $keys = array_merge($keys, [
+                    'km_atual_veiculo_id_' . $id,
+                    'km_ultimo_movimento_veiculo_id_' . $id,
+                ]);
+            }
         }
 
         foreach ($keys as $key) {

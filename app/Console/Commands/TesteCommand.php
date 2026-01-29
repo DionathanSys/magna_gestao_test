@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use App\Models;
 use App\Models\ImportLog;
 use App\Models\ViagemBugio;
+use App\Services\Veiculo\VeiculoCacheService;
 use App\Services\Veiculo\VeiculoService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -36,11 +37,6 @@ class TesteCommand extends Command
      */
     public function handle()
     {
-        $itens_ordem_servico = Schema::getColumnListing('itens_ordem_servico');
-        dump('itens_ordem_servico', $itens_ordem_servico);
-        $veiculos = Schema::getColumnListing('veiculos');
-        dump('veiculos', $veiculos);
-        $ordens_servico = Schema::getColumnListing('ordens_servico');
-        dd('ordens_servico', $ordens_servico);
+        VeiculoCacheService::invalidarCacheVeiculos();
     }
 }

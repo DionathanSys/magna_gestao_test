@@ -23,27 +23,28 @@ class PlanoManutencaoVeiculo extends Model
         return $this->belongsTo(Veiculo::class);
     }
 
-    public function ultimaExecucao(): Attribute
+    public function ultimaExecucao()
     {
-        return Attribute::make(
-            get: fn(): ?PlanoManutencaoOrdemServico => $this->hasOne(PlanoManutencaoOrdemServico::class, 'plano_preventivo_id', 'plano_preventivo_id')
-                ->where('veiculo_id', $this->veiculo_id)
-                ->latest()
-                ->first()
-        );
+        return $this->hasOne(PlanoManutencaoOrdemServico::class, 'plano_preventivo_id', 'plano_preventivo_id')
+            ->where('veiculo_id', $this->veiculo_id)
+            ->latestOfMany();
     }
 
     public function proximaExecucao(): Attribute
     {
         return Attribute::make(
-            get: fn(): float => ($this->ultima_execucao->km_execucao ?? 0) + $this->planoPreventivo->intervalo
+            get: function (): float {
+                $ultimaExecucao = $this->ultimaExecucao;
+                $kmUltimaExecucao = $ultimaExecucao?->km_execucao ?? 0;
+                return $kmUltimaExecucao + $this->planoPreventivo->intervalo;
+            }
         );
     }
 
     public function quilometragemRestante(): Attribute
     {
         return Attribute::make(
-            get: fn(): float => $this->proxima_execucao - $this->veiculo->kmAtual->quilometragem
+            get: fn(): float => $this->proxima_execucao - $this->veiculo->quilometragem_atual
         );
     }
 }

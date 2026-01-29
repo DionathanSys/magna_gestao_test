@@ -23,11 +23,26 @@ class PlanoManutencaoVeiculo extends Model
         return $this->belongsTo(Veiculo::class);
     }
 
-    public function ultimaExecucao()
+    public function execucoes()
     {
-        return $this->hasOne(PlanoManutencaoOrdemServico::class, 'plano_preventivo_id', 'plano_preventivo_id')
+        return $this->hasMany(PlanoManutencaoOrdemServico::class, 'plano_preventivo_id', 'plano_preventivo_id')
             ->where('veiculo_id', $this->veiculo_id)
-            ->latestOfMany();
+            ->orderBy('km_execucao', 'desc')
+            ->orderBy('created_at', 'desc');
+    }
+
+    public function getUltimaExecucaoAttribute()
+    {
+        if (!isset($this->veiculo_id) || !isset($this->plano_preventivo_id)) {
+            return null;
+        }
+
+        return PlanoManutencaoOrdemServico::query()
+            ->where('veiculo_id', $this->veiculo_id)
+            ->where('plano_preventivo_id', $this->plano_preventivo_id)
+            ->orderBy('km_execucao', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->first();
     }
 
     public function proximaExecucao(): Attribute

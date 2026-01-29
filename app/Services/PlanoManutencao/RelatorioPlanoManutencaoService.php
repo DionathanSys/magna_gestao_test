@@ -22,8 +22,7 @@ class RelatorioPlanoManutencaoService
         $query = PlanoManutencaoVeiculo::query()
             ->with([
                 'veiculo.kmAtual',
-                'planoPreventivo',
-                'ultimaExecucao.ordemServico'
+                'planoPreventivo'
             ]);
 
         // Filtrar por veículo se especificado, caso contrário apenas ativos
@@ -54,6 +53,13 @@ class RelatorioPlanoManutencaoService
             $veiculo = $planoVeiculo->veiculo;
             $planoPreventivo = $planoVeiculo->planoPreventivo;
             $ultimaExecucao = $planoVeiculo->ultima_execucao;
+
+            Log::info("Verificando última execução", [
+                'veiculo_id' => $planoVeiculo->veiculo_id,
+                'plano_preventivo_id' => $planoVeiculo->plano_preventivo_id,
+                'ultima_execucao_encontrada' => $ultimaExecucao ? 'Sim' : 'Não',
+                'km_execucao' => $ultimaExecucao?->km_execucao ?? 'N/A'
+            ]);
 
             if (!$veiculo || !$planoPreventivo) {
                 continue;

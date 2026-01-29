@@ -17,7 +17,7 @@ class RelatorioPlanoManutencao extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.relatorio-plano-manutencao';
+    protected string $view = 'filament.pages.relatorio-plano-manutencao';
 
     protected static ?string $navigationLabel = 'Relatório Plano Manutenção';
 

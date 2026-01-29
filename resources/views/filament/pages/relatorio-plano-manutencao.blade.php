@@ -1,8 +1,90 @@
 <x-filament-panels::page>
-    <div class="space-y-6">
+    <style>
+        .relatorio-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .relatorio-table thead {
+            background-color: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .relatorio-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .relatorio-table th.text-center {
+            text-align: center;
+        }
+        .relatorio-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            color: #374151;
+        }
+        .relatorio-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        .relatorio-table td.text-center {
+            text-align: center;
+        }
+        .relatorio-table td.font-medium {
+            font-weight: 500;
+            color: #111827;
+        }
+        .relatorio-table td.text-gray {
+            color: #9ca3af;
+        }
+        .relatorio-table td.status-ok {
+            color: #059669;
+            font-weight: 600;
+        }
+        .relatorio-table td.status-warning {
+            color: #d97706;
+            font-weight: 600;
+        }
+        .relatorio-table td.status-danger {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .section-box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .section-heading {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 5px;
+        }
+        .section-description {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+
+    <div>
         {{ $this->form }}
 
-        <div class="flex gap-3">
+        <div class="buttons-container" style="margin-top: 20px;">
             <x-filament::button
                 wire:click="carregarDados"
                 icon="heroicon-o-magnifying-glass"
@@ -20,114 +102,83 @@
         </div>
 
         @if(!empty($dadosRelatorio) && is_array($dadosRelatorio) && count($dadosRelatorio) > 0)
-            <x-filament::section>
-                <x-slot name="heading">
+            <div class="section-box">
+                <div class="section-heading">
                     Resultados do Relatório
-                </x-slot>
-
-                <x-slot name="description">
+                </div>
+                <div class="section-description">
                     Total de {{ count($dadosRelatorio) }} registro(s) encontrado(s)
-                </x-slot>
+                </div>
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-800">
+                <div class="table-container">
+                    <table class="relatorio-table">
+                        <thead>
                         <tr>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Placa
-                            </th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Plano Preventivo
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Periodicidade<br>(km)
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                KM Atual
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                KM Última<br>Execução
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Data Última<br>Execução
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Próxima<br>Execução (km)
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                KM<br>Restante
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                KM Médio<br>Diário
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Data Prevista<br>Próxima Exec.
-                            </th>
+                            <th>Placa</th>
+                            <th>Plano Preventivo</th>
+                            <th class="text-center">Periodicidade<br>(km)</th>
+                            <th class="text-center">KM Atual</th>
+                            <th class="text-center">KM Última<br>Execução</th>
+                            <th class="text-center">Data Última<br>Execução</th>
+                            <th class="text-center">Próxima<br>Execução (km)</th>
+                            <th class="text-center">KM<br>Restante</th>
+                            <th class="text-center">KM Médio<br>Diário</th>
+                            <th class="text-center">Data Prevista<br>Próxima Exec.</th>
                         </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody>
                         @foreach($dadosRelatorio as $item)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <tr>
+                                <td class="font-medium">
                                     {{ $item['placa'] }}
                                 </td>
-                                <td class="px-3 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                <td>
                                     {{ $item['plano_descricao'] }}
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center text-gray-700 dark:text-gray-300">
+                                <td class="text-center">
                                     {{ number_format($item['periodicidade'], 0, ',', '.') }}
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center text-gray-700 dark:text-gray-300">
+                                <td class="text-center">
                                     {{ number_format($item['km_atual'], 0, ',', '.') }}
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center text-gray-700 dark:text-gray-300">
+                                <td class="text-center">
                                     @if($item['km_ultima_execucao'] > 0)
                                         {{ number_format($item['km_ultima_execucao'], 0, ',', '.') }}
                                     @else
-                                        <span class="text-gray-400">-</span>
+                                        <span class="text-gray">-</span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center text-gray-700 dark:text-gray-300">
+                                <td class="text-center">
                                     @if($item['data_ultima_execucao'])
                                         {{ date('d/m/Y', strtotime($item['data_ultima_execucao'])) }}
                                     @else
-                                        <span class="text-gray-400">-</span>
+                                        <span class="text-gray">-</span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center text-gray-700 dark:text-gray-300">
+                                <td class="text-center">
                                     {{ number_format($item['proxima_execucao'], 0, ',', '.') }}
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center font-semibold
-                                    @if($item['km_restante'] <= 0)
-                                        text-red-600 dark:text-red-400
-                                    @elseif($item['km_restante'] <= 1000)
-                                        text-yellow-600 dark:text-yellow-400
-                                    @else
-                                        text-green-600 dark:text-green-400
-                                    @endif
-                                ">
+                                <td class="text-center 
+                                    @if($item['km_restante'] <= 0) status-danger
+                                    @elseif($item['km_restante'] <= 1000) status-warning
+                                    @else status-ok
+                                    @endif">
                                     {{ number_format($item['km_restante'], 0, ',', '.') }}
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center text-gray-700 dark:text-gray-300">
+                                <td class="text-center">
                                     @if($item['km_medio_diario'] > 0)
                                         {{ number_format($item['km_medio_diario'], 1, ',', '.') }}
                                     @else
-                                        <span class="text-gray-400">-</span>
+                                        <span class="text-gray">-</span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-4 whitespace-nowrap text-sm text-center
-                                    @if($item['data_prevista'] === 'Atrasado')
-                                        font-semibold text-red-600 dark:text-red-400
-                                    @else
-                                        text-gray-700 dark:text-gray-300
-                                    @endif
-                                ">
+                                <td class="text-center @if($item['data_prevista'] === 'Atrasado') status-danger @endif">
                                     @if($item['data_prevista'] === 'Atrasado')
                                         Atrasado
                                     @elseif($item['data_prevista'])
                                         {{ date('d/m/Y', strtotime($item['data_prevista'])) }}
                                     @else
-                                        <span class="text-gray-400">N/D</span>
+                                        <span class="text-gray">N/D</span>
                                     @endif
                                 </td>
                             </tr>
@@ -135,7 +186,7 @@
                         </tbody>
                     </table>
                 </div>
-            </x-filament::section>
+            </div>
         @endif
     </div>
 </x-filament-panels::page>

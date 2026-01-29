@@ -579,7 +579,8 @@ class ViagemsTable
                     Viagems\Actions\VisualizarComentarioAction::make(),
                     EditAction::make()
                         ->visible(fn(Models\Viagem $record) => ! $record->conferido || Auth::user()->is_admin)
-                        ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record)),
+                        // ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record))
+                        ,
                     Action::make('buscar_documentos')
                         ->label('Buscar Documentos')
                         ->icon('heroicon-o-document-magnifying-glass')

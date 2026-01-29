@@ -10,6 +10,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Log;
 use UnitEnum;
 
@@ -41,41 +43,50 @@ class RelatorioPlanoManutencao extends Page
         ];
     }
 
-    protected function getFormSchema(): array
+    public function form(Schema $schema): Schema
     {
-        return [
-            Select::make('veiculo_id')
-                ->label('Veículo')
-                ->placeholder('Todos os veículos ativos')
-                ->options(
-                    Veiculo::query()
-                        ->where('is_active', true)
-                        ->orderBy('placa')
-                        ->pluck('placa', 'id')
-                )
-                ->searchable()
-                ->preload(),
+        return $schema
+            ->columns(12)
+            ->components([
+                Section::make('Filtros do Relatório')
+                    ->columns(3)
+                    ->columnSpan(12)
+                    ->description('Selecione os filtros desejados para gerar o relatório de plano de manutenção')
+                    ->components([
+                        Select::make('veiculo_id')
+                            ->label('Veículo')
+                            ->placeholder('Todos os veículos ativos')
+                            ->options(
+                                Veiculo::query()
+                                    ->where('is_active', true)
+                                    ->orderBy('placa')
+                                    ->pluck('placa', 'id')
+                            )
+                            ->searchable()
+                            ->preload(),
 
-            Select::make('plano_preventivo_id')
-                ->label('Plano Preventivo')
-                ->placeholder('Todos os planos ativos')
-                ->options(
-                    PlanoPreventivo::query()
-                        ->where('is_active', true)
-                        ->orderBy('descricao')
-                        ->pluck('descricao', 'id')
-                )
-                ->searchable()
-                ->preload(),
+                        Select::make('plano_preventivo_id')
+                            ->label('Plano Preventivo')
+                            ->placeholder('Todos os planos ativos')
+                            ->options(
+                                PlanoPreventivo::query()
+                                    ->where('is_active', true)
+                                    ->orderBy('descricao')
+                                    ->pluck('descricao', 'id')
+                            )
+                            ->searchable()
+                            ->preload(),
 
-            TextInput::make('km_restante_maximo')
-                ->label('KM Restante Máximo')
-                ->placeholder('Ex: 5000')
-                ->numeric()
-                ->suffix('km')
-                ->helperText('Deixe vazio para trazer todos')
-                ->minValue(0),
-        ];
+                        TextInput::make('km_restante_maximo')
+                            ->label('KM Restante Máximo')
+                            ->placeholder('Ex: 5000')
+                            ->numeric()
+                            ->suffix('km')
+                            ->helperText('Deixe vazio para trazer todos')
+                            ->minValue(0),
+                    ]),
+            ])
+            ->statePath('data');
     }
 
     public function gerarRelatorio()

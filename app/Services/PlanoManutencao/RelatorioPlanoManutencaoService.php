@@ -130,6 +130,9 @@ class RelatorioPlanoManutencaoService
     {
         $dados = $this->obterDadosRelatorio($filtros);
 
+        // Sanitizar dados
+        $dados = $this->sanitizeUtf8Data($dados);
+
         $data = [
             'dados' => $dados,
             'filtros' => $filtros,
@@ -194,10 +197,27 @@ class RelatorioPlanoManutencaoService
         return array_map(function ($item) {
             if (is_array($item)) {
                 return $this->sanitizeUtf8Data($item);
+            } elseif ($item instanceof \Carbon\Carbon) {
+                // Converter objetos Carbon para null se inválidos
+                try {
+                    return $item;
+                } catch (\Exception $e) {
+                    return null;
+                }
+            } elseif (is_object($item)) {
+                // Converter outros objetos para string ou null
+                try {
+                    return (string) $item;
+                } catch (\Exception $e) {
+                    return null;
+                }
             } elseif (is_string($item)) {
+                // Garantir codificação UTF-8 correta
                 if (!mb_check_encoding($item, 'UTF-8')) {
                     $item = mb_convert_encoding($item, 'UTF-8', 'auto');
                 }
+                // Remover caracteres inválidos
+                $item = mb_scrub($item, 'UTF-8');
                 return $item;
             }
             return $item;

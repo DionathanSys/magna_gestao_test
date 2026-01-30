@@ -264,6 +264,7 @@ class ResultadoPeriodosTable
                             });
                             notify::success(mensagem: 'Registros marcados como Pendente com sucesso!');
                         }),
+                    Actions\SincronizarDocumentosFreteAction::make(),
                 ]),
             ]);
     }

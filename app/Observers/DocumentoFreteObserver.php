@@ -25,7 +25,7 @@ class DocumentoFreteObserver
         }
 
         if ($viagem->resultado_periodo_id) {
-            $documento->update([
+            $documento->updateQuietly([
                 'resultado_periodo_id' => $viagem->resultado_periodo_id,
             ]);
 
@@ -52,7 +52,7 @@ class DocumentoFreteObserver
             $viagem = Viagem::find($documento->viagem_id);
 
             if ($viagem && $viagem->resultado_periodo_id) {
-                $documento->update([
+                $documento->updateQuietly([
                     'resultado_periodo_id' => $viagem->resultado_periodo_id,
                 ]);
 
@@ -65,7 +65,7 @@ class DocumentoFreteObserver
         }
 
         if($documento->getOriginal('viagem_id') && ! $documento->viagem_id) {
-            $documento->update([
+            $documento->updateQuietly([
                 'resultado_periodo_id' => null,
             ]);
 

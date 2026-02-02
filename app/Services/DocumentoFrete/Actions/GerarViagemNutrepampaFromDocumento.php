@@ -66,6 +66,86 @@ class GerarViagemNutrepampaFromDocumento
         return $this->viagensCriadas;
     }
 
+    /**
+     * Adiciona novos documentos de frete a uma viagem existente e recalcula o km_pago
+     * 
+     * @param Models\Viagem $viagem
+     * @param Collection|array $novosDocumentosIds - IDs dos novos documentos de frete
+     * @return bool
+     */
+    public function adicionarDocumentosViagem(Models\Viagem $viagem, Collection|array $novosDocumentosIds): bool
+    {
+        try {
+            // Converte array para Collection se necessário
+            if (is_array($novosDocumentosIds)) {
+                $novosDocumentosIds = collect($novosDocumentosIds);
+            }
+
+            // Busca os novos documentos
+            $novosDocumentos = Models\DocumentoFrete::whereIn('id', $novosDocumentosIds)->get();
+
+            if ($novosDocumentos->isEmpty()) {
+                Log::warning('Nenhum documento de frete válido encontrado para adicionar à viagem.', [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'viagem_id' => $viagem->id,
+                    'documentos_ids' => $novosDocumentosIds,
+                ]);
+                return false;
+            }
+
+            // Carrega os documentos já vinculados à viagem
+            $documentosExistentes = $viagem->documentos()->get();
+
+            // Calcula o valor total atual (documentos existentes)
+            $valorTotalExistente = $documentosExistentes->sum('valor_liquido');
+
+            // Calcula o valor total dos novos documentos
+            $valorTotalNovos = $novosDocumentos->sum('valor_liquido');
+
+            // Calcula o novo valor total
+            $novoValorTotal = $valorTotalExistente + $valorTotalNovos;
+
+            // Recalcula o km_pago com base no novo valor total
+            $calculoKmPago = $this->calcularKmPago($novoValorTotal);
+
+            // Atualiza a viagem com o novo km_pago
+            $viagem->update([
+                'km_pago' => $calculoKmPago['km_pago'],
+                'valor_total_documento' => $novoValorTotal,
+            ]);
+
+            // Vincula os novos documentos à viagem
+            Models\DocumentoFrete::whereIn('id', $novosDocumentosIds)
+                ->update([
+                    'viagem_id' => $viagem->id,
+                    'documento_transporte' => $viagem->documento_transporte,
+                ]);
+
+            Log::info('Documentos de frete adicionados à viagem com sucesso. KM Pago recalculado.', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'viagem_id' => $viagem->id,
+                'documentos_ids' => $novosDocumentosIds,
+                'valor_total_anterior' => $valorTotalExistente,
+                'valor_total_novos' => $valorTotalNovos,
+                'novo_valor_total' => $novoValorTotal,
+                'km_pago_anterior' => $viagem->getOriginal('km_pago'),
+                'km_pago_novo' => $calculoKmPago['km_pago'],
+                'faixa_calculada' => $calculoKmPago['faixa'],
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao adicionar documentos de frete à viagem.', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'viagem_id' => $viagem->id,
+                'documentos_ids' => $novosDocumentosIds,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
     private function processarDocumentosFrete(): void
     {
         $documentosGroupVeiculoId = $this->documentosFrete->groupBy(['veiculo_id', function (Models\DocumentoFrete $documento) {
@@ -109,6 +189,60 @@ class GerarViagemNutrepampaFromDocumento
             'metodo' => __METHOD__ . '@' . __LINE__,
             'data' => $this->data,
         ]);
+    }
+
+    /**
+     * Recalcula o km_pago de uma viagem existente baseado nos documentos vinculados
+     * 
+     * @param Models\Viagem $viagem
+     * @return bool
+     */
+    public function recalcularKmPagoViagem(Models\Viagem $viagem): bool
+    {
+        try {
+            // Carrega todos os documentos vinculados à viagem
+            $documentos = $viagem->documentos()->get();
+
+            if ($documentos->isEmpty()) {
+                Log::warning('Viagem sem documentos de frete vinculados para recalcular km_pago.', [
+                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'viagem_id' => $viagem->id,
+                ]);
+                return false;
+            }
+
+            // Calcula o valor total dos documentos
+            $valorTotal = $documentos->sum('valor_liquido');
+
+            // Recalcula o km_pago
+            $calculoKmPago = $this->calcularKmPago($valorTotal);
+
+            // Atualiza a viagem
+            $viagem->update([
+                'km_pago' => $calculoKmPago['km_pago'],
+                'valor_total_documento' => $valorTotal,
+            ]);
+
+            Log::info('KM Pago da viagem recalculado com sucesso.', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'viagem_id' => $viagem->id,
+                'quantidade_documentos' => $documentos->count(),
+                'valor_total' => $valorTotal,
+                'km_pago_anterior' => $viagem->getOriginal('km_pago'),
+                'km_pago_novo' => $calculoKmPago['km_pago'],
+                'faixa_calculada' => $calculoKmPago['faixa'],
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao recalcular km_pago da viagem.', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'viagem_id' => $viagem->id,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**

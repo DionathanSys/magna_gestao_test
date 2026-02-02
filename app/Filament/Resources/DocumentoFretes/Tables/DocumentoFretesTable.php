@@ -12,6 +12,7 @@ use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\DocumentoFretes\Actions\CriarViagemBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
+use App\Services\DocumentoFrete\Actions\GerarViagemNutrepampaFromDocumento;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -21,6 +22,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
@@ -173,6 +177,48 @@ class DocumentoFretesTable
                 ViewAction::make()
                     ->iconButton(),
                 EditAction::make()
+                    ->iconButton(),
+                Action::make('vincular_viagem')
+                    ->label('Vincular Viagem')
+                    ->icon('heroicon-o-link')
+                    ->color('success')
+                    ->schema([
+                        TextInput::make('viagem_id')
+                            ->label('ID da Viagem')
+                            ->required()
+                            ->numeric()
+                            ->placeholder('Digite o ID da viagem para vincular'),
+                    ])
+                    ->action(function (Models\DocumentoFrete $record, array $data) {
+                        try {
+                            // Buscar a viagem
+                            $viagem = Models\Viagem::findOrFail($data['viagem_id']);
+                            
+                            // Atualizar o documento de frete com o documento_transporte da viagem
+                            $record->update([
+                                'viagem_id' => $viagem->id,
+                                'documento_transporte' => $viagem->documento_transporte,
+                            ]);
+                            
+                            // Recalcular o km_pago da viagem
+                            $gerarViagem = new GerarViagemNutrepampaFromDocumento(collect());
+                            $gerarViagem->recalcularKmPagoViagem($viagem);
+                            
+                            Notification::make()
+                                ->success()
+                                ->title('Documento vinculado com sucesso!')
+                                ->body("Documento vinculado à viagem {$viagem->numero_viagem}. KM Pago recalculado: {$viagem->fresh()->km_pago}")
+                                ->send();
+                                
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->danger()
+                                ->title('Erro ao vincular documento')
+                                ->body($e->getMessage())
+                                ->send();
+                        }
+                    })
+                    ->visible(fn(Models\DocumentoFrete $record): bool => is_null($record->viagem_id))
                     ->iconButton(),
             ])
             ->headerActions([])

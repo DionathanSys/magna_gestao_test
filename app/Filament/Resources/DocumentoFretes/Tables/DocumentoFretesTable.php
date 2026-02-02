@@ -222,6 +222,8 @@ class DocumentoFretesTable
                                 ->body($e->getMessage())
                                 ->send();
                         }
+                        
+                        return true;
                     })
                     ->visible(fn(Models\DocumentoFrete $record): bool => is_null($record->viagem_id))
                     ->iconButton(),

@@ -83,6 +83,8 @@ class ImportarDocumentoFretePdfAction
                         self::processar($fullPath, $data['cliente']);
 
                         notify::success('Importação de Documento Frete iniciada com sucesso.');
+                        
+                        return true;
                     } catch (\Exception $e) {
                         if ($relativePath) {
                             Storage::disk(self::DISK)->delete($relativePath);

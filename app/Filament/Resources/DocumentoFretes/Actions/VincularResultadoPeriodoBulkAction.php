@@ -62,6 +62,8 @@ class VincularResultadoPeriodoBulkAction
                 }
 
                 notify::success("Vinculação concluída: {$vinculados} registros vinculados com sucesso, {$semResultadoPeriodo} registros sem correspondência.");
+                
+                return true;
             })
             ->deselectRecordsAfterCompletion();
     }

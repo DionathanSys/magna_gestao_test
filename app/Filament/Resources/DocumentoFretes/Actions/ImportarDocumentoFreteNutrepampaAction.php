@@ -45,6 +45,8 @@ class ImportarDocumentoFreteNutrepampaAction
                         "Importação iniciada!"
                     );
                 }
+                
+                return true;
             });
     }
 }

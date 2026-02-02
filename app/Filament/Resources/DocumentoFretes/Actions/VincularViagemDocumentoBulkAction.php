@@ -27,6 +27,8 @@ class VincularViagemDocumentoBulkAction
                     VincularViagemDocumentoFrete::dispatch($record->documento_transporte);
                     return;
                 });
+                
+                return true;
             })
             ->deselectRecordsAfterCompletion();
     }

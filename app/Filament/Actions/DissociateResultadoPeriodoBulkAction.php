@@ -34,6 +34,8 @@ class DissociateResultadoPeriodoBulkAction
                 });
 
                 notify::success("{$count} registro(s) foram desvinculados do resultado do período.");
+                
+                return true;
             })
             ->deselectRecordsAfterCompletion();
     }

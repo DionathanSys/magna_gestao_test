@@ -44,6 +44,8 @@ class ImportarDocumentoFreteAction
                 $job = ProcessarDocumentoFreteJob::dispatch($importerClass, $fileName);
 
                 notify::success('Importação de Documento Frete iniciada com sucesso.');
+                
+                return true;
             });
     }
 }

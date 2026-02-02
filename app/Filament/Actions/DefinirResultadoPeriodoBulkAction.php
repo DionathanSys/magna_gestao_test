@@ -91,6 +91,10 @@ class DefinirResultadoPeriodoBulkAction
                         ]);
                     }
                 });
+                
+                notify::success("{$recordsUpdated} registro(s) atualizado(s) com sucesso. {$recordsFailed} registro(s) falharam.");
+                
+                return true;
             })
             ->deselectRecordsAfterCompletion();
     }

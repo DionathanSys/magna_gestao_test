@@ -22,7 +22,7 @@ class ImportarDocumentoFreteNutrepampaAction
                     ->disk('public')
                     ->required(),
             ])
-            ->action(function (array $data, DocumentoFreteImportService $importService): void {
+            ->action(function (array $data, DocumentoFreteImportService $importService) {
                 $filePath = $data['arquivo'];
                 $options = [
                     'use_queue' => true,

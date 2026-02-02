@@ -114,7 +114,6 @@ class GerarViagemNutrepampaFromDocumento
             // Atualiza a viagem com o novo km_pago
             $viagem->update([
                 'km_pago' => $calculoKmPago['km_pago'],
-                'valor_total_documento' => $novoValorTotal,
             ]);
 
             // Vincula os novos documentos à viagem
@@ -181,7 +180,6 @@ class GerarViagemNutrepampaFromDocumento
                         'data_fim'              => $dataEmissao,
                         'conferido'             => false,
                         'motivo_divergencia'    => MotivoDivergenciaViagem::SEM_OBS->value,
-                        'valor_total_documento' => $valorTotalDocumentos,
                         'documentos_frete_ids'  => $documentosIds,
                     ];
                 });
@@ -229,7 +227,6 @@ class GerarViagemNutrepampaFromDocumento
             // Atualiza a viagem
             $viagem->update([
                 'km_pago' => $calculoKmPago['km_pago'],
-                'valor_total_documento' => $valorTotal,
             ]);
 
             Log::info('KM Pago da viagem recalculado com sucesso.', [

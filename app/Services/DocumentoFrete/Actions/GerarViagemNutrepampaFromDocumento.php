@@ -203,6 +203,12 @@ class GerarViagemNutrepampaFromDocumento
             // Carrega todos os documentos vinculados à viagem
             $documentos = $viagem->documentos()->get();
 
+            Log::debug('Iniciando recalculo de km_pago para a viagem.', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'viagem_id' => $viagem->id,
+                'quantidade_documentos' => $documentos->count(),
+            ]);
+
             if ($documentos->isEmpty()) {
                 Log::warning('Viagem sem documentos de frete vinculados para recalcular km_pago.', [
                     'metodo' => __METHOD__ . '@' . __LINE__,
@@ -212,7 +218,7 @@ class GerarViagemNutrepampaFromDocumento
             }
 
             // Calcula o valor total dos documentos
-            $valorTotal = $documentos->sum('valor_liquido');
+            $valorTotal = $documentos->sum('valor_total');
 
             // Recalcula o km_pago
             $calculoKmPago = $this->calcularKmPago($valorTotal);

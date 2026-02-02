@@ -35,6 +35,7 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class DocumentoFretesTable
@@ -191,6 +192,7 @@ class DocumentoFretesTable
                     ])
                     ->action(function (Models\DocumentoFrete $record, array $data) {
                         try {
+                            Log::debug("Iniciando vinculação do DocumentoFrete ID {$record->id} à Viagem ID {$data['viagem_id']} pelo usuário ID " . Auth::id());
                             // Buscar a viagem
                             $viagem = Models\Viagem::findOrFail($data['viagem_id']);
                             
@@ -200,6 +202,8 @@ class DocumentoFretesTable
                                 'documento_transporte' => $viagem->documento_transporte,
                             ]);
                             
+                            Log::debug("DocumentoFrete ID {$record->id} vinculado à Viagem ID {$viagem->id} com sucesso pelo usuário ID " . Auth::id());
+
                             // Recalcular o km_pago da viagem
                             $gerarViagem = new GerarViagemNutrepampaFromDocumento(collect());
                             $gerarViagem->recalcularKmPagoViagem($viagem);
@@ -211,6 +215,7 @@ class DocumentoFretesTable
                                 ->send();
                                 
                         } catch (\Exception $e) {
+                            Log::error("Erro ao vincular DocumentoFrete ID {$record->id} à Viagem ID {$data['viagem_id']}: " . $e->getMessage() . " pelo usuário ID " . Auth::id());
                             Notification::make()
                                 ->danger()
                                 ->title('Erro ao vincular documento')

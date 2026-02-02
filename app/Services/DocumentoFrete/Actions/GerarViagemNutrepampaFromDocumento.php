@@ -217,8 +217,8 @@ class GerarViagemNutrepampaFromDocumento
                 return false;
             }
 
-            // Calcula o valor total dos documentos
-            $valorTotal = $documentos->sum('valor_total');
+            // Calcula o valor total dos documentos (usando valor_liquido)
+            $valorTotal = $documentos->sum('valor_liquido');
 
             // Recalcula o km_pago
             $calculoKmPago = $this->calcularKmPago($valorTotal);

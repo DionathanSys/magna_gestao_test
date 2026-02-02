@@ -204,9 +204,14 @@ class DocumentoFretesTable
                             
                             Log::debug("DocumentoFrete ID {$record->id} vinculado à Viagem ID {$viagem->id} com sucesso pelo usuário ID " . Auth::id());
 
+                            // Recarregar a viagem para pegar os relacionamentos atualizados
+                            $viagem->refresh();
+                            
                             // Recalcular o km_pago da viagem
                             $gerarViagem = new GerarViagemNutrepampaFromDocumento(collect());
-                            $gerarViagem->recalcularKmPagoViagem($viagem);
+                            $recalculado = $gerarViagem->recalcularKmPagoViagem($viagem);
+                            
+                            Log::debug("Recalculo de km_pago " . ($recalculado ? 'executado' : 'falhou') . " para Viagem ID {$viagem->id}");
                             
                             Notification::make()
                                 ->success()

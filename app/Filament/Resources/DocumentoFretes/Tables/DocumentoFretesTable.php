@@ -208,7 +208,7 @@ class DocumentoFretesTable
                             $viagem->refresh();
                             
                             // Recalcular o km_pago da viagem
-                            $gerarViagem = new GerarViagemNutrepampaFromDocumento(collect());
+                            $gerarViagem = new GerarViagemNutrepampaFromDocumento();
                             $recalculado = $gerarViagem->recalcularKmPagoViagem($viagem);
                             
                             Log::debug("Recalculo de km_pago " . ($recalculado ? 'executado' : 'falhou') . " para Viagem ID {$viagem->id}");

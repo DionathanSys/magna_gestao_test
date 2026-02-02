@@ -7,6 +7,7 @@ use App\Models;
 use App\Services\Veiculo\VeiculoService;
 use App\Services\Viagem\ViagemService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Log;
 
 class GerarViagemNutrepampaFromDocumento
@@ -22,8 +23,10 @@ class GerarViagemNutrepampaFromDocumento
     private const TOLERANCIA_PERCENTUAL = 0.01;
 
     public function __construct(
-        protected Collection $documentosFrete
-    ) {}
+        protected Collection|SupportCollection|null $documentosFrete = null
+    ) {
+        $this->documentosFrete = $documentosFrete ?? new Collection();
+    }
 
     public function handle()
     {

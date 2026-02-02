@@ -562,7 +562,9 @@ class ViagemsTable
                         ->icon('heroicon-o-x-circle')
                         ->accessSelectedRecords()
                         ->action(function (Collection $selectedRecords) {
+                            Log::debug('Iniciando ação em massa Sem Viagem para ' . $selectedRecords->count() . ' registros pelo usuário ID ' . Auth::id());
                             $selectedRecords->each(function (Models\Viagem $record) {
+                                Log::debug("Processando Viagem ID {$record->id} na ação Sem Viagem pelo usuário ID " . Auth::id());
                                 $record->update([
                                     'motivo_divergencia' => Enum\MotivoDivergenciaViagem::SEM_VIAGEM->value,
                                     'conferido' => true,

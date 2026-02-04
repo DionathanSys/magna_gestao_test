@@ -171,14 +171,19 @@ class ExportarRelatorioViagensDocumentosBulkAction
                 $documentosSheet->setCellValue('D' . $row, $documento->documento_transporte ?? '');
                 $documentosSheet->setCellValue('E' . $row, $documento->data_emissao ? \Carbon\Carbon::parse($documento->data_emissao)->format('d/m/Y') : '');
                 
-                // Formatar valores monetários
-                $valorTotal = static::formatMoneyValue($documento->valor_total);
-                $valorIcms = static::formatMoneyValue($documento->valor_icms);
-                $valorLiquido = static::formatMoneyValue($documento->valor_liquido);
+                // Inserir valores como números
+                $valorTotal = static::getNumericValue($documento->valor_total);
+                $valorIcms = static::getNumericValue($documento->valor_icms);
+                $valorLiquido = static::getNumericValue($documento->valor_liquido);
                 
                 $documentosSheet->setCellValue('F' . $row, $valorTotal);
                 $documentosSheet->setCellValue('G' . $row, $valorIcms);
                 $documentosSheet->setCellValue('H' . $row, $valorLiquido);
+                
+                // Aplicar formatação de moeda nas células
+                $documentosSheet->getStyle('F' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+                $documentosSheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
+                $documentosSheet->getStyle('H' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
                 
                 $documentosSheet->setCellValue('I' . $row, $documento->parceiro_origem ?? '');
                 $documentosSheet->setCellValue('J' . $row, $documento->parceiro_destino ?? '');
@@ -194,6 +199,14 @@ class ExportarRelatorioViagensDocumentosBulkAction
 
             // Definir a primeira planilha como ativa
             $spreadsheet->setActiveSheetIndex(0);
+            
+            // Aplicar formatação de moeda na coluna G da planilha de viagens (Total Valor Líquido)
+            if ($viagens->count() > 0) {
+                $lastRowViagens = $viagens->count() + 1;
+                for ($i = 2; $i <= $lastRowViagens; $i++) {
+                    $viagensSheet->getStyle('G' . $i)->getNumberFormat()->setFormatCode('#,##0.00');
+                }
+            }
 
             // Restaurar limite de memória original
             ini_set('memory_limit', $originalMemoryLimit);
@@ -243,24 +256,23 @@ class ExportarRelatorioViagensDocumentosBulkAction
     {
         $sheet->getStyle($range)->applyFromArray([
             'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000'],
-                ],
-            ],
-        ]);
-    }
-
-    protected static function formatMoneyValue($value): string
+                'allBorders' =getNumericValue($value): float
     {
         if (is_null($value)) {
-            return '0,00';
+            return 0.0;
         }
         
         // Se for um objeto Brick\Money\Money
         if (is_object($value) && method_exists($value, 'getAmount')) {
-            $amount = $value->getAmount()->toFloat();
-            return number_format($amount, 2, ',', '.');
+            return $value->getAmount()->toFloat();
+        }
+        
+        // Se for numérico
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+        
+        return 0.0mber_format($amount, 2, ',', '.');
         }
         
         // Se for numérico

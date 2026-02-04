@@ -65,6 +65,7 @@ class ExportarRelatorioViagensDocumentosBulkAction
                 'D' => 'Placa',
                 'E' => 'Data Competência',
                 'F' => 'Km Pago',
+                'G' => 'Total Valor Líquido',
             ];
 
             // Escrever cabeçalhos
@@ -74,7 +75,7 @@ class ExportarRelatorioViagensDocumentosBulkAction
             }
 
             // Estilizar cabeçalho
-            $headerRange = 'A1:F1';
+            $headerRange = 'A1:G1';
             static::styleHeader($viagensSheet, $headerRange);
 
             // Ajustar largura das colunas
@@ -84,6 +85,7 @@ class ExportarRelatorioViagensDocumentosBulkAction
             $viagensSheet->getColumnDimension('D')->setWidth(15);
             $viagensSheet->getColumnDimension('E')->setWidth(18);
             $viagensSheet->getColumnDimension('F')->setWidth(15);
+            $viagensSheet->getColumnDimension('G')->setWidth(20);
 
             // Carregar viagens com relacionamentos necessários
             $viagens = Viagem::whereIn('id', $records->pluck('id'))
@@ -100,12 +102,16 @@ class ExportarRelatorioViagensDocumentosBulkAction
                 $viagensSheet->setCellValue('E' . $row, $viagem->data_competencia ? \Carbon\Carbon::parse($viagem->data_competencia)->format('d/m/Y') : '');
                 $viagensSheet->setCellValue('F' . $row, $viagem->km_pago ?? '');
                 
+                // Adicionar fórmula SUMIF para somar valores líquidos dos documentos
+                $formula = '=SUMIF(Documentos!$B:$B,A' . $row . ',Documentos!$H:$H)';
+                $viagensSheet->setCellValue('G' . $row, $formula);
+                
                 $row++;
             }
 
             // Aplicar bordas
             if ($row > 2) {
-                static::applyBorders($viagensSheet, 'A1:F' . ($row - 1));
+                static::applyBorders($viagensSheet, 'A1:G' . ($row - 1));
             }
 
             // ====== PLANILHA 2: DOCUMENTOS ======

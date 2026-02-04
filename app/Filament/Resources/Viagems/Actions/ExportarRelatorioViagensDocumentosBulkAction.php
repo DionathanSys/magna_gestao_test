@@ -256,7 +256,15 @@ class ExportarRelatorioViagensDocumentosBulkAction
     {
         $sheet->getStyle($range)->applyFromArray([
             'borders' => [
-                'allBorders' =getNumericValue($value): float
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ]);
+    }
+
+    protected static function getNumericValue($value): float
     {
         if (is_null($value)) {
             return 0.0;
@@ -272,14 +280,6 @@ class ExportarRelatorioViagensDocumentosBulkAction
             return (float) $value;
         }
         
-        return 0.0mber_format($amount, 2, ',', '.');
-        }
-        
-        // Se for numérico
-        if (is_numeric($value)) {
-            return number_format((float) $value, 2, ',', '.');
-        }
-        
-        return '0,00';
+        return 0.0;
     }
 }

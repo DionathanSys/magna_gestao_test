@@ -726,6 +726,7 @@ class ViagemsTable
                     DissociateResultadoPeriodoBulkAction::make(),
                     Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                     Viagems\Actions\ExportarViagensExcelBulkAction::make(),
+                    Viagems\Actions\ExportarRelatorioViagensDocumentosBulkAction::make(),
                     FilamentExportBulkAction::make('export')
                 ]),
             ]);

@@ -10,6 +10,7 @@ use App\{Models, Services, Enum};
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\{DocumentoFretes, Viagems};
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models\Viagem;
 use App\Services\DocumentoFrete\Actions\GerarViagemNutrepampaFromDocumento;
@@ -724,6 +725,7 @@ class ViagemsTable
                     DeleteBulkAction::make()
                         ->visible(fn(): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    VincularViagemResultadoPeriodoBulkAction::make(),
                     Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                     Viagems\Actions\ExportarViagensExcelBulkAction::make(),
                     Viagems\Actions\ExportarRelatorioViagensDocumentosBulkAction::make(),

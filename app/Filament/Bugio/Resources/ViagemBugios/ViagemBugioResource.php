@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ViagemBugioResource extends Resource
 {
@@ -41,6 +42,19 @@ class ViagemBugioResource extends Resource
     public static function table(Table $table): Table
     {
         return ViagemBugiosTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        // Excluir colunas pesadas não utilizadas na tabela (anexos, observacao, etc.)
+        // para reduzir consumo de memória no Livewire com muitos registros selecionados
+        return parent::getEloquentQuery()->select([
+            'id', 'veiculo_id', 'destinos', 'nro_documento', 'nro_notas',
+            'numero_sequencial', 'info_adicionais', 'data_competencia',
+            'km_pago', 'frete', 'condutor', 'status',
+            'viagem_id', 'documento_frete_id', 'created_by',
+            'created_at', 'updated_at',
+        ]);
     }
 
     public static function getRelations(): array

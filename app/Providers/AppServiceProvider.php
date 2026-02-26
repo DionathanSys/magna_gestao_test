@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Aumentar limite de memória para suportar operações pesadas (tabelas Filament com muitos registros selecionados)
+        ini_set('memory_limit', '256M');
+
         Model::unguard();
 
         // Registrar Observers

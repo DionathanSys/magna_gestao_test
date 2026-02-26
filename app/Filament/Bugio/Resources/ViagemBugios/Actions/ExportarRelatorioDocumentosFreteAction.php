@@ -24,6 +24,15 @@ class ExportarRelatorioDocumentosFreteAction
             ])
             ->modalDescription(fn(Collection $records) => 'Será gerado um relatório PDF com ' . $records->count() . ' registro(s) selecionado(s), agrupados por veículo.')
             ->action(function (Collection $records, array $data) {
+                if ($records->count() > 500) {
+                    \Filament\Notifications\Notification::make()
+                        ->danger()
+                        ->title('Muitos registros selecionados')
+                        ->body('Selecione no máximo 500 registros por geração de relatório PDF.')
+                        ->send();
+                    return;
+                }
+
                 return static::gerarPdf($records, $data['exibir_vinculos'] ?? true);
             })
             ->deselectRecordsAfterCompletion();

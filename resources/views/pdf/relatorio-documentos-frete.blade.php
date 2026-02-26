@@ -161,13 +161,15 @@
                     <th style="width: 4%;" class="text-center">ID</th>
                     <th style="width: 9%;" class="text-center">Nº Documento</th>
                     <th style="width: 9%;" class="text-center">Nº Sequencial</th>
-                    <th style="width: 12%;">Nro Notas</th>
-                    <th style="width: 9%;" class="text-center">Data Competência</th>
-                    <th style="width: {{ $exibirVinculos ? '30%' : '40%' }};">Destino</th>
-                    <th style="width: 9%;" class="text-right">Frete</th>
+                    <th style="width: 10%;">Nro Notas</th>
+                    <th style="width: 8%;" class="text-center">Data Competência</th>
+                    <th style="width: 8%;" class="text-center">Tipo Documento</th>
+                    <th style="width: 8%;" class="text-center">Peso (kg)</th>
+                    <th style="width: {{ $exibirVinculos ? '20%' : '28%' }};">Destino</th>
+                    <th style="width: 8%;" class="text-right">Frete</th>
                     @if($exibirVinculos)
-                        <th style="width: 9%;" class="text-center">Doc. Frete ID</th>
-                        <th style="width: 9%;" class="text-center">Viagem ID</th>
+                        <th style="width: 7%;" class="text-center">Doc. Frete ID</th>
+                        <th style="width: 7%;" class="text-center">Viagem ID</th>
                     @endif
                 </tr>
             </thead>
@@ -179,6 +181,8 @@
                         <td class="text-center">{{ $registro['numero_sequencial'] ? str_pad($registro['numero_sequencial'], 6, '0', STR_PAD_LEFT) : '-' }}</td>
                         <td>{{ $registro['nro_notas_formatado'] }}</td>
                         <td class="text-center">{{ $registro['data_competencia'] ? \Carbon\Carbon::parse($registro['data_competencia'])->format('d/m/Y') : '-' }}</td>
+                        <td class="text-center">{{ $registro['tipo_documento'] }}</td>
+                        <td class="text-center">{{ $registro['peso'] }}</td>
                         <td>{{ $registro['destino_formatado'] }}</td>
                         <td class="text-right">R$ {{ number_format($registro['frete'] ?? 0, 2, ',', '.') }}</td>
                         @if($exibirVinculos)
@@ -188,7 +192,7 @@
                     </tr>
                 @endforeach
                 <tr class="total-row">
-                    <td colspan="{{ $exibirVinculos ? 6 : 6 }}" class="text-right">Total Veículo:</td>
+                    <td colspan="{{ $exibirVinculos ? 8 : 8 }}" class="text-right">Total Veículo:</td>
                     <td class="text-right">R$ {{ number_format($veiculo['total_frete'], 2, ',', '.') }}</td>
                     @if($exibirVinculos)
                         <td colspan="2"></td>

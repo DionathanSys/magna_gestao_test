@@ -64,7 +64,7 @@ class ExportarRelatorioDocumentosFreteAction
                         'nro_notas', 'data_competencia', 'destinos', 'frete',
                         'documento_frete_id', 'viagem_id', 'info_adicionais',
                     ])
-                    ->orderBy('data_competencia', 'desc')
+                    ->orderBy('numero_sequencial', 'asc')
                     ->chunk(200, function ($chunk) use (&$registrosFormatados, &$totalFrete) {
                         foreach ($chunk as $registro) {
                             $totalFrete += (float) $registro->frete;

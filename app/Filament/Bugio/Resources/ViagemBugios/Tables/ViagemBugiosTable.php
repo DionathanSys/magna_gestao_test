@@ -44,7 +44,6 @@ class ViagemBugiosTable
     {
         return $table
             ->poll(null)
-            ->eagerLoadingEnabled(false)
             ->modifyQueryUsing(fn (Builder $query) => $query->with([
                 'veiculo:id,placa',
                 'viagem:id',

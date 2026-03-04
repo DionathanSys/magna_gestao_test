@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Pages;
 
@@ -16,11 +16,11 @@ class RelatorioTesteFumaca extends Page
 
     protected string $view = 'filament.pages.relatorio-teste-fumaca';
 
-    protected static ?string $navigationLabel = 'Relatório Teste de Fumaça';
+    protected static ?string $navigationLabel = 'RelatÃ³rio Teste de FumaÃ§a';
 
-    protected static ?string $title = 'Relatório – Teste de Fumaça';
+    protected static ?string $title = 'RelatÃ³rio â€“ Teste de FumaÃ§a';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Relatórios';
+    protected static string|UnitEnum|null $navigationGroup = 'RelatÃ³rios';
 
     public array $dadosRelatorio = [];
 
@@ -49,7 +49,7 @@ class RelatorioTesteFumaca extends Page
 
                     $dataTeste = Carbon::parse($info['teste_fumaca']);
 
-                    return $hoje->diffInDays($dataTeste, false) <= -75;
+                    return $hoje->diffInDays($dataTeste, false) <= -150;
                 })
                 ->map(function (Veiculo $veiculo) use ($hoje) {
                     $info  = $veiculo->informacoes_complementares;
@@ -72,7 +72,7 @@ class RelatorioTesteFumaca extends Page
             Notification::make()
                 ->title('Dados carregados com sucesso')
                 ->success()
-                ->body(count($this->dadosRelatorio) . ' veículo(s) encontrado(s)')
+                ->body(count($this->dadosRelatorio) . ' veÃ­culo(s) encontrado(s)')
                 ->send();
         } catch (\Exception $e) {
             Notification::make()
@@ -103,7 +103,7 @@ class RelatorioTesteFumaca extends Page
                         return false;
                     }
 
-                    return $hoje->diffInDays(Carbon::parse($info['teste_fumaca']), false) <= -75;
+                    return $hoje->diffInDays(Carbon::parse($info['teste_fumaca']), false) <= -150;
                 })
                 ->map(function (Veiculo $veiculo) use ($hoje) {
                     $info        = $veiculo->informacoes_complementares;

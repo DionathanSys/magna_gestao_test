@@ -1,4 +1,4 @@
-﻿<x-filament-panels::page>
+<x-filament-panels::page>
     <style>
         .relatorio-table {
             width: 100%;

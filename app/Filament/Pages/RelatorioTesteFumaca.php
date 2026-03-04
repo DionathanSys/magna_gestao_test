@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Veiculo;
 use BackedEnum;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -82,6 +83,64 @@ class RelatorioTesteFumaca extends Page
 
             $this->buscaRealizada = false;
             $this->dadosRelatorio = [];
+        }
+    }
+
+    public function gerarPdf(): mixed
+    {
+        try {
+            $hoje = Carbon::today();
+
+            $dados = Veiculo::query()
+                ->where('is_active', true)
+                ->with('kmAtual')
+                ->orderBy('placa')
+                ->get()
+                ->filter(function (Veiculo $veiculo) use ($hoje) {
+                    $info = $veiculo->informacoes_complementares;
+
+                    if (empty($info['teste_fumaca'])) {
+                        return false;
+                    }
+
+                    return $hoje->diffInDays(Carbon::parse($info['teste_fumaca']), false) <= -75;
+                })
+                ->map(function (Veiculo $veiculo) use ($hoje) {
+                    $info        = $veiculo->informacoes_complementares;
+                    $dataTeste   = Carbon::parse($info['teste_fumaca']);
+                    $diasVencido = (int) abs($hoje->diffInDays($dataTeste));
+
+                    return [
+                        'placa'        => $veiculo->placa,
+                        'km_atual'     => $veiculo->quilometragem_atual,
+                        'data_teste'   => $info['teste_fumaca'],
+                        'dias_vencido' => $diasVencido,
+                    ];
+                })
+                ->sortByDesc('dias_vencido')
+                ->values()
+                ->toArray();
+
+            $pdf = Pdf::loadView('pdf.relatorio-teste-fumaca', [
+                'dados'          => $dados,
+                'totalRegistros' => count($dados),
+                'dataGeracao'    => now()->format('d/m/Y H:i:s'),
+            ]);
+
+            $pdf->setPaper('A4', 'portrait');
+
+            return response()->streamDownload(
+                fn () => print($pdf->output()),
+                'relatorio-teste-fumaca-' . date('Y-m-d-H-i') . '.pdf'
+            );
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Erro ao gerar PDF')
+                ->danger()
+                ->body($e->getMessage())
+                ->send();
+
+            return null;
         }
     }
 

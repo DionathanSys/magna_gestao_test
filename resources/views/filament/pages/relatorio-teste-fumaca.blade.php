@@ -129,6 +129,14 @@
             >
                 Carregar Dados
             </x-filament::button>
+
+            <x-filament::button
+                wire:click="gerarPdf"
+                icon="heroicon-o-arrow-down-tray"
+                color="danger"
+            >
+                Baixar PDF
+            </x-filament::button>
         </div>
 
         @if(count($dadosRelatorio) > 0)

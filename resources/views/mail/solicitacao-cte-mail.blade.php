@@ -17,6 +17,8 @@
 
      @if ($payload->cte_retroativo)
         <p style='font-weight: bold; color: #000000;'>CTe Retroativo</p>
+    @else
+        <p style='font-weight: bold; color: #000000;'>Marcar MDF-e como "Alto Desempenho"</p>
     @endif 
 
     @if ($payload->cte_complementar)
@@ -25,7 +27,7 @@
 
     <p>Valor total frete R$ {{number_format($payload->valorFreteTotal, 2, ',', '.') }}, sendo {{$payload->quantidadeCte}} CT-e(s), R$ {{number_format($payload->valorFreteUnitario, 2, ',', '.') }} cada CT-e. </p>
 
-    <p>CNPJ Transportadora: 75.813.923/0001-61</p>
+    <p>CNPJ Transportadora: 75.813.923/0010-52</p>
 
     <p>Motorista: {{$payload->motorista['nome']}}</p>
 

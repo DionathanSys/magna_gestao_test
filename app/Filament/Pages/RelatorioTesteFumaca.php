@@ -16,11 +16,11 @@ class RelatorioTesteFumaca extends Page
 
     protected string $view = 'filament.pages.relatorio-teste-fumaca';
 
-    protected static ?string $navigationLabel = 'RelatÃ³rio Teste de FumaÃ§a';
+    protected static ?string $navigationLabel = 'Relatório Teste de Fumaça';
 
-    protected static ?string $title = 'RelatÃ³rio â€“ Teste de FumaÃ§a';
+    protected static ?string $title = 'Relatório – Teste de Fumaça';
 
-    protected static string|UnitEnum|null $navigationGroup = 'RelatÃ³rios';
+    protected static string|UnitEnum|null $navigationGroup = 'Relatórios';
 
     public array $dadosRelatorio = [];
 
@@ -72,7 +72,7 @@ class RelatorioTesteFumaca extends Page
             Notification::make()
                 ->title('Dados carregados com sucesso')
                 ->success()
-                ->body(count($this->dadosRelatorio) . ' veÃ­culo(s) encontrado(s)')
+                ->body(count($this->dadosRelatorio) . ' veículo(s) encontrado(s)')
                 ->send();
         } catch (\Exception $e) {
             Notification::make()

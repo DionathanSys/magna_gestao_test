@@ -116,8 +116,8 @@
 
     <div>
         <div class="info-box">
-            Este relatÃ³rio lista todos os veÃ­culos ativos cujo <strong>teste de fumaÃ§a</strong>
-            foi realizado hÃ¡ <strong>mais de 150 dias</strong>.
+            Este relatório lista todos os veículos ativos cujo <strong>teste de fumaça</strong>
+            foi realizado há <strong>mais de 150 dias</strong>.
             Clique em <em>Carregar Dados</em> para visualizar os resultados.
         </div>
 
@@ -141,10 +141,10 @@
 
         @if(count($dadosRelatorio) > 0)
             <div class="section-box">
-                <div class="section-heading">VeÃ­culos com Teste de FumaÃ§a Vencido</div>
+                <div class="section-heading">Veículos com Teste de Fumaça Vencido</div>
                 <div class="section-description">
-                    Total de <strong>{{ count($dadosRelatorio) }}</strong> veÃ­culo(s) com teste vencido hÃ¡ mais de 150 dias.
-                    ReferÃªncia: {{ \Carbon\Carbon::today()->format('d/m/Y') }}.
+                    Total de <strong>{{ count($dadosRelatorio) }}</strong> veículo(s) com teste vencido há mais de 150 dias.
+                    Referência: {{ \Carbon\Carbon::today()->format('d/m/Y') }}.
                 </div>
 
                 <div class="table-container">
@@ -156,9 +156,9 @@
                                     Placa
                                     <span class="sort-icon">
                                         @if($ordenarPor === 'placa')
-                                            {{ $direcaoOrdenacao === 'asc' ? 'â–²' : 'â–¼' }}
+                                            {{ $direcaoOrdenacao === 'asc' ? '▲' : '▼' }}
                                         @else
-                                            â‡…
+                                            ⇅
                                         @endif
                                     </span>
                                 </th>
@@ -168,21 +168,21 @@
                                     KM Atual
                                     <span class="sort-icon">
                                         @if($ordenarPor === 'km_atual')
-                                            {{ $direcaoOrdenacao === 'asc' ? 'â–²' : 'â–¼' }}
+                                            {{ $direcaoOrdenacao === 'asc' ? '▲' : '▼' }}
                                         @else
-                                            â‡…
+                                            ⇅
                                         @endif
                                     </span>
                                 </th>
 
                                 <th class="text-center sortable {{ $ordenarPor === 'data_teste' ? 'active' : '' }}"
                                     wire:click="ordenarPorColuna('data_teste')">
-                                    Data do Ãšltimo<br>Teste de FumaÃ§a
+                                    Data do Último<br>Teste de Fumaça
                                     <span class="sort-icon">
                                         @if($ordenarPor === 'data_teste')
-                                            {{ $direcaoOrdenacao === 'asc' ? 'â–²' : 'â–¼' }}
+                                            {{ $direcaoOrdenacao === 'asc' ? '▲' : '▼' }}
                                         @else
-                                            â‡…
+                                            ⇅
                                         @endif
                                     </span>
                                 </th>
@@ -192,9 +192,9 @@
                                     Dias Vencido
                                     <span class="sort-icon">
                                         @if($ordenarPor === 'dias_vencido')
-                                            {{ $direcaoOrdenacao === 'asc' ? 'â–²' : 'â–¼' }}
+                                            {{ $direcaoOrdenacao === 'asc' ? '▲' : '▼' }}
                                         @else
-                                            â‡…
+                                            ⇅
                                         @endif
                                     </span>
                                 </th>
@@ -209,7 +209,7 @@
                                         @if($item['km_atual'] > 0)
                                             {{ number_format($item['km_atual'], 0, ',', '.') }}
                                         @else
-                                            <span class="text-gray">â€”</span>
+                                            <span class="text-gray">—</span>
                                         @endif
                                     </td>
 
@@ -233,7 +233,7 @@
         @elseif($buscaRealizada)
             <div class="section-box">
                 <p style="color:#6b7280;font-size:14px;">
-                    Nenhum veÃ­culo encontrado com teste de fumaÃ§a vencido hÃ¡ mais de 150 dias.
+                    Nenhum veículo encontrado com teste de fumaça vencido há mais de 150 dias.
                 </p>
             </div>
         @endif

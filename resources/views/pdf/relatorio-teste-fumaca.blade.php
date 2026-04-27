@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>RelatÃ³rio â€“ Teste de FumaÃ§a</title>
+    <title>Relatório – Teste de Fumaça</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -92,14 +92,14 @@
 <body>
 
     <div class="header">
-        <h1>RelatÃ³rio â€“ Teste de FumaÃ§a</h1>
-        <p>VeÃ­culos com teste vencido hÃ¡ mais de 150 dias &nbsp;|&nbsp; Gerado em {{ $dataGeracao }}</p>
+        <h1>Relatório – Teste de Fumaça</h1>
+        <p>Veículos com teste vencido há mais de 150 dias &nbsp;|&nbsp; Gerado em {{ $dataGeracao }}</p>
     </div>
 
     <div class="info-section">
         <p>
-            Total de veÃ­culos: <strong>{{ $totalRegistros }}</strong> &nbsp;&nbsp;
-            Data de referÃªncia: <strong>{{ \Carbon\Carbon::today()->format('d/m/Y') }}</strong>
+            Total de veículos: <strong>{{ $totalRegistros }}</strong> &nbsp;&nbsp;
+            Data de referência: <strong>{{ \Carbon\Carbon::today()->format('d/m/Y') }}</strong>
         </p>
     </div>
 
@@ -108,7 +108,7 @@
             <tr>
                 <th>Placa</th>
                 <th class="text-center">KM Atual</th>
-                <th class="text-center">Data Ãšltimo Teste</th>
+                <th class="text-center">Data Último Teste</th>
                 <th class="text-center">Dias Vencido</th>
             </tr>
         </thead>
@@ -121,7 +121,7 @@
                         @if($item['km_atual'] > 0)
                             {{ number_format($item['km_atual'], 0, ',', '.') }}
                         @else
-                            â€”
+                            —
                         @endif
                     </td>
 
@@ -140,7 +140,7 @@
             @empty
                 <tr>
                     <td colspan="4" class="text-center" style="color:#9ca3af; padding: 12px;">
-                        Nenhum veÃ­culo encontrado.
+                        Nenhum veículo encontrado.
                     </td>
                 </tr>
             @endforelse
@@ -148,7 +148,7 @@
     </table>
 
     <div class="footer">
-        Magna GestÃ£o &nbsp;|&nbsp; RelatÃ³rio Teste de FumaÃ§a &nbsp;|&nbsp; {{ $dataGeracao }}
+        Magna Gestão &nbsp;|&nbsp; Relatório Teste de Fumaça &nbsp;|&nbsp; {{ $dataGeracao }}
     </div>
 
 </body>

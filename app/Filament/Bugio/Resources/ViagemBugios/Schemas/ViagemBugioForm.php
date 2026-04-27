@@ -216,6 +216,22 @@ class ViagemBugioForm
                                     ->label('Documento Frete ID')
                                     ->visibleOn('edit'),
                             ]),
+                        Section::make('Documentos Fiscais')
+                            ->columnSpan(1)
+                            ->hiddenOn('edit')
+                            ->components([
+                                FileUpload::make('anexos')
+                                    ->columnSpan(['md' => 4, 'xl' => 6])
+                                    ->label('Anexos')
+                                    ->columnStart(1)
+                                    ->preserveFilenames()
+                                    ->multiple()
+                                    ->maxFiles(10)
+                                    ->directory('cte')
+                                    ->visibility('private')
+                                    ->required(),
+
+                            ]),
                         Section::make('Detalhes do Piso Mínimo')
                             ->columnSpanFull()
                             ->visibleOn('create')
@@ -284,22 +300,7 @@ class ViagemBugioForm
                                     ->disabled()
                                     ->dehydrated(false),
                             ]),
-                        Section::make('Documentos Fiscais')
-                            ->columnSpan(1)
-                            ->hiddenOn('edit')
-                            ->components([
-                                FileUpload::make('anexos')
-                                    ->columnSpan(['md' => 4, 'xl' => 6])
-                                    ->label('Anexos')
-                                    ->columnStart(1)
-                                    ->preserveFilenames()
-                                    ->multiple()
-                                    ->maxFiles(10)
-                                    ->directory('cte')
-                                    ->visibility('private')
-                                    ->required(),
 
-                            ])
                     ])
             ]);
     }

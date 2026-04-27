@@ -148,9 +148,8 @@ class ViagemBugioForm
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
 
-                                            // Atualiza detalhes do piso mínimo
-                                            $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
-                                            self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
+                                            // Atualiza detalhes do piso mínimo (sempre com retorno vazio)
+                                            self::atualizarDetalhes($set, $get, $kmTotal, true);
 
                                             if (Str::upper($integrado->municipio) == 'GUATAMBU') {
                                                 $set('info_adicionais.tipo_documento', TipoDocumentoEnum::NFS->value);
@@ -165,9 +164,8 @@ class ViagemBugioForm
                                             $set('destinos.km_rota', 0);
                                             $set('destinos.municipio', null);
 
-                                            // Atualiza detalhes do piso mínimo
-                                            $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
-                                            self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
+                                            // Atualiza detalhes do piso mínimo (sempre com retorno vazio)
+                                            self::atualizarDetalhes($set, $get, $kmTotal, true);
                                         }
                                     }),
                                 TextInput::make('destinos.km_rota')
@@ -185,9 +183,8 @@ class ViagemBugioForm
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
 
-                                            // Atualiza detalhes do piso mínimo
-                                            $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
-                                            self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
+                                            // Atualiza detalhes do piso mínimo (sempre com retorno vazio)
+                                            self::atualizarDetalhes($set, $get, $kmTotal, true);
                                         }
                                     })
                                     ->live(onBlur: true),
@@ -196,19 +193,6 @@ class ViagemBugioForm
                                     ->visibleOn('create')
                                     ->columnSpanFull()
                                     ->readOnly(),
-                                Toggle::make('info_adicionais.tem_retorno_vazio')
-                                    ->label('Tem Retorno Vazio')
-                                    ->visibleOn('create')
-                                    ->columnStart(1)
-                                    ->columnSpan(['md' => 1, 'xl' => 2])
-                                    ->inline(false)
-                                    ->default(false)
-                                    ->reactive()
-                                    ->afterStateUpdated(function (Get $get, Set $set) {
-                                        $kmTotal = $get('km_total') ?? 0;
-                                        $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
-                                        self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
-                                    }),
                                 TextInput::make('viagem_id')
                                     ->label('Viagem ID')
                                     ->visibleOn('edit'),
@@ -274,8 +258,7 @@ class ViagemBugioForm
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->prefix('R$')
                                     ->readOnly()
-                                    ->disabled()
-                                    ->visible(fn(Get $get) => (bool) $get('info_adicionais.tem_retorno_vazio')),
+                                    ->disabled(),
                                 TextInput::make('detalhes_piso.piso_minimo')
                                     ->label('Piso Mínimo (Ida + Retorno)')
                                     ->visibleOn('create')

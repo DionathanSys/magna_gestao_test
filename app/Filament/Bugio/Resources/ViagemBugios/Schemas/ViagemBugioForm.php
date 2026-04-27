@@ -13,6 +13,7 @@ use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
 use Filament\Schemas\Components\Section;
 use Illuminate\Support\Str;
+use App\Services\FreteCalculador;
 
 class ViagemBugioForm
 {
@@ -147,6 +148,10 @@ class ViagemBugioForm
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
 
+                                            // Atualiza detalhes do piso mínimo
+                                            $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
+                                            self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
+
                                             if (Str::upper($integrado->municipio) == 'GUATAMBU') {
                                                 $set('info_adicionais.tipo_documento', TipoDocumentoEnum::NFS->value);
                                                 $set('info_adicionais.cte_retroativo', false);
@@ -159,6 +164,10 @@ class ViagemBugioForm
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
                                             $set('destinos.km_rota', 0);
                                             $set('destinos.municipio', null);
+
+                                            // Atualiza detalhes do piso mínimo
+                                            $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
+                                            self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
                                         }
                                     }),
                                 TextInput::make('destinos.km_rota')
@@ -175,6 +184,10 @@ class ViagemBugioForm
                                             $frete = self::calcularFrete($kmTotal);
                                             $set('km_total', number_format($kmTotal, 2, '.', ''));
                                             $set('valor_frete', number_format($frete, 2, '.', ''));
+
+                                            // Atualiza detalhes do piso mínimo
+                                            $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
+                                            self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
                                         }
                                     })
                                     ->live(onBlur: true),
@@ -183,12 +196,93 @@ class ViagemBugioForm
                                     ->visibleOn('create')
                                     ->columnSpanFull()
                                     ->readOnly(),
+                                Toggle::make('info_adicionais.tem_retorno_vazio')
+                                    ->label('Tem Retorno Vazio')
+                                    ->visibleOn('create')
+                                    ->columnStart(1)
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->inline(false)
+                                    ->default(false)
+                                    ->reactive()
+                                    ->afterStateUpdated(function (Get $get, Set $set) {
+                                        $kmTotal = $get('km_total') ?? 0;
+                                        $temRetornoVazio = $get('info_adicionais.tem_retorno_vazio') ?? false;
+                                        self::atualizarDetalhes($set, $get, $kmTotal, $temRetornoVazio);
+                                    }),
                                 TextInput::make('viagem_id')
                                     ->label('Viagem ID')
                                     ->visibleOn('edit'),
                                 TextInput::make('documento_frete_id')
                                     ->label('Documento Frete ID')
                                     ->visibleOn('edit'),
+                            ]),
+                        Section::make('Detalhes do Piso Mínimo')
+                            ->columnSpanFull()
+                            ->visibleOn('create')
+                            ->columns(['md' => 4, 'xl' => 6])
+                            ->columnStart(1)
+                            ->collapsed()
+                            ->collapsible()
+                            ->components([
+                                TextInput::make('detalhes_piso.km_ida')
+                                    ->label('KM Ida (km_total ÷ 2)')
+                                    ->visibleOn('create')
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->suffix(' km')
+                                    ->readOnly()
+                                    ->disabled(),
+                                TextInput::make('detalhes_piso.ccd')
+                                    ->label('CCD (Coeficiente)')
+                                    ->visibleOn('create')
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->readOnly()
+                                    ->disabled(),
+                                TextInput::make('detalhes_piso.cc')
+                                    ->label('CC (Carga/Descarga)')
+                                    ->visibleOn('create')
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->prefix('R$')
+                                    ->readOnly()
+                                    ->disabled(),
+                                TextInput::make('detalhes_piso.valor_ida')
+                                    ->label('Valor Ida: (KM Ida × CCD) + CC')
+                                    ->visibleOn('create')
+                                    ->columnStart(1)
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->prefix('R$')
+                                    ->readOnly()
+                                    ->disabled(),
+                                TextInput::make('detalhes_piso.valor_retorno')
+                                    ->label('Valor Retorno: 0.92 × KM Ida × CCD')
+                                    ->visibleOn('create')
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->prefix('R$')
+                                    ->readOnly()
+                                    ->disabled()
+                                    ->visible(fn(Get $get) => (bool) $get('info_adicionais.tem_retorno_vazio')),
+                                TextInput::make('detalhes_piso.piso_minimo')
+                                    ->label('Piso Mínimo (Ida + Retorno)')
+                                    ->visibleOn('create')
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->prefix('R$')
+                                    ->readOnly()
+                                    ->disabled(),
+                                TextInput::make('detalhes_piso.frete_antigo')
+                                    ->label('Frete Antigo: R$/km × km_total')
+                                    ->visibleOn('create')
+                                    ->columnStart(1)
+                                    ->columnSpan(['md' => 1, 'xl' => 2])
+                                    ->prefix('R$')
+                                    ->readOnly()
+                                    ->disabled(),
+                                TextInput::make('detalhes_piso.frete_final')
+                                    ->label('Frete Final (MAX dos dois)')
+                                    ->visibleOn('create')
+                                    ->columnSpan(['md' => 2, 'xl' => 2])
+                                    ->prefix('R$')
+                                    ->readOnly()
+                                    ->disabled()
+                                    ->dehydrated(false),
                             ]),
                         Section::make('Documentos Fiscais')
                             ->columnSpan(1)
@@ -215,5 +309,22 @@ class ViagemBugioForm
         $valorQuilometro = db_config('config-bugio.valor-quilometro', 0);
 
         return $valorQuilometro * $kmTotal;
+    }
+
+    /**
+     * Atualiza os campos de detalhes do piso mínimo.
+     */
+    private static function atualizarDetalhes(Set $set, Get $get, float $kmTotal, bool $temRetornoVazio): void
+    {
+        $resultado = FreteCalculador::calcularPisoMinimo($kmTotal, $temRetornoVazio);
+
+        $set('detalhes_piso.km_ida', number_format($resultado['km_ida'], 2, '.', ''));
+        $set('detalhes_piso.ccd', number_format($resultado['ccd'], 4, '.', ''));
+        $set('detalhes_piso.cc', number_format($resultado['cc'], 2, '.', ''));
+        $set('detalhes_piso.valor_ida', number_format($resultado['valor_ida'], 2, '.', ''));
+        $set('detalhes_piso.valor_retorno', number_format($resultado['valor_retorno'], 2, '.', ''));
+        $set('detalhes_piso.piso_minimo', number_format($resultado['piso_minimo'], 2, '.', ''));
+        $set('detalhes_piso.frete_antigo', number_format($resultado['frete_antigo'], 2, '.', ''));
+        $set('detalhes_piso.frete_final', number_format($resultado['frete_final'], 2, '.', ''));
     }
 }

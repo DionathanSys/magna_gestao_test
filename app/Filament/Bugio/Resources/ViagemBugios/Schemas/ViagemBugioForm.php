@@ -96,7 +96,7 @@ class ViagemBugioForm
                                     ->columnSpan(2)
                                     ->inline(false)
                                     ->grow()
-                                    ->default(true),
+                                    ->default(false),
                                 TextInput::make('info_adicionais.cte_referencia')
                                     ->label('CTe de Referência')
                                     ->requiredIf('info_adicionais.tipo_documento', TipoDocumentoEnum::CTE_COMPLEMENTO->value)

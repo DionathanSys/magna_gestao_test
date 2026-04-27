@@ -17,12 +17,14 @@
 
      @if ($payload->cte_retroativo)
         <p style='font-weight: bold; color: #000000;'>CTe Retroativo</p>
-    @else
-        <p style='font-weight: bold; color: #000000;'>Marcar MDF-e como "Alto Desempenho"</p>
     @endif 
 
     @if ($payload->cte_complementar)
         <p style='font-weight: bold; color: #000000;'>Complementar ao CT-e: {{$payload->cte_referencia}}</p>
+    @endif
+
+    @if (! $payload->cte_retroativo && ! $payload->cte_complementar)
+        <p style='font-weight: bold; color: #000000;'>Marcar MDF-e como "Alto Desempenho"</p>
     @endif
 
     <p>Valor total frete R$ {{number_format($payload->valorFreteTotal, 2, ',', '.') }}, sendo {{$payload->quantidadeCte}} CT-e(s), R$ {{number_format($payload->valorFreteUnitario, 2, ',', '.') }} cada CT-e. </p>
@@ -39,7 +41,7 @@
     @foreach ($payload->destinos as $key => $destino)
         <p>Destinatário: {{ $destino['integrado_nome'] }}</p>
     @endforeach
-    <p>Tomador: Bugio Agropecuária – 82.996.521/0001-05</p>
+    <p style='font-weight: bold; color: #000000;'>Tomador: Bugio Agropecuária – 82.996.521/0001-05</p>
 
     <p>Favor responder este e-mail, incluindo todos os destinatários em cópia.</p>
     <p>Obrigado!</p>

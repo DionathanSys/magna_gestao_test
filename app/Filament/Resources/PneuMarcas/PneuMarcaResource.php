@@ -39,7 +39,8 @@ class PneuMarcaResource extends Resource
                     ->maxLength(255),
                 Toggle::make('ativo')
                     ->label('Ativo')
-                    ->default(true),
+                    ->default(true)
+                    ->inline(false),
             ]);
     }
 

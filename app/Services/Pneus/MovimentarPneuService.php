@@ -17,9 +17,12 @@ class MovimentarPneuService
 {
     use ServiceResponseTrait;
 
-    public function __construct(protected ?PneuCicloService $cicloService = null)
-    {
+    public function __construct(
+        protected ?PneuCicloService $cicloService = null,
+        protected ?PneuInspecaoService $inspecaoService = null,
+    ) {
         $this->cicloService ??= new PneuCicloService;
+        $this->inspecaoService ??= new PneuInspecaoService;
     }
 
     public function inverterPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
@@ -146,6 +149,12 @@ class MovimentarPneuService
         ]);
 
         $pneu = Models\Pneu::query()->findOrFail($data['pneu_id']);
+        $mensagemErro = $this->inspecaoService->validarAplicacao($pneu);
+
+        if ($mensagemErro) {
+            throw new \DomainException($mensagemErro);
+        }
+
         $ciclo = $this->cicloService->ensureCurrentCycle($pneu);
 
         $pneuVeiculo->update([

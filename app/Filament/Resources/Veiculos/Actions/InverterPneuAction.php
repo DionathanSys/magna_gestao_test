@@ -2,18 +2,16 @@
 
 namespace App\Filament\Resources\Veiculos\Actions;
 
+use App\Enum;
 use App\Models\PneuPosicaoVeiculo;
 use App\Services;
-use App\Models;
-use App\Enum;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Icon;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
@@ -24,16 +22,15 @@ use Filament\Support\Icons\Heroicon;
 
 class InverterPneuAction
 {
-
     public static function make(): Action
     {
         return Action::make('inverter-pneu')
             ->icon('heroicon-o-arrow-path')
             ->iconButton()
             ->tooltip('Inverter Pneu na Mesma Posição')
-            ->visible(fn($record) => ! $record->pneu_id == null)
+            ->visible(fn ($record) => ! $record->pneu_id == null)
             ->modalWidth(Width::ExtraLarge)
-            ->schema(fn(Schema $schema) => $schema
+            ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
                     TextInput::make('motivo')
@@ -80,8 +77,15 @@ class InverterPneuAction
                         ->disk('local')
                         ->directory('pneus/movimentacoes')
                         ->visibility('private')
-                        ->columnSpanFull()
+                        ->columnSpanFull(),
                 ]))
-            ->action(fn(array $data, PneuPosicaoVeiculo $record) => (new Services\Pneus\MovimentarPneuService())->inverterPneu($record, $data));
+            ->action(function (Action $action, array $data, PneuPosicaoVeiculo $record) {
+                try {
+                    (new Services\Pneus\MovimentarPneuService)->inverterPneu($record, $data);
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao inverter pneu', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            });
     }
 }

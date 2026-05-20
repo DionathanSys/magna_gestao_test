@@ -1,0 +1,26 @@
+{
+    "name": "Magna Gestao",
+    "short_name": "Magna",
+    "description": "Sistema de gestao de frotas com operacao web instalavel.",
+    "start_url": "/admin",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#18181b",
+    "theme_color": "#18181b",
+    "lang": "pt-BR",
+    "icons": [
+        {
+            "src": "/icons/app-icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/app-icon-maskable.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        }
+    ]
+}

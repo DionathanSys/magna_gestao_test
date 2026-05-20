@@ -2,16 +2,13 @@
 
 namespace App\Filament\Resources\Veiculos\Actions;
 
-use App\Filament\Resources\Pneus\PneuResource;
-use App\Services;
-use App\Models;
 use App\Enum;
-use Filament\Actions\Action;
+use App\Services;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Icon;
@@ -25,7 +22,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class RodizioPneuAction
 {
-
     public static function make(): BulkAction
     {
         return BulkAction::make('desvincular-pneu')
@@ -33,7 +29,7 @@ class RodizioPneuAction
             ->icon('heroicon-o-arrows-right-left')
             ->requiresConfirmation()
             ->modalWidth(Width::Large)
-            ->schema(fn(Schema $schema) => $schema
+            ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
                     TextInput::make('motivo')
@@ -60,16 +56,16 @@ class RodizioPneuAction
                         ->numeric()
                         ->required()
                         ->live(debounce: 700)
-                        // ->afterStateUpdated(function (Collection $records, Field $component, $state) {
-                        //     $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao(dd($records));
-                        //     if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
-                        //         $component->belowContent([
-                        //             Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
-                        //             Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
-                        //         ]);
-                        //     }
-                        // })
-                        ,
+                    // ->afterStateUpdated(function (Collection $records, Field $component, $state) {
+                    //     $limites = Services\Veiculo\VeiculoService::getQuilometragemLimiteMovimentacao(dd($records));
+                    //     if ($state < $limites['km_minimo'] || $state > $limites['km_maximo']) {
+                    //         $component->belowContent([
+                    //             Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
+                    //             Text::make('Verifique a quilometragem.')->weight(FontWeight::Bold)->color(Color::Amber),
+                    //         ]);
+                    //     }
+                    // })
+                    ,
                     Textarea::make('observacao')
                         ->label('Observação')
                         ->columnSpanFull()
@@ -83,9 +79,16 @@ class RodizioPneuAction
                         ->disk('local')
                         ->directory('pneus/movimentacoes')
                         ->visibility('private')
-                        ->columnSpanFull()
+                        ->columnSpanFull(),
                 ]))
-            ->action(fn(array $data, Collection $records) => (new Services\Pneus\MovimentarPneuService())->rodizioPneu($records, $data))
-                        ->deselectRecordsAfterCompletion();
+            ->action(function (BulkAction $action, array $data, Collection $records) {
+                try {
+                    (new Services\Pneus\MovimentarPneuService)->rodizioPneu($records, $data);
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao realizar rodizio', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            })
+            ->deselectRecordsAfterCompletion();
     }
 }

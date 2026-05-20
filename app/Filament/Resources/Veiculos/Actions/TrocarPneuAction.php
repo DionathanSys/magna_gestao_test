@@ -6,6 +6,7 @@ use App\Enum;
 use App\Models;
 use App\Models\PneuPosicaoVeiculo;
 use App\Services;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
@@ -90,6 +91,13 @@ class TrocarPneuAction
                         ->visibility('private')
                         ->columnSpanFull(),
                 ]))
-            ->action(fn (array $data, PneuPosicaoVeiculo $record) => (new Services\Pneus\MovimentarPneuService)->trocarPneu($record, $data));
+            ->action(function (Action $action, array $data, PneuPosicaoVeiculo $record) {
+                try {
+                    (new Services\Pneus\MovimentarPneuService)->trocarPneu($record, $data);
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao substituir pneu', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            });
     }
 }

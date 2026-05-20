@@ -5,19 +5,19 @@ namespace App\Filament\Resources\Veiculos;
 use App\Filament\Resources\Veiculos\Pages\CreateVeiculo;
 use App\Filament\Resources\Veiculos\Pages\EditVeiculo;
 use App\Filament\Resources\Veiculos\Pages\ListVeiculos;
+use App\Filament\Resources\Veiculos\Pages\MapaPneusVeiculo;
 use App\Filament\Resources\Veiculos\RelationManagers\ManutencoesRelationManager;
 use App\Filament\Resources\Veiculos\RelationManagers\PlanoPreventivoRelationManager;
 use App\Filament\Resources\Veiculos\RelationManagers\PneusRelationManager;
 use App\Filament\Resources\Veiculos\Schemas\VeiculoForm;
 use App\Filament\Resources\Veiculos\Tables\VeiculosTable;
+use App\Models\Veiculo;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\Veiculo;
 use UnitEnum;
 
 class VeiculoResource extends Resource
@@ -26,7 +26,7 @@ class VeiculoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Veículos';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-truck';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-truck';
 
     protected static ?string $modelLabel = 'Veículos';
 
@@ -59,6 +59,7 @@ class VeiculoResource extends Resource
             'index' => ListVeiculos::route('/'),
             'create' => CreateVeiculo::route('/create'),
             'edit' => EditVeiculo::route('/{record}/edit'),
+            'mapa-pneus' => MapaPneusVeiculo::route('/{record}/mapa-pneus'),
         ];
     }
 

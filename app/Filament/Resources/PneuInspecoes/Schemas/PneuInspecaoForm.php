@@ -4,8 +4,11 @@ namespace App\Filament\Resources\PneuInspecoes\Schemas;
 
 use App\Enum\Pneu\ResultadoInspecaoPneuEnum;
 use App\Enum\Pneu\TipoInspecaoPneuEnum;
+use App\Models\Parceiro;
+use App\Models\Pneu;
 use App\Models\PneuCiclo;
 use App\Models\PneuPosicaoVeiculo;
+use App\Models\Veiculo;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -23,7 +26,7 @@ class PneuInspecaoForm
             ->components([
                 Select::make('pneu_id')
                     ->label('Nº de Fogo')
-                    ->relationship('pneu', 'numero_fogo')
+                    ->options(Pneu::query()->orderBy('numero_fogo')->pluck('numero_fogo', 'id')->toArray())
                     ->searchable()
                     ->preload()
                     ->required()
@@ -58,7 +61,7 @@ class PneuInspecaoForm
                     ->columnSpan(3),
                 Select::make('veiculo_id')
                     ->label('Veículo')
-                    ->relationship('veiculo', 'placa')
+                    ->options(Veiculo::query()->where('is_active', true)->orderBy('placa')->pluck('placa', 'id')->toArray())
                     ->searchable()
                     ->preload()
                     ->live()
@@ -78,7 +81,7 @@ class PneuInspecaoForm
                     ->columnSpan(3),
                 Select::make('parceiro_id')
                     ->label('Parceiro')
-                    ->relationship('parceiro', 'nome')
+                    ->options(Parceiro::query()->orderBy('nome')->pluck('nome', 'id')->toArray())
                     ->searchable()
                     ->preload()
                     ->columnSpan(3),

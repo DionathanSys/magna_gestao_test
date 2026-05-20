@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\Pneu\ResultadoInspecaoPneuEnum;
 use App\Enum\Pneu\TipoInspecaoPneuEnum;
+use App\Services\Pneus\PneuInspecaoService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,6 +19,19 @@ class PneuInspecao extends Model
         'tipo' => TipoInspecaoPneuEnum::class,
         'resultado' => ResultadoInspecaoPneuEnum::class,
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $inspecao): void {
+            if (! $inspecao->pneu_ciclo_id && $inspecao->pneu) {
+                $inspecao->pneu_ciclo_id = $inspecao->pneu->cicloAtual?->id;
+            }
+        });
+
+        static::saved(function (self $inspecao): void {
+            (new PneuInspecaoService)->syncResultado($inspecao->loadMissing('pneu'));
+        });
+    }
 
     public function pneu(): BelongsTo
     {

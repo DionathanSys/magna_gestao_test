@@ -4,6 +4,7 @@ namespace App\Services\Pneus\Actions;
 
 use App\Enum;
 use App\Models;
+use App\Services\Pneus\PneuInspecaoService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -70,6 +71,10 @@ class RecaparPneu
         if ($this->validarStatusPneu($data['pneu_id'] ?? 0) === false) {
             return;
         }
+
+        if ($this->validarInspecaoPreRecapagem($data['pneu_id'] ?? 0) === false) {
+            return;
+        }
     }
 
     private function validarStatusPneu(int $pneuId): bool
@@ -91,5 +96,31 @@ class RecaparPneu
         }
 
         return true;
+    }
+
+    private function validarInspecaoPreRecapagem(int $pneuId): bool
+    {
+        $pneu = Models\Pneu::query()->find($pneuId);
+
+        if (! $pneu) {
+            return false;
+        }
+
+        $mensagemErro = (new PneuInspecaoService)->validarRecapagem($pneu);
+
+        if (! $mensagemErro) {
+            return true;
+        }
+
+        $this->hasError = true;
+        $this->message = $mensagemErro;
+
+        Log::warning('Recapagem bloqueada por inspeção inválida.', [
+            'metodo' => __METHOD__.'@'.__LINE__,
+            'pneu_id' => $pneuId,
+            'erro' => $mensagemErro,
+        ]);
+
+        return false;
     }
 }

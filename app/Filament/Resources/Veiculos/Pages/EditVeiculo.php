@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Veiculos\Pages;
 
 use App\Filament\Resources\Veiculos\VeiculoResource;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -16,12 +17,16 @@ class EditVeiculo extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('mapaPneus')
+                ->label('Mapa de Pneus')
+                ->icon('heroicon-o-square-3-stack-3d')
+                ->url(fn () => VeiculoResource::getUrl('mapa-pneus', ['record' => $this->record])),
             DeleteAction::make()
-                ->visible(fn() => Auth::user()->is_admin),
+                ->visible(fn () => Auth::user()->is_admin),
             ForceDeleteAction::make()
-                ->disabled(fn() => ! Auth::user()->is_admin),
+                ->disabled(fn () => ! Auth::user()->is_admin),
             RestoreAction::make()
-                ->disabled(fn() => ! Auth::user()->is_admin),
+                ->disabled(fn () => ! Auth::user()->is_admin),
         ];
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\Pneus\RelationManagers;
 
+use App\Models\Pneu;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
@@ -96,7 +96,16 @@ class ConsertosRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->mutateDataUsing(function (array $data): array {
+                        /** @var Pneu $pneu */
+                        $pneu = $this->getOwnerRecord();
+
+                        $data['ciclo_vida'] = $data['ciclo_vida'] ?? $pneu->ciclo_vida;
+                        $data['pneu_ciclo_id'] = $pneu->cicloAtual?->id;
+
+                        return $data;
+                    }),
                 AssociateAction::make(),
             ])
             ->recordActions([

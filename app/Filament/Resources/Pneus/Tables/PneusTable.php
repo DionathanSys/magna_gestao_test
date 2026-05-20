@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Pneus\Tables;
 
-use App\Models;
-use App\Enum\Pneu\LocalPneuEnum;
 use App\Enum\Pneu\StatusPneuEnum;
 use App\Filament\Resources\Veiculos\VeiculoResource;
+use App\Models;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -29,7 +28,7 @@ class PneusTable
                     ->width('1%')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->url(fn(Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
+                    ->url(fn (Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
                     ->openUrlInNewTab(),
                 TextColumn::make('numero_fogo')
                     ->label('Nº de Fogo')
@@ -44,15 +43,18 @@ class PneusTable
                     ->label('Km Total')
                     ->width('1%')
                     ->numeric(0, ',', '.'),
-                TextColumn::make('marca')
+                TextColumn::make('marcaCatalogo.nome')
+                    ->label('Marca')
                     ->width('1%')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('modelo')
+                TextColumn::make('modeloCatalogo.nome')
+                    ->label('Modelo')
                     ->width('1%')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('medida')
+                TextColumn::make('medidaCatalogo.codigo')
+                    ->label('Medida')
                     ->width('1%')
                     ->searchable()
                     ->sortable(),
@@ -68,8 +70,9 @@ class PneusTable
                 SelectColumn::make('status')
                     ->width('1%')
                     ->options(StatusPneuEnum::toSelectArray()),
-                SelectColumn::make('local')
-                    ->options(LocalPneuEnum::toSelectArray())
+                TextColumn::make('localCatalogo.nome')
+                    ->label('Local')
+                    ->placeholder('N/A')
                     ->width('1%'),
                 TextColumn::make('ultimoRecap.desenhoPneu.descricao')
                     ->label('Borracha Recap Atual')

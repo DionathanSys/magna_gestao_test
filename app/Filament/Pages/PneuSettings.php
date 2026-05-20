@@ -3,12 +3,10 @@
 namespace App\Filament\Pages;
 
 use BackedEnum;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\TextInput;
-use Inerba\DbConfig\AbstractPageSettings;
-use Filament\Schemas\Components;
+use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Inerba\DbConfig\AbstractPageSettings;
 
 class PneuSettings extends AbstractPageSettings
 {
@@ -23,6 +21,11 @@ class PneuSettings extends AbstractPageSettings
     // protected static ?string $slug = 'pneu-settings'; // Uncomment if you want to set a custom slug
 
     protected string $view = 'filament.pages.pneu-settings';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     public static function getNavigationGroup(): ?string
     {
@@ -55,46 +58,22 @@ class PneuSettings extends AbstractPageSettings
                     ->description('Configurações relacionadas a pneus.')
                     ->components([
                         Section::make('Marcas de Pneu')
-                            ->description('Adicione as marcas de pneus disponíveis.')
+                            ->description('Esta configuração ficou legada após a normalização em tabelas.')
                             ->columns(12)
                             ->columnSpan(6)
-                            ->collapsible()
-                            ->collapsed()
                             ->schema([
-                                Repeater::make('marcas_pneu')
-                                    ->label('Marcas de Pneu')
-                                    ->grid(4)
-                                    ->simple(
-                                        TextInput::make('marca')
-                                            ->label('Marca')
-                                            ->required()
-                                            ->columnSpanFull(),
-                                    )
-                                    ->columnSpanFull()
-                                    ->addActionLabel('Adicionar Marca de Pneu')
-                                    ->collapsible()
-                                    ->collapsed(),
+                                Placeholder::make('marcas_notice')
+                                    ->label('Cadastro Normalizado')
+                                    ->content('Use o recurso Marcas de Pneu no menu de Pneus.'),
                             ]),
                         Section::make('Modelos de Pneu')
-                            ->description('Adicione as marcas de pneus disponíveis.')
+                            ->description('Esta configuração ficou legada após a normalização em tabelas.')
                             ->columns(12)
                             ->columnSpan(6)
-                            ->collapsible()
-                            ->collapsed()
                             ->schema([
-                                Repeater::make('modelos_pneu')
-                                    ->label('Modelos de Pneu')
-                                    ->grid(4)
-                                    ->simple(
-                                        TextInput::make('modelo')
-                                            ->label('Modelo')
-                                            ->required()
-                                            ->columnSpanFull(),
-                                    )
-                                    ->columnSpanFull()
-                                    ->addActionLabel('Adicionar Modelo de Pneu')
-                                    ->collapsible()
-                                    ->collapsed(),
+                                Placeholder::make('modelos_notice')
+                                    ->label('Cadastro Normalizado')
+                                    ->content('Use o recurso Modelos de Pneu no menu de Pneus.'),
                             ]),
                     ]),
             ])

@@ -5,14 +5,8 @@ namespace App\Filament\Resources\Veiculos\RelationManagers;
 use App\Filament\Resources\Pneus\PneuResource;
 use App\Filament\Resources\Veiculos\Actions;
 use App\Models\PneuPosicaoVeiculo;
-use Filament\Actions\Action;
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -44,9 +38,9 @@ class PneusRelationManager extends RelationManager
                     ->relationship('pneu', 'numero_fogo')
                     ->searchable()
                     ->preload()
-                    ->required(fn(string $operation): bool => $operation === 'edit'),
+                    ->required(fn (string $operation): bool => $operation === 'edit'),
                 TextInput::make('eixo')
-                    ->visible(fn(): bool => Auth::user()->is_admin)
+                    ->visible(fn (): bool => Auth::user()->is_admin)
                     ->columnStart(1)
                     ->columnSpan(2)
                     ->numeric()
@@ -77,7 +71,7 @@ class PneusRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('numero_fogo')
-            ->modifyQueryUsing(fn($query) => $query->with(['pneu', 'veiculo', 'veiculo.kmAtual'])->orderBy('sequencia'))
+            ->modifyQueryUsing(fn ($query) => $query->with(['pneu', 'veiculo', 'veiculo.kmAtual'])->orderBy('sequencia'))
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -87,7 +81,7 @@ class PneusRelationManager extends RelationManager
                     ->label('Pneu')
                     ->placeholder('Vazio')
                     ->width('1%')
-                    ->url(fn(PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->pneu_id ?? 0]))
+                    ->url(fn (PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->pneu_id ?? 0]))
                     ->openUrlInNewTab(),
                 TextColumn::make('posicao')
                     ->label('Posição')
@@ -111,22 +105,25 @@ class PneusRelationManager extends RelationManager
                     ->width('1%')
                     ->numeric(0, ',', '.')
                     ->state(function (PneuPosicaoVeiculo $record): int {
-                        if (!$record->pneu) return 0;
+                        if (! $record->pneu) {
+                            return 0;
+                        }
 
-                        $kmHistorico =  \App\Models\HistoricoMovimentoPneu::where('pneu_id', $record->pneu->id)
+                        $kmHistorico = \App\Models\HistoricoMovimentoPneu::where('pneu_id', $record->pneu->id)
                             ->where('ciclo_vida', $record->pneu->ciclo_vida)
                             ->sum('km_percorrido');
+
                         return $kmHistorico + ($record->km_rodado ?? 0);
                     })
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_inicial')
                     ->width('1%')
                     ->date('d/m/Y'),
-                TextColumn::make('pneu.marca')
+                TextColumn::make('pneu.marcaCatalogo.nome')
                     ->label('Marca')
                     ->width('1%')
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('pneu.modelo')
+                TextColumn::make('pneu.modeloCatalogo.nome')
                     ->label('Modelo')
                     ->width('1%')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -160,7 +157,7 @@ class PneusRelationManager extends RelationManager
                 CreateAction::make()
                     ->label('Adicionar Pneu')
                     ->icon('heroicon-o-plus-circle')
-                    ->visible(fn() => Auth::user()->is_admin)
+                    ->visible(fn () => Auth::user()->is_admin)
                     ->preserveFormDataWhenCreatingAnother(['eixo', 'km_inicial', 'data_inicial']),
             ])
             ->recordActions([
@@ -172,8 +169,7 @@ class PneusRelationManager extends RelationManager
                     ->iconButton(),
                 DeleteAction::make()
                     ->iconButton()
-                    ->visible(fn() => Auth::user()->is_admin),
-
+                    ->visible(fn () => Auth::user()->is_admin),
 
             ])
             ->toolbarActions([

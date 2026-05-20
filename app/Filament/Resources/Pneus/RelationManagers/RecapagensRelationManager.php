@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Pneus\RelationManagers;
 
 use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
+use App\Models\Pneu;
+use App\Services\Pneus\PneuService;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -48,7 +50,7 @@ class RecapagensRelationManager extends RelationManager
                 TextInput::make('ciclo_vida')
                     ->label('Ciclo de Vida')
                     ->numeric()
-                    ->default(1)
+                    ->default(fn () => ((int) $this->getOwnerRecord()->ciclo_vida) + 1)
                     ->minValue(1)
                     ->maxValue(9),
             ]);
@@ -65,7 +67,7 @@ class RecapagensRelationManager extends RelationManager
                 TextColumn::make('data_recapagem')
                     ->date('d/m/Y')
                     ->width('1%'),
-                TextColumn::make('pneu.modelo')
+                TextColumn::make('pneu.modeloCatalogo.nome')
                     ->label('Modelo')
                     ->width('1%'),
                 TextColumn::make('desenhoPneu.descricao')
@@ -96,7 +98,23 @@ class RecapagensRelationManager extends RelationManager
                     ->searchable(),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->using(function (array $data) {
+                        /** @var Pneu $pneu */
+                        $pneu = $this->getOwnerRecord();
+
+                        $service = new PneuService;
+                        $recapagem = $service->recapar([
+                            ...$data,
+                            'pneu_id' => $pneu->id,
+                        ]);
+
+                        if (! $recapagem) {
+                            throw new \RuntimeException($service->getMessage());
+                        }
+
+                        return $recapagem;
+                    }),
             ])
             ->recordActions([
                 EditAction::make()

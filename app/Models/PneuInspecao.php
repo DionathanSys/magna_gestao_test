@@ -2,15 +2,21 @@
 
 namespace App\Models;
 
+use App\Enum\Pneu\ResultadoInspecaoPneuEnum;
+use App\Enum\Pneu\TipoInspecaoPneuEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PneuInspecao extends Model
 {
+    protected $table = 'pneu_inspecoes';
+
     protected $casts = [
         'data_inspecao' => 'date',
         'apto_recapagem' => 'boolean',
         'anexos' => 'array',
+        'tipo' => TipoInspecaoPneuEnum::class,
+        'resultado' => ResultadoInspecaoPneuEnum::class,
     ];
 
     public function pneu(): BelongsTo

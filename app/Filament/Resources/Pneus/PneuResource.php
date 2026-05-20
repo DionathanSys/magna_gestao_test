@@ -2,26 +2,24 @@
 
 namespace App\Filament\Resources\Pneus;
 
-use App\Filament\Resources\Pneus\Pages\CreatePneu;
 use App\Filament\Resources\Pneus\Pages\EditPneu;
 use App\Filament\Resources\Pneus\Pages\ListPneus;
 use App\Filament\Resources\Pneus\Pages\ViewPneu;
 use App\Filament\Resources\Pneus\RelationManagers\ConsertosRelationManager;
 use App\Filament\Resources\Pneus\RelationManagers\HistoricoMovimentacaoRelationManager;
+use App\Filament\Resources\Pneus\RelationManagers\InspecoesRelationManager;
 use App\Filament\Resources\Pneus\RelationManagers\RecapagensRelationManager;
 use App\Filament\Resources\Pneus\Schemas\PneuForm;
 use App\Filament\Resources\Pneus\Schemas\PneuInfolist;
 use App\Filament\Resources\Pneus\Tables\PneusTable;
 use App\Livewire\PneuResource as LivewirePneuResource;
-use BackedEnum;
+use App\Models\Pneu;
+use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\Pneu;
-use Filament\Resources\RelationManagers\RelationGroup;
 use UnitEnum;
 
 class PneuResource extends Resource
@@ -52,9 +50,10 @@ class PneuResource extends Resource
         return [
             RelationGroup::make('Grupo de Relações', [
                 HistoricoMovimentacaoRelationManager::class,
+                InspecoesRelationManager::class,
                 RecapagensRelationManager::class,
                 ConsertosRelationManager::class,
-            ])
+            ]),
         ];
     }
 
@@ -76,9 +75,9 @@ class PneuResource extends Resource
     }
 
     public static function getWidgets(): array
-{
-    return [
-        LivewirePneuResource::class,
-    ];
-}
+    {
+        return [
+            LivewirePneuResource::class,
+        ];
+    }
 }

@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrdemExterna extends Model
 {
-    //
+    protected $table = 'ordens_externas';
 }

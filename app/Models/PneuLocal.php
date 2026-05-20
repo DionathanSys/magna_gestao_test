@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PneuLocal extends Model
 {
+    protected $table = 'pneu_locais';
+
     public function parceiro(): BelongsTo
     {
         return $this->belongsTo(Parceiro::class);

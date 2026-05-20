@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Conserto extends Model
 {
-
     protected $casts = [
         'garantia' => 'boolean',
     ];
@@ -15,6 +14,11 @@ class Conserto extends Model
     public function pneu(): BelongsTo
     {
         return $this->belongsTo(Pneu::class);
+    }
+
+    public function ciclo(): BelongsTo
+    {
+        return $this->belongsTo(PneuCiclo::class, 'pneu_ciclo_id');
     }
 
     public function parceiro(): BelongsTo

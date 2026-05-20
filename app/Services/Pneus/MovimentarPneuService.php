@@ -15,59 +15,58 @@ use Illuminate\Support\Facades\Log;
 
 class MovimentarPneuService
 {
-
     use ServiceResponseTrait;
 
-    public function __construct()
+    public function __construct(protected ?PneuCicloService $cicloService = null)
     {
+        $this->cicloService ??= new PneuCicloService;
     }
 
     public function inverterPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
         DB::transaction(function () use ($pneuVeiculo, $data) {
-            Log::debug(__METHOD__ . ' - Iniciando inversão do pneu.', [
-                'pneu_veiculo_id'   => $pneuVeiculo->id,
-                'pneu_id'           => $pneuVeiculo->pneu_id,
-                'veiculo_id'        => $pneuVeiculo->veiculo_id,
-                'posicao'           => $pneuVeiculo->posicao,
-                'eixo'              => $pneuVeiculo->eixo,
-                'data'              => $data,
+            Log::debug(__METHOD__.' - Iniciando inversão do pneu.', [
+                'pneu_veiculo_id' => $pneuVeiculo->id,
+                'pneu_id' => $pneuVeiculo->pneu_id,
+                'veiculo_id' => $pneuVeiculo->veiculo_id,
+                'posicao' => $pneuVeiculo->posicao,
+                'eixo' => $pneuVeiculo->eixo,
+                'data' => $data,
             ]);
 
             $pneuId = $pneuVeiculo->pneu_id;
 
             $this->removerPneu($pneuVeiculo, [
                 'data_final' => $data['data_movimento'],
-                'km_final'   => $data['km_movimento'],
-                'sulco'      => $data['sulco'] ?? 0,
-                'motivo'     => MotivoMovimentoPneuEnum::INVERSAO,
+                'km_final' => $data['km_movimento'],
+                'sulco' => $data['sulco'] ?? 0,
+                'motivo' => MotivoMovimentoPneuEnum::INVERSAO,
                 'observacao' => $data['observacao'] ?? null,
-                'anexos'     => $data['anexos'] ?? null,
+                'anexos' => $data['anexos'] ?? null,
             ]);
 
             $this->aplicarPneu($pneuVeiculo, [
-                'pneu_id'       => $pneuId,
-                'data_inicial'  => $data['data_movimento'],
-                'km_inicial'    => $data['km_movimento'],
+                'pneu_id' => $pneuId,
+                'data_inicial' => $data['data_movimento'],
+                'km_inicial' => $data['km_movimento'],
             ]);
 
-            Log::info(__METHOD__ . ' - Inversão do pneu finalizada.', [
-                'pneu_veiculo'   => $pneuVeiculo,
-                'pneu'           => $pneuVeiculo->pneu,
+            Log::info(__METHOD__.' - Inversão do pneu finalizada.', [
+                'pneu_veiculo' => $pneuVeiculo,
+                'pneu' => $pneuVeiculo->pneu,
             ]);
         }, 3);
     }
 
-
     public function removerPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
-        Log::info(__METHOD__ . ' - Removendo pneu.', [
-            'pneu_veiculo_id'   => $pneuVeiculo->id,
-            'pneu_id'           => $pneuVeiculo->pneu_id,
-            'veiculo_id'        => $pneuVeiculo->veiculo_id,
-            'posicao'           => $pneuVeiculo->posicao,
-            'eixo'              => $pneuVeiculo->eixo,
-            'data'              => $data,
+        Log::info(__METHOD__.' - Removendo pneu.', [
+            'pneu_veiculo_id' => $pneuVeiculo->id,
+            'pneu_id' => $pneuVeiculo->pneu_id,
+            'veiculo_id' => $pneuVeiculo->veiculo_id,
+            'posicao' => $pneuVeiculo->posicao,
+            'eixo' => $pneuVeiculo->eixo,
+            'data' => $data,
         ]);
 
         if ($pneuVeiculo->km_inicial > $data['km_final']) {
@@ -75,86 +74,95 @@ class MovimentarPneuService
         }
 
         $this->registrarHistoricoMovimento([
-            'pneu_id'           => $pneuVeiculo->pneu_id,
-            'veiculo_id'        => $pneuVeiculo->veiculo_id,
-            'data_inicial'      => $pneuVeiculo->data_inicial,
-            'km_inicial'        => $pneuVeiculo->km_inicial,
-            'eixo'              => $pneuVeiculo->eixo,
-            'posicao'           => $pneuVeiculo->posicao,
-            'motivo'            => $data['motivo'],
-            'sulco_movimento'   => $data['sulco'],
-            'data_final'        => $data['data_final'],
-            'km_final'          => $data['km_final'],
-            'ciclo_vida'        => $pneuVeiculo->pneu->ciclo_vida,
-            'observacao'        => $data['observacao'],
-            'anexos'            => $data['anexos'] ?? null,
+            'pneu_id' => $pneuVeiculo->pneu_id,
+            'pneu_ciclo_id' => $pneuVeiculo->pneu_ciclo_id ?: $this->cicloService->getCurrentCycle($pneuVeiculo->pneu)?->id,
+            'pneu_posicao_veiculo_id' => $pneuVeiculo->id,
+            'veiculo_id' => $pneuVeiculo->veiculo_id,
+            'data_inicial' => $pneuVeiculo->data_inicial,
+            'km_inicial' => $pneuVeiculo->km_inicial,
+            'eixo' => $pneuVeiculo->eixo,
+            'posicao' => $pneuVeiculo->posicao,
+            'motivo' => $data['motivo'],
+            'tipo_evento' => 'REMOCAO',
+            'sulco_movimento' => $data['sulco'],
+            'data_final' => $data['data_final'],
+            'km_final' => $data['km_final'],
+            'ciclo_vida' => $pneuVeiculo->pneu->ciclo_vida,
+            'observacao' => $data['observacao'],
+            'anexos' => $data['anexos'] ?? null,
         ]);
 
         $pneuVeiculo->update([
-            'pneu_id'       => null,
-            'data_inicial'  => null,
-            'km_inicial'    => null,
+            'pneu_id' => null,
+            'pneu_ciclo_id' => null,
+            'data_inicial' => null,
+            'km_inicial' => null,
         ]);
 
         switch ($data['motivo']) {
             case MotivoMovimentoPneuEnum::CONSERTO->value:
                 $pneuVeiculo->pneu->update([
                     'status' => StatusPneuEnum::INDISPONIVEL,
-                    'local'  => LocalPneuEnum::MANUTENCAO,
+                    'local' => LocalPneuEnum::MANUTENCAO,
                 ]);
                 break;
             case MotivoMovimentoPneuEnum::RECAPAGEM->value:
                 $pneuVeiculo->pneu->update([
                     'status' => StatusPneuEnum::INDISPONIVEL,
-                    'local'  => LocalPneuEnum::ESTOQUE_CTV,
+                    'local' => LocalPneuEnum::ESTOQUE_CTV,
                 ]);
                 break;
 
             case MotivoMovimentoPneuEnum::ESTEPE->value:
                 $pneuVeiculo->pneu->update([
                     'status' => StatusPneuEnum::DISPONIVEL,
-                    'local'  => LocalPneuEnum::ESTOQUE_CCO,
+                    'local' => LocalPneuEnum::ESTOQUE_CCO,
                 ]);
                 break;
             case MotivoMovimentoPneuEnum::SUCATEAR->value:
                 $pneuVeiculo->pneu->update([
                     'status' => StatusPneuEnum::SUCATA,
-                    'local'  => LocalPneuEnum::SUCATA,
+                    'local' => LocalPneuEnum::SUCATA,
                 ]);
+                $this->cicloService->closeCurrentCycle($pneuVeiculo->pneu, $data['data_final'], $data['km_final']);
                 break;
         }
 
-        Log::info(__METHOD__ . ' - Pneus após remoção.', [
-            'pneu_veiculo'   => $pneuVeiculo,
-            'pneu'           => $pneuVeiculo->pneu,
+        Log::info(__METHOD__.' - Pneus após remoção.', [
+            'pneu_veiculo' => $pneuVeiculo,
+            'pneu' => $pneuVeiculo->pneu,
         ]);
     }
 
     public function aplicarPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
-        Log::info(__METHOD__ . ' - Aplicando pneu.', [
-            'pneu_veiculo_id'   => $pneuVeiculo->id,
-            'pneu_id'           => $data['pneu_id'],
-            'veiculo_id'        => $pneuVeiculo->veiculo_id,
-            'posicao'           => $pneuVeiculo->posicao,
-            'eixo'              => $pneuVeiculo->eixo,
-            'data'              => $data,
+        Log::info(__METHOD__.' - Aplicando pneu.', [
+            'pneu_veiculo_id' => $pneuVeiculo->id,
+            'pneu_id' => $data['pneu_id'],
+            'veiculo_id' => $pneuVeiculo->veiculo_id,
+            'posicao' => $pneuVeiculo->posicao,
+            'eixo' => $pneuVeiculo->eixo,
+            'data' => $data,
         ]);
 
+        $pneu = Models\Pneu::query()->findOrFail($data['pneu_id']);
+        $ciclo = $this->cicloService->ensureCurrentCycle($pneu);
+
         $pneuVeiculo->update([
-            'pneu_id'       => $data['pneu_id'],
-            'data_inicial'  => $data['data_inicial'],
-            'km_inicial'    => $data['km_inicial'],
+            'pneu_id' => $data['pneu_id'],
+            'pneu_ciclo_id' => $ciclo->id,
+            'data_inicial' => $data['data_inicial'],
+            'km_inicial' => $data['km_inicial'],
         ]);
 
         $pneuVeiculo->pneu()->update([
             'status' => StatusPneuEnum::EM_USO,
-            'local'  => LocalPneuEnum::FROTA,
+            'local' => LocalPneuEnum::FROTA,
         ]);
 
-        Log::info(__METHOD__ . ' - Pneus após aplicação.', [
-            'pneu_veiculo'   => $pneuVeiculo,
-            'pneu'           => $pneuVeiculo->pneu,
+        Log::info(__METHOD__.' - Pneus após aplicação.', [
+            'pneu_veiculo' => $pneuVeiculo,
+            'pneu' => $pneuVeiculo->pneu,
         ]);
     }
 
@@ -164,17 +172,17 @@ class MovimentarPneuService
         DB::transaction(function () use ($pneuVeiculo, $data) {
             $this->removerPneu($pneuVeiculo, [
                 'data_final' => $data['data_movimento'],
-                'km_final'   => $data['km_movimento'],
-                'sulco'      => $data['sulco'] ?? 0,
-                'motivo'     => $data['motivo'],
+                'km_final' => $data['km_movimento'],
+                'sulco' => $data['sulco'] ?? 0,
+                'motivo' => $data['motivo'],
                 'observacao' => $data['observacao'] ?? null,
-                'anexos'     => $data['anexos'] ?? null,
+                'anexos' => $data['anexos'] ?? null,
             ]);
 
             $this->aplicarPneu($pneuVeiculo, [
-                'pneu_id'       => $data['pneu_id'],
-                'data_inicial'  => $data['data_movimento'],
-                'km_inicial'    => $data['km_movimento'],
+                'pneu_id' => $data['pneu_id'],
+                'data_inicial' => $data['data_movimento'],
+                'km_inicial' => $data['km_movimento'],
             ]);
         }, 3);
     }
@@ -198,17 +206,17 @@ class MovimentarPneuService
 
                 $this->removerPneu($pneuVeiculo, [
                     'data_final' => $data['data_movimento'],
-                    'km_final'   => $data['km_movimento'],
-                    'sulco'      => $data['sulco'] ?? 0,
-                    'motivo'     => MotivoMovimentoPneuEnum::RODIZIO->value,
+                    'km_final' => $data['km_movimento'],
+                    'sulco' => $data['sulco'] ?? 0,
+                    'motivo' => MotivoMovimentoPneuEnum::RODIZIO->value,
                     'observacao' => $data['observacao'] ?? null,
-                    'anexos'     => $data['anexos'] ?? null,
+                    'anexos' => $data['anexos'] ?? null,
                 ]);
 
                 $this->aplicarPneu($pneuVeiculo, [
-                    'pneu_id'       => $pneuId,
-                    'data_inicial'  => $data['data_movimento'],
-                    'km_inicial'    => $data['km_movimento'],
+                    'pneu_id' => $pneuId,
+                    'data_inicial' => $data['data_movimento'],
+                    'km_inicial' => $data['km_movimento'],
                 ]);
             });
         }, 3);
@@ -218,17 +226,18 @@ class MovimentarPneuService
     {
         try {
 
-            $action = new Actions\CreateHistoricoMovimentoPneu();
+            $action = new Actions\CreateHistoricoMovimentoPneu;
             $historico = $action->handle($data);
 
-            if( $action->hasError ){
-                $this->setError( $action->message, $action->errors);
+            if ($action->hasError) {
+                $this->setError($action->message, $action->errors);
+
                 return null;
             }
 
             return $historico;
         } catch (\Exception $e) {
-            Log::error(__METHOD__ . ' - Erro ao registrar histórico de movimento.', [
+            Log::error(__METHOD__.' - Erro ao registrar histórico de movimento.', [
                 'data' => $data,
                 'error' => $e->getMessage(),
             ]);

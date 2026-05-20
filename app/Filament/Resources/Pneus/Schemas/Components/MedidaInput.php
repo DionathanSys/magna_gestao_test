@@ -2,18 +2,18 @@
 
 namespace App\Filament\Resources\Pneus\Schemas\Components;
 
-use App\Models\PneuMarca;
+use App\Models\PneuMedida;
 use Filament\Forms\Components\Select;
 
-class MarcaInput
+class MedidaInput
 {
     public static function make(): Select
     {
-        return Select::make('pneu_marca_id')
-            ->label('Marca')
+        return Select::make('pneu_medida_id')
+            ->label('Medida')
             ->searchable()
             ->preload()
             ->required()
-            ->options(PneuMarca::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray());
+            ->options(PneuMedida::query()->where('ativo', true)->orderBy('codigo')->pluck('codigo', 'id')->toArray());
     }
 }

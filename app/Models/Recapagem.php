@@ -14,6 +14,11 @@ class Recapagem extends Model
         return $this->belongsTo(Pneu::class, 'pneu_id');
     }
 
+    public function ciclo(): BelongsTo
+    {
+        return $this->belongsTo(PneuCiclo::class, 'pneu_ciclo_id');
+    }
+
     public function desenhoPneu(): BelongsTo
     {
         return $this->belongsTo(DesenhoPneu::class, 'desenho_pneu_id');
@@ -23,6 +28,4 @@ class Recapagem extends Model
     {
         return $this->belongsTo(Parceiro::class, 'parceiro_id');
     }
-
-
 }

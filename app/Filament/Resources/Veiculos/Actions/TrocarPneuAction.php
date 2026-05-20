@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Veiculos\Actions;
 
+use App\Enum;
+use App\Models;
 use App\Models\PneuPosicaoVeiculo;
 use App\Services;
-use App\Models;
-use App\Enum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
@@ -23,16 +23,15 @@ use Filament\Support\Icons\Heroicon;
 
 class TrocarPneuAction
 {
-
     public static function make(): Action
     {
         return Action::make('trocar-pneu')
             ->icon('heroicon-o-arrows-right-left')
             ->iconButton()
             ->tooltip('Substituir Pneu')
-            ->visible(fn($record) => ! $record->pneu_id == null)
+            ->visible(fn ($record) => ! $record->pneu_id == null)
             ->modalWidth(Width::ExtraLarge)
-            ->schema(fn(Schema $schema) => $schema
+            ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
                     Select::make('motivo')
@@ -49,8 +48,8 @@ class TrocarPneuAction
                         ->label('Pneu')
                         ->columnSpanFull()
                         ->native(false)
-                        ->getSearchResultsUsing(fn(string $search): array => (new Services\Pneus\PneuService())->getPneusDisponiveis($search))
-                        ->getOptionLabelUsing(fn($value): ?string => Models\Pneu::find($value)?->descricao)
+                        ->getSearchResultsUsing(fn (string $search): array => (new Services\Pneus\PneuService)->getPneusDisponiveis($search))
+                        ->getOptionLabelUsing(fn ($value): ?string => Models\Pneu::find($value)?->numero_fogo)
                         ->searchable()
                         ->searchDebounce(700)
                         ->required(),
@@ -89,8 +88,8 @@ class TrocarPneuAction
                         ->disk('local')
                         ->directory('pneus/movimentacoes')
                         ->visibility('private')
-                        ->columnSpanFull()
+                        ->columnSpanFull(),
                 ]))
-            ->action(fn(array $data, PneuPosicaoVeiculo $record) => (new Services\Pneus\MovimentarPneuService())->trocarPneu($record, $data));
+            ->action(fn (array $data, PneuPosicaoVeiculo $record) => (new Services\Pneus\MovimentarPneuService)->trocarPneu($record, $data));
     }
 }

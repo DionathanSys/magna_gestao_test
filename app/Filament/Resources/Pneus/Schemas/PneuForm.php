@@ -2,24 +2,16 @@
 
 namespace App\Filament\Resources\Pneus\Schemas;
 
-use App\Filament\Resources\Pneus\Actions;
 use App\Enum;
 use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Schemas\Schema;
-use App\Services\NotificacaoService as notify;
-use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
-use Filament\Schemas\Components\Component;
-use Filament\Schemas\Components\Livewire;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Utilities\Get;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Schemas\Schema;
 
 class PneuForm
 {
@@ -50,18 +42,20 @@ class PneuForm
                             ->default(now())
                             ->maxDate(now())
                             ->required(),
-                        Select::make('medida')
+                        Components\MedidaInput::make()
                             ->columnSpan(4)
                             ->columnStart(1)
-                            ->options([
-                                '275/80 R22.5' => '275/80 R22.5',
-                                '295/80 R22.5' => '295/80 R22.5',
-                            ])
-                            ->default('275/80 R22.5'),
+                            ->default(fn () => \App\Models\PneuMedida::query()->orderBy('codigo')->value('id')),
                         Components\MarcaInput::make()
                             ->columnSpan(4),
                         Components\ModeloInput::make()
                             ->columnStart(1)
+                            ->columnSpan(4),
+                        TextInput::make('numero_serie')
+                            ->label('Nº Série')
+                            ->columnSpan(4),
+                        TextInput::make('dot')
+                            ->label('DOT')
                             ->columnSpan(4),
                         Components\DesenhoPneuInput::make()
                             ->columnSpan(4),
@@ -71,11 +65,39 @@ class PneuForm
                             ->options(Enum\Pneu\StatusPneuEnum::toSelectArray())
                             ->required()
                             ->default(Enum\Pneu\StatusPneuEnum::DISPONIVEL->value),
-                        Select::make('local')
+                        Select::make('pneu_local_id')
+                            ->label('Local')
                             ->columnSpan(4)
-                            ->options(Enum\Pneu\LocalPneuEnum::toSelectArray())
+                            ->options(\App\Models\PneuLocal::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray())
                             ->required()
-                            ->default(Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value),
+                            ->default(fn () => \App\Models\PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
+                        Select::make('fornecedor_compra_id')
+                            ->label('Fornecedor Compra')
+                            ->relationship('fornecedorCompra', 'nome')
+                            ->searchable()
+                            ->preload()
+                            ->columnStart(1)
+                            ->columnSpan(4),
+                        TextInput::make('nota_fiscal')
+                            ->label('Nota Fiscal')
+                            ->columnSpan(4),
+                        TextInput::make('sulco_inicial')
+                            ->label('Sulco Inicial')
+                            ->numeric()
+                            ->default(0)
+                            ->columnSpan(2),
+                        Toggle::make('recapavel')
+                            ->label('Recapável')
+                            ->default(true)
+                            ->inline(false)
+                            ->columnSpan(2),
+                        TextInput::make('limite_recapagens')
+                            ->label('Lim. Recapagens')
+                            ->numeric()
+                            ->default(3)
+                            ->minValue(0)
+                            ->maxValue(9)
+                            ->columnSpan(2),
 
                     ]),
                 Section::make('Recapagem')
@@ -102,10 +124,10 @@ class PneuForm
                             ->prefix('R$'),
                         Select::make('recap.desenho_pneu_id_recapagem')
                             ->label('Desenho Borracha')
-                            ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', Enum\Pneu\EstadoPneuEnum::RECAPADO))
+                            ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', Enum\Pneu\EstadoPneuEnum::RECAPADO))
                             ->searchable()
                             ->preload()
-                            ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
+                            ->createOptionForm(fn (Schema $schema) => DesenhoPneuResource::form($schema))
                             ->columnSpan(4),
 
                     ]),
@@ -181,9 +203,9 @@ class PneuForm
                                     ->maxDate(now()),
                                 TextInput::make('historico.observacao')
                                     ->columnSpan(12)
-                                    ->default('Registro de movimentação ao cadastrar pneu.'),   
+                                    ->default('Registro de movimentação ao cadastrar pneu.'),
                             ]),
-                    ])
+                    ]),
 
             ]);
     }

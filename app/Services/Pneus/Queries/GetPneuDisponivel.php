@@ -2,17 +2,25 @@
 
 namespace App\Services\Pneus\Queries;
 
-use App\Models;
 use App\Enum;
+use App\Models;
 
 class GetPneuDisponivel
 {
-    public function handle(): array
+    public function handle(?string $search = null): array
     {
-        return Models\Pneu::query()
+        $query = Models\Pneu::query()
             ->where('status', Enum\Pneu\StatusPneuEnum::DISPONIVEL)
             ->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)
-            ->whereDoesntHave('veiculo')
+            ->whereDoesntHave('veiculo');
+
+        if ($search) {
+            $query->where('numero_fogo', 'like', "%{$search}%");
+        }
+
+        return $query
+            ->orderBy('numero_fogo')
+            ->limit(50)
             ->pluck('numero_fogo', 'id')
             ->toArray();
     }

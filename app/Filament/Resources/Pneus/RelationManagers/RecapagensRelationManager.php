@@ -2,10 +2,15 @@
 
 namespace App\Filament\Resources\Pneus\RelationManagers;
 
-use App\{Models, Enum};
 use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
-use Filament\Actions\{BulkActionGroup, CreateAction, DeleteAction, EditAction, DeleteBulkAction};
-use Filament\Forms\Components\{DatePicker, Select, TextInput};
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -13,7 +18,6 @@ use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class RecapagensRelationManager extends RelationManager
 {
@@ -46,7 +50,7 @@ class RecapagensRelationManager extends RelationManager
                     ->numeric()
                     ->default(1)
                     ->minValue(1)
-                    ->maxValue(3),
+                    ->maxValue(9),
             ]);
     }
 
@@ -82,7 +86,7 @@ class RecapagensRelationManager extends RelationManager
             ])
             ->groups([
                 Group::make('pneu.numero_fogo')
-                ->label('Nº Fogo'),
+                    ->label('Nº Fogo'),
             ])
             ->filters([
                 SelectFilter::make('pneu_id')

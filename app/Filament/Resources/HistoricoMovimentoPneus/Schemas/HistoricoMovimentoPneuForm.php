@@ -23,7 +23,7 @@ class HistoricoMovimentoPneuForm
                     ->columnSpan(2)
                     ->relationship('pneu', 'numero_fogo')
                     ->searchable()
-                    ->disabled(fn(): bool => ! Auth::user()->is_admin)
+                    ->disabled(fn (): bool => ! Auth::user()->is_admin)
                     ->required(),
                 Select::make('veiculo_id')
                     ->label('Veículo')
@@ -41,7 +41,7 @@ class HistoricoMovimentoPneuForm
                     ->required(),
                 TextInput::make('km_inicial')
                     ->label('KM Aplicação')
-                ->columnSpan(2)
+                    ->columnSpan(2)
                     ->required()
                     ->numeric(),
                 TextInput::make('km_final')
@@ -74,7 +74,7 @@ class HistoricoMovimentoPneuForm
                     ->numeric()
                     ->default(0)
                     ->minValue(0)
-                    ->maxValue(3),
+                    ->maxValue(9),
                 RichEditor::make('observacao')
                     ->label('Observação')
                     ->columnSpanFull()
@@ -88,7 +88,7 @@ class HistoricoMovimentoPneuForm
                     ->disk('local')
                     ->directory('pneus/movimentacoes')
                     ->visibility('private')
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 }

@@ -2,25 +2,15 @@
 
 namespace App\Filament\Resources\Pneus\Pages;
 
+use App\Enum;
+use App\Filament\Resources\Pneus\PneuResource;
+use App\Jobs\RegistrarHistoricoMovimentacao;
 use App\Models;
 use App\Services;
-use App\Filament\Resources\Pneus\Actions;
-use App\Enum;
 use App\Services\NotificacaoService as notify;
-use App\Filament\Resources\Pneus\PneuResource;
-use App\Filament\Resources\Pneus\Schemas\Components;
-use App\Jobs\RegistrarHistoricoMovimentacao;
-use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Wizard;
-use Filament\Schemas\Components\Wizard\Step;
-use Filament\Schemas\Schema;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -40,10 +30,10 @@ class ListPneus extends ListRecords
                     $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
 
                     if ($arguments['apenasRecapar'] ?? false) {
-                        
+
                         $data = self::mutateDataRecap($dataRecap ?? []);
-                        
-                        $service = new Services\Pneus\PneuService();
+
+                        $service = new Services\Pneus\PneuService;
                         $service->recapar($data);
 
                         if ($service->hasError()) {
@@ -52,15 +42,16 @@ class ListPneus extends ListRecords
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
-                        $this->fill(Arr::only($data, ['valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
+                        $this->fill(Arr::only($data, ['valor', 'pneu_medida_id', 'pneu_marca_id', 'pneu_modelo_id', 'desenho_pneu_id', 'pneu_local_id', 'status', 'data_aquisicao', 'fornecedor_compra_id', 'sulco_inicial', 'recapavel', 'limite_recapagens']));
                         $this->halt();
+
                         return null;
                     }
 
                     unset($data['recap']);
                     unset($data['historicoMovimentacao']);
 
-                    $service = new Services\Pneus\PneuService();
+                    $service = new Services\Pneus\PneuService;
                     $pneu = $service->create($data);
 
                     if ($service->hasError()) {
@@ -76,7 +67,7 @@ class ListPneus extends ListRecords
                             array_merge($dataRecap, ['pneu_id' => $pneu->id])
                         );
 
-                        Log::debug(__METHOD__ . ' - Iniciando recapagem após criação do pneu', ['data_recap' => $dataRecap]);
+                        Log::debug(__METHOD__.' - Iniciando recapagem após criação do pneu', ['data_recap' => $dataRecap]);
 
                         $service->recapar($dataRecap);
 
@@ -86,25 +77,26 @@ class ListPneus extends ListRecords
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
-                        $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
+                        $this->fill(Arr::only($data, ['ciclo_vida', 'valor', 'pneu_medida_id', 'pneu_marca_id', 'pneu_modelo_id', 'desenho_pneu_id', 'pneu_local_id', 'status', 'data_aquisicao', 'fornecedor_compra_id', 'sulco_inicial', 'recapavel', 'limite_recapagens']));
                         $this->halt();
+
                         return $pneu;
                     }
 
                     if ($dataHistoricoMov) {
-                        Log::info(__METHOD__ . ' - Registrando movimentações de histórico após criação do pneu', ['pneu_id' => $pneu->id, 'data_historico_mov' => $dataHistoricoMov]);
+                        Log::info(__METHOD__.' - Registrando movimentações de histórico após criação do pneu', ['pneu_id' => $pneu->id, 'data_historico_mov' => $dataHistoricoMov]);
                         foreach ($dataHistoricoMov as $movimentacao) {
                             $movimentacao['historico']['pneu_id'] = $pneu->id;
                             $dataMovimentacao = $movimentacao['historico'];
                             RegistrarHistoricoMovimentacao::dispatch($dataMovimentacao);
                         }
                     } else {
-                        Log::warning(__METHOD__ . ' - Nenhuma movimentação de histórico registrada após criação do pneu', ['pneu_id' => $pneu->id]);
+                        Log::warning(__METHOD__.' - Nenhuma movimentação de histórico registrada após criação do pneu', ['pneu_id' => $pneu->id]);
                     }
 
-
                     if ($arguments['another'] ?? false) {
-                        $this->fill(Arr::only($data, ['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']));
+                        $this->fill(Arr::only($data, ['ciclo_vida', 'valor', 'pneu_medida_id', 'pneu_marca_id', 'pneu_modelo_id', 'desenho_pneu_id', 'pneu_local_id', 'status', 'data_aquisicao', 'fornecedor_compra_id', 'sulco_inicial', 'recapavel', 'limite_recapagens']));
+
                         return $pneu;
                     }
 
@@ -118,20 +110,20 @@ class ListPneus extends ListRecords
                         $action->makeModalSubmitAction('apenasRecapar', arguments: ['apenasRecapar' => true]),
                     ];
                 })
-                ->preserveFormDataWhenCreatingAnother(['vida', 'valor', 'medida', 'marca', 'modelo', 'desenho_pneu_id', 'local', 'status', 'data_aquisicao']),
+                ->preserveFormDataWhenCreatingAnother(['ciclo_vida', 'valor', 'pneu_medida_id', 'pneu_marca_id', 'pneu_modelo_id', 'desenho_pneu_id', 'pneu_local_id', 'status', 'data_aquisicao', 'fornecedor_compra_id', 'sulco_inicial', 'recapavel', 'limite_recapagens']),
 
         ];
     }
 
     private function mutateDataRecap(array $data): array
     {
-        //Normalizar os indices do array, devido conflito de nomes no form
-        //entre os campos do pneu e da recapagem
+        // Normalizar os indices do array, devido conflito de nomes no form
+        // entre os campos do pneu e da recapagem
         return [
-            'pneu_id'           => $data['pneu_id'],
-            'valor'             => $data['valor_recapagem'],
-            'desenho_pneu_id'   => $data['desenho_pneu_id_recapagem'],
-            'data_recapagem'    => $data['data_recapagem'],
+            'pneu_id' => $data['pneu_id'],
+            'valor' => $data['valor_recapagem'],
+            'desenho_pneu_id' => $data['desenho_pneu_id_recapagem'],
+            'data_recapagem' => $data['data_recapagem'],
         ];
     }
 
@@ -140,17 +132,17 @@ class ListPneus extends ListRecords
         return [
             'Todos' => Tab::make(),
             'Estoque' => Tab::make()
-                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)),
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)),
             'Frota' => Tab::make()
-                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::FROTA)),
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::FROTA)),
             'Outros' => Tab::make()
-                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->whereNotIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereNotIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
             'Est./Frota' => Tab::make()
-                ->modifyQueryUsing(fn(\Illuminate\Database\Eloquent\Builder $query) => $query->whereIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
         ];
     }
 
-    public function getDefaultActiveTab(): string | int | null
+    public function getDefaultActiveTab(): string|int|null
     {
         return 'Estoque';
     }

@@ -44,10 +44,6 @@ class PneuInspecaoInfolist
                             ->label('Posição')
                             ->placeholder('N/A')
                             ->columnSpan(2),
-                        TextEntry::make('parceiro.nome')
-                            ->label('Parceiro')
-                            ->placeholder('N/A')
-                            ->columnSpan(2),
                         TextEntry::make('sulco_interno')
                             ->numeric(2, ',', '.')
                             ->columnSpan(2),

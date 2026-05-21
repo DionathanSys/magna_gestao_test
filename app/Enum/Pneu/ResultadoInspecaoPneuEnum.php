@@ -5,7 +5,9 @@ namespace App\Enum\Pneu;
 enum ResultadoInspecaoPneuEnum: string
 {
     case APROVADO = 'APROVADO';
-    case APROVADO_COM_RESSALVA = 'APROVADO COM RESSALVA';
+    case MONITORAR = 'MONITORAR DESGASTE';
+    case APTO_RECAPAGEM = 'APTO PARA RECAPAGEM';
+    case AGUARDANDO_CONSERTO = 'AGUARDANDO CONSERTO';
     case REPROVADO = 'REPROVADO';
     case CONDENADO = 'CONDENADO';
 

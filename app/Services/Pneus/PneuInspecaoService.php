@@ -30,7 +30,13 @@ class PneuInspecaoService
             return;
         }
 
-        if ($inspecao->resultado === ResultadoInspecaoPneuEnum::REPROVADO && $pneu->status !== StatusPneuEnum::SUCATA) {
+        if (
+            in_array($inspecao->resultado, [
+                ResultadoInspecaoPneuEnum::AGUARDANDO_CONSERTO,
+                ResultadoInspecaoPneuEnum::REPROVADO,
+            ], true)
+            && $pneu->status !== StatusPneuEnum::SUCATA
+        ) {
             $pneu->update([
                 'status' => StatusPneuEnum::INDISPONIVEL,
                 'local' => LocalPneuEnum::MANUTENCAO,
@@ -41,7 +47,11 @@ class PneuInspecaoService
 
         if (
             in_array($inspecao->tipo, [TipoInspecaoPneuEnum::RECEBIMENTO, TipoInspecaoPneuEnum::POS_RECAPAGEM], true)
-            && in_array($inspecao->resultado, [ResultadoInspecaoPneuEnum::APROVADO, ResultadoInspecaoPneuEnum::APROVADO_COM_RESSALVA], true)
+            && in_array($inspecao->resultado, [
+                ResultadoInspecaoPneuEnum::APROVADO,
+                ResultadoInspecaoPneuEnum::MONITORAR,
+                ResultadoInspecaoPneuEnum::APTO_RECAPAGEM,
+            ], true)
             && $pneu->status !== StatusPneuEnum::EM_USO
             && $pneu->status !== StatusPneuEnum::SUCATA
         ) {
@@ -64,7 +74,10 @@ class PneuInspecaoService
             return 'O pneu foi condenado na última inspeção e não pode ser aplicado.';
         }
 
-        if ($inspecao->resultado === ResultadoInspecaoPneuEnum::REPROVADO) {
+        if (in_array($inspecao->resultado, [
+            ResultadoInspecaoPneuEnum::AGUARDANDO_CONSERTO,
+            ResultadoInspecaoPneuEnum::REPROVADO,
+        ], true)) {
             return 'O pneu foi reprovado na última inspeção e não pode ser aplicado.';
         }
 
@@ -89,7 +102,16 @@ class PneuInspecaoService
             return 'O pneu foi condenado na inspeção de pré-recapagem.';
         }
 
-        if ($inspecao->resultado === ResultadoInspecaoPneuEnum::REPROVADO || ! $inspecao->apto_recapagem) {
+        if (
+            in_array($inspecao->resultado, [
+                ResultadoInspecaoPneuEnum::AGUARDANDO_CONSERTO,
+                ResultadoInspecaoPneuEnum::REPROVADO,
+            ], true)
+            || (
+                $inspecao->resultado !== ResultadoInspecaoPneuEnum::APTO_RECAPAGEM
+                && ! $inspecao->apto_recapagem
+            )
+        ) {
             return 'A última inspeção de pré-recapagem não aprovou o pneu para recapagem.';
         }
 

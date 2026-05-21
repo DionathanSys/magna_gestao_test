@@ -4,13 +4,13 @@ namespace App\Filament\Resources\PneuInspecoes\Schemas;
 
 use App\Enum\Pneu\ResultadoInspecaoPneuEnum;
 use App\Enum\Pneu\TipoInspecaoPneuEnum;
-use App\Models\Parceiro;
 use App\Models\Pneu;
 use App\Models\PneuCiclo;
 use App\Models\PneuPosicaoVeiculo;
 use App\Models\Veiculo;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -28,6 +28,11 @@ class PneuInspecaoForm
     }
 
     public static function getComponents(): array
+    {
+        return static::getComponentsForContextSelectors();
+    }
+
+    public static function getComponentsForContextSelectors(): array
     {
         return [
             Group::make([
@@ -49,26 +54,16 @@ class PneuInspecaoForm
                     ->searchable()
                     ->preload(),
             ]),
-            Group::make([
-                Select::make('tipo')
-                    ->label('Tipo')
-                    ->options(TipoInspecaoPneuEnum::toSelectArray())
-                    ->required(),
-                Select::make('resultado')
-                    ->label('Resultado')
-                    ->options(ResultadoInspecaoPneuEnum::toSelectArray())
-                    ->required(),
-                DatePicker::make('data_inspecao')
-                    ->label('Dt. Inspeção')
-                    ->default(now())
-                    ->maxDate(now())
-                    ->required(),
-            ])
-            ->columns(3)
-            ->columnSpanFull(),
-          Group::make([
-                  Select::make('pneu_posicao_veiculo_id')
+            Select::make('veiculo_id')
+                ->label('Veículo')
+                ->options(Veiculo::query()->where('is_active', true)->orderBy('placa')->pluck('placa', 'id')->toArray())
+                ->searchable()
+                ->preload()
+                ->native(false)
+                ->live(),
+            Select::make('pneu_posicao_veiculo_id')
                 ->label('Posição Aplicada')
+                ->native(false)
                 ->options(fn (Get $get): array => PneuPosicaoVeiculo::query()
                     ->where('pneu_id', $get('pneu_id'))
                     ->when($get('veiculo_id'), fn ($query, $veiculoId) => $query->where('veiculo_id', $veiculoId))
@@ -79,11 +74,49 @@ class PneuInspecaoForm
                     ])
                     ->toArray())
                 ->searchable(),
-            TextInput::make('km_referencia')
-                ->label('KM Referência')
-                ->numeric(),
+            ...static::getEditableInspectionComponents(),
+        ];
+    }
+
+    public static function getComponentsForOperationalAction(): array
+    {
+        return [
+            Hidden::make('pneu_id'),
+            Hidden::make('pneu_ciclo_id'),
+            Hidden::make('veiculo_id'),
+            Hidden::make('pneu_posicao_veiculo_id'),
+            ...static::getEditableInspectionComponents(),
+        ];
+    }
+
+    public static function getEditableInspectionComponents(): array
+    {
+        return [
+            Group::make([
+                Select::make('tipo')
+                    ->label('Tipo')
+                    ->native(false)
+                    ->options(TipoInspecaoPneuEnum::toSelectArray())
+                    ->required(),
+                Select::make('resultado')
+                    ->label('Resultado')
+                    ->native(false)
+                    ->options(ResultadoInspecaoPneuEnum::toSelectArray())
+                    ->required(),
+                DatePicker::make('data_inspecao')
+                    ->label('Dt. Inspeção')
+                    ->default(now())
+                    ->maxDate(now())
+                    ->required(),
+                TextInput::make('km_referencia')
+                    ->label('KM Referência')
+                    ->numeric(),
+            ])
+                ->columns([
+                    'default' => 1,
+                    'md' => 2,
+                    'xl' => 4,
                 ])
-                ->columns(2)
                 ->columnSpanFull(),
             Group::make([
                 TextInput::make('sulco_interno')
@@ -95,16 +128,20 @@ class PneuInspecaoForm
                 TextInput::make('sulco_externo')
                     ->label('Sulco Externo')
                     ->numeric(),
+                Select::make('apto_recapagem')
+                    ->label('Apto Recapagem')
+                    ->native(false)
+                    ->options([
+                        1 => 'SIM',
+                        0 => 'NAO',
+                    ]),
             ])
-            ->columns(3)
-            ->columnSpanFull(),
-            Select::make('apto_recapagem')
-                ->label('Apto Recapagem')
-                ->options([
-                    1 => 'SIM',
-                    0 => 'NAO',
+                ->columns([
+                    'default' => 1,
+                    'md' => 2,
+                    'xl' => 4,
                 ])
-                ->columnSpan(2),
+                ->columnSpanFull(),
             Textarea::make('observacao')
                 ->label('Observação')
                 ->columnSpanFull(),

@@ -60,7 +60,6 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
         return $table
             ->heading('Mapa de pneus - '.$this->getRecord()->placa)
             ->query($this->getTableQuery())
-            ->stackedOnMobile()
             ->columns([
                 TextColumn::make('pneu.numero_fogo')
                     ->label('Pneu')

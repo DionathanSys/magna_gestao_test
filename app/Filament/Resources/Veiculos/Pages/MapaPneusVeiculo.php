@@ -60,6 +60,7 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
         return $table
             ->heading('Mapa de pneus - '.$this->getRecord()->placa)
             ->query($this->getTableQuery())
+            ->stackedOnMobile()
             ->columns([
                 TextColumn::make('pneu.numero_fogo')
                     ->label('Pneu')
@@ -132,6 +133,9 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
                             'km_info' => number_format($record->km_rodado ?? 0, 0, ',', '.'),
                             'ultima_inspecao_info' => $record->pneu?->inspecoes?->first()?->data_inspecao?->format('d/m/Y') ?? 'Sem registro',
                             'ultimo_resultado_info' => $record->pneu?->inspecoes?->first()?->resultado?->value ?? 'N/A',
+                            'ultimo_sulco_info' => $record->pneu?->inspecoes?->first()?->sulco_interno !== null
+                                ? number_format((float) $record->pneu?->inspecoes?->first()?->sulco_interno, 2, ',', '.')
+                                : 'Sem registro',
                             'tipo' => TipoInspecaoPneuEnum::CAMPO->value,
                             'resultado' => null,
                             'data_inspecao' => now()->toDateString(),
@@ -145,6 +149,8 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
                         return array_merge([
                             Section::make('Resumo do Pneu')
                                 ->columns(12)
+                                ->collapsible()
+                                ->persistCollapsed()
                                 ->components([
                                     Grid::make([
                                         'default' => 1,
@@ -190,6 +196,11 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
                                                 ->dehydrated(false),
                                             TextInput::make('ultimo_resultado_info')
                                                 ->label('Último Resultado')
+                                                ->readOnly()
+                                                ->disabled()
+                                                ->dehydrated(false),
+                                            TextInput::make('ultimo_sulco_info')
+                                                ->label('Último Sulco')
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),

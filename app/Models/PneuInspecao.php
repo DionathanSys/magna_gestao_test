@@ -23,6 +23,15 @@ class PneuInspecao extends Model
     protected static function booted(): void
     {
         static::saving(function (self $inspecao): void {
+            if (
+                filled($inspecao->sulco_interno)
+                && blank($inspecao->sulco_centro)
+                && blank($inspecao->sulco_externo)
+            ) {
+                $inspecao->sulco_centro = $inspecao->sulco_interno;
+                $inspecao->sulco_externo = $inspecao->sulco_interno;
+            }
+
             if (! $inspecao->pneu_ciclo_id && $inspecao->pneu) {
                 $inspecao->pneu_ciclo_id = $inspecao->pneu->cicloAtual?->id;
             }

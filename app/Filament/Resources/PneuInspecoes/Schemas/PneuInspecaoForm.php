@@ -110,7 +110,8 @@ class PneuInspecaoForm
                     ->required(),
                 TextInput::make('km_referencia')
                     ->label('KM Referência')
-                    ->numeric(),
+                    ->numeric()
+                    ->formatStateUsing(fn (?int $state) => $state !== null ? number_format($state, 0, '', '.') : null),
             ])
                 ->columns([
                     'default' => 1,

@@ -124,11 +124,18 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
                             'pneu_ciclo_id' => $record->pneu_ciclo_id,
                             'veiculo_id' => $record->veiculo_id,
                             'pneu_posicao_veiculo_id' => $record->id,
+                            'pneu_info' => ($record->pneu?->numero_fogo ?? 'N/A').' - '.($record->pneu?->marcaCatalogo?->nome ?? 'N/A').' / '.($record->pneu?->modeloCatalogo?->nome ?? 'N/A'),
+                            'veiculo_info' => $this->getRecord()->placa,
+                            'posicao_info' => $record->eixo.'º eixo / '.$record->posicao,
+                            'medida_info' => $record->pneu?->medidaCatalogo?->codigo ?? 'N/A',
+                            'ciclo_info' => (string) ($record->pneu?->ciclo_vida ?? 'N/A'),
+                            'km_info' => number_format($record->km_rodado ?? 0, 0, ',', '.'),
+                            'ultima_inspecao_info' => $record->pneu?->inspecoes?->first()?->data_inspecao?->format('d/m/Y') ?? 'Sem registro',
+                            'ultimo_resultado_info' => $record->pneu?->inspecoes?->first()?->resultado?->value ?? 'N/A',
                             'tipo' => TipoInspecaoPneuEnum::CAMPO->value,
                             'resultado' => null,
                             'data_inspecao' => now()->toDateString(),
                             'km_referencia' => $this->getRecord()->quilometragem_atual,
-                            'parceiro_id' => null,
                             'apto_recapagem' => null,
                             'observacao' => null,
                             'anexos' => [],
@@ -148,49 +155,41 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
                                         ->schema([
                                             TextInput::make('pneu_info')
                                                 ->label('Pneu')
-                                                ->default(($record->pneu?->numero_fogo ?? 'N/A').' - '.($record->pneu?->marcaCatalogo?->nome ?? 'N/A').' / '.($record->pneu?->modeloCatalogo?->nome ?? 'N/A'))
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),
                                             TextInput::make('veiculo_info')
                                                 ->label('Veículo')
-                                                ->default($this->getRecord()->placa)
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),
                                             TextInput::make('posicao_info')
                                                 ->label('Posição')
-                                                ->default($record->eixo.'º eixo / '.$record->posicao)
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),
                                             TextInput::make('medida_info')
                                                 ->label('Medida')
-                                                ->default($record->pneu?->medidaCatalogo?->codigo ?? 'N/A')
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),
                                             TextInput::make('ciclo_info')
                                                 ->label('Ciclo Atual')
-                                                ->default((string) ($record->pneu?->ciclo_vida ?? 'N/A'))
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),
                                             TextInput::make('km_info')
                                                 ->label('Km Rodado na Posição')
-                                                ->default(number_format($record->km_rodado ?? 0, 0, ',', '.'))
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),
                                             TextInput::make('ultima_inspecao_info')
                                                 ->label('Última Inspeção')
-                                                ->default($record->pneu?->inspecoes?->first()?->data_inspecao?->format('d/m/Y') ?? 'Sem registro')
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),
                                             TextInput::make('ultimo_resultado_info')
                                                 ->label('Último Resultado')
-                                                ->default($record->pneu?->inspecoes?->first()?->resultado?->value ?? 'N/A')
                                                 ->readOnly()
                                                 ->disabled()
                                                 ->dehydrated(false),

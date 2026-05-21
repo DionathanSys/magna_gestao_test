@@ -20,7 +20,7 @@ class EditVeiculo extends EditRecord
             Action::make('mapaPneus')
                 ->label('Mapa de Pneus')
                 ->icon('heroicon-o-square-3-stack-3d')
-                ->url(fn () => VeiculoResource::getUrl('mapa-pneus', ['record' => $this->record])),
+                ->url(fn () => VeiculoResource::getUrl('mapa-pneus', ['record' => $this->record], isAbsolute: false)),
             DeleteAction::make()
                 ->visible(fn () => Auth::user()->is_admin),
             ForceDeleteAction::make()

@@ -116,7 +116,7 @@ class MovimentarPneuService
             case MotivoMovimentoPneuEnum::RECAPAGEM->value:
                 $pneuVeiculo->pneu->update([
                     'status' => StatusPneuEnum::INDISPONIVEL,
-                    'local' => LocalPneuEnum::ESTOQUE_CTV,
+                    'local' => LocalPneuEnum::AGUARDANDO_RECAPAGEM,
                 ]);
                 break;
 

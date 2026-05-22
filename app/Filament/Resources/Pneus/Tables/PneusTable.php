@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\Pneus\Tables;
 
 use App\Enum\Pneu\StatusPneuEnum;
+use App\Filament\Resources\Pneus\Actions\EnviarRecapagemPneuAction;
+use App\Filament\Resources\Pneus\Actions\ReceberRecapagemPneuAction;
+use App\Filament\Resources\Pneus\Actions\RetornarConsertoPneuAction;
 use App\Filament\Resources\Veiculos\VeiculoResource;
 use App\Models;
 use Filament\Actions\BulkActionGroup;
@@ -100,6 +103,9 @@ class PneusTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                RetornarConsertoPneuAction::make(),
+                EnviarRecapagemPneuAction::make(),
+                ReceberRecapagemPneuAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

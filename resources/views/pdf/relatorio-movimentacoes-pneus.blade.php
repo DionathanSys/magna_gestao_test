@@ -102,6 +102,7 @@
         <p class="subtitle">Período do registro: {{ $dataInicial }} até {{ $dataFinal }}</p>
         <div class="summary">
             Total de movimentações: <strong>{{ $totalMovimentacoes }}</strong><br>
+            Total de operações: <strong>{{ $totalOperacoes }}</strong><br>
             Data de geração: <strong>{{ $dataGeracao }}</strong>
         </div>
     </div>
@@ -109,40 +110,42 @@
     @forelse($veiculos as $veiculo)
         <div class="vehicle-block">
             <div class="vehicle-title">Veículo: {{ $veiculo['placa'] }}</div>
-            <div class="vehicle-meta">Movimentações no período: {{ $veiculo['total_movimentacoes'] }}</div>
+            <div class="vehicle-meta">Movimentações no período: {{ $veiculo['total_movimentacoes'] }} | Operações consolidadas: {{ count($veiculo['movimentacoes']) }}</div>
 
             <table>
                 <thead>
                     <tr>
                         <th style="width: 10%;">Criado em</th>
-                        <th style="width: 8%;">Pneu</th>
-                        <th style="width: 6%;">Evento</th>
                         <th style="width: 8%;">Motivo</th>
                         <th style="width: 6%;">Eixo</th>
                         <th style="width: 8%;">Posição</th>
-                        <th style="width: 8%;">Dt. Inicial</th>
-                        <th style="width: 8%;">Dt. Final</th>
-                        <th style="width: 7%;">KM Inicial</th>
-                        <th style="width: 7%;">KM Final</th>
-                        <th style="width: 6%;">Sulco</th>
-                        <th style="width: 18%;">Observação</th>
+                        <th style="width: 9%;">Pneu removido</th>
+                        <th style="width: 9%;">Pneu aplicado</th>
+                        <th style="width: 8%;">Dt. remoção</th>
+                        <th style="width: 8%;">Dt. aplicação</th>
+                        <th style="width: 7%;">KM remoção</th>
+                        <th style="width: 7%;">KM aplicação</th>
+                        <th style="width: 6%;">Sulco rem.</th>
+                        <th style="width: 6%;">Sulco apl.</th>
+                        <th style="width: 14%;">Observação</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($veiculo['movimentacoes'] as $movimento)
                         <tr>
-                            <td>{{ $movimento->created_at?->format('d/m/Y H:i') }}</td>
-                            <td>{{ $movimento->pneu?->numero_fogo ?? 'N/A' }}</td>
-                            <td>{{ $movimento->tipo_evento ?? '-' }}</td>
-                            <td>{{ $movimento->motivo ?? '-' }}</td>
-                            <td>{{ $movimento->eixo ?? '-' }}</td>
-                            <td>{{ $movimento->posicao ?? '-' }}</td>
-                            <td>{{ $movimento->data_inicial ? \Carbon\Carbon::parse($movimento->data_inicial)->format('d/m/Y') : '-' }}</td>
-                            <td>{{ $movimento->data_final ? \Carbon\Carbon::parse($movimento->data_final)->format('d/m/Y') : '-' }}</td>
-                            <td>{{ $movimento->km_inicial !== null ? number_format((float) $movimento->km_inicial, 0, ',', '.') : '-' }}</td>
-                            <td>{{ $movimento->km_final !== null ? number_format((float) $movimento->km_final, 0, ',', '.') : '-' }}</td>
-                            <td>{{ $movimento->sulco_movimento !== null ? number_format((float) $movimento->sulco_movimento, 2, ',', '.') : '-' }}</td>
-                            <td>{{ $movimento->observacao ?: '-' }}</td>
+                            <td>{{ $movimento['created_at']?->format('d/m/Y H:i') }}</td>
+                            <td>{{ $movimento['motivo'] ?? '-' }}</td>
+                            <td>{{ $movimento['eixo'] ?? '-' }}</td>
+                            <td>{{ $movimento['posicao'] ?? '-' }}</td>
+                            <td>{{ $movimento['pneu_removido'] ?? '-' }}</td>
+                            <td>{{ $movimento['pneu_aplicado'] ?? '-' }}</td>
+                            <td>{{ $movimento['data_remocao'] ? \Carbon\Carbon::parse($movimento['data_remocao'])->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $movimento['data_aplicacao'] ? \Carbon\Carbon::parse($movimento['data_aplicacao'])->format('d/m/Y') : '-' }}</td>
+                            <td>{{ $movimento['km_remocao'] !== null ? number_format((float) $movimento['km_remocao'], 0, ',', '.') : '-' }}</td>
+                            <td>{{ $movimento['km_aplicacao'] !== null ? number_format((float) $movimento['km_aplicacao'], 0, ',', '.') : '-' }}</td>
+                            <td>{{ $movimento['sulco_remocao'] !== null ? number_format((float) $movimento['sulco_remocao'], 2, ',', '.') : '-' }}</td>
+                            <td>{{ $movimento['sulco_aplicacao'] !== null ? number_format((float) $movimento['sulco_aplicacao'], 2, ',', '.') : '-' }}</td>
+                            <td>{{ $movimento['observacao'] ?: '-' }}</td>
                         </tr>
                     @endforeach
                 </tbody>

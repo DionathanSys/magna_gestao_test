@@ -627,7 +627,7 @@ class MapaPneusVeiculo extends Page implements HasActions
         ])
             ->filter(fn ($value) => $value !== null && $value !== '')
             ->map(fn ($value) => number_format((float) $value, 2, ',', '.'))
-            ->implode(', ');
+            ->implode(' - ');
 
         return [
             'pneu_id' => $record?->pneu_id,

@@ -52,6 +52,10 @@ class MovimentarPneuService
                 'pneu_id' => $pneuId,
                 'data_inicial' => $data['data_movimento'],
                 'km_inicial' => $data['km_movimento'],
+                'motivo' => MotivoMovimentoPneuEnum::INVERSAO,
+                'sulco' => $data['sulco'] ?? 0,
+                'observacao' => $data['observacao'] ?? null,
+                'anexos' => $data['anexos'] ?? null,
             ]);
 
             Log::info(__METHOD__.' - Inversão do pneu finalizada.', [
@@ -157,6 +161,25 @@ class MovimentarPneuService
 
         $ciclo = $this->cicloService->ensureCurrentCycle($pneu);
 
+        $this->registrarHistoricoMovimento([
+            'pneu_id' => $pneu->id,
+            'pneu_ciclo_id' => $ciclo->id,
+            'pneu_posicao_veiculo_id' => $pneuVeiculo->id,
+            'veiculo_id' => $pneuVeiculo->veiculo_id,
+            'data_inicial' => $data['data_inicial'],
+            'km_inicial' => $data['km_inicial'],
+            'eixo' => $pneuVeiculo->eixo,
+            'posicao' => $pneuVeiculo->posicao,
+            'motivo' => $data['motivo'] instanceof \BackedEnum ? $data['motivo']->value : ($data['motivo'] ?? 'APLICACAO'),
+            'tipo_evento' => 'APLICACAO',
+            'sulco_movimento' => $data['sulco'] ?? $pneu->sulco_inicial ?? 0,
+            'data_final' => $data['data_inicial'],
+            'km_final' => $data['km_inicial'],
+            'ciclo_vida' => $pneu->ciclo_vida,
+            'observacao' => $data['observacao'] ?? null,
+            'anexos' => $data['anexos'] ?? null,
+        ]);
+
         $pneuVeiculo->update([
             'pneu_id' => $data['pneu_id'],
             'pneu_ciclo_id' => $ciclo->id,
@@ -192,6 +215,10 @@ class MovimentarPneuService
                 'pneu_id' => $data['pneu_id'],
                 'data_inicial' => $data['data_movimento'],
                 'km_inicial' => $data['km_movimento'],
+                'motivo' => $data['motivo'],
+                'sulco' => $data['sulco'] ?? 0,
+                'observacao' => $data['observacao'] ?? null,
+                'anexos' => $data['anexos'] ?? null,
             ]);
         }, 3);
     }
@@ -226,6 +253,10 @@ class MovimentarPneuService
                     'pneu_id' => $pneuId,
                     'data_inicial' => $data['data_movimento'],
                     'km_inicial' => $data['km_movimento'],
+                    'motivo' => MotivoMovimentoPneuEnum::RODIZIO,
+                    'sulco' => $data['sulco'] ?? 0,
+                    'observacao' => $data['observacao'] ?? null,
+                    'anexos' => $data['anexos'] ?? null,
                 ]);
             });
         }, 3);

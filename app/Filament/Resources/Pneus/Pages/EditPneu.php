@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Pneus\Pages;
 
+use App\Filament\Resources\Pneus\Actions\EnviarRecapagemPneuAction;
+use App\Filament\Resources\Pneus\Actions\ReceberRecapagemPneuAction;
+use App\Filament\Resources\Pneus\Actions\RetornarConsertoPneuAction;
 use App\Filament\Resources\Pneus\PneuResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -17,6 +20,9 @@ class EditPneu extends EditRecord
     {
         return [
             ViewAction::make(),
+            RetornarConsertoPneuAction::make(),
+            EnviarRecapagemPneuAction::make(),
+            ReceberRecapagemPneuAction::make(),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),

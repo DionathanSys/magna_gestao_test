@@ -5,18 +5,28 @@ namespace App\Filament\Resources\Veiculos\Pages;
 use App\Enum\Pneu\TipoInspecaoPneuEnum;
 use App\Filament\Resources\PneuInspecoes\Schemas\PneuInspecaoForm;
 use App\Filament\Resources\Veiculos\VeiculoResource;
+use App\Models\Pneu;
 use App\Models\PneuInspecao;
 use App\Models\PneuPosicaoVeiculo;
 use App\Models\Veiculo;
+use App\Services\NotificacaoService as notify;
+use App\Services\Pneus\MovimentarPneuService;
+use App\Services\Pneus\PneuService;
 use App\Support\Pneus\MapaPneusLayout;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 
 class MapaPneusVeiculo extends Page implements HasActions
 {
@@ -63,6 +73,12 @@ class MapaPneusVeiculo extends Page implements HasActions
         $this->replaceMountedAction('inspecionarPosicao', ['posicao' => $posicaoId]);
     }
 
+    public function openPosicaoAction(string $actionName, int $posicaoId): void
+    {
+        $this->selectedPosicaoId = $posicaoId;
+        $this->replaceMountedAction($actionName, ['posicao' => $posicaoId]);
+    }
+
     public function getRecord(): Veiculo
     {
         return Veiculo::query()
@@ -73,10 +89,14 @@ class MapaPneusVeiculo extends Page implements HasActions
     public function getViewData(): array
     {
         $posicoes = $this->getPosicoes();
+        $selectedPosicao = $this->selectedPosicaoId
+            ? $posicoes->firstWhere('id', $this->selectedPosicaoId)
+            : null;
 
         return [
             'record' => $this->getRecord(),
             'mapa' => MapaPneusLayout::build($this->getRecord(), $posicoes, $this->selectedPosicaoId),
+            'selectedPosicao' => $selectedPosicao,
         ];
     }
 
@@ -89,6 +109,8 @@ class MapaPneusVeiculo extends Page implements HasActions
                 'pneu.marcaCatalogo',
                 'pneu.modeloCatalogo',
                 'pneu.medidaCatalogo',
+                'pneu.cicloAtual.desenhoPneu',
+                'pneu.desenhoPneu',
                 'veiculo.kmAtual',
             ])
             ->orderBy('sequencia')
@@ -150,6 +172,248 @@ class MapaPneusVeiculo extends Page implements HasActions
             });
     }
 
+    public function vincularPosicaoAction(): Action
+    {
+        return Action::make('vincularPosicao')
+            ->label('Vincular')
+            ->icon('heroicon-o-arrow-up-on-square')
+            ->color('info')
+            ->modalWidth(Width::ExtraLarge)
+            ->visible(function (array $arguments): bool {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                return blank($posicao?->pneu_id);
+            })
+            ->fillForm(function (array $arguments): array {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                return [
+                    'posicao' => $posicao?->posicao,
+                    'data_inicial' => now()->toDateString(),
+                ];
+            })
+            ->schema(fn (Schema $schema) => $schema
+                ->columns(4)
+                ->schema([
+                    Select::make('pneu_id')
+                        ->label('Pneu')
+                        ->columnSpan(3)
+                        ->native(false)
+                        ->options(fn (): array => (new PneuService)->getPneusDisponiveis())
+                        ->searchable()
+                        ->required(),
+                    TextInput::make('posicao')
+                        ->label('Posição')
+                        ->columnSpan(1)
+                        ->readOnly(),
+                    DatePicker::make('data_inicial')
+                        ->label('Dt. Inicial')
+                        ->columnSpan(2)
+                        ->default(now())
+                        ->maxDate(now())
+                        ->required(),
+                    $this->makeKmField('km_inicial', 'KM Inicial')
+                        ->columnSpan(2),
+                ]))
+            ->action(function (Action $action, array $data, array $arguments): void {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                if (! $posicao) {
+                    notify::error(titulo: 'Falha ao vincular pneu', mensagem: 'Posição não encontrada.');
+                    $action->halt();
+                    return;
+                }
+
+                try {
+                    (new MovimentarPneuService)->aplicarPneu($posicao, $data);
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao vincular pneu', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            });
+    }
+
+    public function inverterPosicaoAction(): Action
+    {
+        return Action::make('inverterPosicao')
+            ->label('Inverter')
+            ->icon('heroicon-o-arrow-path')
+            ->modalWidth(Width::ExtraLarge)
+            ->visible(function (array $arguments): bool {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                return filled($posicao?->pneu_id);
+            })
+            ->schema(fn (Schema $schema) => $schema
+                ->columns(8)
+                ->schema([
+                    TextInput::make('motivo')
+                        ->columnSpan(5)
+                        ->default(\App\Enum\Pneu\MotivoMovimentoPneuEnum::INVERSAO->value)
+                        ->disabled()
+                        ->required(),
+                    TextInput::make('sulco')
+                        ->label('Sulco (mm)')
+                        ->columnSpan(3)
+                        ->numeric()
+                        ->maxValue(30)
+                        ->minValue(0),
+                    DatePicker::make('data_movimento')
+                        ->label('Dt. Movimento')
+                        ->columnSpan(4)
+                        ->default(now())
+                        ->maxDate(now())
+                        ->required(),
+                    $this->makeKmField('km_movimento', 'Km Movimento')
+                        ->columnSpan(4),
+                    Textarea::make('observacao')
+                        ->label('Observação')
+                        ->columnSpanFull()
+                        ->maxLength(255),
+                    $this->makeAnexosField(),
+                ]))
+            ->action(function (Action $action, array $data, array $arguments): void {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                if (! $posicao) {
+                    notify::error(titulo: 'Falha ao inverter pneu', mensagem: 'Posição não encontrada.');
+                    $action->halt();
+                    return;
+                }
+
+                try {
+                    (new MovimentarPneuService)->inverterPneu($posicao, $data);
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao inverter pneu', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            });
+    }
+
+    public function trocarPosicaoAction(): Action
+    {
+        return Action::make('trocarPosicao')
+            ->label('Trocar')
+            ->icon('heroicon-o-arrows-right-left')
+            ->modalWidth(Width::ExtraLarge)
+            ->visible(function (array $arguments): bool {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                return filled($posicao?->pneu_id);
+            })
+            ->schema(fn (Schema $schema) => $schema
+                ->columns(8)
+                ->schema([
+                    Select::make('motivo')
+                        ->columnSpan(5)
+                        ->options(\App\Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray())
+                        ->required(),
+                    TextInput::make('sulco')
+                        ->label('Sulco Removido (mm)')
+                        ->columnSpan(3)
+                        ->numeric()
+                        ->maxValue(30)
+                        ->minValue(0),
+                    Select::make('pneu_id')
+                        ->label('Pneu')
+                        ->columnSpanFull()
+                        ->native(false)
+                        ->getSearchResultsUsing(fn (string $search): array => (new PneuService)->getPneusDisponiveis($search))
+                        ->getOptionLabelUsing(fn ($value): ?string => Pneu::find($value)?->numero_fogo)
+                        ->searchable()
+                        ->searchDebounce(700)
+                        ->required(),
+                    DatePicker::make('data_movimento')
+                        ->label('Dt. Movimento')
+                        ->columnSpan(4)
+                        ->default(now())
+                        ->maxDate(now())
+                        ->required(),
+                    $this->makeKmField('km_movimento', 'Km Movimento')
+                        ->columnSpan(4),
+                    Textarea::make('observacao')
+                        ->label('Observação')
+                        ->columnSpanFull()
+                        ->maxLength(255),
+                    $this->makeAnexosField(),
+                ]))
+            ->action(function (Action $action, array $data, array $arguments): void {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                if (! $posicao) {
+                    notify::error(titulo: 'Falha ao substituir pneu', mensagem: 'Posição não encontrada.');
+                    $action->halt();
+                    return;
+                }
+
+                try {
+                    (new MovimentarPneuService)->trocarPneu($posicao, $data);
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao substituir pneu', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            });
+    }
+
+    public function desvincularPosicaoAction(): Action
+    {
+        return Action::make('desvincularPosicao')
+            ->label('Desvincular')
+            ->icon('heroicon-o-arrow-down-on-square')
+            ->color('danger')
+            ->modalWidth(Width::Large)
+            ->visible(function (array $arguments): bool {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                return filled($posicao?->pneu_id);
+            })
+            ->schema(fn (Schema $schema) => $schema
+                ->columns(8)
+                ->schema([
+                    Select::make('motivo')
+                        ->columnSpanFull()
+                        ->native(false)
+                        ->options(\App\Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray())
+                        ->required(),
+                    TextInput::make('sulco')
+                        ->label('Sulco Removido (mm)')
+                        ->columnSpan(2)
+                        ->required()
+                        ->numeric()
+                        ->maxValue(30)
+                        ->minValue(0),
+                    DatePicker::make('data_final')
+                        ->label('Dt. Final')
+                        ->columnSpan(3)
+                        ->default(now())
+                        ->maxDate(now())
+                        ->required(),
+                    $this->makeKmField('km_final', 'Km Final')
+                        ->columnSpan(3),
+                    Textarea::make('observacao')
+                        ->label('Observação')
+                        ->columnSpanFull()
+                        ->maxLength(255),
+                    $this->makeAnexosField(),
+                ]))
+            ->action(function (Action $action, array $data, array $arguments): void {
+                $posicao = $this->resolvePosicaoFromArguments($arguments);
+
+                if (! $posicao) {
+                    notify::error(titulo: 'Falha ao desvincular pneu', mensagem: 'Posição não encontrada.');
+                    $action->halt();
+                    return;
+                }
+
+                try {
+                    (new MovimentarPneuService)->removerPneu($posicao, $data);
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao desvincular pneu', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            });
+    }
+
     protected function resolvePosicaoFromArguments(array $arguments): ?PneuPosicaoVeiculo
     {
         $posicaoId = $arguments['posicao'] ?? null;
@@ -164,6 +428,14 @@ class MapaPneusVeiculo extends Page implements HasActions
     protected function getInspectionFormData(?PneuPosicaoVeiculo $record): array
     {
         $ultimaInspecao = $record?->pneu?->inspecoes?->first();
+        $ultimoSulcoInfo = collect([
+            $ultimaInspecao?->sulco_interno,
+            $ultimaInspecao?->sulco_centro,
+            $ultimaInspecao?->sulco_externo,
+        ])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->map(fn ($value) => number_format((float) $value, 2, ',', '.'))
+            ->implode(', ');
 
         return [
             'pneu_id' => $record?->pneu_id,
@@ -178,9 +450,7 @@ class MapaPneusVeiculo extends Page implements HasActions
             'km_info' => number_format($record?->km_rodado ?? 0, 0, ',', '.'),
             'ultima_inspecao_info' => $ultimaInspecao?->data_inspecao?->format('d/m/Y') ?? 'Sem registro',
             'ultimo_resultado_info' => $ultimaInspecao?->resultado?->value ?? 'N/A',
-            'ultimo_sulco_info' => $ultimaInspecao?->sulco_interno !== null
-                ? number_format((float) $ultimaInspecao->sulco_interno, 2, ',', '.')
-                : 'Sem registro',
+            'ultimo_sulco_info' => $ultimoSulcoInfo !== '' ? $ultimoSulcoInfo : 'Sem registro',
             'tipo' => TipoInspecaoPneuEnum::CAMPO->value,
             'resultado' => null,
             'data_inspecao' => now()->toDateString(),
@@ -189,5 +459,29 @@ class MapaPneusVeiculo extends Page implements HasActions
             'observacao' => null,
             'anexos' => [],
         ];
+    }
+
+    protected function makeKmField(string $name, string $label): TextInput
+    {
+        return TextInput::make($name)
+            ->label($label)
+            ->numeric()
+            ->required()
+            ->live(debounce: 700)
+            ->helperText('Confira a quilometragem do veículo antes de confirmar a movimentação.');
+    }
+
+    protected function makeAnexosField(): FileUpload
+    {
+        return FileUpload::make('anexos')
+            ->image()
+            ->openable()
+            ->downloadable()
+            ->multiple()
+            ->panelLayout('grid')
+            ->disk('local')
+            ->directory('pneus/movimentacoes')
+            ->visibility('private')
+            ->columnSpanFull();
     }
 }

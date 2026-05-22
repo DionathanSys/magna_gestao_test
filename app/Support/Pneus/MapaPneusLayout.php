@@ -181,15 +181,23 @@ class MapaPneusLayout
         $resultado = $ultimaInspecao?->resultado;
         $status = static::status($resultado);
         $kmHistorico = 0;
+        $temKmAplicado = false;
+        $modelo = $posicao->pneu?->modeloCatalogo?->nome;
+        $desenhoAtual = $posicao->pneu?->cicloAtual?->desenhoPneu?->descricao
+            ?? $posicao->pneu?->desenhoPneu?->descricao;
 
         if ($posicao->pneu) {
             $kmHistorico = HistoricoMovimentoPneu::query()
                 ->where('pneu_id', $posicao->pneu->id)
                 ->where('ciclo_vida', $posicao->pneu->ciclo_vida)
                 ->sum('km_percorrido');
+
+            $temKmAplicado = $kmHistorico > 0 || filled($posicao->km_rodado);
         }
 
-        $kmCicloAtual = (int) ($kmHistorico + ($posicao->km_rodado ?? 0));
+        $kmCicloAtual = $temKmAplicado
+            ? (float) ($kmHistorico + ($posicao->km_rodado ?? 0))
+            : null;
 
         return [
             'id' => $posicao->id,
@@ -199,6 +207,8 @@ class MapaPneusLayout
             'pneu_id' => $posicao->pneu_id,
             'numero_fogo' => $posicao->pneu?->numero_fogo,
             'marca_modelo' => trim(($posicao->pneu?->marcaCatalogo?->nome ?? '').' '.($posicao->pneu?->modeloCatalogo?->nome ?? '')),
+            'modelo' => $modelo,
+            'desenho_atual' => $desenhoAtual,
             'resultado' => $resultado?->value,
             'status' => $status,
             'selected' => $selectedPosicaoId === $posicao->id,

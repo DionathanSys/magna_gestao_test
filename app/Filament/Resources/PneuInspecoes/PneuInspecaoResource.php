@@ -5,7 +5,6 @@ namespace App\Filament\Resources\PneuInspecoes;
 use App\Filament\Resources\PneuInspecoes\Pages\CreatePneuInspecao;
 use App\Filament\Resources\PneuInspecoes\Pages\EditPneuInspecao;
 use App\Filament\Resources\PneuInspecoes\Pages\ListPneuInspecoes;
-use App\Filament\Resources\PneuInspecoes\Pages\ViewPneuInspecao;
 use App\Filament\Resources\PneuInspecoes\Schemas\PneuInspecaoForm;
 use App\Filament\Resources\PneuInspecoes\Schemas\PneuInspecaoInfolist;
 use App\Filament\Resources\PneuInspecoes\Tables\PneuInspecoesTable;
@@ -54,7 +53,6 @@ class PneuInspecaoResource extends Resource
         return [
             'index' => ListPneuInspecoes::route('/'),
             'create' => CreatePneuInspecao::route('/create'),
-            'view' => ViewPneuInspecao::route('/{record}'),
             'edit' => EditPneuInspecao::route('/{record}/edit'),
         ];
     }

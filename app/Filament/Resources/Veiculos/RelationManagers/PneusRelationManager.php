@@ -71,6 +71,7 @@ class PneusRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('numero_fogo')
+            // ->stackedOnMobile()
             ->modifyQueryUsing(fn ($query) => $query->with(['pneu', 'veiculo', 'veiculo.kmAtual'])->orderBy('sequencia'))
             ->columns([
                 TextColumn::make('id')
@@ -150,7 +151,7 @@ class PneusRelationManager extends RelationManager
                     ->collapsible(),
             ])
             ->defaultGroup('eixo')
-            ->groupingSettingsHidden()
+            // ->groupingSettingsHidden()
             ->defaultSort('sequencia')
             ->paginated(false)
             ->headerActions([

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PneuInspecoes\Schemas;
 
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -22,7 +23,7 @@ class PneuInspecaoInfolist
                             ->columnSpan(2),
                         TextEntry::make('ciclo.numero')
                             ->label('Ciclo')
-                            ->formatStateUsing(fn ($state) => filled($state) ? 'Ciclo '.$state : 'N/A')
+                            ->formatStateUsing(fn ($state) => filled($state) ? 'Ciclo ' . $state : 'N/A')
                             ->columnSpan(2),
                         TextEntry::make('tipo')
                             ->columnSpan(2),
@@ -60,6 +61,14 @@ class PneuInspecaoInfolist
                         TextEntry::make('observacao')
                             ->label('Observação')
                             ->columnSpanFull(),
+                        ImageEntry::make('anexos')
+                            ->label('Anexos')
+                            ->disk('local')
+                            ->visibility('private')
+                            ->imageHeight('12rem')
+                            ->columnSpanFull()
+                            ->openUrlInNewTab()
+                            ->url(fn (ImageEntry $component, ?string $state): ?string => $component->getImageUrl($state)),
                     ]),
             ]);
     }

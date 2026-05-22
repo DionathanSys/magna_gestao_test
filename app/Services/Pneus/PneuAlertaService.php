@@ -77,7 +77,6 @@ class PneuAlertaService
                 $camposDivergentes = collect([
                     'medida' => $grupo->pluck('pneu.medidaCatalogo.codigo')->filter()->unique()->values(),
                     'marca' => $grupo->pluck('pneu.marcaCatalogo.nome')->filter()->unique()->values(),
-                    'modelo' => $grupo->pluck('pneu.modeloCatalogo.nome')->filter()->unique()->values(),
                 ])->filter(fn (Collection $valores) => $valores->count() > 1);
 
                 if ($camposDivergentes->isEmpty()) {

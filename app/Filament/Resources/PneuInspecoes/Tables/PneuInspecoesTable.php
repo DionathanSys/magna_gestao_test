@@ -4,10 +4,12 @@ namespace App\Filament\Resources\PneuInspecoes\Tables;
 
 use App\Enum\Pneu\ResultadoInspecaoPneuEnum;
 use App\Enum\Pneu\TipoInspecaoPneuEnum;
+use App\Filament\Resources\PneuInspecoes\PneuInspecaoResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -65,7 +67,9 @@ class PneuInspecoesTable
                     ->options(ResultadoInspecaoPneuEnum::toSelectArray()),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->schema(fn (Schema $schema): Schema => PneuInspecaoResource::infolist($schema))
+                    ->modalWidth('7xl'),
                 EditAction::make(),
             ])
             ->toolbarActions([

@@ -55,7 +55,7 @@ class RelatorioMovimentacoesPneusPdfService
 
             if ($movimento->tipo_evento === 'APLICACAO') {
                 if (! empty($remocoesPendentes[$chave])) {
-                    $indiceOperacao = array_shift($remocoesPendentes[$chave]);
+                    $indiceOperacao = array_pop($remocoesPendentes[$chave]);
                     $operacao = $operacoes->get($indiceOperacao);
 
                     $operacao['pneu_aplicado'] = $movimento->pneu?->numero_fogo ?? 'N/A';

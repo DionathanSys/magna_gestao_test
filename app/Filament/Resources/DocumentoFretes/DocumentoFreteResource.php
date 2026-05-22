@@ -63,20 +63,20 @@ class DocumentoFreteResource extends Resource
         ];
     }
 
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        return [
-            'Placa' => $record->veiculo->placa,
-            'Valor' => 'R$ ' . number_format($record->valor_total, 2, ',', '.'),
-            'Valor ICMS' => 'R$ ' . number_format($record->valor_icms, 2, ',', '.'),
-        ];
-    }
+    // public static function getGlobalSearchResultDetails(Model $record): array
+    // {
+    //     return [
+    //         'Placa' => $record->veiculo->placa,
+    //         'Valor' => 'R$ ' . number_format($record->valor_total, 2, ',', '.'),
+    //         'Valor ICMS' => 'R$ ' . number_format($record->valor_icms, 2, ',', '.'),
+    //     ];
+    // }
 
-    public static function getGlobalSearchResultActions(Model $record): array
-    {
-        return [
-            Action::make('view')
-                ->url(static::getUrl('view', ['record' => $record->id]), shouldOpenInNewTab: true),
-        ];
-    }
+    // public static function getGlobalSearchResultActions(Model $record): array
+    // {
+    //     return [
+    //         Action::make('view')
+    //             ->url(static::getUrl('view', ['record' => $record->id]), shouldOpenInNewTab: true),
+    //     ];
+    // }
 }

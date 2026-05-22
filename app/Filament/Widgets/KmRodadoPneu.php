@@ -8,13 +8,12 @@ use App\Models;
 use App\Services\Pneus\PneuAlertaService;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
-use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Support\Facades\Auth;
 
 class KmRodadoPneu extends BaseWidget
 {
@@ -36,7 +35,7 @@ class KmRodadoPneu extends BaseWidget
     protected function getBaseQuery(): Builder
     {
         $threshold = app(PneuAlertaService::class)->getRodizioThresholdKm();
-        $pneuTable = (new Models\PneuPosicaoVeiculo())->getTable();
+        $pneuTable = (new Models\PneuPosicaoVeiculo)->getTable();
 
         return Models\PneuPosicaoVeiculo::query()
             ->with(['pneu', 'veiculo', 'veiculo.kmAtual'])
@@ -46,7 +45,7 @@ class KmRodadoPneu extends BaseWidget
 
                 // evita registros com km_inicial null e quilometragem null
                 $q->whereNotNull("{$kmTable}.quilometragem")
-                  ->whereRaw("{$kmTable}.quilometragem - {$pneuTable}.km_inicial > ?", [$threshold]);
+                    ->whereRaw("{$kmTable}.quilometragem - {$pneuTable}.km_inicial > ?", [$threshold]);
             })
             ->aplicados()
             ->whereHas('veiculo', function (Builder $q) {
@@ -64,7 +63,7 @@ class KmRodadoPneu extends BaseWidget
     {
         return $table
             ->defaultPaginationPageOption($this->perPage)
-            ->paginated(fn() => $this->queryCount > $this->perPage)
+            ->paginated(fn () => $this->queryCount > $this->perPage)
             ->query($this->getBaseQuery())
             ->columns([
                 TextColumn::make('pneu.numero_fogo')
@@ -72,17 +71,17 @@ class KmRodadoPneu extends BaseWidget
                     ->width('1%')
                     ->numeric('0', '', '')
                     ->sortable()
-                    ->url(fn(Models\PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->pneu_id ?? 0]))
+                    ->url(fn (Models\PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->pneu_id ?? 0]))
                     ->openUrlInNewTab(),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->width('1%')
                     ->sortable()
                     ->searchable(isIndividual: true)
-                    ->url(fn($record): string => VeiculoResource::getUrl('edit', [
+                    ->url(fn ($record): string => VeiculoResource::getUrl('edit', [
                         'record' => $record->veiculo->id,
                         'relation' => 0,
-                        ]))
+                    ]))
                     ->openUrlInNewTab(),
                 TextColumn::make('km_inicial')
                     ->label('Km Rodado')
@@ -110,9 +109,29 @@ class KmRodadoPneu extends BaseWidget
 
             ])
             ->defaultGroup('veiculo.placa')
-            ->paginated([10, 25, 50,])
+            ->paginated([10, 25, 50])
             ->defaultPaginationPageOption(12)
             ->filters([
+                SelectFilter::make('veiculo_id')
+                    ->label('Placa')
+                    ->relationship('veiculo', 'placa')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('eixo')
+                    ->label('Eixo')
+                    ->options(fn (): array => Models\PneuPosicaoVeiculo::query()
+                        ->whereNotNull('eixo')
+                        ->orderBy('eixo')
+                        ->pluck('eixo', 'eixo')
+                        ->toArray()),
+                SelectFilter::make('posicao')
+                    ->label('Posição')
+                    ->options(fn (): array => Models\PneuPosicaoVeiculo::query()
+                        ->whereNotNull('posicao')
+                        ->orderBy('posicao')
+                        ->pluck('posicao', 'posicao')
+                        ->toArray())
+                    ->searchable(),
             ])
             ->headerActions([
                 //
@@ -139,15 +158,15 @@ class KmRodadoPneu extends BaseWidget
     {
         return [
             'queryCount' => $this->queryCount,
-            'message'    => $this->getMessage(),
-            'table'      => $this->getTable(),
+            'message' => $this->getMessage(),
+            'table' => $this->getTable(),
         ];
     }
 
     protected function getMessage(): HtmlString
     {
         if ($this->queryCount === 0) {
-            return new HtmlString(<<<HTML
+            return new HtmlString(<<<'HTML'
             <div class="text-gray-500">
                 Nenhum registro encontrado.
             </div>

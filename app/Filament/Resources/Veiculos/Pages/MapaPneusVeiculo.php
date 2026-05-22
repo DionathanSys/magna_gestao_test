@@ -263,8 +263,10 @@ class MapaPneusVeiculo extends Page implements HasActions
                         ->label('Pneu')
                         ->columnSpan(3)
                         ->native(false)
-                        ->options(fn (): array => (new PneuService)->getPneusDisponiveis())
+                        ->getSearchResultsUsing(fn (string $search): array => (new PneuService)->getPneusDisponiveis($search))
+                        ->getOptionLabelUsing(fn ($value): ?string => Pneu::find($value)?->numero_fogo)
                         ->searchable()
+                        ->searchDebounce(700)
                         ->required(),
                     TextInput::make('posicao')
                         ->label('Posição')

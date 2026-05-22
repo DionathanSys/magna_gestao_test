@@ -19,7 +19,7 @@ class GetPneuDisponivel
                 $builder->where('numero_fogo', 'like', "%{$search}%");
 
                 if (is_numeric($search)) {
-                    $builder->orWhereKey((int) $search);
+                    $builder->orWhere('id', (int) $search);
                 }
             });
 

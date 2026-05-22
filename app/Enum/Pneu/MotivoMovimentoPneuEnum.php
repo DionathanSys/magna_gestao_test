@@ -4,12 +4,13 @@ namespace App\Enum\Pneu;
 
 enum MotivoMovimentoPneuEnum: string
 {
-    case RODIZIO   = 'RODIZIO';
-    case ESTEPE    = 'ESTEPE';
-    case INVERSAO  = 'INVERSAO';
+    case APLICACAO = 'APLICACAO';
+    case RODIZIO = 'RODIZIO';
+    case ESTEPE = 'ESTEPE';
+    case INVERSAO = 'INVERSAO';
     case RECAPAGEM = 'RECAPAGEM';
-    case CONSERTO  = 'CONSERTO';
-    case SUCATEAR  = 'SUCATEAR';
+    case CONSERTO = 'CONSERTO';
+    case SUCATEAR = 'SUCATEAR';
 
     public static function toSelectArray(): array
     {

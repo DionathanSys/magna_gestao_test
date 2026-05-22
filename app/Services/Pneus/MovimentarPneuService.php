@@ -160,6 +160,7 @@ class MovimentarPneuService
 
         $pneu = Models\Pneu::query()->findOrFail($data['pneu_id']);
         $mensagemErro = $this->inspecaoService->validarAplicacao($pneu);
+        $motivo = $data['motivo'] ?? MotivoMovimentoPneuEnum::APLICACAO;
 
         if ($mensagemErro) {
             throw new \DomainException($mensagemErro);
@@ -176,7 +177,7 @@ class MovimentarPneuService
             'km_inicial' => $data['km_inicial'],
             'eixo' => $pneuVeiculo->eixo,
             'posicao' => $pneuVeiculo->posicao,
-            'motivo' => $data['motivo'] instanceof \BackedEnum ? $data['motivo']->value : ($data['motivo'] ?? 'APLICACAO'),
+            'motivo' => $motivo instanceof \BackedEnum ? $motivo->value : $motivo,
             'tipo_evento' => 'APLICACAO',
             'sulco_movimento' => $data['sulco'] ?? $pneu->sulco_inicial ?? 0,
             'data_final' => $data['data_inicial'],

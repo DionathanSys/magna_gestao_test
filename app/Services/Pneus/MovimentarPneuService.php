@@ -133,6 +133,12 @@ class MovimentarPneuService
                 ]);
                 $this->cicloService->closeCurrentCycle($pneuVeiculo->pneu, $data['data_final'], $data['km_final']);
                 break;
+            default:
+                $pneuVeiculo->pneu->update([
+                    'status' => StatusPneuEnum::DISPONIVEL,
+                    'local' => LocalPneuEnum::ESTOQUE_CCO,
+                ]);
+                break;
         }
 
         Log::info(__METHOD__.' - Pneus após remoção.', [

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\TipoVeiculos;
 
+use App\Enum\Pneu\ConfiguracaoMapaPneusEnum;
 use App\Filament\Resources\TipoVeiculos\Pages\ManageTipoVeiculos;
 use App\Models\TipoVeiculo;
 use BackedEnum;
@@ -9,11 +10,11 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -35,11 +36,16 @@ class TipoVeiculoResource extends Resource
                 TextInput::make('descricao')
                     ->label('Descrição')
                     ->required(),
+                Select::make('configuracao_pneus')
+                    ->label('Mapa de Pneus')
+                    ->options(ConfiguracaoMapaPneusEnum::toSelectArray())
+                    ->native(false)
+                    ->helperText('Define o layout visual usado no mapa de pneus.')
+                    ->required(),
                 TextInput::make('meta_media')
                     ->label('Meta Média')
                     ->required()
                     ->numeric()
-
                     ->minValue(0.01),
                 Toggle::make('is_active')
                     ->label('Ativo')
@@ -56,6 +62,17 @@ class TipoVeiculoResource extends Resource
                 TextColumn::make('descricao')
                     ->label('Descrição')
                     ->searchable(isIndividual: true, isGlobal: false),
+                TextColumn::make('configuracao_pneus')
+                    ->label('Mapa de Pneus')
+                    ->formatStateUsing(function ($state) {
+                        if ($state instanceof ConfiguracaoMapaPneusEnum) {
+                            return $state->label();
+                        }
+
+                        return is_string($state)
+                            ? (ConfiguracaoMapaPneusEnum::tryFrom($state)?->label() ?? '-')
+                            : '-';
+                    }),
                 TextColumn::make('meta_media')
                     ->label('Meta Média')
                     ->numeric(2, ','),
@@ -79,12 +96,12 @@ class TipoVeiculoResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->visible(fn(): bool => Auth::user()->is_admin),
+                    ->visible(fn (): bool => Auth::user()->is_admin),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(): bool => Auth::user()->is_admin),
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                 ]),
             ]);
     }

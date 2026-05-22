@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Filament\Resources\Pneus\PneuResource;
 use App\Filament\Resources\Veiculos\VeiculoResource;
 use App\Models;
+use App\Services\Pneus\PneuAlertaService;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -34,7 +35,7 @@ class KmRodadoPneu extends BaseWidget
 
     protected function getBaseQuery(): Builder
     {
-        $threshold = 7000;
+        $threshold = app(PneuAlertaService::class)->getRodizioThresholdKm();
         $pneuTable = (new Models\PneuPosicaoVeiculo())->getTable();
 
         return Models\PneuPosicaoVeiculo::query()

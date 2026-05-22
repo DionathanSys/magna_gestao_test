@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\AlertasPneusWidget;
 use App\Filament\Widgets\KmRodadoPneu;
 use App\Filament\Widgets\KmVeiculoDesatualizado;
 use BackedEnum;
@@ -33,6 +34,7 @@ class DashboardPneus extends BaseDashboard
     {
         return [
             KmVeiculoDesatualizado::class,
+            AlertasPneusWidget::class,
             KmRodadoPneu::class,
         ];
     }

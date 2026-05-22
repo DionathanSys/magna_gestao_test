@@ -4,6 +4,7 @@ namespace App\Support\Pneus;
 
 use App\Enum\Pneu\ConfiguracaoMapaPneusEnum;
 use App\Enum\Pneu\ResultadoInspecaoPneuEnum;
+use App\Models\HistoricoMovimentoPneu;
 use App\Models\PneuPosicaoVeiculo;
 use App\Models\Veiculo;
 use Illuminate\Support\Collection;
@@ -179,6 +180,16 @@ class MapaPneusLayout
         $ultimaInspecao = $posicao->pneu?->inspecoes?->first();
         $resultado = $ultimaInspecao?->resultado;
         $status = static::status($resultado);
+        $kmHistorico = 0;
+
+        if ($posicao->pneu) {
+            $kmHistorico = HistoricoMovimentoPneu::query()
+                ->where('pneu_id', $posicao->pneu->id)
+                ->where('ciclo_vida', $posicao->pneu->ciclo_vida)
+                ->sum('km_percorrido');
+        }
+
+        $kmCicloAtual = (int) ($kmHistorico + ($posicao->km_rodado ?? 0));
 
         return [
             'id' => $posicao->id,
@@ -194,6 +205,7 @@ class MapaPneusLayout
             'empty' => blank($posicao->pneu_id),
             'ultima_inspecao' => $ultimaInspecao?->data_inspecao?->format('d/m/Y'),
             'km_rodado' => $posicao->km_rodado,
+            'km_ciclo_atual' => $kmCicloAtual,
         ];
     }
 

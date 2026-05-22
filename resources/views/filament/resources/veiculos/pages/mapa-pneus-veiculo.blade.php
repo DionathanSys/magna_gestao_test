@@ -19,27 +19,18 @@
                 linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
             border: 1px solid #e2e8f0;
             border-radius: 1.5rem;
-            padding: 1.5rem;
+            padding: 1rem;
             box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
         }
 
         .tire-map-layout {
-            display: grid;
-            gap: 1.5rem;
-            grid-template-columns: minmax(0, 1fr);
-        }
-
-        @media (min-width: 1100px) {
-            .tire-map-layout {
-                grid-template-columns: minmax(0, 1.5fr) minmax(20rem, 24rem);
-                align-items: start;
-            }
+            display: block;
         }
 
         .tire-map-visual {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
-            gap: 1rem;
+            gap: 0.75rem;
             align-items: stretch;
         }
 
@@ -49,11 +40,11 @@
         }
 
         .tire-map-side-row {
-            min-height: 7rem;
+            min-height: 4.5rem;
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.4rem;
             justify-content: center;
         }
 
@@ -67,13 +58,13 @@
 
         .tire-slot {
             width: 100%;
-            max-width: 5.25rem;
-            border-radius: 1rem;
+            max-width: 4.5rem;
+            border-radius: 0.9rem;
             border: 2px solid currentColor;
             background: var(--map-surface);
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
             color: var(--map-neutral);
-            padding: 0.6rem 0.45rem;
+            padding: 0.45rem 0.35rem;
             transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
             cursor: pointer;
             appearance: none;
@@ -99,41 +90,57 @@
 
         .tire-slot__code {
             display: block;
-            font-size: 0.72rem;
+            font-size: 0.65rem;
             font-weight: 800;
             color: var(--map-text);
         }
 
         .tire-slot__value {
             display: block;
-            font-size: 0.82rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            margin-top: 0.15rem;
+            margin-top: 0.1rem;
         }
 
         .tire-slot__meta {
             display: block;
-            font-size: 0.68rem;
+            font-size: 0.62rem;
             color: var(--map-muted);
-            margin-top: 0.2rem;
+            margin-top: 0.15rem;
             line-height: 1.2;
+        }
+
+        .tire-slot__km {
+            display: block;
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: var(--map-text);
+            margin-top: 0.18rem;
         }
 
         .tire-map-eixo {
             border: 1px solid #e2e8f0;
-            border-radius: 1.25rem;
+            border-radius: 1rem;
             background: rgba(255, 255, 255, 0.88);
-            padding: 1rem;
+            padding: 0.75rem;
         }
 
         .tire-map-eixo__title {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.68rem;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             color: var(--map-muted);
+        }
+
+        .tire-map-eixo__line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.4rem;
         }
 
         .tire-map-summary {
@@ -199,25 +206,11 @@
                             <div class="tire-map-eixo">
                                 <div class="tire-map-eixo__title">{{ $eixo['titulo'] }}</div>
 
-                                @if(count($eixo['left']))
-                                    <div class="tire-map-side-row is-left">
-                                        @foreach($eixo['left'] as $slot)
-                                            <button
-                                                type="button"
-                                                wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
-                                                class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
-                                            >
-                                                <span class="tire-slot__code">{{ $slot['label'] }}</span>
-                                                <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
-                                                <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                @endif
+                                @php($mergedSlots = array_merge($eixo['left'], $eixo['right']))
 
-                                @if(count($eixo['right']))
-                                    <div class="tire-map-side-row is-right mt-2">
-                                        @foreach($eixo['right'] as $slot)
+                                @if(count($mergedSlots) >= 4)
+                                    <div class="tire-map-eixo__line">
+                                        @foreach($mergedSlots as $slot)
                                             <button
                                                 type="button"
                                                 wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
@@ -226,75 +219,53 @@
                                                 <span class="tire-slot__code">{{ $slot['label'] }}</span>
                                                 <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
                                                 <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                                @if($slot['pneu_id'])
+                                                    <span class="tire-slot__km">{{ number_format($slot['km_ciclo_atual'] ?? 0, 0, ',', '.') }} km</span>
+                                                @endif
                                             </button>
                                         @endforeach
                                     </div>
+                                @else
+                                    @if(count($eixo['left']))
+                                        <div class="tire-map-side-row is-left">
+                                            @foreach($eixo['left'] as $slot)
+                                                <button
+                                                    type="button"
+                                                    wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
+                                                    class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
+                                                >
+                                                    <span class="tire-slot__code">{{ $slot['label'] }}</span>
+                                                    <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
+                                                    <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__km">{{ number_format($slot['km_ciclo_atual'] ?? 0, 0, ',', '.') }} km</span>
+                                                    @endif
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    @if(count($eixo['right']))
+                                        <div class="tire-map-side-row is-right mt-2">
+                                            @foreach($eixo['right'] as $slot)
+                                                <button
+                                                    type="button"
+                                                    wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
+                                                    class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
+                                                >
+                                                    <span class="tire-slot__code">{{ $slot['label'] }}</span>
+                                                    <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
+                                                    <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__km">{{ number_format($slot['km_ciclo_atual'] ?? 0, 0, ',', '.') }} km</span>
+                                                    @endif
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         @endforeach
-                    </div>
-                </div>
-
-                <div class="tire-map-summary">
-                    <div class="tire-map-summary-card">
-                        @if($selectedPosicao)
-                            @php($ultimaInspecao = $selectedPosicao->pneu?->inspecoes?->first())
-                            <div class="flex items-start justify-between gap-3">
-                                <div>
-                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Selecionado</p>
-                                    <h3 class="mt-1 text-lg font-bold text-slate-900">
-                                        {{ $selectedPosicao->pneu?->numero_fogo ?: 'Posição vazia' }}
-                                    </h3>
-                                    <p class="text-sm text-slate-500">
-                                        {{ $selectedPosicao->sequencia ? 'P'.str_pad((string) $selectedPosicao->sequencia, 2, '0', STR_PAD_LEFT) : 'Sem sequência' }}
-                                        · {{ $selectedPosicao->eixo }}º eixo · {{ $selectedPosicao->posicao }}
-                                    </p>
-                                </div>
-                                @if($selectedCanInspect)
-                                    <x-filament::button wire:click="openInspection({{ $selectedPosicao->id }})" icon="heroicon-o-arrow-top-right-on-square" size="sm">
-                                        Inspecionar
-                                    </x-filament::button>
-                                @endif
-                            </div>
-
-                            <div class="mt-5 space-y-3 text-sm">
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="text-slate-500">Marca / Modelo</span>
-                                    <span class="text-right font-medium text-slate-900">
-                                        {{ trim(($selectedPosicao->pneu?->marcaCatalogo?->nome ?? '').' '.($selectedPosicao->pneu?->modeloCatalogo?->nome ?? '')) ?: '-' }}
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="text-slate-500">Medida</span>
-                                    <span class="text-right font-medium text-slate-900">{{ $selectedPosicao->pneu?->medidaCatalogo?->codigo ?? '-' }}</span>
-                                </div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="text-slate-500">Km na posição</span>
-                                    <span class="text-right font-medium text-slate-900">{{ number_format($selectedPosicao->km_rodado ?? 0, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="text-slate-500">Última inspeção</span>
-                                    <span class="text-right font-medium text-slate-900">{{ $ultimaInspecao?->data_inspecao?->format('d/m/Y') ?? 'Sem registro' }}</span>
-                                </div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="text-slate-500">Resultado</span>
-                                    <span class="text-right font-medium text-slate-900">{{ $ultimaInspecao?->resultado?->value ?? 'N/A' }}</span>
-                                </div>
-                            </div>
-                        @else
-                            <p class="text-sm text-slate-500">Nenhuma posição configurada para este veículo.</p>
-                        @endif
-                    </div>
-
-                    <div class="tire-map-summary-card">
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Legenda</p>
-                        <div class="mt-4 space-y-3 text-sm">
-                            <div class="flex items-center gap-3"><span class="inline-block h-3 w-3 rounded-full bg-green-600"></span><span class="text-slate-700">Aprovado</span></div>
-                            <div class="flex items-center gap-3"><span class="inline-block h-3 w-3 rounded-full bg-amber-500"></span><span class="text-slate-700">Monitorar / aguardando conserto</span></div>
-                            <div class="flex items-center gap-3"><span class="inline-block h-3 w-3 rounded-full bg-blue-600"></span><span class="text-slate-700">Apto para recapagem</span></div>
-                            <div class="flex items-center gap-3"><span class="inline-block h-3 w-3 rounded-full bg-red-600"></span><span class="text-slate-700">Reprovado / condenado</span></div>
-                            <div class="flex items-center gap-3"><span class="inline-block h-3 w-3 rounded-full bg-slate-400"></span><span class="text-slate-700">Sem inspeção registrada</span></div>
-                        </div>
                     </div>
                 </div>
             </div>

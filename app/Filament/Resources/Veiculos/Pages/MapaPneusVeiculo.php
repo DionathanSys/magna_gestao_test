@@ -73,13 +73,10 @@ class MapaPneusVeiculo extends Page implements HasActions
     public function getViewData(): array
     {
         $posicoes = $this->getPosicoes();
-        $selectedPosicao = $posicoes->firstWhere('id', $this->selectedPosicaoId);
 
         return [
             'record' => $this->getRecord(),
             'mapa' => MapaPneusLayout::build($this->getRecord(), $posicoes, $this->selectedPosicaoId),
-            'selectedPosicao' => $selectedPosicao,
-            'selectedCanInspect' => $selectedPosicao && filled($selectedPosicao->pneu_id),
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use BackedEnum;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Inerba\DbConfig\AbstractPageSettings;
@@ -13,12 +14,6 @@ class PneuSettings extends AbstractPageSettings
     public ?array $data = [];
 
     protected static ?string $title = 'Pneu';
-
-    // protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-wrench-screwdriver'; // Uncomment if you want to set a custom navigation icon
-
-    // protected ?string $subheading = ''; // Uncomment if you want to set a custom subheading
-
-    // protected static ?string $slug = 'pneu-settings'; // Uncomment if you want to set a custom slug
 
     protected string $view = 'filament.pages.pneu-settings';
 
@@ -37,14 +32,11 @@ class PneuSettings extends AbstractPageSettings
         return 'config-pneu';
     }
 
-    /**
-     * Provide default values.
-     *
-     * @return array<string, mixed>
-     */
     public function getDefaultData(): array
     {
-        return [];
+        return [
+            'alerta_km_rodizio' => 7000,
+        ];
     }
 
     public function content(Schema $schema): Schema
@@ -74,6 +66,19 @@ class PneuSettings extends AbstractPageSettings
                                 Placeholder::make('modelos_notice')
                                     ->label('Cadastro Normalizado')
                                     ->content('Use o recurso Modelos de Pneu no menu de Pneus.'),
+                            ]),
+                        Section::make('Alertas Operacionais')
+                            ->description('Limites usados para alertas de rodízio e acompanhamento operacional.')
+                            ->columns(12)
+                            ->columnSpanFull()
+                            ->schema([
+                                TextInput::make('alerta_km_rodizio')
+                                    ->label('Km para alerta de rodízio')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->required()
+                                    ->columnSpan(4)
+                                    ->helperText('Quando o pneu atingir esse km no ciclo atual, o dashboard gera alerta de rodízio.'),
                             ]),
                     ]),
             ])

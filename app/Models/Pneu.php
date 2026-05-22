@@ -121,6 +121,11 @@ class Pneu extends Model
         return $this->hasMany(PneuInspecao::class, 'pneu_id');
     }
 
+    public function ultimaInspecao(): HasOne
+    {
+        return $this->hasOne(PneuInspecao::class, 'pneu_id')->latestOfMany('data_inspecao');
+    }
+
     protected function kmPercorridoCiclo(): Attribute
     {
         return Attribute::make(

@@ -27,6 +27,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
+use Illuminate\Support\Collection;
 
 class MapaPneusVeiculo extends Page implements HasActions
 {
@@ -43,6 +44,10 @@ class MapaPneusVeiculo extends Page implements HasActions
     public ?int $selectedPosicaoId = null;
 
     public string $interactionMode = 'inspect';
+
+    protected ?Veiculo $cachedRecord = null;
+
+    protected ?Collection $cachedPosicoes = null;
 
     public function mount(int|string $record): void
     {
@@ -122,7 +127,11 @@ class MapaPneusVeiculo extends Page implements HasActions
 
     public function getRecord(): Veiculo
     {
-        return Veiculo::query()
+        if ($this->cachedRecord) {
+            return $this->cachedRecord;
+        }
+
+        return $this->cachedRecord = Veiculo::query()
             ->with(['kmAtual', 'tipoVeiculo'])
             ->findOrFail($this->recordId);
     }
@@ -145,10 +154,14 @@ class MapaPneusVeiculo extends Page implements HasActions
 
     protected function getPosicoes()
     {
-        return PneuPosicaoVeiculo::query()
+        if ($this->cachedPosicoes) {
+            return $this->cachedPosicoes;
+        }
+
+        return $this->cachedPosicoes = PneuPosicaoVeiculo::query()
             ->where('veiculo_id', $this->recordId)
             ->with([
-                'pneu.inspecoes' => fn ($query) => $query->latest('data_inspecao')->latest('id'),
+                'pneu.ultimaInspecao',
                 'pneu.marcaCatalogo',
                 'pneu.modeloCatalogo',
                 'pneu.medidaCatalogo',
@@ -207,6 +220,7 @@ class MapaPneusVeiculo extends Page implements HasActions
             })
             ->action(function (array $data): void {
                 PneuInspecao::create($data);
+                $this->flushPageCache();
 
                 Notification::make()
                     ->title('Inspeção registrada com sucesso')
@@ -269,6 +283,7 @@ class MapaPneusVeiculo extends Page implements HasActions
 
                 try {
                     (new MovimentarPneuService)->aplicarPneu($posicao, $data);
+                    $this->flushPageCache();
                 } catch (\Throwable $e) {
                     notify::error(titulo: 'Falha ao vincular pneu', mensagem: $e->getMessage());
                     $action->halt();
@@ -326,6 +341,7 @@ class MapaPneusVeiculo extends Page implements HasActions
 
                 try {
                     (new MovimentarPneuService)->inverterPneu($posicao, $data);
+                    $this->flushPageCache();
                 } catch (\Throwable $e) {
                     notify::error(titulo: 'Falha ao inverter pneu', mensagem: $e->getMessage());
                     $action->halt();
@@ -391,6 +407,7 @@ class MapaPneusVeiculo extends Page implements HasActions
 
                 try {
                     (new MovimentarPneuService)->trocarPneu($posicao, $data);
+                    $this->flushPageCache();
                 } catch (\Throwable $e) {
                     notify::error(titulo: 'Falha ao substituir pneu', mensagem: $e->getMessage());
                     $action->halt();
@@ -450,6 +467,7 @@ class MapaPneusVeiculo extends Page implements HasActions
 
                 try {
                     (new MovimentarPneuService)->removerPneu($posicao, $data);
+                    $this->flushPageCache();
                 } catch (\Throwable $e) {
                     notify::error(titulo: 'Falha ao desvincular pneu', mensagem: $e->getMessage());
                     $action->halt();
@@ -487,9 +505,15 @@ class MapaPneusVeiculo extends Page implements HasActions
             ->send();
     }
 
+    protected function flushPageCache(): void
+    {
+        $this->cachedRecord = null;
+        $this->cachedPosicoes = null;
+    }
+
     protected function getInspectionFormData(?PneuPosicaoVeiculo $record): array
     {
-        $ultimaInspecao = $record?->pneu?->inspecoes?->first();
+        $ultimaInspecao = $record?->pneu?->ultimaInspecao;
         $ultimoSulcoInfo = collect([
             $ultimaInspecao?->sulco_interno,
             $ultimaInspecao?->sulco_centro,

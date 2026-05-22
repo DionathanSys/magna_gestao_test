@@ -15,6 +15,7 @@ class MapaPneusLayout
     public static function build(Veiculo $veiculo, Collection $posicoes, ?int $selectedPosicaoId = null): array
     {
         $configuracao = static::resolveConfiguracao($veiculo, $posicoes);
+        $kmHistoricoPorCiclo = static::resolveKmHistoricoPorCiclo($posicoes);
         $eixos = $posicoes
             ->sortBy('sequencia')
             ->groupBy('eixo')
@@ -23,6 +24,7 @@ class MapaPneusLayout
                 (int) $eixo,
                 $group->values(),
                 $selectedPosicaoId,
+                $kmHistoricoPorCiclo,
             ))
             ->values();
 
@@ -33,7 +35,7 @@ class MapaPneusLayout
             'resumo' => [
                 'total_posicoes' => $posicoes->count(),
                 'total_aplicados' => $posicoes->whereNotNull('pneu_id')->count(),
-                'total_inspecionados' => $posicoes->filter(fn (PneuPosicaoVeiculo $posicao) => $posicao->pneu?->inspecoes?->first())->count(),
+                'total_inspecionados' => $posicoes->filter(fn (PneuPosicaoVeiculo $posicao) => $posicao->pneu?->ultimaInspecao)->count(),
             ],
         ];
     }
@@ -65,7 +67,7 @@ class MapaPneusLayout
             : ConfiguracaoMapaPneusEnum::CAMINHAO_6X2;
     }
 
-    protected static function buildEixo(int $eixo, Collection $posicoes, ?int $selectedPosicaoId = null): array
+    protected static function buildEixo(int $eixo, Collection $posicoes, ?int $selectedPosicaoId = null, array $kmHistoricoPorCiclo = []): array
     {
         $classificadas = static::classifySides($posicoes);
 
@@ -73,10 +75,10 @@ class MapaPneusLayout
             'numero' => $eixo,
             'titulo' => $eixo.'º eixo',
             'left' => $classificadas['left']->map(
-                fn (PneuPosicaoVeiculo $posicao, int $index) => static::formatSlot($posicao, $selectedPosicaoId, $index)
+                fn (PneuPosicaoVeiculo $posicao, int $index) => static::formatSlot($posicao, $selectedPosicaoId, $index, $kmHistoricoPorCiclo)
             )->all(),
             'right' => $classificadas['right']->map(
-                fn (PneuPosicaoVeiculo $posicao, int $index) => static::formatSlot($posicao, $selectedPosicaoId, $index)
+                fn (PneuPosicaoVeiculo $posicao, int $index) => static::formatSlot($posicao, $selectedPosicaoId, $index, $kmHistoricoPorCiclo)
             )->all(),
         ];
     }
@@ -175,9 +177,9 @@ class MapaPneusLayout
         return $isInterno ? 0 : ($isExterno ? 1 : 2);
     }
 
-    protected static function formatSlot(PneuPosicaoVeiculo $posicao, ?int $selectedPosicaoId, int $index): array
+    protected static function formatSlot(PneuPosicaoVeiculo $posicao, ?int $selectedPosicaoId, int $index, array $kmHistoricoPorCiclo = []): array
     {
-        $ultimaInspecao = $posicao->pneu?->inspecoes?->first();
+        $ultimaInspecao = $posicao->pneu?->ultimaInspecao;
         $resultado = $ultimaInspecao?->resultado;
         $status = static::status($resultado);
         $kmHistorico = 0;
@@ -187,10 +189,7 @@ class MapaPneusLayout
             ?? $posicao->pneu?->desenhoPneu?->descricao;
 
         if ($posicao->pneu) {
-            $kmHistorico = HistoricoMovimentoPneu::query()
-                ->where('pneu_id', $posicao->pneu->id)
-                ->where('ciclo_vida', $posicao->pneu->ciclo_vida)
-                ->sum('km_percorrido');
+            $kmHistorico = $kmHistoricoPorCiclo[static::makeHistoricoKey($posicao->pneu->id, (int) $posicao->pneu->ciclo_vida)] ?? 0;
 
             $temKmAplicado = $kmHistorico > 0 || filled($posicao->km_rodado);
         }
@@ -217,6 +216,45 @@ class MapaPneusLayout
             'km_rodado' => $posicao->km_rodado,
             'km_ciclo_atual' => $kmCicloAtual,
         ];
+    }
+
+    protected static function resolveKmHistoricoPorCiclo(Collection $posicoes): array
+    {
+        $pairs = $posicoes
+            ->filter(fn (PneuPosicaoVeiculo $posicao) => filled($posicao->pneu_id))
+            ->map(fn (PneuPosicaoVeiculo $posicao) => [
+                'pneu_id' => (int) $posicao->pneu_id,
+                'ciclo_vida' => (int) ($posicao->pneu?->ciclo_vida ?? 0),
+            ])
+            ->unique(fn (array $item) => static::makeHistoricoKey($item['pneu_id'], $item['ciclo_vida']))
+            ->values();
+
+        if ($pairs->isEmpty()) {
+            return [];
+        }
+
+        return HistoricoMovimentoPneu::query()
+            ->selectRaw('pneu_id, ciclo_vida, SUM(km_percorrido) as total_km')
+            ->where(function ($query) use ($pairs): void {
+                foreach ($pairs as $pair) {
+                    $query->orWhere(function ($subQuery) use ($pair): void {
+                        $subQuery
+                            ->where('pneu_id', $pair['pneu_id'])
+                            ->where('ciclo_vida', $pair['ciclo_vida']);
+                    });
+                }
+            })
+            ->groupBy('pneu_id', 'ciclo_vida')
+            ->get()
+            ->mapWithKeys(fn ($item) => [
+                static::makeHistoricoKey((int) $item->pneu_id, (int) $item->ciclo_vida) => (float) $item->total_km,
+            ])
+            ->all();
+    }
+
+    protected static function makeHistoricoKey(int $pneuId, int $cicloVida): string
+    {
+        return $pneuId.'|'.$cicloVida;
     }
 
     protected static function status(?ResultadoInspecaoPneuEnum $resultado): string

@@ -15,12 +15,24 @@ class GetPneuDisponivel
             ->whereDoesntHave('veiculo');
 
         if ($search) {
-            $query->where('numero_fogo', 'like', "%{$search}%");
+            $query->where(function ($builder) use ($search) {
+                $builder->where('numero_fogo', 'like', "%{$search}%");
+
+                if (is_numeric($search)) {
+                    $builder->orWhereKey((int) $search);
+                }
+            });
+
+            $query->orderByRaw(
+                'case when id = ? then 0 when numero_fogo = ? then 1 when numero_fogo like ? then 2 else 3 end',
+                [is_numeric($search) ? (int) $search : 0, $search, $search.'%']
+            );
+        } else {
+            $query->orderBy('numero_fogo');
         }
 
         return $query
-            ->orderBy('numero_fogo')
-            ->limit(50)
+            ->limit($search ? 200 : 50)
             ->pluck('numero_fogo', 'id')
             ->toArray();
     }

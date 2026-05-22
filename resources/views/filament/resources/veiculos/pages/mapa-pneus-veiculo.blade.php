@@ -38,8 +38,8 @@
 
         .tire-map-visual {
             display: grid;
-            grid-template-columns: minmax(5rem, 1fr) minmax(9rem, 12rem) minmax(5rem, 1fr);
-            gap: 0.75rem;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 1rem;
             align-items: stretch;
         }
 
@@ -50,85 +50,19 @@
 
         .tire-map-side-row {
             min-height: 7rem;
-            display: grid;
-            align-content: center;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 0.5rem;
+            justify-content: center;
         }
 
         .tire-map-side-row.is-right {
-            justify-items: start;
+            justify-content: center;
         }
 
         .tire-map-side-row.is-left {
-            justify-items: end;
-        }
-
-        .tire-map-vehicle {
-            position: relative;
-            border: 1px solid var(--map-line);
-            border-radius: 999px;
-            background: var(--map-body);
-            min-height: 34rem;
-            overflow: hidden;
-        }
-
-        .tire-map-vehicle::before {
-            content: '';
-            position: absolute;
-            inset: 1.1rem;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            border-radius: 999px;
-        }
-
-        .tire-map-cab {
-            position: absolute;
-            top: 1.35rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 62%;
-            height: 7rem;
-            border-radius: 1.4rem;
-            background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
-        }
-
-        .tire-map-chassis {
-            position: absolute;
-            top: 9rem;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 1.1rem;
-            border-radius: 999px;
-            background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
-        }
-
-        .tire-map-axles {
-            position: relative;
-            z-index: 2;
-            display: grid;
-            height: 100%;
-            padding: 7.5rem 1rem 2rem;
-        }
-
-        .tire-map-axle {
-            position: relative;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            color: var(--map-muted);
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .tire-map-axle::before {
-            content: '';
-            position: absolute;
-            left: 1rem;
-            right: 1rem;
-            height: 2px;
-            background: var(--map-line);
         }
 
         .tire-slot {
@@ -183,6 +117,23 @@
             color: var(--map-muted);
             margin-top: 0.2rem;
             line-height: 1.2;
+        }
+
+        .tire-map-eixo {
+            border: 1px solid #e2e8f0;
+            border-radius: 1.25rem;
+            background: rgba(255, 255, 255, 0.88);
+            padding: 1rem;
+        }
+
+        .tire-map-eixo__title {
+            margin-bottom: 0.75rem;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--map-muted);
         }
 
         .tire-map-summary {
@@ -244,51 +195,43 @@
                     </div>
 
                     <div class="tire-map-visual">
-                        <div class="tire-map-side">
-                            @foreach($mapa['eixos'] as $eixo)
-                                <div class="tire-map-side-row is-left">
-                                    @foreach($eixo['left'] as $slot)
-                                        <button
-                                            type="button"
-                                            wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
-                                            class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
-                                        >
-                                            <span class="tire-slot__code">{{ $slot['label'] }}</span>
-                                            <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
-                                            <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            @endforeach
-                        </div>
+                        @foreach($mapa['eixos'] as $eixo)
+                            <div class="tire-map-eixo">
+                                <div class="tire-map-eixo__title">{{ $eixo['titulo'] }}</div>
 
-                        <div class="tire-map-vehicle">
-                            <div class="tire-map-cab"></div>
-                            <div class="tire-map-chassis"></div>
-                            <div class="tire-map-axles" style="grid-template-rows: repeat({{ max(count($mapa['eixos']), 1) }}, minmax(0, 1fr));">
-                                @foreach($mapa['eixos'] as $eixo)
-                                    <div class="tire-map-axle">{{ $eixo['titulo'] }}</div>
-                                @endforeach
+                                @if(count($eixo['left']))
+                                    <div class="tire-map-side-row is-left">
+                                        @foreach($eixo['left'] as $slot)
+                                            <button
+                                                type="button"
+                                                wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
+                                                class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
+                                            >
+                                                <span class="tire-slot__code">{{ $slot['label'] }}</span>
+                                                <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
+                                                <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @if(count($eixo['right']))
+                                    <div class="tire-map-side-row is-right mt-2">
+                                        @foreach($eixo['right'] as $slot)
+                                            <button
+                                                type="button"
+                                                wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
+                                                class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
+                                            >
+                                                <span class="tire-slot__code">{{ $slot['label'] }}</span>
+                                                <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
+                                                <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
-                        </div>
-
-                        <div class="tire-map-side">
-                            @foreach($mapa['eixos'] as $eixo)
-                                <div class="tire-map-side-row is-right">
-                                    @foreach($eixo['right'] as $slot)
-                                        <button
-                                            type="button"
-                                            wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
-                                            class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
-                                        >
-                                            <span class="tire-slot__code">{{ $slot['label'] }}</span>
-                                            <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
-                                            <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            @endforeach
-                        </div>
+                        @endforeach
                     </div>
                 </div>
 
@@ -356,8 +299,6 @@
                 </div>
             </div>
         </div>
-
-        {{ $this->table }}
     </div>
 
     <x-filament-actions::modals />

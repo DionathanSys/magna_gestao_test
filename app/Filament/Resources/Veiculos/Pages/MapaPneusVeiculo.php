@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Veiculos\Pages;
 use App\Enum\Pneu\TipoInspecaoPneuEnum;
 use App\Filament\Resources\PneuInspecoes\Schemas\PneuInspecaoForm;
 use App\Filament\Resources\Veiculos\VeiculoResource;
-use App\Models\HistoricoMovimentoPneu;
 use App\Models\PneuInspecao;
 use App\Models\PneuPosicaoVeiculo;
 use App\Models\Veiculo;
@@ -18,16 +17,10 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Support\Enums\FontWeight;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
 
-class MapaPneusVeiculo extends Page implements HasActions, HasTable
+class MapaPneusVeiculo extends Page implements HasActions
 {
     use InteractsWithActions;
-    use InteractsWithTable;
 
     protected static string $resource = VeiculoResource::class;
 
@@ -70,63 +63,6 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
         $this->replaceMountedAction('inspecionarPosicao', ['posicao' => $posicaoId]);
     }
 
-    public function table(Table $table): Table
-    {
-        return $table
-            ->heading('Mapa de pneus - '.$this->getRecord()->placa)
-            ->query($this->getTableQuery())
-            ->columns([
-                TextColumn::make('pneu.numero_fogo')
-                    ->label('Pneu')
-                    ->placeholder('Vazio')
-                    ->weight(FontWeight::SemiBold),
-                TextColumn::make('posicao')
-                    ->label('Posição'),
-                TextColumn::make('eixo')
-                    ->label('Eixo'),
-                TextColumn::make('sequencia')
-                    ->label('Sequência'),
-                TextColumn::make('km_inicial')
-                    ->label('KM Inicial')
-                    ->numeric(0, ',', '.'),
-                TextColumn::make('veiculo.kmAtual.quilometragem')
-                    ->label('Km Atual')
-                    ->numeric(0, ',', '.'),
-                TextColumn::make('km_rodado')
-                    ->label('Km Posição')
-                    ->numeric(0, ',', '.'),
-                TextColumn::make('km_total_historico_ciclo')
-                    ->label('Km Ciclo Atual')
-                    ->numeric(0, ',', '.')
-                    ->state(function (PneuPosicaoVeiculo $record): int {
-                        if (! $record->pneu) {
-                            return 0;
-                        }
-
-                        $kmHistorico = HistoricoMovimentoPneu::where('pneu_id', $record->pneu->id)
-                            ->where('ciclo_vida', $record->pneu->ciclo_vida)
-                            ->sum('km_percorrido');
-
-                        return $kmHistorico + ($record->km_rodado ?? 0);
-                    }),
-                TextColumn::make('ultima_inspecao_data')
-                    ->label('Última Inspeção')
-                    ->state(fn (PneuPosicaoVeiculo $record) => $record->pneu?->inspecoes?->first()?->data_inspecao?->format('d/m/Y') ?? 'Sem registro'),
-                TextColumn::make('ultima_inspecao_resultado')
-                    ->label('Último Resultado')
-                    ->state(fn (PneuPosicaoVeiculo $record) => $record->pneu?->inspecoes?->first()?->resultado?->value ?? 'N/A'),
-            ])
-            ->defaultSort('sequencia')
-            ->paginated(false)
-            ->groups([
-                'eixo',
-            ])
-            ->defaultGroup('eixo')
-            ->recordActions([
-                $this->inspecionarPosicaoAction(),
-            ]);
-    }
-
     public function getRecord(): Veiculo
     {
         return Veiculo::query()
@@ -160,20 +96,6 @@ class MapaPneusVeiculo extends Page implements HasActions, HasTable
             ])
             ->orderBy('sequencia')
             ->get();
-    }
-
-    protected function getTableQuery()
-    {
-        return PneuPosicaoVeiculo::query()
-            ->where('veiculo_id', $this->recordId)
-            ->with([
-                'pneu.inspecoes' => fn ($query) => $query->latest('data_inspecao')->latest('id'),
-                'pneu.marcaCatalogo',
-                'pneu.modeloCatalogo',
-                'pneu.medidaCatalogo',
-                'veiculo.kmAtual',
-            ])
-            ->orderBy('sequencia');
     }
 
     public function inspecionarPosicaoAction(): Action

@@ -87,14 +87,14 @@ class MapaPneusLayout
         $unknown = collect();
 
         foreach ($posicoes->sortBy('sequencia') as $posicao) {
-            $texto = Str::lower((string) $posicao->posicao);
+            $side = static::detectSide($posicao);
 
-            if (Str::contains($texto, ['esq', 'esquerd', 'motorista', 'left'])) {
+            if ($side === 'left') {
                 $left->push($posicao);
                 continue;
             }
 
-            if (Str::contains($texto, ['dir', 'direit', 'passageiro', 'right'])) {
+            if ($side === 'right') {
                 $right->push($posicao);
                 continue;
             }
@@ -105,9 +105,73 @@ class MapaPneusLayout
         $metade = (int) ceil($unknown->count() / 2);
 
         return [
-            'left' => $left->merge($unknown->take($metade))->values(),
-            'right' => $right->merge($unknown->slice($metade))->values(),
+            'left' => static::sortSidePositions($left->merge($unknown->take($metade))->values(), 'left'),
+            'right' => static::sortSidePositions($right->merge($unknown->slice($metade))->values(), 'right'),
         ];
+    }
+
+    protected static function detectSide(PneuPosicaoVeiculo $posicao): ?string
+    {
+        $texto = Str::upper(preg_replace('/[^A-Z]/', '', (string) $posicao->posicao));
+
+        if (Str::contains($texto, ['ESQ', 'ESQUERD', 'MOTORISTA', 'LEFT'])) {
+            return 'left';
+        }
+
+        if (Str::contains($texto, ['DIR', 'DIREIT', 'PASSAGEIRO', 'RIGHT'])) {
+            return 'right';
+        }
+
+        if (Str::startsWith($texto, ['TEE', 'TEI', 'EE', 'EI', 'LE'])) {
+            return 'left';
+        }
+
+        if (Str::startsWith($texto, ['TDE', 'TDI', 'DE', 'DI', 'LD'])) {
+            return 'right';
+        }
+
+        if (Str::startsWith($texto, 'T') && isset($texto[1])) {
+            return match ($texto[1]) {
+                'E' => 'left',
+                'D' => 'right',
+                default => null,
+            };
+        }
+
+        return match ($texto[0] ?? null) {
+            'E' => 'left',
+            'D' => 'right',
+            default => null,
+        };
+    }
+
+    protected static function sortSidePositions(Collection $posicoes, string $side): Collection
+    {
+        return $posicoes
+            ->sort(function (PneuPosicaoVeiculo $a, PneuPosicaoVeiculo $b) use ($side): int {
+                $sequenciaA = (int) ($a->sequencia ?? 0);
+                $sequenciaB = (int) ($b->sequencia ?? 0);
+
+                if ($sequenciaA !== $sequenciaB) {
+                    return $sequenciaB <=> $sequenciaA;
+                }
+
+                return static::getSideOrderWeight($a, $side) <=> static::getSideOrderWeight($b, $side);
+            })
+            ->values();
+    }
+
+    protected static function getSideOrderWeight(PneuPosicaoVeiculo $posicao, string $side): int
+    {
+        $texto = Str::upper(preg_replace('/[^A-Z]/', '', (string) $posicao->posicao));
+        $isInterno = Str::contains($texto, 'I') || Str::contains($texto, 'INT');
+        $isExterno = Str::contains($texto, 'E') || Str::contains($texto, 'EXT');
+
+        if ($side === 'left') {
+            return $isExterno ? 0 : ($isInterno ? 1 : 2);
+        }
+
+        return $isInterno ? 0 : ($isExterno ? 1 : 2);
     }
 
     protected static function formatSlot(PneuPosicaoVeiculo $posicao, ?int $selectedPosicaoId, int $index): array

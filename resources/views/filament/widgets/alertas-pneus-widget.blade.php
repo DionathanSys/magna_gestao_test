@@ -79,6 +79,51 @@
                 padding: 1rem;
             }
 
+            .pneu-alertas-filters {
+                display: grid;
+                gap: 0.75rem;
+                grid-template-columns: minmax(0, 1.4fr) minmax(120px, 0.8fr) minmax(140px, 1fr) 180px;
+                align-items: end;
+            }
+
+            .pneu-alertas-filter__label {
+                display: block;
+                margin-bottom: 0.35rem;
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: #64748b;
+            }
+
+            .pneu-alertas-filter__input {
+                width: 100%;
+                min-height: 2.75rem;
+                border: 1px solid #cbd5e1;
+                border-radius: 0.85rem;
+                background: #ffffff;
+                padding: 0.65rem 0.85rem;
+                font-size: 0.9rem;
+                color: #0f172a;
+                outline: none;
+                transition: border-color .15s ease, box-shadow .15s ease;
+            }
+
+            .pneu-alertas-filter__input:focus {
+                border-color: #94a3b8;
+                box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.18);
+            }
+
+            .pneu-alertas-filter__action {
+                width: 100%;
+            }
+
+            @media (max-width: 1023px) {
+                .pneu-alertas-filters {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+            }
+
             .pneu-alerta-card {
                 border-radius: 1rem;
                 padding: 1rem;
@@ -166,10 +211,10 @@
                 </div>
             </div>
 
-            <div class="grid gap-3 md:grid-cols-4">
+            <div class="pneu-alertas-filters">
                 <div>
-                    <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Placa</label>
-                    <select wire:model.live="veiculoIdFilter" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <label class="pneu-alertas-filter__label">Placa</label>
+                    <select wire:model.live="veiculoIdFilter" class="pneu-alertas-filter__input">
                         <option value="">Todas</option>
                         @foreach($placas as $id => $placa)
                             <option value="{{ $id }}">{{ $placa }}</option>
@@ -177,8 +222,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Eixo</label>
-                    <select wire:model.live="eixoFilter" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <label class="pneu-alertas-filter__label">Eixo</label>
+                    <select wire:model.live="eixoFilter" class="pneu-alertas-filter__input">
                         <option value="">Todos</option>
                         @foreach($eixos as $eixo => $label)
                             <option value="{{ $eixo }}">{{ $label }}</option>
@@ -186,16 +231,17 @@
                     </select>
                 </div>
                 <div>
-                    <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Posição</label>
-                    <select wire:model.live="posicaoFilter" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                    <label class="pneu-alertas-filter__label">Posição</label>
+                    <select wire:model.live="posicaoFilter" class="pneu-alertas-filter__input">
                         <option value="">Todas</option>
                         @foreach($posicoes as $posicao => $label)
                             <option value="{{ $posicao }}">{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="flex items-end">
-                    <x-filament::button color="gray" wire:click="resetFilters" class="w-full">
+                <div>
+                    <label class="pneu-alertas-filter__label">Ações</label>
+                    <x-filament::button color="gray" wire:click="resetFilters" class="pneu-alertas-filter__action">
                         Limpar filtros
                     </x-filament::button>
                 </div>

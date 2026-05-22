@@ -58,7 +58,7 @@
 
         .tire-slot {
             width: 100%;
-            max-width: 5.4rem;
+            max-width: 6.48rem;
             min-height: 5.4rem;
             border-radius: 0.9rem;
             border: 2px solid currentColor;

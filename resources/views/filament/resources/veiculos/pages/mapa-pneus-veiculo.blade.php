@@ -362,7 +362,12 @@
                                                     @endif
                                                     @if($slot['pneu_id'])
                                                         <span class="tire-slot__km">
-                                                            {{ $slot['km_ciclo_atual'] !== null ? number_format((float) $slot['km_ciclo_atual'], 0, ',', '.') . ' km' : '0.00 km' }}
+                                                            Pos.: {{ $slot['km_rodado'] !== null ? number_format((float) $slot['km_rodado'], 0, ',', '.') : '0' }} km
+                                                        </span>
+                                                    @endif
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__km">
+                                                            Ciclo: {{ $slot['km_ciclo_atual'] !== null ? number_format((float) $slot['km_ciclo_atual'], 0, ',', '.') : '0' }} km
                                                         </span>
                                                     @endif
                                                 </button>

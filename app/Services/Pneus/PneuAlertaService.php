@@ -2,7 +2,6 @@
 
 namespace App\Services\Pneus;
 
-use App\Models\HistoricoMovimentoPneu;
 use App\Models\PneuPosicaoVeiculo;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
@@ -47,18 +46,9 @@ class PneuAlertaService
             ->get();
     }
 
-    public function getKmCicloAtual(PneuPosicaoVeiculo $posicao): int
+    public function getKmPosicaoAtual(PneuPosicaoVeiculo $posicao): int
     {
-        if (! $posicao->pneu) {
-            return 0;
-        }
-
-        $kmHistorico = HistoricoMovimentoPneu::query()
-            ->where('pneu_id', $posicao->pneu->id)
-            ->where('ciclo_vida', $posicao->pneu->ciclo_vida)
-            ->sum('km_percorrido');
-
-        return (int) ($kmHistorico + ($posicao->km_rodado ?? 0));
+        return (int) ($posicao->km_rodado ?? 0);
     }
 
     protected function buildDespareamentoAlerts(EloquentCollection $posicoes): Collection
@@ -118,9 +108,9 @@ class PneuAlertaService
 
         return $posicoes
             ->map(function (PneuPosicaoVeiculo $posicao) use ($threshold): ?array {
-                $kmCicloAtual = $this->getKmCicloAtual($posicao);
+                $kmPosicaoAtual = $this->getKmPosicaoAtual($posicao);
 
-                if ($kmCicloAtual < $threshold) {
+                if ($kmPosicaoAtual < $threshold) {
                     return null;
                 }
 
@@ -132,17 +122,20 @@ class PneuAlertaService
                     'eixo' => $posicao->eixo,
                     'hub' => $this->resolveHub($posicao),
                     'titulo' => 'Rodízio recomendado',
-                    'descricao' => 'Pneu '.$posicao->pneu?->numero_fogo.' atingiu '.number_format($kmCicloAtual, 0, ',', '.').' km no ciclo atual.',
+                    'descricao' => 'Pneu '.$posicao->pneu?->numero_fogo.' atingiu '.number_format($kmPosicaoAtual, 0, ',', '.').' km na posição atual.',
                     'posicoes' => collect([[
                         'posicao' => $posicao->posicao,
                         'numero_fogo' => $posicao->pneu?->numero_fogo ?? 'N/A',
-                        'km_ciclo' => $kmCicloAtual,
+                        'km_posicao' => $kmPosicaoAtual,
                         'limite' => $threshold,
                     ]]),
                 ];
             })
             ->filter()
-            ->sortByDesc(fn (array $alerta) => $alerta['posicoes'][0]['km_ciclo'] ?? 0)
+            ->sortBy([
+                ['placa', 'asc'],
+                [fn (array $alerta) => $alerta['posicoes'][0]['km_posicao'] ?? 0, 'desc'],
+            ])
             ->values();
     }
 

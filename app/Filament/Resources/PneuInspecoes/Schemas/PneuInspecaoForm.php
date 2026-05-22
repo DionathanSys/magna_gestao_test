@@ -45,11 +45,11 @@ class PneuInspecaoForm
                     ->live(),
                 Select::make('pneu_ciclo_id')
                     ->label('Ciclo')
-                    ->options(fn(Get $get): array => PneuCiclo::query()
+                    ->options(fn (Get $get): array => PneuCiclo::query()
                         ->where('pneu_id', $get('pneu_id'))
                         ->orderByDesc('numero')
                         ->get()
-                        ->mapWithKeys(fn(PneuCiclo $ciclo) => [$ciclo->id => 'Ciclo ' . $ciclo->numero . ' - ' . $ciclo->status->value])
+                        ->mapWithKeys(fn (PneuCiclo $ciclo) => [$ciclo->id => 'Ciclo '.$ciclo->numero.' - '.$ciclo->status->value])
                         ->toArray())
                     ->searchable()
                     ->preload(),
@@ -68,13 +68,13 @@ class PneuInspecaoForm
             Select::make('pneu_posicao_veiculo_id')
                 ->label('Posição Aplicada')
                 ->native(false)
-                ->options(fn(Get $get): array => PneuPosicaoVeiculo::query()
+                ->options(fn (Get $get): array => PneuPosicaoVeiculo::query()
                     ->where('pneu_id', $get('pneu_id'))
-                    ->when($get('veiculo_id'), fn($query, $veiculoId) => $query->where('veiculo_id', $veiculoId))
+                    ->when($get('veiculo_id'), fn ($query, $veiculoId) => $query->where('veiculo_id', $veiculoId))
                     ->orderBy('sequencia')
                     ->get()
-                    ->mapWithKeys(fn(PneuPosicaoVeiculo $posicao) => [
-                        $posicao->id => trim(($posicao->veiculo?->placa ?? 'Sem veículo') . ' - ' . $posicao->eixo . ' eixo / ' . $posicao->posicao),
+                    ->mapWithKeys(fn (PneuPosicaoVeiculo $posicao) => [
+                        $posicao->id => trim(($posicao->veiculo?->placa ?? 'Sem veículo').' - '.$posicao->eixo.' eixo / '.$posicao->posicao),
                     ])
                     ->toArray())
                 ->searchable()
@@ -115,8 +115,7 @@ class PneuInspecaoForm
                     ->required(),
                 TextInput::make('km_referencia')
                     ->label('KM Referência')
-                    ->numeric()
-                    ->formatStateUsing(fn(?int $state) => $state !== null ? number_format($state, 0, '', '.') : null),
+                    ->numeric(),
             ])
                 ->columns([
                     'default' => 1,

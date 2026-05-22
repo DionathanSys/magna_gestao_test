@@ -157,12 +157,47 @@
                 <div>
                     <h3 class="text-base font-semibold text-gray-900 dark:text-white">Alertas operacionais de pneus</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Despareamento por eixo/cubo com foco em medida e marca, separado do alerta de rodízio por km de ciclo.
+                        Despareamento por eixo/cubo com foco em medida e marca, separado do alerta de rodízio por km na posição atual.
                     </p>
                 </div>
 
                 <div class="text-sm text-gray-500 dark:text-gray-400">
                     Limite de rodízio: <span class="font-semibold">{{ number_format($threshold_km_rodizio, 0, ',', '.') }} km</span>
+                </div>
+            </div>
+
+            <div class="grid gap-3 md:grid-cols-4">
+                <div>
+                    <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Placa</label>
+                    <select wire:model.live="veiculoIdFilter" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                        <option value="">Todas</option>
+                        @foreach($placas as $id => $placa)
+                            <option value="{{ $id }}">{{ $placa }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Eixo</label>
+                    <select wire:model.live="eixoFilter" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                        <option value="">Todos</option>
+                        @foreach($eixos as $eixo => $label)
+                            <option value="{{ $eixo }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Posição</label>
+                    <select wire:model.live="posicaoFilter" class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                        <option value="">Todas</option>
+                        @foreach($posicoes as $posicao => $label)
+                            <option value="{{ $posicao }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <x-filament::button color="gray" wire:click="resetFilters" class="w-full">
+                        Limpar filtros
+                    </x-filament::button>
                 </div>
             </div>
 
@@ -226,7 +261,7 @@
                             <div>
                                 <div class="pneu-alertas-panel__title">Rodízio por ciclo</div>
                                 <div class="pneu-alertas-panel__hint">
-                                    Pneus que atingiram ou ultrapassaram o limite de km configurado para rodízio.
+                                    Pneus que atingiram ou ultrapassaram o limite de km configurado na posição atual.
                                 </div>
                             </div>
 
@@ -257,7 +292,7 @@
                                 </article>
                             @empty
                                 <div class="pneu-alerta-empty">
-                                    Nenhum pneu acima do limite de rodízio por ciclo.
+                                    Nenhum pneu acima do limite de rodízio na posição atual.
                                 </div>
                             @endforelse
                         </div>

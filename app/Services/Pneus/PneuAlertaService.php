@@ -9,14 +9,36 @@ use Illuminate\Support\Str;
 
 class PneuAlertaService
 {
+    public function getFilterOptions(): array
+    {
+        $posicoes = $this->getPosicoesAplicadas();
+
+        return [
+            'placas' => $posicoes
+                ->mapWithKeys(fn (PneuPosicaoVeiculo $posicao) => [
+                    $posicao->veiculo_id => $posicao->veiculo?->placa ?? 'N/A',
+                ])
+                ->sortBy(fn (string $placa) => $placa)
+                ->all(),
+            'eixos' => $posicoes
+                ->pluck('eixo', 'eixo')
+                ->sortKeys()
+                ->all(),
+            'posicoes' => $posicoes
+                ->pluck('posicao', 'posicao')
+                ->sortKeys()
+                ->all(),
+        ];
+    }
+
     public function getRodizioThresholdKm(): int
     {
         return (int) db_config('config-pneu.alerta_km_rodizio', 7000);
     }
 
-    public function getDashboardData(): array
+    public function getDashboardData(array $filters = []): array
     {
-        $posicoes = $this->getPosicoesAplicadas();
+        $posicoes = $this->getPosicoesAplicadas($filters);
         $despareamento = $this->buildDespareamentoAlerts($posicoes);
         $rodizio = $this->buildRodizioAlerts($posicoes);
 
@@ -28,7 +50,7 @@ class PneuAlertaService
         ];
     }
 
-    public function getPosicoesAplicadas(): EloquentCollection
+    public function getPosicoesAplicadas(array $filters = []): EloquentCollection
     {
         return PneuPosicaoVeiculo::query()
             ->with([
@@ -40,6 +62,9 @@ class PneuAlertaService
             ])
             ->aplicados()
             ->whereHas('veiculo', fn ($query) => $query->where('is_active', true))
+            ->when(filled($filters['veiculo_id'] ?? null), fn ($query) => $query->where('veiculo_id', $filters['veiculo_id']))
+            ->when(filled($filters['eixo'] ?? null), fn ($query) => $query->where('eixo', $filters['eixo']))
+            ->when(filled($filters['posicao'] ?? null), fn ($query) => $query->where('posicao', $filters['posicao']))
             ->orderBy('veiculo_id')
             ->orderBy('eixo')
             ->orderBy('sequencia')

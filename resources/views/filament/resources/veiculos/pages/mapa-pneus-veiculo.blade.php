@@ -141,6 +141,10 @@
             color: var(--map-neutral);
             padding: 0.6rem 0.45rem;
             transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            text-align: left;
         }
 
         .tire-slot:hover {
@@ -246,7 +250,7 @@
                                     @foreach($eixo['left'] as $slot)
                                         <button
                                             type="button"
-                                            wire:click="selectPosicao({{ $slot['id'] }})"
+                                            wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
                                             class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
                                         >
                                             <span class="tire-slot__code">{{ $slot['label'] }}</span>
@@ -274,7 +278,7 @@
                                     @foreach($eixo['right'] as $slot)
                                         <button
                                             type="button"
-                                            wire:click="selectPosicao({{ $slot['id'] }})"
+                                            wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
                                             class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
                                         >
                                             <span class="tire-slot__code">{{ $slot['label'] }}</span>
@@ -303,8 +307,8 @@
                                         · {{ $selectedPosicao->eixo }}º eixo · {{ $selectedPosicao->posicao }}
                                     </p>
                                 </div>
-                                @if($selectedInspectionUrl)
-                                    <x-filament::button tag="a" :href="$selectedInspectionUrl" icon="heroicon-o-arrow-top-right-on-square" size="sm">
+                                @if($selectedCanInspect)
+                                    <x-filament::button wire:click="openInspection({{ $selectedPosicao->id }})" icon="heroicon-o-arrow-top-right-on-square" size="sm">
                                         Inspecionar
                                     </x-filament::button>
                                 @endif
@@ -355,4 +359,6 @@
 
         {{ $this->table }}
     </div>
+
+    <x-filament-actions::modals />
 </x-filament-panels::page>

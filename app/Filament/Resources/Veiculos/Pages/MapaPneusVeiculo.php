@@ -42,6 +42,8 @@ class MapaPneusVeiculo extends Page implements HasActions
 
     public ?int $selectedPosicaoId = null;
 
+    public string $interactionMode = 'inspect';
+
     public function mount(int|string $record): void
     {
         $this->recordId = $record;
@@ -67,6 +69,15 @@ class MapaPneusVeiculo extends Page implements HasActions
         $this->selectedPosicaoId = $posicaoId;
     }
 
+    public function setInteractionMode(string $mode): void
+    {
+        if (! array_key_exists($mode, $this->getInteractionModes())) {
+            return;
+        }
+
+        $this->interactionMode = $mode;
+    }
+
     public function openInspection(int $posicaoId): void
     {
         $this->selectedPosicaoId = $posicaoId;
@@ -77,6 +88,36 @@ class MapaPneusVeiculo extends Page implements HasActions
     {
         $this->selectedPosicaoId = $posicaoId;
         $this->replaceMountedAction($actionName, ['posicao' => $posicaoId]);
+    }
+
+    public function handleSlotClick(int $posicaoId): void
+    {
+        $this->selectedPosicaoId = $posicaoId;
+
+        $posicao = $this->getPosicoes()->firstWhere('id', $posicaoId);
+
+        if (! $posicao) {
+            return;
+        }
+
+        match ($this->interactionMode) {
+            'inspect' => filled($posicao->pneu_id)
+                ? $this->openInspection($posicaoId)
+                : null,
+            'invert' => filled($posicao->pneu_id)
+                ? $this->openPosicaoAction('inverterPosicao', $posicaoId)
+                : $this->notifyInvalidSelection('Selecione um pneu aplicado para inverter.'),
+            'swap' => filled($posicao->pneu_id)
+                ? $this->openPosicaoAction('trocarPosicao', $posicaoId)
+                : $this->notifyInvalidSelection('Selecione um pneu aplicado para trocar.'),
+            'remove' => filled($posicao->pneu_id)
+                ? $this->openPosicaoAction('desvincularPosicao', $posicaoId)
+                : $this->notifyInvalidSelection('Selecione um pneu aplicado para desvincular.'),
+            'bind' => blank($posicao->pneu_id)
+                ? $this->openPosicaoAction('vincularPosicao', $posicaoId)
+                : $this->notifyInvalidSelection('Selecione uma posição vazia para vincular um pneu.'),
+            default => null,
+        };
     }
 
     public function getRecord(): Veiculo
@@ -97,6 +138,8 @@ class MapaPneusVeiculo extends Page implements HasActions
             'record' => $this->getRecord(),
             'mapa' => MapaPneusLayout::build($this->getRecord(), $posicoes, $this->selectedPosicaoId),
             'selectedPosicao' => $selectedPosicao,
+            'interactionMode' => $this->interactionMode,
+            'interactionModes' => $this->getInteractionModes(),
         ];
     }
 
@@ -423,6 +466,25 @@ class MapaPneusVeiculo extends Page implements HasActions
         }
 
         return $this->getPosicoes()->firstWhere('id', (int) $posicaoId);
+    }
+
+    protected function getInteractionModes(): array
+    {
+        return [
+            'inspect' => ['label' => 'Inspecionar', 'hint' => 'Clique no pneu aplicado para abrir a inspeção.'],
+            'invert' => ['label' => 'Inverter', 'hint' => 'Clique no pneu aplicado para abrir a inversão.'],
+            'swap' => ['label' => 'Trocar', 'hint' => 'Clique no pneu aplicado para substituir por outro.'],
+            'remove' => ['label' => 'Desvincular', 'hint' => 'Clique no pneu aplicado para remover da posição.'],
+            'bind' => ['label' => 'Vincular', 'hint' => 'Clique em uma posição vazia para aplicar um pneu.'],
+        ];
+    }
+
+    protected function notifyInvalidSelection(string $message): void
+    {
+        Notification::make()
+            ->title($message)
+            ->warning()
+            ->send();
     }
 
     protected function getInspectionFormData(?PneuPosicaoVeiculo $record): array

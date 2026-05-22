@@ -39,11 +39,6 @@
             align-items: stretch;
         }
 
-        .tire-map-side {
-            display: grid;
-            gap: 1rem;
-        }
-
         .tire-map-side-row {
             min-height: 4.5rem;
             display: flex;
@@ -63,7 +58,8 @@
 
         .tire-slot {
             width: 100%;
-            max-width: 4.5rem;
+            max-width: 5.4rem;
+            min-height: 5.4rem;
             border-radius: 0.9rem;
             border: 2px solid currentColor;
             background: var(--map-surface);
@@ -75,6 +71,8 @@
             appearance: none;
             -webkit-appearance: none;
             text-align: left;
+            display: flex;
+            flex-direction: column;
         }
 
         .tire-slot:hover {
@@ -157,19 +155,7 @@
             font-size: 0.85rem;
         }
 
-        .tire-map-summary {
-            display: grid;
-            gap: 0.9rem;
-        }
-
-        .tire-map-summary-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 1.25rem;
-            background: #ffffff;
-            padding: 1rem;
-        }
-
-        .tire-map-control {
+        .tire-map-modebar {
             border: 1px solid #e2e8f0;
             border-radius: 1.25rem;
             background: #ffffff;
@@ -178,15 +164,15 @@
             gap: 0.85rem;
         }
 
-        .tire-map-control__head {
+        .tire-map-modebar__head {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.75rem;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
 
-        .tire-map-control__title {
+        .tire-map-modebar__title {
             font-size: 0.75rem;
             font-weight: 700;
             letter-spacing: 0.08em;
@@ -194,24 +180,24 @@
             color: var(--map-muted);
         }
 
-        .tire-map-control__meta {
+        .tire-map-modebar__meta {
             color: var(--map-text);
             font-size: 0.95rem;
             font-weight: 700;
         }
 
-        .tire-map-control__submeta {
+        .tire-map-modebar__submeta {
             color: var(--map-muted);
             font-size: 0.8rem;
         }
 
-        .tire-map-actions {
+        .tire-map-modes {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
         }
 
-        .tire-map-action {
+        .tire-map-mode {
             border: 1px solid #cbd5e1;
             border-radius: 999px;
             background: #ffffff;
@@ -224,19 +210,13 @@
             transition: background .15s ease, border-color .15s ease, transform .15s ease;
         }
 
-        .tire-map-action:hover {
+        .tire-map-mode:hover {
             background: #f8fafc;
             border-color: #94a3b8;
             transform: translateY(-1px);
         }
 
-        .tire-map-action--danger {
-            border-color: #fecaca;
-            color: #b91c1c;
-            background: #fff5f5;
-        }
-
-        .tire-map-action--info {
+        .tire-map-mode.is-active {
             border-color: #bfdbfe;
             color: #1d4ed8;
             background: #eff6ff;
@@ -247,12 +227,12 @@
         <div class="tire-map-board">
             <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Frota / Inspeção de Pneus</p>
-                    <h2 class="text-2xl font-bold text-slate-900">Mapa de pneus — {{ $record->placa }}</h2>
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Frota / Inspecao de Pneus</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Mapa de pneus - {{ $record->placa }}</h2>
                     <p class="text-sm text-slate-500">
                         {{ $mapa['configuracao_label'] }}
                         @if($record->tipoVeiculo?->descricao)
-                            · {{ $record->tipoVeiculo->descricao }}
+                            - {{ $record->tipoVeiculo->descricao }}
                         @endif
                     </p>
                 </div>
@@ -261,65 +241,46 @@
             <div class="mt-8 tire-map-layout">
                 <div class="tire-map-top-stack">
                     <div class="tire-map-note">
-                        Clique no pneu para abrir a inspeção. Para movimentar, selecione a posição e use os atalhos abaixo.
+                        O clique no slot segue o modo ativo abaixo. Troque o modo antes de clicar no pneu para evitar abrir a acao errada.
                     </div>
 
-                    @if($selectedPosicao)
-                        <div class="tire-map-control">
-                            <div class="tire-map-control__head">
-                                <div>
-                                    <div class="tire-map-control__title">Posição Selecionada</div>
-                                    <div class="tire-map-control__meta">
-                                        {{ $selectedPosicao->eixo }}º eixo / {{ $selectedPosicao->posicao }}
-                                    </div>
-                                    <div class="tire-map-control__submeta">
-                                        {{ $selectedPosicao->pneu?->numero_fogo ? 'Pneu ' . $selectedPosicao->pneu->numero_fogo : 'Posição vazia' }}
-                                    </div>
+                    <div class="tire-map-modebar">
+                        <div class="tire-map-modebar__head">
+                            <div>
+                                <div class="tire-map-modebar__title">Modo Ativo</div>
+                                <div class="tire-map-modebar__meta">
+                                    {{ $interactionModes[$interactionMode]['label'] ?? 'Inspecionar' }}
+                                </div>
+                                <div class="tire-map-modebar__submeta">
+                                    {{ $interactionModes[$interactionMode]['hint'] ?? '' }}
                                 </div>
                             </div>
 
-                            <div class="tire-map-actions">
-                                @if($selectedPosicao->pneu_id)
-                                    <button
-                                        type="button"
-                                        wire:click="openInspection({{ $selectedPosicao->id }})"
-                                        class="tire-map-action tire-map-action--info"
-                                    >
-                                        Inspecionar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        wire:click="openPosicaoAction('inverterPosicao', {{ $selectedPosicao->id }})"
-                                        class="tire-map-action"
-                                    >
-                                        Inverter
-                                    </button>
-                                    <button
-                                        type="button"
-                                        wire:click="openPosicaoAction('trocarPosicao', {{ $selectedPosicao->id }})"
-                                        class="tire-map-action"
-                                    >
-                                        Trocar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        wire:click="openPosicaoAction('desvincularPosicao', {{ $selectedPosicao->id }})"
-                                        class="tire-map-action tire-map-action--danger"
-                                    >
-                                        Desvincular
-                                    </button>
-                                @else
-                                    <button
-                                        type="button"
-                                        wire:click="openPosicaoAction('vincularPosicao', {{ $selectedPosicao->id }})"
-                                        class="tire-map-action tire-map-action--info"
-                                    >
-                                        Vincular
-                                    </button>
-                                @endif
-                            </div>
+                            @if($selectedPosicao)
+                                <div>
+                                    <div class="tire-map-modebar__title">Posicao Selecionada</div>
+                                    <div class="tire-map-modebar__meta">
+                                        {{ $selectedPosicao->eixo }}o eixo / {{ $selectedPosicao->posicao }}
+                                    </div>
+                                    <div class="tire-map-modebar__submeta">
+                                        {{ $selectedPosicao->pneu?->numero_fogo ? 'Pneu ' . $selectedPosicao->pneu->numero_fogo : 'Posicao vazia' }}
+                                    </div>
+                                </div>
+                            @endif
                         </div>
-                    @endif
+
+                        <div class="tire-map-modes">
+                            @foreach($interactionModes as $modeKey => $mode)
+                                <button
+                                    type="button"
+                                    wire:click="setInteractionMode('{{ $modeKey }}')"
+                                    class="tire-map-mode {{ $interactionMode === $modeKey ? 'is-active' : '' }}"
+                                >
+                                    {{ $mode['label'] }}
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
 
                     <div class="tire-map-visual">
                         @foreach($mapa['eixos'] as $eixo)
@@ -333,7 +294,7 @@
                                         @foreach($mergedSlots as $slot)
                                             <button
                                                 type="button"
-                                                wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
+                                                wire:click="handleSlotClick({{ $slot['id'] }})"
                                                 class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
                                             >
                                                 <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>
@@ -356,7 +317,7 @@
                                             @foreach($eixo['left'] as $slot)
                                                 <button
                                                     type="button"
-                                                    wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
+                                                    wire:click="handleSlotClick({{ $slot['id'] }})"
                                                     class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
                                                 >
                                                     <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>
@@ -380,7 +341,7 @@
                                             @foreach($eixo['right'] as $slot)
                                                 <button
                                                     type="button"
-                                                    wire:click="{{ $slot['pneu_id'] ? "openInspection({$slot['id']})" : "selectPosicao({$slot['id']})" }}"
+                                                    wire:click="handleSlotClick({{ $slot['id'] }})"
                                                     class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
                                                 >
                                                     <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>

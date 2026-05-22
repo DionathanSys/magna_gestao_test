@@ -43,6 +43,8 @@ class MapaPneusVeiculo extends Page implements HasActions
 
     public ?int $selectedPosicaoId = null;
 
+    public ?int $rodizioSourcePosicaoId = null;
+
     public string $interactionMode = 'inspect';
 
     protected ?Veiculo $cachedRecord = null;
@@ -81,6 +83,10 @@ class MapaPneusVeiculo extends Page implements HasActions
         }
 
         $this->interactionMode = $mode;
+
+        if ($mode !== 'rotate') {
+            $this->rodizioSourcePosicaoId = null;
+        }
     }
 
     public function openInspection(int $posicaoId): void
@@ -109,6 +115,7 @@ class MapaPneusVeiculo extends Page implements HasActions
             'inspect' => filled($posicao->pneu_id)
                 ? $this->openInspection($posicaoId)
                 : null,
+            'rotate' => $this->handleRodizioSelection($posicao),
             'invert' => filled($posicao->pneu_id)
                 ? $this->openPosicaoAction('inverterPosicao', $posicaoId)
                 : $this->notifyInvalidSelection('Selecione um pneu aplicado para inverter.'),
@@ -278,6 +285,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 if (! $posicao) {
                     notify::error(titulo: 'Falha ao vincular pneu', mensagem: 'Posição não encontrada.');
                     $action->halt();
+
                     return;
                 }
 
@@ -336,6 +344,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 if (! $posicao) {
                     notify::error(titulo: 'Falha ao inverter pneu', mensagem: 'Posição não encontrada.');
                     $action->halt();
+
                     return;
                 }
 
@@ -344,6 +353,68 @@ class MapaPneusVeiculo extends Page implements HasActions
                     $this->flushPageCache();
                 } catch (\Throwable $e) {
                     notify::error(titulo: 'Falha ao inverter pneu', mensagem: $e->getMessage());
+                    $action->halt();
+                }
+            });
+    }
+
+    public function rodizioPosicoesAction(): Action
+    {
+        return Action::make('rodizioPosicoes')
+            ->label('Rodízio')
+            ->icon('heroicon-o-arrows-right-left')
+            ->modalWidth(Width::Large)
+            ->visible(function (array $arguments): bool {
+                $origem = $this->resolvePosicaoFromArguments(['posicao' => $arguments['source'] ?? null]);
+                $destino = $this->resolvePosicaoFromArguments(['posicao' => $arguments['target'] ?? null]);
+
+                return filled($origem?->pneu_id) && filled($destino?->pneu_id);
+            })
+            ->schema(fn (Schema $schema) => $schema
+                ->columns(8)
+                ->schema([
+                    TextInput::make('motivo')
+                        ->columnSpan(5)
+                        ->default(\App\Enum\Pneu\MotivoMovimentoPneuEnum::RODIZIO->value)
+                        ->disabled()
+                        ->required(),
+                    TextInput::make('sulco')
+                        ->label('Sulco Removido (mm)')
+                        ->columnSpan(3)
+                        ->numeric()
+                        ->maxValue(30)
+                        ->minValue(0),
+                    DatePicker::make('data_movimento')
+                        ->label('Dt. Movimento')
+                        ->columnSpan(4)
+                        ->default(now())
+                        ->maxDate(now())
+                        ->required(),
+                    $this->makeKmField('km_movimento', 'Km Movimento')
+                        ->columnSpan(4),
+                    Textarea::make('observacao')
+                        ->label('Observação')
+                        ->columnSpanFull()
+                        ->maxLength(255),
+                    $this->makeAnexosField(),
+                ]))
+            ->action(function (Action $action, array $data, array $arguments): void {
+                $origem = $this->resolvePosicaoFromArguments(['posicao' => $arguments['source'] ?? null]);
+                $destino = $this->resolvePosicaoFromArguments(['posicao' => $arguments['target'] ?? null]);
+
+                if (! $origem || ! $destino) {
+                    notify::error(titulo: 'Falha ao realizar rodízio', mensagem: 'Posições não encontradas.');
+                    $action->halt();
+
+                    return;
+                }
+
+                try {
+                    (new MovimentarPneuService)->rodizioPneu(collect([$origem, $destino]), $data);
+                    $this->rodizioSourcePosicaoId = null;
+                    $this->flushPageCache();
+                } catch (\Throwable $e) {
+                    notify::error(titulo: 'Falha ao realizar rodízio', mensagem: $e->getMessage());
                     $action->halt();
                 }
             });
@@ -402,6 +473,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 if (! $posicao) {
                     notify::error(titulo: 'Falha ao substituir pneu', mensagem: 'Posição não encontrada.');
                     $action->halt();
+
                     return;
                 }
 
@@ -462,6 +534,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 if (! $posicao) {
                     notify::error(titulo: 'Falha ao desvincular pneu', mensagem: 'Posição não encontrada.');
                     $action->halt();
+
                     return;
                 }
 
@@ -490,6 +563,7 @@ class MapaPneusVeiculo extends Page implements HasActions
     {
         return [
             'inspect' => ['label' => 'Inspecionar', 'hint' => 'Clique no pneu aplicado para abrir a inspeção.'],
+            'rotate' => ['label' => 'Rodízio', 'hint' => 'Clique no primeiro pneu e depois no segundo para abrir o rodízio.'],
             'invert' => ['label' => 'Inverter', 'hint' => 'Clique no pneu aplicado para abrir a inversão.'],
             'swap' => ['label' => 'Trocar', 'hint' => 'Clique no pneu aplicado para substituir por outro.'],
             'remove' => ['label' => 'Desvincular', 'hint' => 'Clique no pneu aplicado para remover da posição.'],
@@ -509,6 +583,38 @@ class MapaPneusVeiculo extends Page implements HasActions
     {
         $this->cachedRecord = null;
         $this->cachedPosicoes = null;
+    }
+
+    protected function handleRodizioSelection(PneuPosicaoVeiculo $posicao): void
+    {
+        if (blank($posicao->pneu_id)) {
+            $this->notifyInvalidSelection('Selecione um pneu aplicado para o rodízio.');
+
+            return;
+        }
+
+        if (! $this->rodizioSourcePosicaoId) {
+            $this->rodizioSourcePosicaoId = $posicao->id;
+
+            Notification::make()
+                ->title('Selecione o segundo pneu para concluir o rodízio.')
+                ->info()
+                ->send();
+
+            return;
+        }
+
+        if ($this->rodizioSourcePosicaoId === $posicao->id) {
+            $this->notifyInvalidSelection('Selecione uma segunda posição diferente para o rodízio.');
+
+            return;
+        }
+
+        $this->openPosicaoAction('rodizioPosicoes', $this->rodizioSourcePosicaoId);
+        $this->replaceMountedAction('rodizioPosicoes', [
+            'source' => $this->rodizioSourcePosicaoId,
+            'target' => $posicao->id,
+        ]);
     }
 
     protected function getInspectionFormData(?PneuPosicaoVeiculo $record): array

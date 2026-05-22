@@ -40,6 +40,9 @@ class AdminPanelProvider extends PanelProvider
             ->topbar(false)
             ->maxContentWidth(Width::Full)
             ->globalSearchKeyBindings(['command+s', 'ctrl+s'])
+            ->favicon(asset('images/favicon.svg'))
+            ->brandLogo(asset('images/logo.svg'))
+            ->brandLogoHeight('2.25rem')
             ->brandName('Magna Gestão')
             ->default()
             ->id('admin')
@@ -82,6 +85,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): View => view('filament.hooks.pwa-register'),
-            );
+            )
+            ->viteTheme('resources/css/filament/admin/theme.css');
     }
 }

@@ -1,0 +1,26 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="favicon-main" x1="13" y1="9" x2="35" y2="53" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#20C8FF"/>
+      <stop offset="0.55" stop-color="#2659FF"/>
+      <stop offset="1" stop-color="#7A2CFF"/>
+    </linearGradient>
+    <linearGradient id="favicon-accent" x1="36" y1="20" x2="56" y2="31" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#65D8FF"/>
+      <stop offset="1" stop-color="#8B4DFF"/>
+    </linearGradient>
+    <linearGradient id="favicon-shadow" x1="22" y1="44" x2="40" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4317C9"/>
+      <stop offset="1" stop-color="#7E55FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#0F172A"/>
+  <path d="M12 50L31 11L50 50H39.5L31 31L22.5 50H12Z" fill="url(#favicon-main)"/>
+  <path d="M31 31L39.5 50H50L35.5 24L31 31Z" fill="url(#favicon-shadow)"/>
+  <path d="M18.5 50L34.5 38L39.5 44.5L32.5 50H18.5Z" fill="url(#favicon-shadow)"/>
+  <path d="M39.5 26C43 26 46 25.2 49 24" stroke="url(#favicon-accent)" stroke-width="1.75" stroke-linecap="round"/>
+  <path d="M38 31C43.5 31 48 29.2 53 26" stroke="url(#favicon-accent)" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M36.5 36.5C43.5 36.5 49.5 34 56 29.5" stroke="url(#favicon-accent)" stroke-width="4.25" stroke-linecap="round"/>
+  <circle cx="55" cy="23" r="3" stroke="#2BBEFF" stroke-width="2"/>
+  <circle cx="59" cy="31.5" r="3" stroke="#8B4DFF" stroke-width="2"/>
+</svg>

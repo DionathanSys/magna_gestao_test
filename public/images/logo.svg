@@ -1,0 +1,28 @@
+<svg width="132" height="44" viewBox="0 0 132 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logo-main" x1="18" y1="5" x2="61" y2="39" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#20C8FF"/>
+      <stop offset="0.55" stop-color="#2659FF"/>
+      <stop offset="1" stop-color="#7A2CFF"/>
+    </linearGradient>
+    <linearGradient id="logo-accent" x1="52" y1="12" x2="88" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#65D8FF"/>
+      <stop offset="1" stop-color="#8B4DFF"/>
+    </linearGradient>
+    <linearGradient id="logo-shadow" x1="31" y1="35" x2="70" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4317C9"/>
+      <stop offset="1" stop-color="#7E55FF"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <path d="M18 39L48 5L78 39H62L48 18L34 39H18Z" fill="url(#logo-main)"/>
+    <path d="M48 18L61 39H78L56 14L48 18Z" fill="url(#logo-shadow)"/>
+    <path d="M29 39L55 25L62 33L51 39H29Z" fill="url(#logo-shadow)"/>
+    <path d="M64 17C69 17 73 16 77 14" stroke="url(#logo-accent)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M62 22C69 22 77 20 84 16" stroke="url(#logo-accent)" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M60 28C69 28 78 25 88 19" stroke="url(#logo-accent)" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="M58 34C68 34 79 30 92 23" stroke="url(#logo-accent)" stroke-width="6.5" stroke-linecap="round"/>
+    <circle cx="97" cy="16" r="4.5" stroke="#2BBEFF" stroke-width="2.5"/>
+    <circle cx="106" cy="26" r="4.5" stroke="#8B4DFF" stroke-width="2.5"/>
+  </g>
+</svg>

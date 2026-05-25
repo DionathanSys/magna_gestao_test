@@ -34,11 +34,13 @@ class RelatorioInspecoesPneusPdfService
 
         $posicoes = $this->getPosicoesVeiculo($veiculoId);
         $linhas = $this->montarLinhasVeiculo($posicoes);
+        $linhasPorEixo = $linhas->groupBy(fn (array $linha) => $linha['eixo'] ?: 'Sem eixo');
         $posicoesComSulco = $linhas->filter(fn (array $linha) => $linha['media_sulcos'] !== null);
 
         $pdf = Pdf::loadView('pdf.relatorio-inspecoes-veiculo-atual', [
             'veiculo' => $veiculo,
             'linhas' => $linhas,
+            'linhasPorEixo' => $linhasPorEixo,
             'dataGeracao' => now()->format('d/m/Y H:i:s'),
             'resumo' => [
                 'total_posicoes' => $posicoes->count(),

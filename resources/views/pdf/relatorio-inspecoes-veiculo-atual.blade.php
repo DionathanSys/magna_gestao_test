@@ -33,42 +33,46 @@
     @if($linhas->isEmpty())
         <div class="empty">Nenhuma posição encontrada para o veículo informado.</div>
     @else
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 8%;">Eixo</th>
-                    <th style="width: 8%;">Posição</th>
-                    <th style="width: 9%;">Pneu</th>
-                    <th style="width: 16%;">Marca / Modelo</th>
-                    <th style="width: 9%;">Medida</th>
-                    <th style="width: 8%;">Últ. inspeção</th>
-                    <th style="width: 10%;">Resultado</th>
-                    <th style="width: 8%;">KM</th>
-                    <th style="width: 6%;">Int.</th>
-                    <th style="width: 6%;">Centro</th>
-                    <th style="width: 6%;">Ext.</th>
-                    <th style="width: 6%;">Média</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($linhas as $linha)
+        @foreach($linhasPorEixo as $eixo => $linhasEixo)
+            <div style="margin-top: 16px; font-size: 13px; font-weight: bold; color: #111827; background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px 10px;">
+                Eixo: {{ $eixo }}
+            </div>
+
+            <table>
+                <thead>
                     <tr>
-                        <td>{{ $linha['eixo'] ?? '-' }}</td>
-                        <td>{{ $linha['posicao'] ?? '-' }}</td>
-                        <td>{{ $linha['pneu'] ?? 'Sem pneu' }}</td>
-                        <td>{{ $linha['marca_modelo'] ?: '-' }}</td>
-                        <td>{{ $linha['medida'] ?: '-' }}</td>
-                        <td>{{ $linha['data_inspecao'] ?? '-' }}</td>
-                        <td>{{ $linha['resultado'] ?? ($linha['pneu'] ? 'Sem inspeção' : '-') }}</td>
-                        <td>{{ $linha['km_referencia'] !== null ? number_format((float) $linha['km_referencia'], 0, ',', '.') : '-' }}</td>
-                        <td>{{ $linha['sulco_interno'] !== null ? number_format((float) $linha['sulco_interno'], 2, ',', '.') : '-' }}</td>
-                        <td>{{ $linha['sulco_centro'] !== null ? number_format((float) $linha['sulco_centro'], 2, ',', '.') : '-' }}</td>
-                        <td>{{ $linha['sulco_externo'] !== null ? number_format((float) $linha['sulco_externo'], 2, ',', '.') : '-' }}</td>
-                        <td>{{ $linha['media_sulcos'] !== null ? number_format((float) $linha['media_sulcos'], 2, ',', '.') : '-' }}</td>
+                        <th style="width: 9%;">Posição</th>
+                        <th style="width: 10%;">Pneu</th>
+                        <th style="width: 18%;">Marca / Modelo</th>
+                        <th style="width: 10%;">Medida</th>
+                        <th style="width: 9%;">Últ. inspeção</th>
+                        <th style="width: 11%;">Resultado</th>
+                        <th style="width: 9%;">KM</th>
+                        <th style="width: 6%;">Int.</th>
+                        <th style="width: 6%;">Centro</th>
+                        <th style="width: 6%;">Ext.</th>
+                        <th style="width: 6%;">Média</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach($linhasEixo as $linha)
+                        <tr>
+                            <td>{{ $linha['posicao'] ?? '-' }}</td>
+                            <td>{{ $linha['pneu'] ?? 'Sem pneu' }}</td>
+                            <td>{{ $linha['marca_modelo'] ?: '-' }}</td>
+                            <td>{{ $linha['medida'] ?: '-' }}</td>
+                            <td>{{ $linha['data_inspecao'] ?? '-' }}</td>
+                            <td>{{ $linha['resultado'] ?? ($linha['pneu'] ? 'Sem inspeção' : '-') }}</td>
+                            <td>{{ $linha['km_referencia'] !== null ? number_format((float) $linha['km_referencia'], 0, ',', '.') : '-' }}</td>
+                            <td>{{ $linha['sulco_interno'] !== null ? number_format((float) $linha['sulco_interno'], 2, ',', '.') : '-' }}</td>
+                            <td>{{ $linha['sulco_centro'] !== null ? number_format((float) $linha['sulco_centro'], 2, ',', '.') : '-' }}</td>
+                            <td>{{ $linha['sulco_externo'] !== null ? number_format((float) $linha['sulco_externo'], 2, ',', '.') : '-' }}</td>
+                            <td>{{ $linha['media_sulcos'] !== null ? number_format((float) $linha['media_sulcos'], 2, ',', '.') : '-' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endforeach
     @endif
 </body>
 </html>

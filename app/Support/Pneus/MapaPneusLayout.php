@@ -185,7 +185,12 @@ class MapaPneusLayout
         $kmHistorico = 0;
         $temKmAplicado = false;
         $modelo = $posicao->pneu?->modeloCatalogo?->nome;
-        $desenhoAtual = $posicao->pneu?->cicloAtual?->desenhoPneu?->descricao
+        $ultimoRecapDoCicloAtual = $posicao->pneu?->ultimoRecap;
+        $desenhoAtual = ((int) $ultimoRecapDoCicloAtual?->ciclo_vida === (int) $posicao->pneu?->ciclo_vida)
+            ? $ultimoRecapDoCicloAtual?->desenhoPneu?->descricao
+            : null;
+
+        $desenhoAtual ??= $posicao->pneu?->cicloAtual?->desenhoPneu?->descricao
             ?? $posicao->pneu?->desenhoPneu?->descricao;
 
         if ($posicao->pneu) {

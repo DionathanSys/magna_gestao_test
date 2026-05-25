@@ -172,6 +172,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 'pneu.marcaCatalogo',
                 'pneu.modeloCatalogo',
                 'pneu.medidaCatalogo',
+                'pneu.ultimoRecap.desenhoPneu',
                 'pneu.cicloAtual.desenhoPneu',
                 'pneu.desenhoPneu',
                 'veiculo.kmAtual',

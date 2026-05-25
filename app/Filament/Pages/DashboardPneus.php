@@ -5,10 +5,14 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\AlertasPneusWidget;
 use App\Filament\Widgets\KmRodadoPneu;
 use App\Filament\Widgets\KmVeiculoDesatualizado;
+use App\Models\Pneu;
+use App\Models\Veiculo;
+use App\Services\Pneus\RelatorioInspecoesPneusPdfService;
 use App\Services\Pneus\RelatorioMovimentacoesPneusPdfService;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Illuminate\Contracts\Support\Htmlable;
@@ -18,7 +22,7 @@ class DashboardPneus extends BaseDashboard
 {
     protected static string|UnitEnum|null $navigationGroup = 'Pneus';
 
-    public static function getNavigationIcon(): string | BackedEnum | Htmlable | null
+    public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return null;
     }
@@ -29,7 +33,7 @@ class DashboardPneus extends BaseDashboard
 
     protected static ?int $navigationSort = -2;
 
-    public function getColumns(): int | array
+    public function getColumns(): int|array
     {
         return 2;
     }
@@ -37,6 +41,62 @@ class DashboardPneus extends BaseDashboard
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('relatorioSulcosVeiculoPdf')
+                ->label('Sulcos do Veículo')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('gray')
+                ->form([
+                    Select::make('veiculo_id')
+                        ->label('Veículo')
+                        ->options(Veiculo::query()->where('is_active', true)->orderBy('placa')->pluck('placa', 'id')->toArray())
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                ])
+                ->modalDescription('Gera um PDF com o estado atual dos sulcos dos pneus aplicados no veículo selecionado.')
+                ->action(function (array $data) {
+                    $service = app(RelatorioInspecoesPneusPdfService::class);
+                    $posicoes = $service->getPosicoesVeiculo($data['veiculo_id']);
+
+                    if ($posicoes->isEmpty()) {
+                        Notification::make()
+                            ->title('Nenhuma posição de pneu encontrada para o veículo informado.')
+                            ->warning()
+                            ->send();
+
+                        return null;
+                    }
+
+                    return $service->gerarRelatorioVeiculoAtual($data['veiculo_id']);
+                }),
+            Action::make('relatorioHistoricoSulcosPneuPdf')
+                ->label('Histórico do Pneu')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('gray')
+                ->form([
+                    Select::make('pneu_id')
+                        ->label('Pneu')
+                        ->options(Pneu::query()->orderBy('numero_fogo')->pluck('numero_fogo', 'id')->toArray())
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                ])
+                ->modalDescription('Gera um PDF com todo o histórico de inspeções e sulcos coletados do pneu selecionado.')
+                ->action(function (array $data) {
+                    $service = app(RelatorioInspecoesPneusPdfService::class);
+                    $inspecoes = $service->getInspecoesPneu($data['pneu_id']);
+
+                    if ($inspecoes->isEmpty()) {
+                        Notification::make()
+                            ->title('Nenhuma inspeção encontrada para o pneu informado.')
+                            ->warning()
+                            ->send();
+
+                        return null;
+                    }
+
+                    return $service->gerarRelatorioHistoricoPneu($data['pneu_id']);
+                }),
             Action::make('relatorioMovimentacoesPneusPdf')
                 ->label('Relatório PDF')
                 ->icon('heroicon-o-document-arrow-down')
@@ -89,5 +149,4 @@ class DashboardPneus extends BaseDashboard
             KmRodadoPneu::class,
         ];
     }
-
 }

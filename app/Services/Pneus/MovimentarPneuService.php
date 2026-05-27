@@ -279,6 +279,40 @@ class MovimentarPneuService
         }, 3);
     }
 
+    public function reaplicarPneu(PneuPosicaoVeiculo $origem, PneuPosicaoVeiculo $destino, array $data)
+    {
+        DB::transaction(function () use ($origem, $destino, $data) {
+            if (blank($origem->pneu_id)) {
+                throw new \DomainException('A posição de origem não possui pneu aplicado.');
+            }
+
+            if (filled($destino->pneu_id)) {
+                throw new \DomainException('A posição de destino precisa estar vazia para reaplicar o pneu.');
+            }
+
+            $pneuId = $origem->pneu_id;
+
+            $this->removerPneu($origem, [
+                'data_final' => $data['data_movimento'],
+                'km_final' => $data['km_movimento'],
+                'sulco' => $data['sulco'] ?? 0,
+                'motivo' => MotivoMovimentoPneuEnum::REAPLICACAO->value,
+                'observacao' => $data['observacao'] ?? null,
+                'anexos' => $data['anexos'] ?? null,
+            ]);
+
+            $this->aplicarPneu($destino, [
+                'pneu_id' => $pneuId,
+                'data_inicial' => $data['data_movimento'],
+                'km_inicial' => $data['km_movimento'],
+                'motivo' => MotivoMovimentoPneuEnum::REAPLICACAO,
+                'sulco' => $data['sulco'] ?? 0,
+                'observacao' => $data['observacao'] ?? null,
+                'anexos' => $data['anexos'] ?? null,
+            ]);
+        }, 3);
+    }
+
     public function registrarHistoricoMovimento(array $data): ?Models\HistoricoMovimentoPneu
     {
         try {

@@ -8,6 +8,7 @@ enum MotivoMovimentoPneuEnum: string
     case RODIZIO = 'RODIZIO';
     case ESTEPE = 'ESTEPE';
     case INVERSAO = 'INVERSAO';
+    case REAPLICACAO = 'REAPLICACAO';
     case RECAPAGEM = 'RECAPAGEM';
     case CONSERTO = 'CONSERTO';
     case SUCATEAR = 'SUCATEAR';

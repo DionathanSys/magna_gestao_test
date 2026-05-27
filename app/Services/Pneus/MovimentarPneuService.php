@@ -69,6 +69,12 @@ class MovimentarPneuService
 
     public function removerPneu(PneuPosicaoVeiculo $pneuVeiculo, array $data)
     {
+        $pneu = $pneuVeiculo->pneu()->first();
+
+        if (! $pneu) {
+            throw new \DomainException('Nenhum pneu aplicado foi encontrado para esta posição.');
+        }
+
         Log::info(__METHOD__.' - Removendo pneu.', [
             'pneu_veiculo_id' => $pneuVeiculo->id,
             'pneu_id' => $pneuVeiculo->pneu_id,
@@ -84,7 +90,7 @@ class MovimentarPneuService
 
         $this->registrarHistoricoMovimento([
             'pneu_id' => $pneuVeiculo->pneu_id,
-            'pneu_ciclo_id' => $pneuVeiculo->pneu_ciclo_id ?: $this->cicloService->getCurrentCycle($pneuVeiculo->pneu)?->id,
+            'pneu_ciclo_id' => $pneuVeiculo->pneu_ciclo_id ?: $this->cicloService->getCurrentCycle($pneu)?->id,
             'pneu_posicao_veiculo_id' => $pneuVeiculo->id,
             'veiculo_id' => $pneuVeiculo->veiculo_id,
             'data_inicial' => $pneuVeiculo->data_inicial,
@@ -96,7 +102,7 @@ class MovimentarPneuService
             'sulco_movimento' => $data['sulco'],
             'data_final' => $data['data_final'],
             'km_final' => $data['km_final'],
-            'ciclo_vida' => $pneuVeiculo->pneu->ciclo_vida,
+            'ciclo_vida' => $pneu->ciclo_vida,
             'observacao' => $data['observacao'],
             'anexos' => $data['anexos'] ?? null,
         ]);
@@ -112,33 +118,33 @@ class MovimentarPneuService
 
         switch ($data['motivo']) {
             case MotivoMovimentoPneuEnum::CONSERTO->value:
-                $pneuVeiculo->pneu->update([
+                $pneu->update([
                     'status' => StatusPneuEnum::INDISPONIVEL,
                     'local' => LocalPneuEnum::MANUTENCAO,
                 ]);
                 break;
             case MotivoMovimentoPneuEnum::RECAPAGEM->value:
-                $pneuVeiculo->pneu->update([
+                $pneu->update([
                     'status' => StatusPneuEnum::INDISPONIVEL,
                     'local' => LocalPneuEnum::AGUARDANDO_RECAPAGEM,
                 ]);
                 break;
 
             case MotivoMovimentoPneuEnum::ESTEPE->value:
-                $pneuVeiculo->pneu->update([
+                $pneu->update([
                     'status' => StatusPneuEnum::DISPONIVEL,
                     'local' => LocalPneuEnum::ESTOQUE_CCO,
                 ]);
                 break;
             case MotivoMovimentoPneuEnum::SUCATEAR->value:
-                $pneuVeiculo->pneu->update([
+                $pneu->update([
                     'status' => StatusPneuEnum::SUCATA,
                     'local' => LocalPneuEnum::SUCATA,
                 ]);
-                $this->cicloService->closeCurrentCycle($pneuVeiculo->pneu, $data['data_final'], $data['km_final']);
+                $this->cicloService->closeCurrentCycle($pneu, $data['data_final'], $data['km_final']);
                 break;
             default:
-                $pneuVeiculo->pneu->update([
+                $pneu->update([
                     'status' => StatusPneuEnum::DISPONIVEL,
                     'local' => LocalPneuEnum::ESTOQUE_CCO,
                 ]);

@@ -23,6 +23,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Enums\FontWeight;
@@ -120,7 +121,7 @@ class ItensRelationManager extends RelationManager
                     Action::make('comentarios')
                         ->icon('heroicon-o-chat-bubble-left-ellipsis')
                         ->schema([
-                            TextArea::make('conteudo')
+                            Textarea::make('conteudo')
                                 ->label('Comentário')
                                 ->required()
                                 ->maxLength(500),

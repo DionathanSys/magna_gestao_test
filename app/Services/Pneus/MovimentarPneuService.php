@@ -4,7 +4,9 @@ namespace App\Services\Pneus;
 
 use App\Enum\Pneu\LocalPneuEnum;
 use App\Enum\Pneu\MotivoMovimentoPneuEnum;
+use App\Enum\Pneu\ResultadoInspecaoPneuEnum;
 use App\Enum\Pneu\StatusPneuEnum;
+use App\Enum\Pneu\TipoInspecaoPneuEnum;
 use App\Models;
 use App\Models\PneuPosicaoVeiculo;
 use App\Traits\ServiceResponseTrait;
@@ -98,6 +100,8 @@ class MovimentarPneuService
             'observacao' => $data['observacao'],
             'anexos' => $data['anexos'] ?? null,
         ]);
+
+        $this->registrarInspecaoMovimentacao($pneuVeiculo, $data);
 
         $pneuVeiculo->update([
             'pneu_id' => null,
@@ -290,5 +294,26 @@ class MovimentarPneuService
             ]);
             throw $e;
         }
+    }
+
+    protected function registrarInspecaoMovimentacao(PneuPosicaoVeiculo $pneuVeiculo, array $data): Models\PneuInspecao
+    {
+        $sulco = $data['sulco'] ?? 0;
+
+        return Models\PneuInspecao::query()->create([
+            'pneu_id' => $pneuVeiculo->pneu_id,
+            'pneu_ciclo_id' => $pneuVeiculo->pneu_ciclo_id ?: $this->cicloService->getCurrentCycle($pneuVeiculo->pneu)?->id,
+            'veiculo_id' => $pneuVeiculo->veiculo_id,
+            'pneu_posicao_veiculo_id' => $pneuVeiculo->id,
+            'tipo' => TipoInspecaoPneuEnum::MOVIMENTACAO,
+            'resultado' => ResultadoInspecaoPneuEnum::APROVADO,
+            'data_inspecao' => $data['data_final'],
+            'km_referencia' => $data['km_final'],
+            'sulco_interno' => $sulco,
+            'sulco_centro' => $sulco,
+            'sulco_externo' => $sulco,
+            'observacao' => $data['observacao'] ?? null,
+            'anexos' => $data['anexos'] ?? null,
+        ]);
     }
 }

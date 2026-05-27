@@ -5,6 +5,7 @@ namespace App\Enum\Pneu;
 enum TipoInspecaoPneuEnum: string
 {
     case CAMPO = 'CAMPO';
+    case MOVIMENTACAO = 'MOVIMENTACAO';
     case RECEBIMENTO = 'RECEBIMENTO';
     case PRE_RECAPAGEM = 'PRE-RECAPAGEM';
     case POS_RECAPAGEM = 'POS-RECAPAGEM';

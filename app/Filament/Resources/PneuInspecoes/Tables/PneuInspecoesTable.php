@@ -31,9 +31,28 @@ class PneuInspecoesTable
                     ->formatStateUsing(fn ($state) => filled($state) ? 'Ciclo '.$state : 'N/A')
                     ->sortable(),
                 TextColumn::make('tipo')
+                    ->formatStateUsing(fn ($state) => $state?->value ?? $state)
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        TipoInspecaoPneuEnum::MOVIMENTACAO, TipoInspecaoPneuEnum::CAMPO => 'info',
+                        TipoInspecaoPneuEnum::RECEBIMENTO, TipoInspecaoPneuEnum::POS_RECAPAGEM => 'success',
+                        TipoInspecaoPneuEnum::PRE_RECAPAGEM => 'warning',
+                        TipoInspecaoPneuEnum::CONDENACAO => 'danger',
+                        default => 'gray',
+                    })
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('resultado')
+                    ->formatStateUsing(fn ($state) => $state?->value ?? $state)
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        ResultadoInspecaoPneuEnum::APROVADO => 'success',
+                        ResultadoInspecaoPneuEnum::MONITORAR => 'warning',
+                        ResultadoInspecaoPneuEnum::APTO_RECAPAGEM => 'info',
+                        ResultadoInspecaoPneuEnum::AGUARDANDO_CONSERTO, ResultadoInspecaoPneuEnum::REPROVADO => 'danger',
+                        ResultadoInspecaoPneuEnum::CONDENADO => 'gray',
+                        default => 'gray',
+                    })
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('veiculo.placa')

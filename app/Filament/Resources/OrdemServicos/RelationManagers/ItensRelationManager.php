@@ -120,7 +120,7 @@ class ItensRelationManager extends RelationManager
                     Action::make('comentarios')
                         ->icon('heroicon-o-chat-bubble-left-ellipsis')
                         ->schema([
-                            RichEditor::make('conteudo')
+                            TextArea::make('conteudo')
                                 ->label('Comentário')
                                 ->required()
                                 ->maxLength(500),

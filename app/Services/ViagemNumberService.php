@@ -6,22 +6,30 @@ use Illuminate\Support\Facades\DB;
 
 class ViagemNumberService
 {
+    public const GLOBAL_SCOPE = 'INTERNO';
+
+    public const GLOBAL_PREFIX = 'VI';
+
     /**
-     * Gera o próximo número de viagem para o cliente (prefixo) e retorna o número formatado
+     * Gera o próximo número de viagem e retorna o número formatado
      * e o número sequencial inteiro.
      *
-     * Ex: prefixo "BUGIO" -> "BUGIO-0001"
+     * Quando nenhum escopo é informado, usa a sequência global interna.
      *
-     * @param string $cliente
+     * Ex: escopo null -> "VI-0001"
+     * Ex: escopo "BUGIO" -> "BUGIO-0001"
+     *
+     * @param string|null $scope
      * @return array ['numero_viagem' => string, 'numero_sequencial' => int]
      */
-    public function next(string $cliente): array
+    public function next(?string $scope = null): array
     {
-        $prefix = strtoupper(trim($cliente));
+        $scope = strtoupper(trim($scope ?: self::GLOBAL_SCOPE));
+        $prefix = $scope === self::GLOBAL_SCOPE ? self::GLOBAL_PREFIX : $scope;
 
-        return DB::transaction(function () use ($prefix) {
+        return DB::transaction(function () use ($scope, $prefix) {
             $row = DB::table('viagem_sequences')
-                ->where('cliente', $prefix)
+                ->where('cliente', $scope)
                 ->lockForUpdate()
                 ->first();
 
@@ -29,7 +37,7 @@ class ViagemNumberService
                 $num = 1;
                 $now = now();
                 DB::table('viagem_sequences')->insert([
-                    'cliente' => $prefix,
+                    'cliente' => $scope,
                     'last_number' => $num,
                     'created_at' => $now,
                     'updated_at' => $now,

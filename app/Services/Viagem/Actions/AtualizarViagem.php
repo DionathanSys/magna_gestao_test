@@ -13,6 +13,7 @@ class AtualizarViagem
     protected array $allowedFields = [
         'veiculo_id',
         'numero_viagem',
+        'numero_viagem_interno',
         'documento_transporte',
         'km_rodado',
         'km_pago',
@@ -51,6 +52,7 @@ class AtualizarViagem
         Validator::make($data, [
             'veiculo_id'            => 'required|exists:veiculos,id',
             'numero_viagem'         => 'required|string',
+            'numero_viagem_interno' => 'nullable|string|unique:viagens,numero_viagem_interno,' . $this->viagem->id,
             'documento_transporte'  => 'nullable|string',
             'km_rodado'             => 'required|numeric|min:0',
             'km_pago'               => 'required|numeric|min:0',
@@ -67,6 +69,8 @@ class AtualizarViagem
             'veiculo_id.exists'             => 'Veículo não encontrado.',
             'numero_viagem.required'        => 'O campo Viagem é obrigatório.',
             'numero_viagem.string'          => 'O campo Viagem deve ser um texto válido.',
+            'numero_viagem_interno.string'  => 'O número interno da viagem deve ser um texto válido.',
+            'numero_viagem_interno.unique'  => 'O número interno da viagem já está em uso.',
             'km_rodado.required'            => 'O campo Km Rodado é obrigatório.',
             'km_rodado.numeric'             => 'O campo Km Rodado deve ser um número válido.',
             'km_rodado.min'                 => 'O campo Km Rodado deve ser maior ou igual a 0.',

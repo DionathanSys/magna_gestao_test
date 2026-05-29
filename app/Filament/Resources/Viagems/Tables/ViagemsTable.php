@@ -112,6 +112,13 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
+                TextColumn::make('numero_viagem_interno')
+                    ->label('Nº Interno')
+                    ->width('1%')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->disabledClick(),
                 TextColumn::make('qtde_destino_viagem')
                     ->label('Quantidade')
                     ->width('1%')

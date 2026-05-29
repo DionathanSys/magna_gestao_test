@@ -3,6 +3,7 @@
 namespace App\Services\Viagem\Actions;
 
 use App\Models;
+use App\Services\ViagemNumberService;
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,7 @@ class CriarViagem
         'unidade_negocio',
         'cliente',
         'numero_viagem',
+        'numero_viagem_interno',
         'documento_transporte',
         'km_rodado',
         'km_pago',
@@ -45,6 +47,10 @@ class CriarViagem
         $this->validate($filteredData);
 
         if ($this->hasError === false) {
+            if (empty($filteredData['numero_viagem_interno'])) {
+                $numeroInterno = (new ViagemNumberService())->next();
+                $filteredData['numero_viagem_interno'] = $numeroInterno['numero_viagem'];
+            }
 
             $data = [
                 ...$filteredData,
@@ -69,6 +75,7 @@ class CriarViagem
             'unidade_negocio'       => 'required|string',
             'cliente'               => 'nullable|string',
             'numero_viagem'         => 'required|string|unique:viagens,numero_viagem',
+            'numero_viagem_interno' => 'nullable|string|unique:viagens,numero_viagem_interno',
             'documento_transporte'  => 'nullable|string',
             'km_rodado'             => 'required|numeric|min:0',
             'km_pago'               => 'required|numeric|min:0',
@@ -89,6 +96,8 @@ class CriarViagem
             'numero_viagem.required'        => 'O campo Viagem é obrigatório.',
             'numero_viagem.string'          => 'O campo Viagem deve ser um texto válido.',
             'numero_viagem.unique'          => 'O número da Viagem já está em uso.',
+            'numero_viagem_interno.string'  => 'O número interno da viagem deve ser um texto válido.',
+            'numero_viagem_interno.unique'  => 'O número interno da viagem já está em uso.',
             'km_rodado.required'            => 'O campo Km Rodado é obrigatório.',
             'km_rodado.numeric'             => 'O campo Km Rodado deve ser um número válido.',
             'km_rodado.min'                 => 'O campo Km Rodado deve ser maior ou igual a 0.',

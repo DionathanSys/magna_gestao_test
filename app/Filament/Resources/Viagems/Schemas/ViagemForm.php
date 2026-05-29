@@ -62,6 +62,11 @@ class ViagemForm
                             ->required()
                             ->columnStart(1)
                             ->columnSpan(3),
+                        TextInput::make('numero_viagem_interno')
+                            ->label('Nº Viagem Interno')
+                            ->readOnly()
+                            ->dehydrated(false)
+                            ->columnSpan(3),
                         TextInput::make('documento_transporte')
                             ->columnSpan(3),
                         Toggle::make('considerar_relatorio')

@@ -549,6 +549,12 @@ class ViagemsTable
                     ->slideOver(),
             )
             ->columnManagerColumns(6)
+            ->columnManagerTriggerAction(
+                fn(Action $action) => $action
+                    ->button()
+                    ->label('Colunas')
+                    ->slideOver(),
+            )
             ->reorderableColumns()
             ->defaultGroup('data_competencia')
             ->defaultSort('numero_viagem')

@@ -548,6 +548,7 @@ class ViagemsTable
                     ->label('Filtros')
                     ->slideOver(),
             )
+            ->columnManagerColumns(6)
             ->reorderableColumns()
             ->defaultGroup('data_competencia')
             ->defaultSort('numero_viagem')

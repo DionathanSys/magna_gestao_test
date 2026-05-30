@@ -112,6 +112,10 @@ class DocumentoFretesTable
                     ->label("viagem ID")
                     ->url(fn(Models\DocumentoFrete $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id ?? 0]))
                     ->openUrlInNewTab(),
+                TextColumn::make('status_vinculo')
+                    ->label('Status Vinculo')
+                    ->badge()
+                    ->color(fn (string $state): string => $state === 'Vinculado' ? 'success' : 'warning'),
                 TextInputColumn::make('resultado_periodo_id')
                     ->label("Resultado Período ID")
                     ->toggleable(isToggledHiddenByDefault: false),

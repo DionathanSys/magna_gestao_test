@@ -73,4 +73,21 @@ class DocumentoFrete extends Model
             get: fn () => Carbon::parse($this->attributes['data_emissao'])->format('Y-m-d'),
         );
     }
+
+    public function statusVinculo(): Attribute
+    {
+        return Attribute::make(
+            get: function (): string {
+                if (! $this->viagem_id) {
+                    return 'Sem viagem';
+                }
+
+                if (! $this->documento_transporte) {
+                    return 'Sem doc. transporte';
+                }
+
+                return 'Vinculado';
+            }
+        );
+    }
 }

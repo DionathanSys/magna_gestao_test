@@ -271,4 +271,44 @@ class Viagem extends Model
             }
         );
     }
+
+    protected function pendenciasResumo(): Attribute
+    {
+        return Attribute::make(
+            get: function (): string {
+                $pendencias = [];
+                $limiteKm = (float) db_config('config-viagem.km_rodado_maximo_alerta', 1000);
+
+                if ((int) ($this->qtde_destino_viagem ?? 0) > 1) {
+                    $pendencias[] = 'Multiplos destinos';
+                }
+
+                if ((float) ($this->km_pago ?? 0) <= 0) {
+                    $pendencias[] = 'Sem km pago';
+                }
+
+                if ((float) ($this->km_rodado ?? 0) <= 0) {
+                    $pendencias[] = 'Sem km rodado';
+                }
+
+                if ($limiteKm > 0 && (float) ($this->km_rodado ?? 0) > $limiteKm) {
+                    $pendencias[] = 'Km acima do limite';
+                }
+
+                $cargas = $this->relationLoaded('cargas') ? $this->cargas : $this->cargas()->get(['integrado_id']);
+
+                if ($cargas->isEmpty()) {
+                    $pendencias[] = 'Sem carga';
+                } elseif ($cargas->contains(fn($carga) => blank($carga->integrado_id))) {
+                    $pendencias[] = 'Carga sem integrado';
+                }
+
+                if (empty($pendencias)) {
+                    return 'Sem pendencias';
+                }
+
+                return implode('; ', array_unique($pendencias));
+            }
+        );
+    }
 }

@@ -321,6 +321,12 @@ class ViagemsTable
                     ->width('1%')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('pendencias_resumo')
+                    ->label('Pendências')
+                    ->wrap()
+                    ->badge()
+                    ->color(fn (Models\Viagem $record): string => $record->possui_pendencia ? 'warning' : 'success')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->groups(
                 [

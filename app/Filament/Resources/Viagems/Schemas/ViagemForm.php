@@ -98,10 +98,6 @@ class ViagemForm
                             ->columnSpan(2)
                             ->numeric()
                             ->default(0),
-                        TextInput::make('km_cobrar')
-                            ->columnSpan(2)
-                            ->numeric()
-                            ->default(0),
                         TextInput::make('km_cadastro')
                             ->columnSpan(2)
                             ->numeric()

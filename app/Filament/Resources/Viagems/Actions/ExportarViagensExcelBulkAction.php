@@ -59,12 +59,12 @@ class ExportarViagensExcelBulkAction
             'A' => 'ID',
             'B' => 'Placa',
             'C' => 'Nº Viagem',
-            'D' => 'Integrado',
-            'E' => 'Doc. Transporte',
-            'F' => 'Km Rodado',
-            'G' => 'Km Pago',
-            'H' => 'Km Cadastro',
-            'I' => 'Km Cobrar',
+            'D' => 'Nº Interno',
+            'E' => 'Integrado',
+            'F' => 'Doc. Transporte',
+            'G' => 'Km Rodado',
+            'H' => 'Km Pago',
+            'I' => 'Km Cadastro',
             'J' => 'Km Dispersão',
             'K' => 'Dispersão %',
             'L' => 'Motivo Divergência',
@@ -124,12 +124,12 @@ class ExportarViagensExcelBulkAction
             $sheet->setCellValueExplicit('A' . $row, $record->id, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC);
             $sheet->setCellValue('B' . $row, $record->veiculo->placa ?? '');
             $sheet->setCellValue('C' . $row, $record->numero_viagem);
-            $sheet->setCellValue('D' . $row, $integrados ?: 'Sem Carga Vinculada');
-            $sheet->setCellValue('E' . $row, $record->documento_transporte ?? 'Sem Doc. Transp.');
-            $sheet->setCellValue('F' . $row, number_format($record->km_rodado, 2, ',', '.'));
-            $sheet->setCellValue('G' . $row, number_format($record->km_pago, 2, ',', '.'));
-            $sheet->setCellValue('H' . $row, number_format($record->km_cadastro, 2, ',', '.'));
-            $sheet->setCellValue('I' . $row, number_format($record->km_cobrar, 2, ',', '.'));
+            $sheet->setCellValue('D' . $row, $record->numero_viagem_interno ?? '');
+            $sheet->setCellValue('E' . $row, $integrados ?: 'Sem Carga Vinculada');
+            $sheet->setCellValue('F' . $row, $record->documento_transporte ?? 'Sem Doc. Transp.');
+            $sheet->setCellValue('G' . $row, number_format($record->km_rodado, 2, ',', '.'));
+            $sheet->setCellValue('H' . $row, number_format($record->km_pago, 2, ',', '.'));
+            $sheet->setCellValue('I' . $row, number_format($record->km_cadastro, 2, ',', '.'));
             $sheet->setCellValue('J' . $row, number_format($record->km_dispersao, 2, ',', '.'));
             $sheet->setCellValue('K' . $row, number_format($record->dispersao_percentual, 2, ',', '.') . '%');
             $sheet->setCellValue('L' . $row, $record->motivo_divergencia?->value ?? '');

@@ -12,7 +12,6 @@ use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\DocumentoFretes\Actions\CriarViagemBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
-use App\Services\DocumentoFrete\Actions\GerarViagemNutrepampaFromDocumento;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -204,19 +203,10 @@ class DocumentoFretesTable
                             
                             Log::debug("DocumentoFrete ID {$record->id} vinculado à Viagem ID {$viagem->id} com sucesso pelo usuário ID " . Auth::id());
 
-                            // Recarregar a viagem para pegar os relacionamentos atualizados
-                            $viagem->refresh();
-                            
-                            // Recalcular o km_pago da viagem
-                            $gerarViagem = new GerarViagemNutrepampaFromDocumento();
-                            $recalculado = $gerarViagem->recalcularKmPagoViagem($viagem);
-                            
-                            Log::debug("Recalculo de km_pago " . ($recalculado ? 'executado' : 'falhou') . " para Viagem ID {$viagem->id}");
-                            
                             Notification::make()
                                 ->success()
                                 ->title('Documento vinculado com sucesso!')
-                                ->body("Documento vinculado à viagem {$viagem->numero_viagem}. KM Pago recalculado: {$viagem->fresh()->km_pago}")
+                                ->body("Documento vinculado à viagem {$viagem->numero_viagem}.")
                                 ->send();
                                 
                         } catch (\Exception $e) {

@@ -13,9 +13,7 @@ use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models\Viagem;
-use App\Services\DocumentoFrete\Actions\GerarViagemNutrepampaFromDocumento;
 use Carbon\Carbon;
-use Filament\Notifications\Notification;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\{DatePicker, Select, TextInput};
@@ -189,13 +187,6 @@ class ViagemsTable
                                 (new Services\IntegradoService)->atualizarKmRota($primeiraIntegrado, $state);
                             }
                         }),
-                    TextInputColumn::make('km_cobrar')
-                        ->width('1%')
-                        ->wrapHeader()
-                        ->type('number')
-                        ->disabled(fn(Models\Viagem $record) => ($record->conferido && !Auth::user()->is_admin))
-                        ->rules(['numeric', 'min:0', 'required'])
-                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('km_dispersao')
                         ->label('Km Dispersão')
                         ->width('1%')
@@ -231,11 +222,6 @@ class ViagemsTable
                                 ->numeric(decimalPlaces: 2, locale: 'pt-BR')
                         )
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('km_rota_corrigido')
-                        ->wrapHeader()
-                        ->width('1%')
-                        ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->toggleable(isToggledHiddenByDefault: true),
                     SelectColumn::make('motivo_divergencia')
                         ->label('Motivo Divergência')
                         ->wrapHeader()
@@ -551,8 +537,6 @@ class ViagemsTable
             ->columnManagerColumns(6)
             ->columnManagerTriggerAction(
                 fn(Action $action) => $action
-                    ->button()
-                    ->label('Colunas')
                     ->slideOver(),
             )
             ->reorderableColumns()
@@ -574,54 +558,6 @@ class ViagemsTable
                         })
                         
                         ->color('primary'),
-                    Action::make('recalcular_km_pago')
-                        ->label('Recalcular KM Pago')
-                        ->icon('heroicon-o-calculator')
-                        ->requiresConfirmation()
-                        ->modalHeading('Recalcular KM Pago')
-                        ->modalDescription(fn(Models\Viagem $record) => 
-                            "Deseja recalcular o KM Pago da viagem {$record->numero_viagem} baseado nos documentos de frete vinculados?"
-                        )
-                        ->modalSubmitActionLabel('Sim, recalcular')
-                        ->action(function (Models\Viagem $record) {
-                            try {
-                                Log::debug("Iniciando recalculo manual de KM Pago para Viagem ID {$record->id} pelo usuário ID " . Auth::id());
-                                
-                                $gerarViagem = new GerarViagemNutrepampaFromDocumento();
-                                $recalculado = $gerarViagem->recalcularKmPagoViagem($record);
-                                
-                                if ($recalculado) {
-                                    $record->refresh();
-                                    
-                                    Notification::make()
-                                        ->success()
-                                        ->title('KM Pago recalculado com sucesso!')
-                                        ->body("Novo KM Pago: {$record->km_pago}")
-                                        ->send();
-                                        
-                                    Log::info("KM Pago recalculado manualmente para Viagem ID {$record->id} pelo usuário ID " . Auth::id());
-                                } else {
-                                    Notification::make()
-                                        ->warning()
-                                        ->title('Não foi possível recalcular')
-                                        ->body('A viagem pode não ter documentos vinculados.')
-                                        ->send();
-                                }
-                                
-                            } catch (\Exception $e) {
-                                Log::error("Erro ao recalcular KM Pago da Viagem ID {$record->id}: " . $e->getMessage());
-                                
-                                Notification::make()
-                                    ->danger()
-                                    ->title('Erro ao recalcular KM Pago')
-                                    ->body($e->getMessage())
-                                    ->send();
-                            }
-                            
-                            return true;
-                        })
-                        ->visible(fn(Models\Viagem $record): bool => $record->documentos_count > 0)
-                        ->color('warning'),
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')
                         ->icon('heroicon-o-x-circle')
@@ -696,7 +632,6 @@ class ViagemsTable
                             'data_fim'              => $record->data_fim,
                             'km_rodado'             => $record->km_rodado,
                             'km_pago'               => $record->km_pago,
-                            'km_cobrar'             => $record->km_cobrar,
                             'km_cadastro'           => $record->km_cadastro,
                             'motivo_divergencia'    => $record->motivo_divergencia,
                         ])
@@ -715,7 +650,6 @@ class ViagemsTable
                             'integrados_nomes',
                             'km_dispersao',
                             'dispersao_percentual',
-                            'km_rota_corrigido',
                             'documentos_count',
                             'comentarios_exists',
                             'cargas_count',
@@ -732,8 +666,6 @@ class ViagemsTable
             ])
             ->toolbarActions([
                 CreateAction::make(),
-                
-                Viagems\Actions\RegistrarComplementoViagem::make(),
                 Viagems\Actions\MarcarViagemConferidaAction::make(),
                 BulkActionGroup::make([
                     DeleteBulkAction::make()

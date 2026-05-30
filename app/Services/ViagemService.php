@@ -73,10 +73,6 @@ class ViagemService
                 $viagem->km_rodado_excedente = $viagem->km_rodado - $viagem->km_pago;
             }
 
-            if($viagem->km_rota_corrigido > 0) {
-                $viagem->km_cobrar = $viagem->km_rota_corrigido - $viagem->km_pago;
-            }
-
             Log::debug("Viagem recalculada com sucesso {$viagem->numero_viagem}", [
                 'metodo' => __METHOD__ . ' - ' . __LINE__,
                 'divergencias' => $this->verificaDivergencia($viagem),

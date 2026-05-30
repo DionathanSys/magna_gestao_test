@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Jobs\ProcessarAlertasIntegrados;
 use App\Services\Carga\CargaService;
 use App\Services\Integrado\IntegradoService;
+use App\Services\Viagem\Actions\AtualizarPendenciasViagem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -52,15 +53,28 @@ class CargaViagem extends Model
                     ProcessarAlertasIntegrados::adicionarCarga($model->id);
                 }
             }
+
+            if ($model->viagem) {
+                (new AtualizarPendenciasViagem())->handle($model->viagem);
+            }
         });
 
         static::updated(function (self $model) {
             Log::info('CargaViagem atualizada', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'integrado_id' => $model->integrado_id, 'metodo' => __METHOD__.'#'.'static::updated']);
+
+            if ($model->viagem) {
+                (new AtualizarPendenciasViagem())->handle($model->viagem);
+            }
         });
 
         static::deleted(function (self $model) {
             Log::info('CargaViagem removida (deleted)', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'metodo' => __METHOD__.'#'.'static::deleted']);
             (new CargaService())->atualizarKmDispersao($model->viagem_id);
+
+            $viagem = Viagem::find($model->viagem_id);
+            if ($viagem) {
+                (new AtualizarPendenciasViagem())->handle($viagem);
+            }
         });
     }
 

@@ -20,6 +20,11 @@ class CargaService
 
     public function create(?Models\Integrado $integrado, Models\Viagem $viagem): ?Models\CargaViagem
     {
+        return $this->gerarOuComplementar($integrado, $viagem);
+    }
+
+    public function gerarOuComplementar(?Models\Integrado $integrado, Models\Viagem $viagem): ?Models\CargaViagem
+    {
 
         // Lógica
         /**
@@ -32,34 +37,59 @@ class CargaService
          */
 
         try {
+            $viagem->loadMissing('cargas');
+
+            $documentoTransporte = $viagem->documento_transporte;
+            $totalCargas = $viagem->cargas->count();
+            $qtdeDestino = (int) ($viagem->qtde_destino_viagem ?? 0);
 
             $cargaViagemSemIntegrado = $this->cargaViagem
                 ->where('viagem_id', $viagem->id)
                 ->where('integrado_id', null)
                 ->first();
 
-            if ($cargaViagemSemIntegrado && $integrado) {
-                Log::info("Carga de viagem existente para a viagem ID {$viagem->id} porém sem integrado, atualizando integrado");
-                $cargaViagemSemIntegrado->update([
-                    'integrado_id' => $integrado->id,
-                    'updated_by'   => $this->getUserIdChecked(),
-                ]);
+            if ($cargaViagemSemIntegrado) {
+                $data = [
+                    'documento_transporte' => $documentoTransporte,
+                    'updated_by' => $this->getUserIdChecked(),
+                ];
+
+                if ($integrado && ! $this->cargaViagem->where('viagem_id', $viagem->id)->where('integrado_id', $integrado->id)->exists()) {
+                    Log::info("Carga de viagem existente para a viagem ID {$viagem->id} porém sem integrado, atualizando integrado");
+                    $data['integrado_id'] = $integrado->id;
+                }
+
+                $cargaViagemSemIntegrado->update($data);
+
                 return $cargaViagemSemIntegrado;
             }
 
-            $cargaViagemComIntegrado = $this->cargaViagem
-                ->where('viagem_id', $viagem->id)
-                ->where('integrado_id', $integrado->id)
-                ->first();
+            if ($integrado) {
+                $cargaViagemComIntegrado = $this->cargaViagem
+                    ->where('viagem_id', $viagem->id)
+                    ->where('integrado_id', $integrado->id)
+                    ->first();
 
-            if ($cargaViagemComIntegrado) {
-                Log::info("Carga de viagem já existente para a viagem ID {$viagem->id} com o integrado ID {$integrado->id}, retornando existente");
-                return $cargaViagemComIntegrado;
+                if ($cargaViagemComIntegrado) {
+                    $cargaViagemComIntegrado->update([
+                        'documento_transporte' => $documentoTransporte,
+                        'updated_by' => $this->getUserIdChecked(),
+                    ]);
+
+                    Log::info("Carga de viagem já existente para a viagem ID {$viagem->id} com o integrado ID {$integrado->id}, retornando existente");
+                    return $cargaViagemComIntegrado;
+                }
+            }
+
+            if ($totalCargas > 0 && $qtdeDestino > $totalCargas) {
+                Log::info("Criação automática de carga bloqueada para viagem {$viagem->id} por quantidade de destinos maior que cargas existentes.");
+                return null;
             }
 
             return $this->cargaViagem->query()->create([
                 'viagem_id'     => $viagem->id,
-                'integrado_id'  => $integrado->id,
+                'documento_transporte' => $documentoTransporte,
+                'integrado_id'  => $integrado?->id,
                 'created_by'    => $this->getUserIdChecked(),
                 'updated_by'    => $this->getUserIdChecked(),
             ]);

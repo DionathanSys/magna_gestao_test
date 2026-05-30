@@ -39,7 +39,7 @@ class CargaViagemsTable
             ->modifyQueryUsing(function (Builder $query): Builder {
                 return $query->with([
                     'viagem.veiculo:id,placa',
-                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,km_cobrar,motivo_divergencia,conferido',
+                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,motivo_divergencia,conferido',
                     'integrado:id,nome,codigo,km_rota',
                 ]);
             })
@@ -68,6 +68,10 @@ class CargaViagemsTable
                     ->openUrlInNewTab()
                     ->searchable(isIndividual: true)
                     ->sortable(),
+                TextColumn::make('documento_transporte')
+                    ->label('Doc. Transporte')
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('integrado.codigo')
                     ->label('Cód. Integrado')
                     ->wrapHeader()
@@ -126,11 +130,14 @@ class CargaViagemsTable
                         ->formatStateUsing(fn($state) => $state ? 'Sim' : 'Não')
                         ->wrapHeader()
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('viagem.motivo_divergencia')
-                        ->label('Motivo Divergência')
-                        ->width('2%')
-                        ->formatStateUsing(fn($state) => $state?->value ?? '')
-                        ->wrapHeader(),
+                TextColumn::make('viagem.motivo_divergencia')
+                    ->label('Motivo Divergência')
+                    ->width('2%')
+                    ->formatStateUsing(fn($state) => $state?->value ?? '')
+                    ->wrapHeader(),
+                    IconColumn::make('viagem.possui_pendencia')
+                        ->label('Pendência')
+                        ->boolean(),
                     IconColumn::make('viagem.conferido')
                         ->label('Conferido')
                         ->boolean(),
@@ -256,8 +263,6 @@ class CargaViagemsTable
                     ),
                 QueryBuilder::make()
                     ->constraints([
-                        \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_cobrar')
-                            ->relationship('viagem', 'km_cobrar'),
                         \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_perdido'),
                         \Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint::make('integrado')
                             ->multiple()

@@ -139,7 +139,6 @@ class ViagemImporter implements ExcelImportInterface
             'km_rodado'             => is_numeric($row['KmRodado']) ? (float) $row['KmRodado'] : 0,
             'km_pago'               => is_numeric($km_pago) ? (float) $km_pago : 0,
             'km_cadastro'           => $integrado->km_rota ?? 0,
-            'km_cobrar'             => 0,
             'motivo_divergencia'    => Enum\MotivoDivergenciaViagem::SEM_OBS->value,
             'conferido'             => false,
             'condutor'              => Str::upper($row['CondutorViagem'] ?? 'não informado'),

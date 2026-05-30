@@ -14,6 +14,7 @@ use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAct
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models\Viagem;
 use Carbon\Carbon;
+use Filament\Tables\Enums\ColumnManagerLayout;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\{DatePicker, Select, TextInput};
@@ -271,6 +272,14 @@ class ViagemsTable
                         '1' => 'info',
                         default => 'danger',
                     }),
+                IconColumn::make('possui_pendencia')
+                    ->label('Pendência')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                IconColumn::make('ignorar_viagem')
+                    ->label('Ignorar')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 ColumnGroup::make('Users', [
                     TextColumn::make('creator.name')
                         ->label('Criado Por')
@@ -432,6 +441,14 @@ class ViagemsTable
                     ->label('Conferido')
                     ->trueLabel('Sim')
                     ->falseLabel('Não'),
+                TernaryFilter::make('possui_pendencia')
+                    ->label('Possui Pendência')
+                    ->trueLabel('Sim')
+                    ->falseLabel('Não'),
+                TernaryFilter::make('ignorar_viagem')
+                    ->label('Ignorar Viagem')
+                    ->trueLabel('Sim')
+                    ->falseLabel('Não'),
                 SelectFilter::make('motivo_divergencia')
                     ->label('Motivo Divergência')
                     ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
@@ -535,10 +552,7 @@ class ViagemsTable
                     ->slideOver(),
             )
             ->columnManagerColumns(6)
-            ->columnManagerTriggerAction(
-                fn(Action $action) => $action
-                    ->slideOver(),
-            )
+            ->columnManagerLayout(ColumnManagerLayout::Modal)
             ->reorderableColumns()
             ->defaultGroup('data_competencia')
             ->defaultSort('numero_viagem')
@@ -657,6 +671,7 @@ class ViagemsTable
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),
+                Viagems\Actions\GerarComplementarCargaAction::make(),
                 Viagems\Actions\NovaCargaAction::make(),
                 Viagems\Actions\ViagemConferidaAction::make(),
                 Viagems\Actions\ViagemNaoConferidaAction::make(),

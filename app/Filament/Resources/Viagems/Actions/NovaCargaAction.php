@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Viagems\Actions;
 
 use App\Models;
-use App\Services;
-use App\Services\NotificacaoService as notify;
+use App\Services\Carga\CargaService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 
 class NovaCargaAction
 {
@@ -19,12 +19,30 @@ class NovaCargaAction
             ->schema([
                 Select::make('integrado_id')
                     ->label('Integrado')
-                    ->relationship('carga.integrado', 'nome')
+                    ->relationship('integrados', 'nome')
                     ->searchable(['codigo', 'nome'])
                     ->getOptionLabelFromRecordUsing(fn(Models\Integrado $record) => "{$record->codigo} {$record->nome}")
                     ->required(),
             ])
-            ->action(fn(Models\Viagem $record, array $data) => Services\CargaService::incluirCargaViagem($data['integrado_id'], $record))
-            ->after(fn() => notify::success('Carga incluída com sucesso!', 'A carga foi adicionada à viagem.'));
+            ->action(function (Models\Viagem $record, array $data) {
+                $integrado = Models\Integrado::findOrFail($data['integrado_id']);
+                $carga = (new CargaService())->gerarOuComplementar($integrado, $record);
+
+                if (! $carga) {
+                    Notification::make()
+                        ->warning()
+                        ->title('Nenhuma carga criada')
+                        ->body('A viagem já possui cargas pendentes de complemento e nenhuma nova carga foi criada automaticamente.')
+                        ->send();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->success()
+                    ->title('Carga incluída com sucesso!')
+                    ->body('A carga foi adicionada ou complementada sem duplicação.')
+                    ->send();
+            });
     }
 }

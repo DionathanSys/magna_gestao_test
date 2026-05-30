@@ -25,6 +25,15 @@ class ViagemConferida
 
     private function validate(Models\Viagem $viagem): void
     {
+        $viagem->loadMissing('cargas');
+
+        if ($viagem->ignorar_viagem) {
+            return;
+        }
+
+        if ($viagem->possui_pendencia) {
+            throw new \InvalidArgumentException('Viagem possui pendências e não pode ser conferida enquanto não for regularizada ou ignorada.');
+        }
 
         if ($viagem->motivo_divergencia == Enum\MotivoDivergenciaViagem::SEM_OBS || $viagem->motivo_divergencia == null) {
 

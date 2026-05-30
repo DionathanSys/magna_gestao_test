@@ -60,19 +60,11 @@ class ViagemImporter extends Importer
                 ->requiredMapping()
                 ->numeric()
                 ->rules(['required', 'integer']),
-            ImportColumn::make('km_rota_corrigido')
-                ->requiredMapping()
-                ->numeric()
-                ->rules(['required', 'integer']),
             ImportColumn::make('km_pago_excedente')
                 ->requiredMapping()
                 ->numeric()
                 ->rules(['required', 'integer']),
             ImportColumn::make('km_rodado_excedente')
-                ->requiredMapping()
-                ->numeric()
-                ->rules(['required', 'integer']),
-            ImportColumn::make('km_cobrar')
                 ->requiredMapping()
                 ->numeric()
                 ->rules(['required', 'integer']),

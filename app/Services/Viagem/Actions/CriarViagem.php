@@ -33,6 +33,7 @@ class CriarViagem
         'data_fim',
         'qtde_destino_viagem',
         'conferido',
+        'ignorar_viagem',
         'condutor',
         'created_by',
         'updated_by',
@@ -84,6 +85,7 @@ class CriarViagem
             'data_inicio'           => 'required|date',
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
+            'ignorar_viagem'        => 'boolean',
             'condutor'              => 'nullable|string',
         ], [
             'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
@@ -115,6 +117,7 @@ class CriarViagem
             'data_fim.date'                 => 'O campo Data Fim deve ser uma data válida.',
             'data_fim.after_or_equal'       => 'O campo Data Fim deve ser uma data posterior ou igual à Data Início.',
             'conferido.boolean'             => 'O campo Conferido deve ser verdadeiro ou falso.',
+            'ignorar_viagem.boolean'        => 'O campo Ignorar Viagem deve ser verdadeiro ou falso.',
             'created_by.required'           => 'O campo Criado Por é obrigatório.',
             'created_by.exists'             => 'Usuário Criador não encontrado.',
             'updated_by.required'           => 'O campo Atualizado Por é obrigatório.',

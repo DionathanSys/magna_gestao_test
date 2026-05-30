@@ -46,7 +46,9 @@ class ViagemSettings extends AbstractPageSettings
      */
     public function getDefaultData(): array
     {
-        return [];
+        return [
+            'km_rodado_maximo_alerta' => 1000,
+        ];
     }
 
     public function form(Schema $schema): Schema
@@ -59,6 +61,12 @@ class ViagemSettings extends AbstractPageSettings
                     ->columnSpan(6)
                     ->description('Configurações relacionadas a alertas de viagem.')
                     ->components([
+                        TextInput::make('km_rodado_maximo_alerta')
+                            ->label('KM Rodado Máximo para Pendência')
+                            ->numeric()
+                            ->minValue(1)
+                            ->required()
+                            ->columnSpanFull(),
                         Repeater::make('emails_alerta_integrados')
                             ->label('Clientes Integrados')
                             ->columnSpanFull()

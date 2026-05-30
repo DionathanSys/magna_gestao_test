@@ -55,10 +55,6 @@ class ViagemComplementosTable
                     ->numeric(2, ',','.')
                     ->summarize(Sum::make()->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                     ->sortable(),
-                TextColumn::make('km_cobrar')
-                    ->numeric(2, ',','.')
-                    ->summarize(Sum::make()->numeric(decimalPlaces: 2, locale: 'pt-BR'))
-                    ->sortable(),
                 TextColumn::make('motivo_divergencia')
                     ->label('Motivo Divergência')
                     ->searchable(),

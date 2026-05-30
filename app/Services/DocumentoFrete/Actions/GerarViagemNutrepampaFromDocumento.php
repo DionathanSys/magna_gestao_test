@@ -174,7 +174,6 @@ class GerarViagemNutrepampaFromDocumento
                         'km_pago'               => $calculoKmPago['km_pago'],
                         'km_cadastro'           => 0,
                         'km_rodado'             => 0,
-                        'km_cobrar'             => 0,
                         'data_competencia'      => $dataEmissao,
                         'data_inicio'           => $dataEmissao,
                         'data_fim'              => $dataEmissao,

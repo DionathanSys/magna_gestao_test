@@ -121,7 +121,6 @@ class ViagemBugioService
                 'documento_transporte'  => (string) $viagemBugio->numero_sequencial,
                 'km_rodado'             => 0,
                 'km_cadastro'           => $viagemBugio->km_pago,
-                'km_cobrar'             => 0,
                 'km_pago'               => $viagemBugio->km_pago,
                 'motivo_divergencia'    => MotivoDivergenciaViagem::SEM_OBS->value,
                 'data_competencia'      => $viagemBugio->data_competencia,

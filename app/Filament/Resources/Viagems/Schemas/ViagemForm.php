@@ -74,6 +74,11 @@ class ViagemForm
                             ->label('Considerar no Relatório')
                             ->inline(false)
                             ->default(false),
+                        Toggle::make('ignorar_viagem')
+                            ->columnSpan(3)
+                            ->label('Ignorar Viagem')
+                            ->inline(false)
+                            ->default(false),
                         DatePicker::make('data_competencia')
                             ->columnStart(1)
                             ->columnSpan(4)

@@ -18,11 +18,13 @@ class CargaViagemForm
                     ->relationship('viagem', 'numero_viagem')
                     ->searchable()
                     ->required(),
+                TextInput::make('documento_transporte')
+                    ->columnSpan(1),
                 Select::make('integrado_id')
                     ->columnSpan(1)
                     ->relationship('integrado', 'nome')
                     ->searchable()
-                    ->required(),
+                    ->nullable(),
             ]);
     }
 }

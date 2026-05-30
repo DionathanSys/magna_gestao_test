@@ -75,7 +75,6 @@ class VincularDocumentoFreteAction
             'documento_transporte'  => $documentoFrete->documento_transporte,
             'km_rodado'             => 0,
             'km_cadastro'             => 0,
-            'km_cobrar'             => 0,
             'km_pago'               => $record->km_pago,
             'motivo_divergencia'    => MotivoDivergenciaViagem::SEM_OBS->value,
             'data_competencia'      => $record->data_competencia,

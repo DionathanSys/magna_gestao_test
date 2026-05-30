@@ -23,6 +23,7 @@ class AtualizarViagem
         'data_inicio',
         'data_fim',
         'conferido',
+        'ignorar_viagem',
         'condutor',
         'created_by',
         'updated_by',
@@ -61,6 +62,7 @@ class AtualizarViagem
             'data_inicio'           => 'required|date',
             'data_fim'              => 'required|date|after_or_equal:data_inicio',
             'conferido'             => 'boolean',
+            'ignorar_viagem'        => 'boolean',
             'condutor'              => 'nullable|string',
         ], [
             'veiculo_id.required'           => 'O campo Veículo é obrigatório.',
@@ -88,6 +90,7 @@ class AtualizarViagem
             'data_fim.date'                 => 'O campo Data Fim deve ser uma data válida.',
             'data_fim.after_or_equal'       => 'O campo Data Fim deve ser uma data posterior ou igual à Data Início.',
             'conferido.boolean'             => 'O campo Conferido deve ser verdadeiro ou falso.',
+            'ignorar_viagem.boolean'        => 'O campo Ignorar Viagem deve ser verdadeiro ou falso.',
             'condutor.string'               => 'O campo Condutor deve ser um texto válido.',
         ])->validate();
 

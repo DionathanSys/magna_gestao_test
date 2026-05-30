@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Viagems\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use Filament\Actions\{ActionGroup, BulkAction, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction, ReplicateAction,};
-use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextColumn, TextInputColumn,};
+use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextInputColumn, TextColumn};
 use Filament\Tables\Table;
 use App\{Models, Services, Enum};
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Enums\RecordActionsPosition;
@@ -557,8 +558,14 @@ class ViagemsTable
                     ->label('Filtros')
                     ->slideOver(),
             )
-            ->columnManagerColumns(6)
+            ->columnManagerColumns(4)
             ->columnManagerLayout(ColumnManagerLayout::Modal)
+            ->columnManagerWidth(Width::ScreenTwoExtraLarge)
+            ->columnManagerMaxHeight('80vh')
+            ->columnManagerTriggerAction(
+                fn(Action $action) => $action
+                    ->modalWidth(Width::ScreenTwoExtraLarge)
+            )
             ->reorderableColumns()
             ->defaultGroup('data_competencia')
             ->defaultSort('numero_viagem')

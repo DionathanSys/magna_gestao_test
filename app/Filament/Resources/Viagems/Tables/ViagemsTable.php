@@ -83,7 +83,7 @@ class ViagemsTable
                     ->sortable()
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('integrados_nomes_cache')
+                TextColumn::make('integrados_nomes_view')
                     ->label('Integrado')
                     ->width('1%')
                     ->html()

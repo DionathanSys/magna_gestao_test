@@ -10,8 +10,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('viagens', function (Blueprint $table) {
+            if (! Schema::hasColumn('viagens', 'integrados_json')) {
+                $table->json('integrados_json')->nullable()->after('numero_viagem_interno');
+            }
+
             if (! Schema::hasColumn('viagens', 'integrados_nomes_cache')) {
-                $table->text('integrados_nomes_cache')->nullable()->after('numero_viagem_interno');
+                $table->text('integrados_nomes_cache')->nullable()->after('integrados_json');
             }
 
             if (! Schema::hasColumn('viagens', 'documentos_frete_resumo_cache')) {
@@ -36,12 +40,26 @@ return new class extends Migration
             UPDATE viagens v
             LEFT JOIN (
                 SELECT cv.viagem_id,
+                       JSON_ARRAYAGG(
+                           JSON_OBJECT(
+                               'id', i.id,
+                               'codigo', i.codigo,
+                               'nome', i.nome,
+                               'municipio', i.municipio
+                           )
+                       ) AS resumo_json,
                        GROUP_CONCAT(DISTINCT CONCAT(i.nome, ' - ', i.municipio) SEPARATOR '<br>') AS resumo
                 FROM cargas_viagem cv
                 JOIN integrados i ON i.id = cv.integrado_id
                 GROUP BY cv.viagem_id
             ) c ON c.viagem_id = v.id
-            SET v.integrados_nomes_cache = COALESCE(c.resumo, '')
+            SET v.integrados_json = c.resumo_json,
+                v.integrados_nomes_cache = COALESCE(c.resumo, '')
+        SQL);
+
+        DB::statement(<<<'SQL'
+            UPDATE viagens v
+            SET v.integrados_json = COALESCE(v.integrados_json, JSON_ARRAY())
         SQL);
 
         DB::statement(<<<'SQL'
@@ -111,7 +129,7 @@ return new class extends Migration
         DB::statement('DROP INDEX documentos_frete_data_emissao_idx ON documentos_frete');
 
         Schema::table('viagens', function (Blueprint $table) {
-            foreach (['integrados_nomes_cache', 'documentos_frete_resumo_cache', 'parceiro_frete_cache'] as $column) {
+            foreach (['integrados_json', 'integrados_nomes_cache', 'documentos_frete_resumo_cache', 'parceiro_frete_cache'] as $column) {
                 if (Schema::hasColumn('viagens', $column)) {
                     $table->dropColumn($column);
                 }

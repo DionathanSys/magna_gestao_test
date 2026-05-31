@@ -23,6 +23,7 @@ class Viagem extends Model
         'divergencias'          => 'array',
         'conferido'             => 'boolean',
         'ignorar_viagem'        => 'boolean',
+        'integrados_json'       => 'array',
         'possui_pendencia'      => 'boolean',
         'motivo_divergencia'    => MotivoDivergenciaViagem::class,
         'numero_sequencial'     => 'integer',
@@ -270,6 +271,25 @@ class Viagem extends Model
                 }
 
                 return $divergencias->implode('; ');
+            }
+        );
+    }
+
+    protected function integradosNomesView(): Attribute
+    {
+        return Attribute::make(
+            get: function (): string {
+                $integrados = collect($this->integrados_json ?? [])
+                    ->map(fn ($integrado) => trim(($integrado['nome'] ?? '') . ' - ' . ($integrado['municipio'] ?? '')))
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                if ($integrados->isEmpty()) {
+                    return 'Sem Carga Vinculada';
+                }
+
+                return $integrados->implode('<br>');
             }
         );
     }

@@ -18,11 +18,25 @@ class AtualizarResumoViagem
         }
 
         $integrados = $viagem->cargas()
-            ->with('integrado:id,nome,municipio')
+            ->with('integrado:id,codigo,nome,municipio')
             ->get()
             ->pluck('integrado')
             ->filter()
-            ->map(fn ($integrado) => trim(($integrado->nome ?? '') . ' - ' . ($integrado->municipio ?? '')))
+            ->unique()
+            ->values();
+
+        $integradosJson = $integrados
+            ->map(fn ($integrado) => [
+                'id' => $integrado->id,
+                'codigo' => $integrado->codigo,
+                'nome' => $integrado->nome,
+                'municipio' => $integrado->municipio,
+            ])
+            ->values()
+            ->all();
+
+        $integradosResumo = collect($integradosJson)
+            ->map(fn ($integrado) => trim(($integrado['nome'] ?? '') . ' - ' . ($integrado['municipio'] ?? '')))
             ->filter()
             ->unique()
             ->values();
@@ -32,7 +46,8 @@ class AtualizarResumoViagem
             ->get(['numero_documento', 'valor_liquido', 'parceiro_destino']);
 
         $viagem->updateQuietly([
-            'integrados_nomes_cache' => $integrados->implode('<br>'),
+            'integrados_json' => $integradosJson,
+            'integrados_nomes_cache' => $integradosResumo->implode('<br>'),
             'documentos_frete_resumo_cache' => $documentos
                 ->map(fn ($doc) => 'Nº ' . $doc->numero_documento . ' - R$' . number_format(($doc->valor_liquido ?? 0) / 100, 2, ',', '.'))
                 ->implode('<br>'),

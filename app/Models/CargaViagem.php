@@ -6,6 +6,7 @@ use App\Jobs\ProcessarAlertasIntegrados;
 use App\Services\Carga\CargaService;
 use App\Services\Integrado\IntegradoService;
 use App\Services\Viagem\Actions\AtualizarPendenciasViagem;
+use App\Services\Viagem\Actions\AtualizarResumoViagem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -55,6 +56,7 @@ class CargaViagem extends Model
             }
 
             if ($model->viagem) {
+                (new AtualizarResumoViagem())->handle($model->viagem);
                 (new AtualizarPendenciasViagem())->handle($model->viagem);
             }
         });
@@ -63,6 +65,7 @@ class CargaViagem extends Model
             Log::info('CargaViagem atualizada', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'integrado_id' => $model->integrado_id, 'metodo' => __METHOD__.'#'.'static::updated']);
 
             if ($model->viagem) {
+                (new AtualizarResumoViagem())->handle($model->viagem);
                 (new AtualizarPendenciasViagem())->handle($model->viagem);
             }
         });
@@ -73,6 +76,7 @@ class CargaViagem extends Model
 
             $viagem = Viagem::find($model->viagem_id);
             if ($viagem) {
+                (new AtualizarResumoViagem())->handle($viagem);
                 (new AtualizarPendenciasViagem())->handle($viagem);
             }
         });

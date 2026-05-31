@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enum\MotivoDivergenciaViagem;
 use App\Services\Carga\CargaService;
 use App\Services\Viagem\Actions\AtualizarPendenciasViagem;
+use App\Services\Viagem\Actions\AtualizarResumoViagem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -113,27 +114,6 @@ class Viagem extends Model
 
 
 
-    protected function integradosNomes(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                if (!$this->relationLoaded('cargas')) {
-                    return 'N/A'; // Evita query extra
-                }
-
-                $nomes = $this->cargas
-                    ->filter(fn($carga) => $carga->integrado !== null)
-                    ->map(fn($carga) => $carga->integrado->nome . ' - ' . $carga->integrado->municipio)
-                    ->unique()
-                    ->values();
-
-                return $nomes->isEmpty()
-                    ? 'Sem Integrado'
-                    : $nomes->implode('<br>');
-            }
-        );
-    }
-
     protected function mapsIntegrados(): Attribute
     {
         return Attribute::make(
@@ -190,6 +170,7 @@ class Viagem extends Model
     protected static function booted()
     {
         static::created(function (self $model) {
+            (new AtualizarResumoViagem())->handle($model);
             (new AtualizarPendenciasViagem())->handle($model);
         });
 
@@ -199,7 +180,11 @@ class Viagem extends Model
                 (new CargaService())->atualizarKmDispersao($model->id);
             }
 
-            if ($model->isDirty(['km_rodado', 'km_pago', 'qtde_destino_viagem', 'ignorar_viagem'])) {
+            if ($model->isDirty(['documento_transporte'])) {
+                (new AtualizarResumoViagem())->handle($model);
+            }
+
+            if ($model->isDirty(['km_rodado', 'km_pago', 'qtde_destino_viagem', 'ignorar_viagem', 'documento_transporte'])) {
                 (new AtualizarPendenciasViagem())->handle($model);
             }
         });
@@ -272,43 +257,4 @@ class Viagem extends Model
         );
     }
 
-    protected function pendenciasResumo(): Attribute
-    {
-        return Attribute::make(
-            get: function (): string {
-                $pendencias = [];
-                $limiteKm = (float) db_config('config-viagem.km_rodado_maximo_alerta', 1000);
-
-                if ((int) ($this->qtde_destino_viagem ?? 0) > 1) {
-                    $pendencias[] = 'Multiplos destinos';
-                }
-
-                if ((float) ($this->km_pago ?? 0) <= 0) {
-                    $pendencias[] = 'Sem km pago';
-                }
-
-                if ((float) ($this->km_rodado ?? 0) <= 0) {
-                    $pendencias[] = 'Sem km rodado';
-                }
-
-                if ($limiteKm > 0 && (float) ($this->km_rodado ?? 0) > $limiteKm) {
-                    $pendencias[] = 'Km acima do limite';
-                }
-
-                $cargas = $this->relationLoaded('cargas') ? $this->cargas : $this->cargas()->get(['integrado_id']);
-
-                if ($cargas->isEmpty()) {
-                    $pendencias[] = 'Sem carga';
-                } elseif ($cargas->contains(fn($carga) => blank($carga->integrado_id))) {
-                    $pendencias[] = 'Carga sem integrado';
-                }
-
-                if (empty($pendencias)) {
-                    return 'Sem pendencias';
-                }
-
-                return implode('; ', array_unique($pendencias));
-            }
-        );
-    }
 }

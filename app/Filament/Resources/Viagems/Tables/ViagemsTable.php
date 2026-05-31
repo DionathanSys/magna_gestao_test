@@ -43,55 +43,13 @@ class ViagemsTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->select('viagens.*')
-                    ->selectRaw("
-                        COALESCE(
-                            (SELECT GROUP_CONCAT(DISTINCT CONCAT(integrados.nome, ' - ', integrados.municipio) SEPARATOR '<br>')
-                             FROM cargas_viagem
-                             JOIN integrados ON integrados.id = cargas_viagem.integrado_id
-                             WHERE cargas_viagem.viagem_id = viagens.id
-                            ), ''
-                        ) as integrados_nomes_view
-                    ")
-                    ->selectRaw("
-                        COALESCE(
-                            (
-                                SELECT GROUP_CONCAT(
-                                    CONCAT(
-                                        'Nº ',
-                                        documentos_frete.numero_documento,
-                                        ' - R$ ',
-                                        REPLACE(
-                                            ROUND(documentos_frete.valor_liquido / 100, 2),
-                                            '.', ','
-                                        )
-                                    )
-                                    SEPARATOR '<br>'
-                                )
-                                FROM documentos_frete
-                                WHERE documentos_frete.viagem_id = viagens.id
-                            ), ''
-                        ) as documentos_frete_resumo_view
-                    ")
-                    ->selectRaw("
-                        COALESCE(
-                            (SELECT GROUP_CONCAT(documentos_frete.parceiro_destino SEPARATOR ';<br>')
-                             FROM documentos_frete
-                             WHERE documentos_frete.viagem_id = viagens.id
-                            ), ''
-                        ) as parceiro_frete_view
-                    ")
                     ->with([
-                        // 'cargas' load removed to save performance (calculated via subquery)
-                        // 'documentos' load removed to save performance
                         'veiculo:id,placa',
-                        'comentarios.creator:id,name',
                         'checker:id,name',
                         'creator:id,name',
                         'updater:id,name',
                         'resultadoPeriodo:id,data_inicio',
                     ])
-                    // antecipa o cálculo de existência para evitar N+1
-                    ->withExists(['comentarios'])
                     ->withCount(['cargas', 'documentos']);
             })
             ->poll(null)
@@ -125,13 +83,12 @@ class ViagemsTable
                     ->sortable()
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('integrados_nomes_view')
+                TextColumn::make('integrados_nomes_cache')
                     ->label('Integrado')
                     ->width('1%')
                     ->html()
                     ->formatStateUsing(fn(?string $state): string => $state ?: 'Sem Carga Vinculada')
                     ->placeholder('Sem Carga Vinculada')
-                    ->tooltip(fn(Models\Viagem $record) => strip_tags($record->integrados_nomes_view ?: ''))
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documento_transporte')
@@ -140,19 +97,16 @@ class ViagemsTable
                     ->disabledClick()
                     ->placeholder('Sem Doc. Transp.')
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('documentos_frete_resumo_view')
+                TextColumn::make('documentos_frete_resumo_cache')
                     ->label('Fretes')
-                    // ->width('1%')
                     ->formatStateUsing(fn(?string $state): string => $state ?: 'Sem Frete')
                     ->html()
-                    ->tooltip(fn(Viagem $record) => strip_tags($record->documentos_frete_resumo_view ?: ''))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('parceiro_frete_view')
+                TextColumn::make('parceiro_frete_cache')
                     ->label('Destinos Frete')
                     ->html()
                     ->placeholder('Sem Frete')
-                    ->tooltip(fn(Viagem $record) => strip_tags($record->parceiro_frete_view ?: ''))
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [
@@ -179,14 +133,10 @@ class ViagemsTable
                         ->rules(['numeric', 'min:0', 'required'])
                         ->toggleable(isToggledHiddenByDefault: false)
                         ->afterStateUpdated(function ($state, Models\Viagem $record) {
-                            if (!$record->relationLoaded('cargas')) {
-                                $record->load('cargas.integrado');
-                            }
+                            $integradoId = $record->carga()->whereNotNull('integrado_id')->value('integrado_id');
 
-                            $primeiraIntegrado = $record->cargas->first()?->integrado;
-
-                            if ($primeiraIntegrado) {
-                                (new Services\IntegradoService)->atualizarKmRota($primeiraIntegrado, $state);
+                            if ($integradoId) {
+                                Models\Integrado::query()->whereKey($integradoId)->update(['km_rota' => $state]);
                             }
                         }),
                     TextColumn::make('km_dispersao')
@@ -567,7 +517,6 @@ class ViagemsTable
                     ->modalWidth(Width::ScreenTwoExtraLarge)
             )
             ->reorderableColumns()
-            ->defaultGroup('data_competencia')
             ->defaultSort('numero_viagem')
             ->persistSortInSession()
             ->searchOnBlur()
@@ -678,13 +627,11 @@ class ViagemsTable
                             'km_dispersao',
                             'dispersao_percentual',
                             'documentos_count',
-                            'comentarios_exists',
                             'cargas_count',
                         ]),
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),
-                Viagems\Actions\GerarComplementarCargaAction::make(),
                 Viagems\Actions\NovaCargaAction::make(),
                 Viagems\Actions\ViagemConferidaAction::make(),
                 Viagems\Actions\ViagemNaoConferidaAction::make(),

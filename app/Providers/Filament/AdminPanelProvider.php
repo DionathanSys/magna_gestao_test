@@ -53,7 +53,8 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Zinc,
             ])
             ->plugins([
-                StickyTableHeaderPlugin::make(),
+                // StickyTableHeaderPlugin::make()
+                //     ->shouldScrollToTopOnPageChanged(enabled: true, behavior: "smooth"),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

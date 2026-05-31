@@ -267,7 +267,9 @@ class Viagem extends Model
                     ->values();
 
                 if ($divergencias->isEmpty()) {
-                    return 'Sem pendencias';
+                    return $this->possui_pendencia
+                        ? 'Pendencia sem detalhe sincronizado'
+                        : 'Sem pendencias';
                 }
 
                 return $divergencias->implode('; ');

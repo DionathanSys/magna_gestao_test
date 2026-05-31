@@ -300,13 +300,11 @@ class ViagemsTable
                     ->searchable(['codigo', 'nome'])
                     ->getOptionLabelFromRecordUsing(fn(Models\Integrado $record) => "{$record->codigo} {$record->nome}")
                     ->searchable()
-                    ->preload()
                     ->multiple(),
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
                     ->relationship('veiculo', 'placa')
                     ->searchable()
-                    ->preload()
                     ->multiple(),
                 Filter::make('numero_viagem')
                     ->schema([
@@ -325,6 +323,25 @@ class ViagemsTable
                             ->when(
                                 $data['numero_viagem'],
                                 fn(Builder $query, $numeroViagem): Builder => $query->where('numero_viagem', $numeroViagem),
+                            );
+                    }),
+                Filter::make('numero_viagem_interno')
+                    ->schema([
+                        TextInput::make('numero_viagem_interno')
+                            ->label('Nº Viagem Interno'),
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['numero_viagem_interno']) {
+                            return null;
+                        }
+
+                        return "Nº Interno: {$data['numero_viagem_interno']}";
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['numero_viagem_interno'],
+                                fn(Builder $query, $numeroViagemInterno): Builder => $query->where('numero_viagem_interno', $numeroViagemInterno),
                             );
                     }),
                 Filter::make('documento_transporte')
@@ -378,9 +395,13 @@ class ViagemsTable
                         true: fn(Builder $query) => $query->whereHas('cargas', function (Builder $subQuery) {
                             $subQuery->whereNotNull('integrado_id');
                         }),
-                        false: fn(Builder $query) => $query->whereHas('cargas', function (Builder $subQuery) {
-                            $subQuery->whereNull('integrado_id');
-                        })->orWhereDoesntHave('cargas'),
+                        false: fn(Builder $query) => $query->where(function (Builder $subQuery) {
+                            $subQuery
+                                ->whereHas('cargas', function (Builder $innerQuery) {
+                                    $innerQuery->whereNull('integrado_id');
+                                })
+                                ->orWhereDoesntHave('cargas');
+                        }),
                         blank: fn(Builder $query) => $query,
                     ),
                 TernaryFilter::make('sem_frete')
@@ -448,12 +469,26 @@ class ViagemsTable
                             return $query;
                         }
 
-                        // usa subquery para contar integrados distintos por viagem e aplicar having via whereRaw
-                        // garante compatibilidade independentemente de relacionamentos Eloquent
-                        $binding = [$count];
-                        $raw = "(select count(distinct cv.integrado_id) from cargas_viagem cv where cv.viagem_id = viagens.id) {$op} ?";
+                        return $query->has('cargas', $op, $count);
+                    }),
+                SelectFilter::make('tipo_pendencia')
+                    ->label('Tipo de Pendência')
+                    ->options([
+                        'multiplos_destinos' => 'Múltiplos destinos',
+                        'sem_km_pago' => 'Sem km pago',
+                        'sem_km_rodado' => 'Sem km rodado',
+                        'km_acima_limite' => 'Km acima do limite',
+                        'sem_carga' => 'Sem carga',
+                        'carga_sem_integrado' => 'Carga sem integrado',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $tipo = $data['value'] ?? null;
 
-                        return $query->whereRaw($raw, $binding);
+                        if (! $tipo) {
+                            return $query;
+                        }
+
+                        return $query->whereNotNull("divergencias->{$tipo}");
                     }),
                 Filter::make('range_dispersao')
                     ->label('Range Dispersão Km')

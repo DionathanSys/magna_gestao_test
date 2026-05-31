@@ -22,9 +22,6 @@ return new class extends Migration
                 $table->text('parceiro_frete_cache')->nullable()->after('documentos_frete_resumo_cache');
             }
 
-            if (! Schema::hasColumn('viagens', 'pendencias_resumo')) {
-                $table->text('pendencias_resumo')->nullable()->after('possui_pendencia');
-            }
         });
 
         DB::statement('CREATE INDEX viagens_numero_viagem_idx ON viagens (numero_viagem)');
@@ -71,19 +68,36 @@ return new class extends Migration
             SET v.parceiro_frete_cache = COALESCE(d.resumo, '')
         SQL);
 
-        DB::statement(<<<'SQL'
-            UPDATE viagens v
-            SET v.pendencias_resumo = CASE
-                WHEN v.possui_pendencia = 0 THEN 'Sem pendencias'
-                ELSE TRIM(BOTH '; ' FROM CONCAT_WS('; ',
-                    CASE WHEN COALESCE(v.qtde_destino_viagem, 0) > 1 THEN 'Multiplos destinos' END,
-                    CASE WHEN COALESCE(v.km_pago, 0) <= 0 THEN 'Sem km pago' END,
-                    CASE WHEN COALESCE(v.km_rodado, 0) <= 0 THEN 'Sem km rodado' END,
-                    CASE WHEN EXISTS (SELECT 1 FROM cargas_viagem cv WHERE cv.viagem_id = v.id AND cv.integrado_id IS NULL) THEN 'Carga sem integrado' END,
-                    CASE WHEN NOT EXISTS (SELECT 1 FROM cargas_viagem cv WHERE cv.viagem_id = v.id) THEN 'Sem carga' END
-                ))
-            END
-        SQL);
+        DB::table('viagens')
+            ->select(['id', 'qtde_destino_viagem', 'km_pago', 'km_rodado'])
+            ->orderBy('id')
+            ->chunkById(500, function ($viagens): void {
+                foreach ($viagens as $viagem) {
+                    $divergencias = [];
+
+                    if ((int) ($viagem->qtde_destino_viagem ?? 0) > 1) {
+                        $divergencias['multiplos_destinos'] = 'Multiplos destinos';
+                    }
+
+                    if ((float) ($viagem->km_pago ?? 0) <= 0) {
+                        $divergencias['sem_km_pago'] = 'Sem km pago';
+                    }
+
+                    if ((float) ($viagem->km_rodado ?? 0) <= 0) {
+                        $divergencias['sem_km_rodado'] = 'Sem km rodado';
+                    }
+
+                    if (! DB::table('cargas_viagem')->where('viagem_id', $viagem->id)->exists()) {
+                        $divergencias['sem_carga'] = 'Sem carga';
+                    } elseif (DB::table('cargas_viagem')->where('viagem_id', $viagem->id)->whereNull('integrado_id')->exists()) {
+                        $divergencias['carga_sem_integrado'] = 'Carga sem integrado';
+                    }
+
+                    DB::table('viagens')
+                        ->where('id', $viagem->id)
+                        ->update(['divergencias' => json_encode($divergencias)]);
+                }
+            });
     }
 
     public function down(): void
@@ -97,7 +111,7 @@ return new class extends Migration
         DB::statement('DROP INDEX documentos_frete_data_emissao_idx ON documentos_frete');
 
         Schema::table('viagens', function (Blueprint $table) {
-            foreach (['integrados_nomes_cache', 'documentos_frete_resumo_cache', 'parceiro_frete_cache', 'pendencias_resumo'] as $column) {
+            foreach (['integrados_nomes_cache', 'documentos_frete_resumo_cache', 'parceiro_frete_cache'] as $column) {
                 if (Schema::hasColumn('viagens', $column)) {
                     $table->dropColumn($column);
                 }

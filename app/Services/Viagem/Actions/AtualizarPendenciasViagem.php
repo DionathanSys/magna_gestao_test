@@ -20,39 +20,39 @@ class AtualizarPendenciasViagem
             ->exists();
 
         $possuiPendencia = false;
-        $pendencias = [];
+        $divergencias = [];
 
         if ($qtdeDestino > 1) {
             $possuiPendencia = true;
-            $pendencias[] = 'Multiplos destinos';
+            $divergencias['multiplos_destinos'] = 'Multiplos destinos';
         }
 
         if ($kmPago <= 0) {
             $possuiPendencia = true;
-            $pendencias[] = 'Sem km pago';
+            $divergencias['sem_km_pago'] = 'Sem km pago';
         }
 
         if ($kmRodado <= 0) {
             $possuiPendencia = true;
-            $pendencias[] = 'Sem km rodado';
+            $divergencias['sem_km_rodado'] = 'Sem km rodado';
         }
 
         if ($limiteKm > 0 && $kmRodado > $limiteKm) {
             $possuiPendencia = true;
-            $pendencias[] = 'Km acima do limite';
+            $divergencias['km_acima_limite'] = 'Km acima do limite';
         }
 
         if (! $temCarga) {
             $possuiPendencia = true;
-            $pendencias[] = 'Sem carga';
+            $divergencias['sem_carga'] = 'Sem carga';
         } elseif ($temCargaSemIntegrado) {
             $possuiPendencia = true;
-            $pendencias[] = 'Carga sem integrado';
+            $divergencias['carga_sem_integrado'] = 'Carga sem integrado';
         }
 
         $viagem->updateQuietly([
             'possui_pendencia' => $possuiPendencia,
-            'pendencias_resumo' => empty($pendencias) ? 'Sem pendencias' : implode('; ', array_unique($pendencias)),
+            'divergencias' => $divergencias,
         ]);
 
         return $possuiPendencia;

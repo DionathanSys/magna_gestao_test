@@ -257,4 +257,21 @@ class Viagem extends Model
         );
     }
 
+    protected function pendenciasResumo(): Attribute
+    {
+        return Attribute::make(
+            get: function (): string {
+                $divergencias = collect($this->divergencias ?? [])
+                    ->filter(fn ($value) => filled($value))
+                    ->values();
+
+                if ($divergencias->isEmpty()) {
+                    return 'Sem pendencias';
+                }
+
+                return $divergencias->implode('; ');
+            }
+        );
+    }
+
 }

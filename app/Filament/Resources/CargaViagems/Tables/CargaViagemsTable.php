@@ -40,7 +40,7 @@ class CargaViagemsTable
                 return $query->with([
                     'viagem.veiculo:id,placa',
                     'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,motivo_divergencia,conferido',
-                    'integrado:id,nome,codigo,km_rota',
+                    'integrado:id,nome,codigo,km_rota,municipio',
                 ]);
             })
             ->columns([
@@ -83,6 +83,10 @@ class CargaViagemsTable
                         ->label('Integrado')
                         ->width('1%')
                         ->numeric()
+                        ->sortable(),
+                    TextColumn::make('integrado.municipio')
+                        ->label('Município')
+                        ->width('1%')
                         ->sortable(),
                     TextColumn::make('integrado.km_rota')
                         ->label('Km Rota Integrado')

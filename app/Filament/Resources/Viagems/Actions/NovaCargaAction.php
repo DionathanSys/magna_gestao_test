@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Notifications\Notification;
 
 class NovaCargaAction
@@ -50,44 +51,47 @@ class NovaCargaAction
                         ->first())
                     ->searchable()
                     ->createOptionForm([
-                        TextInput::make('codigo')
-                            ->label('Código')
-                            ->required()
-                            ->columnSpan(4),
-                        TextInput::make('nome')
-                            ->label('Nome')
-                            ->required()
-                            ->columnSpan(8),
-                        TextInput::make('municipio')
-                            ->label('Município')
-                            ->columnSpan(9),
-                        TextInput::make('estado')
-                            ->label('Estado')
-                            ->default('SC')
-                            ->columnSpan(3),
-                        TextInput::make('km_rota')
-                            ->label('KM Rota')
-                            ->required()
-                            ->numeric()
-                            ->columnSpan(4),
-                        TextInput::make('latitude')
-                            ->label('Latitude')
-                            ->default('0.00000000')
-                            ->columnSpan(4),
-                        TextInput::make('longitude')
-                            ->label('Longitude')
-                            ->default('0.00000000')
-                            ->columnSpan(4),
-                        Select::make('cliente')
-                            ->label('Cliente')
-                            ->required()
-                            ->native(false)
-                            ->options(ClienteEnum::toSelectArray())
-                            ->columnSpanFull(),
-                        Toggle::make('alerta_viagem')
-                            ->label('Alerta Viagem')
-                            ->default(false)
-                            ->columnSpanFull(),
+                        Grid::make(12)
+                            ->schema([
+                                TextInput::make('codigo')
+                                    ->label('Código')
+                                    ->required()
+                                    ->columnSpan(4),
+                                TextInput::make('nome')
+                                    ->label('Nome')
+                                    ->required()
+                                    ->columnSpan(8),
+                                TextInput::make('municipio')
+                                    ->label('Município')
+                                    ->columnSpan(9),
+                                TextInput::make('estado')
+                                    ->label('Estado')
+                                    ->default('SC')
+                                    ->columnSpan(3),
+                                TextInput::make('km_rota')
+                                    ->label('KM Rota')
+                                    ->required()
+                                    ->numeric()
+                                    ->columnSpan(4),
+                                TextInput::make('latitude')
+                                    ->label('Latitude')
+                                    ->default('0.00000000')
+                                    ->columnSpan(4),
+                                TextInput::make('longitude')
+                                    ->label('Longitude')
+                                    ->default('0.00000000')
+                                    ->columnSpan(4),
+                                Select::make('cliente')
+                                    ->label('Cliente')
+                                    ->required()
+                                    ->native(false)
+                                    ->options(ClienteEnum::toSelectArray())
+                                    ->columnSpanFull(),
+                                Toggle::make('alerta_viagem')
+                                    ->label('Alerta Viagem')
+                                    ->default(false)
+                                    ->columnSpanFull(),
+                            ]),
                     ])
                     ->createOptionUsing(function (array $data): int {
                         return Models\Integrado::query()->create($data)->getKey();

@@ -96,13 +96,22 @@ class ViagemImporter implements ExcelImportInterface
         $codigoIntegrado = $this->integradoService->extrairCodigoIntegrado((string) ($row['Destino'] ?? ''));
         $integrado = filled($codigoIntegrado) ? $this->integradoService->getIntegradoByCodigo((string) $codigoIntegrado) : null;
 
-        $kmRodado = is_numeric($row['KmRodado'] ?? null)
-            ? (float) str_replace(',', '.', (string) $row['KmRodado'])
-            : 0;
+        $rawKmRodado = $row['KmRodado'] ?? null;
+        $rawKmPago = $row['KmSugerida'] ?? ($row['KmSugerida '] ?? null);
 
-        $kmPago = is_numeric($row['KmSugerida'] ?? null)
-            ? (float) str_replace(',', '.', (string) $row['KmSugerida'])
-            : 0;
+        $kmRodado = $this->parseDecimal($rawKmRodado);
+        $kmPago = $this->parseDecimal($rawKmPago);
+
+        Log::info('Valores brutos do relatorio de viagem para quilometragem', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'numero_viagem' => $row['Viagem'] ?? null,
+            'placa' => $row['Placa'] ?? null,
+            'raw_km_rodado' => $rawKmRodado,
+            'raw_km_pago' => $rawKmPago,
+            'parsed_km_rodado' => $kmRodado,
+            'parsed_km_pago' => $kmPago,
+            'headers' => array_keys($row),
+        ]);
 
         $pendencias = [];
 
@@ -143,6 +152,24 @@ class ViagemImporter implements ExcelImportInterface
             'motorista1'            => null,
             'motorista2'            => null,
         ];
+    }
+
+    private function parseDecimal(mixed $value): float
+    {
+        if ($value === null) {
+            return 0;
+        }
+
+        $normalized = trim((string) $value);
+
+        if ($normalized === '') {
+            return 0;
+        }
+
+        $normalized = str_replace('.', '', $normalized);
+        $normalized = str_replace(',', '.', $normalized);
+
+        return is_numeric($normalized) ? (float) $normalized : 0;
     }
 
     public function process(array $data, int $rowNumber): ?Models\Viagem

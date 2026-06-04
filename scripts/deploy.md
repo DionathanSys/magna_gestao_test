@@ -1,9 +1,9 @@
-# VPS post-pull
+# Deploy VPS
 
 Depois de fazer `git pull` na VPS, rode:
 
 ```bash
-bash scripts/vps-post-pull.sh
+bash scripts/deploy.sh
 ```
 
 O script faz:

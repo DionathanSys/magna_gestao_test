@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Viagems\Actions;
 
+use App\Enum\ClienteEnum;
 use App\Models;
 use App\Services\Carga\CargaService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 
 class NovaCargaAction
@@ -22,6 +25,40 @@ class NovaCargaAction
                     ->relationship('integrados', 'nome')
                     ->searchable(['codigo', 'nome'])
                     ->getOptionLabelFromRecordUsing(fn(Models\Integrado $record) => "{$record->codigo} {$record->nome}")
+                    ->createOptionForm([
+                        TextInput::make('codigo')
+                            ->label('Código')
+                            ->required(),
+                        TextInput::make('nome')
+                            ->label('Nome')
+                            ->required(),
+                        TextInput::make('municipio')
+                            ->label('Município'),
+                        TextInput::make('estado')
+                            ->label('Estado')
+                            ->default('SC'),
+                        TextInput::make('km_rota')
+                            ->label('KM Rota')
+                            ->required()
+                            ->numeric(),
+                        TextInput::make('latitude')
+                            ->label('Latitude')
+                            ->default('0.00000000'),
+                        TextInput::make('longitude')
+                            ->label('Longitude')
+                            ->default('0.00000000'),
+                        Toggle::make('alerta_viagem')
+                            ->label('Alerta Viagem')
+                            ->default(false),
+                        Select::make('cliente')
+                            ->label('Cliente')
+                            ->required()
+                            ->native(false)
+                            ->options(ClienteEnum::toSelectArray()),
+                    ])
+                    ->createOptionUsing(function (array $data): int {
+                        return Models\Integrado::query()->create($data)->getKey();
+                    })
                     ->required(),
             ])
             ->action(function (Models\Viagem $record, array $data) {

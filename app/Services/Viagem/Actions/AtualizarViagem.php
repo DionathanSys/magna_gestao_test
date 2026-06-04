@@ -4,11 +4,14 @@ namespace App\Services\Viagem\Actions;
 
 use App\Models;
 use App\Traits\UserCheckTrait;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 
 class AtualizarViagem
 {
     use UserCheckTrait;
+
+    protected static ?array $viagensColumns = null;
 
     protected array $allowedFields = [
         'veiculo_id',
@@ -43,6 +46,8 @@ class AtualizarViagem
         $data = array_merge($filteredData, [
             'updated_by' => $this->getUserIdChecked(),
         ]);
+
+        $data = $this->normalizeForPersistence($data);
 
         $this->viagem->update($data);
 
@@ -97,5 +102,44 @@ class AtualizarViagem
         }
 
         return true;
+    }
+
+    private function normalizeForPersistence(array $data): array
+    {
+        $columns = self::$viagensColumns ??= Schema::getColumnListing('viagens');
+
+        if (! in_array('numero_interno', $columns, true) && in_array('numero_viagem_interno', $columns, true)) {
+            $data['numero_viagem_interno'] = $data['numero_interno'] ?? null;
+            unset($data['numero_interno']);
+        }
+
+        if (! in_array('total_destinos', $columns, true) && in_array('qtde_destino_viagem', $columns, true)) {
+            $data['qtde_destino_viagem'] = $data['total_destinos'] ?? null;
+            unset($data['total_destinos']);
+        }
+
+        if (! in_array('ignorar', $columns, true) && in_array('ignorar_viagem', $columns, true)) {
+            $data['ignorar_viagem'] = $data['ignorar'] ?? false;
+            unset($data['ignorar']);
+        }
+
+        if (! in_array('pendencias', $columns, true) && in_array('divergencias', $columns, true)) {
+            $data['divergencias'] = $data['pendencias'] ?? [];
+            unset($data['pendencias']);
+        }
+
+        if (array_key_exists('pendencias', $data) && ! in_array('pendencias', $columns, true)) {
+            unset($data['pendencias']);
+        }
+
+        if (array_key_exists('motorista1', $data) && ! in_array('motorista1', $columns, true)) {
+            unset($data['motorista1']);
+        }
+
+        if (array_key_exists('motorista2', $data) && ! in_array('motorista2', $columns, true)) {
+            unset($data['motorista2']);
+        }
+
+        return $data;
     }
 }

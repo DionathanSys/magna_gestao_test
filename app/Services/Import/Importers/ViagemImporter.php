@@ -140,7 +140,7 @@ class ViagemImporter implements ExcelImportInterface
             'ignorar'               => false,
             'possui_pendencia'      => ! empty($pendencias),
             'pendencias'            => $pendencias,
-            'motorista1'            => filled($row['CondutorViagem'] ?? null) ? Str::upper((string) $row['CondutorViagem']) : null,
+            'motorista1'            => null,
             'motorista2'            => null,
         ];
     }

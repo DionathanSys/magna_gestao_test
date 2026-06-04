@@ -22,39 +22,72 @@ class NovaCargaAction
             ->schema([
                 Select::make('integrado_id')
                     ->label('Integrado')
-                    ->relationship('integrados', 'nome')
-                    ->searchable(['codigo', 'nome'])
-                    ->getOptionLabelFromRecordUsing(fn(Models\Integrado $record) => "{$record->codigo} {$record->nome}")
+                    ->options(fn () => Models\Integrado::query()
+                        ->orderBy('nome')
+                        ->limit(50)
+                        ->get()
+                        ->mapWithKeys(fn (Models\Integrado $record) => [
+                            $record->id => "{$record->codigo} {$record->nome}",
+                        ])
+                        ->all())
+                    ->getSearchResultsUsing(fn (string $search): array => Models\Integrado::query()
+                        ->where(function ($query) use ($search) {
+                            $query
+                                ->where('codigo', 'like', "%{$search}%")
+                                ->orWhere('nome', 'like', "%{$search}%");
+                        })
+                        ->orderBy('nome')
+                        ->limit(50)
+                        ->get()
+                        ->mapWithKeys(fn (Models\Integrado $record) => [
+                            $record->id => "{$record->codigo} {$record->nome}",
+                        ])
+                        ->all())
+                    ->getOptionLabelUsing(fn ($value): ?string => Models\Integrado::query()
+                        ->whereKey($value)
+                        ->get()
+                        ->map(fn (Models\Integrado $record) => "{$record->codigo} {$record->nome}")
+                        ->first())
+                    ->searchable()
                     ->createOptionForm([
                         TextInput::make('codigo')
                             ->label('Código')
-                            ->required(),
+                            ->required()
+                            ->columnSpan(4),
                         TextInput::make('nome')
                             ->label('Nome')
-                            ->required(),
+                            ->required()
+                            ->columnSpan(8),
                         TextInput::make('municipio')
-                            ->label('Município'),
+                            ->label('Município')
+                            ->columnSpan(9),
                         TextInput::make('estado')
                             ->label('Estado')
-                            ->default('SC'),
+                            ->default('SC')
+                            ->columnSpan(3),
                         TextInput::make('km_rota')
                             ->label('KM Rota')
                             ->required()
-                            ->numeric(),
+                            ->numeric()
+                            ->columnSpan(4),
                         TextInput::make('latitude')
                             ->label('Latitude')
-                            ->default('0.00000000'),
+                            ->default('0.00000000')
+                            ->columnSpan(4),
                         TextInput::make('longitude')
                             ->label('Longitude')
-                            ->default('0.00000000'),
-                        Toggle::make('alerta_viagem')
-                            ->label('Alerta Viagem')
-                            ->default(false),
+                            ->default('0.00000000')
+                            ->columnSpan(4),
                         Select::make('cliente')
                             ->label('Cliente')
                             ->required()
                             ->native(false)
-                            ->options(ClienteEnum::toSelectArray()),
+                            ->options(ClienteEnum::toSelectArray())
+                            ->columnSpanFull(),
+                        Toggle::make('alerta_viagem')
+                            ->label('Alerta Viagem')
+                            ->default(false)
+                            ->columnSpanFull(),
                     ])
                     ->createOptionUsing(function (array $data): int {
                         return Models\Integrado::query()->create($data)->getKey();

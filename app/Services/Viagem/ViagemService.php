@@ -3,7 +3,6 @@
 namespace App\Services\Viagem;
 
 use App\DTO\ViagemDTO;
-use App\Jobs\VincularRegistroResultadoJob;
 use App\Models;
 use App\Services;
 use App\Traits\ServiceResponseTrait;
@@ -41,19 +40,7 @@ class ViagemService
             }
 
             if ($viagem) {
-
-                VincularRegistroResultadoJob::dispatch($viagem->id, Models\Viagem::class);
-
-                Log::info('Job de vinculação de registro de resultado despachado para viagem ID: ' . $viagem->id, [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
-                ]);
-
                 $this->setSuccess('Viagem criada com sucesso!');
-            }
-
-            if (isset($data['destino']) && ($data['destino'] instanceof Models\Integrado)) {
-                $integrado = $data['destino'];
-                $this->cargaService->create($integrado, $viagem);
             }
 
             return $viagem;
@@ -109,22 +96,6 @@ class ViagemService
                     $action = new Actions\CriarViagem();
                     $viagem = $action->handle($data);
                     Log::info("Viagem Nº " . $data['numero_viagem'] . " criada");
-            }
-
-            try {
-                $carga = $this->cargaService->create($data['destino'], $viagem);
-            } catch (\Exception $e) {
-                Log::error("Erro ao criar/atualizar carga para a viagem Nº " . $data['numero_viagem'], [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
-                    'error' => $e->getMessage(),
-                    'destino' => $data['destino'] ?? null,
-                ]);
-            }
-
-            if ($carga) {
-                Log::alert("Não foi possível criar carga da viagem Nº " . $data['numero_viagem'], [
-                    'carga' => $carga ?? 'null',
-                ]);
             }
 
             $this->setSuccess("Viagem Nº " . $data['numero_viagem'] . " criada");

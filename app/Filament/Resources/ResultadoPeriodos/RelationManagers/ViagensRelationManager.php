@@ -9,7 +9,6 @@ use App\Filament\Resources\Viagems\Actions\VisualizarComentarioAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
 use App\Models\Viagem;
-use App\Services\ViagemService;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;

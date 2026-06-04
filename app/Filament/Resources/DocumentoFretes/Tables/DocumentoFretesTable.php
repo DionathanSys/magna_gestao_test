@@ -9,7 +9,6 @@ use App\Filament\Actions\DefinirResultadoPeriodoBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions;
-use App\Filament\Resources\DocumentoFretes\Actions\CriarViagemBulkAction;
 use App\Filament\Resources\DocumentoFretes\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Carbon\Carbon;
@@ -235,7 +234,6 @@ class DocumentoFretesTable
                     DissociateResultadoPeriodoBulkAction::make(),
                     DefinirResultadoPeriodoBulkAction::make(),
                     VincularResultadoPeriodoBulkAction::make(),
-                    CriarViagemBulkAction::make(),
                     Actions\ExportarDocumentoFreteExcelBulkAction::make(),
                     FilamentExportBulkAction::make('export')
                 ]),
@@ -245,7 +243,6 @@ class DocumentoFretesTable
                     Actions\VincularViagemDocumentoBulkAction::make(),
                     Actions\ImportarDocumentoFretePdfAction::make(),
                     Actions\ImportarDocumentoFreteAction::make(),
-                    Actions\ImportarDocumentoFreteNutrepampaAction::make(),
                 ])->button(),
             ])
             ->striped();

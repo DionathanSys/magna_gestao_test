@@ -12,7 +12,6 @@ use Filament\Forms\Components\{
 };
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use App\Enum;
 use App\Filament\Components\SelectFilterVeiculo;
 use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -62,23 +61,28 @@ class ViagemForm
                             ->required()
                             ->columnStart(1)
                             ->columnSpan(3),
-                        TextInput::make('numero_viagem_interno')
+                        TextInput::make('numero_interno')
                             ->label('Nº Viagem Interno')
                             ->readOnly()
                             ->dehydrated(false)
                             ->columnSpan(3),
                         TextInput::make('documento_transporte')
                             ->columnSpan(3),
-                        Toggle::make('considerar_relatorio')
-                            ->columnSpan(3)
-                            ->label('Considerar no Relatório')
-                            ->inline(false)
-                            ->default(false),
-                        Toggle::make('ignorar_viagem')
+                        Toggle::make('ignorar')
                             ->columnSpan(3)
                             ->label('Ignorar Viagem')
                             ->inline(false)
                             ->default(false),
+                        TextInput::make('total_destinos')
+                            ->label('Total Destinos')
+                            ->numeric()
+                            ->columnSpan(2),
+                        TextInput::make('motorista1')
+                            ->label('Motorista 1')
+                            ->columnSpan(3),
+                        TextInput::make('motorista2')
+                            ->label('Motorista 2')
+                            ->columnSpan(3),
                         DatePicker::make('data_competencia')
                             ->columnStart(1)
                             ->columnSpan(4)
@@ -103,17 +107,10 @@ class ViagemForm
                             ->columnSpan(2)
                             ->numeric()
                             ->default(0),
-                        TextInput::make('km_cadastro')
-                            ->columnSpan(2)
-                            ->numeric()
-                            ->default(0),
-                        Select::make('motivo_divergencia')
-                            ->label('Motivo Divergência')
-                            ->columnSpan(5)
-                            ->native(false)
-                            ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
-                            ->default(Enum\MotivoDivergenciaViagem::DESLOCAMENTO_OUTROS->value),
-
+                        Toggle::make('possui_pendencia')
+                            ->label('Possui Pendência')
+                            ->inline(false)
+                            ->columnSpan(2),
                     ]),
                 Section::make('Documentos')
                     ->columnStart(1)

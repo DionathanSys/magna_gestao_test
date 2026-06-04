@@ -5,7 +5,6 @@ namespace App\Services\DocumentoFrete;
 use App\Contracts\XlsxImportInterface;
 use App\Jobs\ProcessXlsxRowJob;
 use App\{Models, Services};
-use App\Jobs\VincularRegistroResultadoJob;
 use App\Jobs\VincularViagemDocumentoFrete;
 use App\Models\Viagem;
 use App\Services\DocumentoFrete\Actions\VincularViagemDocumento;
@@ -224,13 +223,4 @@ class DocumentoFreteService
             ]);
         }
     }
-
-    public function createViagemNutrepampaFromDocumentoFrete(Collection $documentosFrete)
-    {
-        $action = new Actions\GerarViagemNutrepampaFromDocumento($documentosFrete);
-        return $action->handle();
-
-    }
-
-    
 }

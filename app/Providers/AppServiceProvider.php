@@ -2,13 +2,10 @@
 
 namespace App\Providers;
 
-use App\Models\Viagem;
-use App\Models\DocumentoFrete;
-use App\Observers\ViagemObserver;
-use App\Observers\DocumentoFreteObserver;
-use Filament\Support\Facades\FilamentView;
+use App\Events\Viagem\RecalcularRateioKmDispersaoRequested;
+use App\Listeners\Viagem\AtualizarRateioKmDispersaoCargas;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,9 +28,10 @@ class AppServiceProvider extends ServiceProvider
 
         Model::unguard();
 
-        // Registrar Observers
-        Viagem::observe(ViagemObserver::class);
-        DocumentoFrete::observe(DocumentoFreteObserver::class);
+        Event::listen(
+            RecalcularRateioKmDispersaoRequested::class,
+            AtualizarRateioKmDispersaoCargas::class,
+        );
 
     }
 }

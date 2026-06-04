@@ -70,14 +70,14 @@ class ViagemsTable
                     ->sortable()
                     ->weight(FontWeight::Bold)
                     ->disabledClick(),
-                TextColumn::make('numero_viagem_interno')
+                TextColumn::make('numero_interno')
                     ->label('Nº Interno')
                     ->width('1%')
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->disabledClick(),
-                TextColumn::make('qtde_destino_viagem')
+                TextColumn::make('total_destinos')
                     ->label('Quantidade')
                     ->width('1%')
                     ->sortable()
@@ -110,9 +110,6 @@ class ViagemsTable
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [
-                    // TextInputColumn::make('km_rodado')
-                    //     ->type('number')
-                    //     ->rules(['numeric', 'min:0', 'required']),
                     TextColumn::make('km_rodado')
                         ->width('1%')
                         ->wrapHeader()
@@ -123,22 +120,6 @@ class ViagemsTable
                         ->wrapHeader()
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR')
                         ->summarize(Sum::make()->label('TT Km Pago')->numeric(decimalPlaces: 2, locale: 'pt-BR')),
-                    TextInputColumn::make('km_cadastro')
-                        ->label('Km Cadastro')
-                        ->wrapHeader()
-                        ->width('1%')
-                        ->type('number')
-                        ->sortable()
-                        ->disabled(fn(Models\Viagem $record) => $record->conferido)
-                        ->rules(['numeric', 'min:0', 'required'])
-                        ->toggleable(isToggledHiddenByDefault: false)
-                        ->afterStateUpdated(function ($state, Models\Viagem $record) {
-                            $integradoId = $record->carga()->whereNotNull('integrado_id')->value('integrado_id');
-
-                            if ($integradoId) {
-                                Models\Integrado::query()->whereKey($integradoId)->update(['km_rota' => $state]);
-                            }
-                        }),
                     TextColumn::make('km_dispersao')
                         ->label('Km Dispersão')
                         ->width('1%')
@@ -174,14 +155,6 @@ class ViagemsTable
                                 ->numeric(decimalPlaces: 2, locale: 'pt-BR')
                         )
                         ->toggleable(isToggledHiddenByDefault: false),
-                    SelectColumn::make('motivo_divergencia')
-                        ->label('Motivo Divergência')
-                        ->wrapHeader()
-                        ->grow(false)
-                        ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
-                        ->default(Enum\MotivoDivergenciaViagem::SEM_OBS->value)
-                        ->disabled(fn(Models\Viagem $record) => ($record->conferido && !Auth::user()->is_admin))
-                        ->toggleable(isToggledHiddenByDefault: false)
                 ]),
                 ColumnGroup::make('Datas', [
                     TextInputColumn::make('data_competencia')
@@ -227,7 +200,7 @@ class ViagemsTable
                     ->label('Pendência')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: false),
-                IconColumn::make('ignorar_viagem')
+                IconColumn::make('ignorar')
                     ->label('Ignorar')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: false),
@@ -248,8 +221,8 @@ class ViagemsTable
                         ->sortable()
                         ->toggleable(isToggledHiddenByDefault: true),
                 ]),
-                TextColumn::make('condutor')
-                    ->label('Motorista')
+                TextColumn::make('motorista1')
+                    ->label('Motorista 1')
                     ->default('Sem Motorista')
                     ->grow(false)
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -325,23 +298,23 @@ class ViagemsTable
                                 fn(Builder $query, $numeroViagem): Builder => $query->where('numero_viagem', $numeroViagem),
                             );
                     }),
-                Filter::make('numero_viagem_interno')
+                Filter::make('numero_interno')
                     ->schema([
-                        TextInput::make('numero_viagem_interno')
+                        TextInput::make('numero_interno')
                             ->label('Nº Viagem Interno'),
                     ])
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['numero_viagem_interno']) {
+                        if (! $data['numero_interno']) {
                             return null;
                         }
 
-                        return "Nº Interno: {$data['numero_viagem_interno']}";
+                        return "Nº Interno: {$data['numero_interno']}";
                     })
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['numero_viagem_interno'],
-                                fn(Builder $query, $numeroViagemInterno): Builder => $query->where('numero_viagem_interno', $numeroViagemInterno),
+                                $data['numero_interno'],
+                                fn(Builder $query, $numeroInterno): Builder => $query->where('numero_interno', $numeroInterno),
                             );
                     }),
                 Filter::make('documento_transporte')
@@ -423,15 +396,10 @@ class ViagemsTable
                     ->label('Possui Pendência')
                     ->trueLabel('Sim')
                     ->falseLabel('Não'),
-                TernaryFilter::make('ignorar_viagem')
+                TernaryFilter::make('ignorar')
                     ->label('Ignorar Viagem')
                     ->trueLabel('Sim')
                     ->falseLabel('Não'),
-                SelectFilter::make('motivo_divergencia')
-                    ->label('Motivo Divergência')
-                    ->options(Enum\MotivoDivergenciaViagem::toSelectArray())
-                    ->multiple()
-                    ->columnSpanFull(),
                 Filter::make('integrados_count')
                     ->label('Qtd. Integrados')
                     ->columnSpanFull()
@@ -478,8 +446,7 @@ class ViagemsTable
                         'sem_km_pago' => 'Sem km pago',
                         'sem_km_rodado' => 'Sem km rodado',
                         'km_acima_limite' => 'Km acima do limite',
-                        'sem_carga' => 'Sem carga',
-                        'carga_sem_integrado' => 'Carga sem integrado',
+                        'sem_integrado' => 'Sem integrado',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         $tipo = $data['value'] ?? null;
@@ -488,7 +455,7 @@ class ViagemsTable
                             return $query;
                         }
 
-                        return $query->whereNotNull("divergencias->{$tipo}");
+                        return $query->whereNotNull("pendencias->{$tipo}");
                     }),
                 Filter::make('range_dispersao')
                     ->label('Range Dispersão Km')
@@ -578,7 +545,8 @@ class ViagemsTable
                             $selectedRecords->each(function (Models\Viagem $record) {
                                 Log::debug("Processando Viagem ID {$record->id} na ação Sem Viagem pelo usuário ID " . Auth::id());
                                 $record->update([
-                                    'motivo_divergencia' => Enum\MotivoDivergenciaViagem::SEM_VIAGEM->value,
+                                    'possui_pendencia' => false,
+                                    'pendencias' => [],
                                     'conferido' => true,
                                 ]);
                                 $record->carga()->create([
@@ -637,14 +605,15 @@ class ViagemsTable
                             'unidade_negocio'       => $record->unidade_negocio,
                             'numero_viagem'         => $record->numero_viagem,
                             'data_aquisicao'        => $record->data_aquisicao,
-                            'considerar_relatorio'  => $record->considerar_relatorio,
                             'data_competencia'      => $record->data_competencia,
                             'data_inicio'           => $record->data_inicio,
                             'data_fim'              => $record->data_fim,
                             'km_rodado'             => $record->km_rodado,
                             'km_pago'               => $record->km_pago,
-                            'km_cadastro'           => $record->km_cadastro,
-                            'motivo_divergencia'    => $record->motivo_divergencia,
+                            'total_destinos'        => $record->total_destinos,
+                            'ignorar'               => $record->ignorar,
+                            'motorista1'            => $record->motorista1,
+                            'motorista2'            => $record->motorista2,
                         ])
                         ->schema(fn(Schema $schema) => ViagemResource::form($schema))
                         ->successNotificationTitle('Viagem Duplicada')
@@ -652,7 +621,7 @@ class ViagemsTable
                             'id',
                             'documento_transporte',
                             'conferido',
-                            'divergencias',
+                            'pendencias',
                             'created_at',
                             'updated_at',
                             'created_by',

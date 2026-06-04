@@ -2,19 +2,24 @@
 
 namespace App\Models;
 
-use App\Jobs\ProcessarAlertasIntegrados;
-use App\Services\Carga\CargaService;
-use App\Services\Integrado\IntegradoService;
-use App\Services\Viagem\Actions\AtualizarPendenciasViagem;
-use App\Services\Viagem\Actions\AtualizarResumoViagem;
+use App\Events\Viagem\RecalcularRateioKmDispersaoRequested;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Support\Facades\Log;
 
 class CargaViagem extends Model
 {
     protected $table = 'cargas_viagem';
+
+    protected static function booted(): void
+    {
+        static::created(function (self $model): void {
+            RecalcularRateioKmDispersaoRequested::dispatch($model->viagem_id, 'carga_created');
+        });
+
+        static::deleted(function (self $model): void {
+            RecalcularRateioKmDispersaoRequested::dispatch($model->viagem_id, 'carga_deleted');
+        });
+    }
 
     public function viagem(): BelongsTo
     {
@@ -24,62 +29,6 @@ class CargaViagem extends Model
     public function integrado(): BelongsTo
     {
         return $this->belongsTo(Integrado::class, 'integrado_id');
-    }
-
-    public function complementos(): BelongsTo
-    {
-        return $this->belongsTo(ViagemComplemento::class, 'documento_transporte', 'documento_transporte');
-    }
-
-    protected static function booted()
-    {
-        static::created(function (self $model) {
-            Log::info('CargaViagem criada', [
-                'metodo' => __METHOD__.'#'.'static::created',
-                'id' => $model->id, 
-                'viagem_id' => $model->viagem_id, 
-                'integrado_id' => $model->integrado_id
-            ]);
-
-            (new CargaService())->atualizarKmDispersao($model->viagem_id);
-
-            if ($model->integrado_id) {
-                $integradoService = new IntegradoService();
-                
-                if ($integradoService->getIntegradoAlertaById($model->integrado_id)) {
-                    Log::info('Carga será adicionada ao lote de alertas (via cache)', [
-                        'carga_id' => $model->id,
-                        'integrado_id' => $model->integrado_id,
-                    ]);
-                    ProcessarAlertasIntegrados::adicionarCarga($model->id);
-                }
-            }
-
-            if ($model->viagem) {
-                (new AtualizarResumoViagem())->handle($model->viagem);
-                (new AtualizarPendenciasViagem())->handle($model->viagem);
-            }
-        });
-
-        static::updated(function (self $model) {
-            Log::info('CargaViagem atualizada', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'integrado_id' => $model->integrado_id, 'metodo' => __METHOD__.'#'.'static::updated']);
-
-            if ($model->viagem) {
-                (new AtualizarResumoViagem())->handle($model->viagem);
-                (new AtualizarPendenciasViagem())->handle($model->viagem);
-            }
-        });
-
-        static::deleted(function (self $model) {
-            Log::info('CargaViagem removida (deleted)', ['id' => $model->id, 'viagem_id' => $model->viagem_id, 'metodo' => __METHOD__.'#'.'static::deleted']);
-            (new CargaService())->atualizarKmDispersao($model->viagem_id);
-
-            $viagem = Viagem::find($model->viagem_id);
-            if ($viagem) {
-                (new AtualizarResumoViagem())->handle($viagem);
-                (new AtualizarPendenciasViagem())->handle($viagem);
-            }
-        });
     }
 
 }

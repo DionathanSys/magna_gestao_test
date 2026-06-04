@@ -2,17 +2,13 @@
 
 namespace App\Models;
 
-use App\Enum\MotivoDivergenciaViagem;
-use App\Services\Carga\CargaService;
-use App\Services\Viagem\Actions\AtualizarPendenciasViagem;
-use App\Services\Viagem\Actions\AtualizarResumoViagem;
+use App\Events\Viagem\RecalcularRateioKmDispersaoRequested;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Viagem extends Model
@@ -20,16 +16,24 @@ class Viagem extends Model
     protected $table = 'viagens';
 
     protected $casts = [
-        'divergencias'          => 'array',
+        'pendencias'            => 'array',
         'conferido'             => 'boolean',
-        'ignorar_viagem'        => 'boolean',
+        'ignorar'               => 'boolean',
         'integrados_json'       => 'array',
         'possui_pendencia'      => 'boolean',
-        'motivo_divergencia'    => MotivoDivergenciaViagem::class,
         'numero_sequencial'     => 'integer',
     ];
 
     protected $appends = []; // Accessors removidos para evitar N+1/Lazy Loading em listagens
+
+    protected static function booted(): void
+    {
+        static::updated(function (self $model): void {
+            if ($model->isDirty(['km_rodado', 'km_pago'])) {
+                RecalcularRateioKmDispersaoRequested::dispatch($model->id, 'viagem_km_updated');
+            }
+        });
+    }
 
     /**
      * Relação com o modelo ResultadoPeriodo
@@ -68,11 +72,6 @@ class Viagem extends Model
         return $this->hasMany(DocumentoFrete::class, 'viagem_id', 'id');
     }
 
-    public function complementos(): HasMany
-    {
-        return $this->hasMany(ViagemComplemento::class, 'viagem_id');
-    }
-
     public function veiculo()
     {
         return $this->belongsTo(Veiculo::class, 'veiculo_id');
@@ -81,11 +80,6 @@ class Viagem extends Model
     public function anotacoes(): HasMany
     {
         return $this->hasMany(AnotacaoViagem::class, 'viagem_id');
-    }
-
-    public function divergencias(): HasMany
-    {
-        return $this->hasMany(DivergenciaViagem::class, 'viagem_id');
     }
 
     public function comentarios(): MorphMany
@@ -168,29 +162,6 @@ class Viagem extends Model
         );
     }
 
-    protected static function booted()
-    {
-        static::created(function (self $model) {
-            (new AtualizarResumoViagem())->handle($model);
-            (new AtualizarPendenciasViagem())->handle($model);
-        });
-
-        static::updated(function (self $model) {
-            if ($model->isDirty(['km_rodado', 'km_pago'])) {
-                Log::info('Viagem atualizada com alteração de km_rodado ou km_pago', ['id' => $model->id, 'km_rodado' => $model->km_rodado, 'km_pago' => $model->km_pago]);
-                (new CargaService())->atualizarKmDispersao($model->id);
-            }
-
-            if ($model->isDirty(['documento_transporte'])) {
-                (new AtualizarResumoViagem())->handle($model);
-            }
-
-            if ($model->isDirty(['km_rodado', 'km_pago', 'qtde_destino_viagem', 'ignorar_viagem', 'documento_transporte'])) {
-                (new AtualizarPendenciasViagem())->handle($model);
-            }
-        });
-    }
-
     protected function documentosFreteResumo(): Attribute
     {
         return Attribute::make(
@@ -262,17 +233,17 @@ class Viagem extends Model
     {
         return Attribute::make(
             get: function (): string {
-                $divergencias = collect($this->divergencias ?? [])
+                $pendencias = collect($this->pendencias ?? [])
                     ->filter(fn ($value) => filled($value))
                     ->values();
 
-                if ($divergencias->isEmpty()) {
+                if ($pendencias->isEmpty()) {
                     return $this->possui_pendencia
                         ? 'Pendencia sem detalhe sincronizado'
                         : 'Sem pendencias';
                 }
 
-                return $divergencias->implode('; ');
+                return $pendencias->implode('; ');
             }
         );
     }

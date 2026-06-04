@@ -14,17 +14,11 @@ class VincularRegistroResultadoJob implements ShouldQueue
 
     protected $model;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(protected int $modelId, protected string $modelClass)
     {
         $this->model = $this->modelClass::find($this->modelId);
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         Log::debug("Iniciando vinculação do registro resultado para {$this->modelClass} ID: {$this->modelId}", [
@@ -32,12 +26,13 @@ class VincularRegistroResultadoJob implements ShouldQueue
             'model' => $this->model,
         ]);
 
-        if (!$this->model) {
-            Log::error("Registro não encontrado para vinculação do resultado.", [
+        if (! $this->model) {
+            Log::error('Registro não encontrado para vinculação do resultado.', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'model_class' => $this->modelClass,
                 'model_id' => $this->modelId,
             ]);
+
             return;
         }
 
@@ -46,17 +41,17 @@ class VincularRegistroResultadoJob implements ShouldQueue
             ->where('status', StatusDiversosEnum::PENDENTE)
             ->first();
 
-        if (!$resultadoPeriodo) {
-            Log::info("Nenhum Resultado Período pendente encontrado para vincular.", [
+        if (! $resultadoPeriodo) {
+            Log::info('Nenhum Resultado Período pendente encontrado para vincular.', [
                 'metodo' => __METHOD__ . '@' . __LINE__,
                 'veiculo_id' => $this->model->veiculo_id,
             ]);
+
             return;
         }
 
         $this->model->update([
             'resultado_periodo_id' => $resultadoPeriodo->id,
         ]);
-
     }
 }

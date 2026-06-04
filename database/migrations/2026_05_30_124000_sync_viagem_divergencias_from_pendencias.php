@@ -30,12 +30,9 @@ return new class extends Migration
                         $divergencias['sem_km_rodado'] = 'Sem km rodado';
                     }
 
-                    if (! DB::table('cargas_viagem')->where('viagem_id', $viagem->id)->exists()) {
+                    if (! DB::table('cargas_viagem')->where('viagem_id', $viagem->id)->exists() || DB::table('cargas_viagem')->where('viagem_id', $viagem->id)->whereNull('integrado_id')->exists()) {
                         $possuiPendencia = true;
-                        $divergencias['sem_carga'] = 'Sem carga';
-                    } elseif (DB::table('cargas_viagem')->where('viagem_id', $viagem->id)->whereNull('integrado_id')->exists()) {
-                        $possuiPendencia = true;
-                        $divergencias['carga_sem_integrado'] = 'Carga sem integrado';
+                        $divergencias['sem_integrado'] = 'Sem integrado';
                     }
 
                     DB::table('viagens')

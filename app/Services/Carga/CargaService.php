@@ -41,7 +41,7 @@ class CargaService
 
             $documentoTransporte = $viagem->documento_transporte;
             $totalCargas = $viagem->cargas->count();
-            $qtdeDestino = (int) ($viagem->qtde_destino_viagem ?? 0);
+            $qtdeDestino = (int) ($viagem->total_destinos ?? 0);
 
             $cargaViagemSemIntegrado = $this->cargaViagem
                 ->where('viagem_id', $viagem->id)

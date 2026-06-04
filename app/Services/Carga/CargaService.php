@@ -23,7 +23,7 @@ class CargaService
         return $this->gerarOuComplementar($integrado, $viagem);
     }
 
-    public function gerarOuComplementar(?Models\Integrado $integrado, Models\Viagem $viagem): ?Models\CargaViagem
+    public function gerarOuComplementar(?Models\Integrado $integrado, Models\Viagem $viagem, bool $permitirCriacaoManual = false): ?Models\CargaViagem
     {
 
         // Lógica
@@ -81,7 +81,7 @@ class CargaService
                 }
             }
 
-            if ($totalCargas > 0 && $qtdeDestino > $totalCargas) {
+            if (! $permitirCriacaoManual && $totalCargas > 0 && $qtdeDestino > $totalCargas) {
                 Log::info("Criação automática de carga bloqueada para viagem {$viagem->id} por quantidade de destinos maior que cargas existentes.");
                 return null;
             }

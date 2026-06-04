@@ -96,13 +96,13 @@ class NovaCargaAction
             ])
             ->action(function (Models\Viagem $record, array $data) {
                 $integrado = Models\Integrado::findOrFail($data['integrado_id']);
-                $carga = (new CargaService())->gerarOuComplementar($integrado, $record);
+                $carga = (new CargaService())->gerarOuComplementar($integrado, $record, true);
 
                 if (! $carga) {
                     Notification::make()
                         ->warning()
                         ->title('Nenhuma carga criada')
-                        ->body('A viagem já possui cargas pendentes de complemento e nenhuma nova carga foi criada automaticamente.')
+                        ->body('Nao foi possivel adicionar a carga para a viagem.')
                         ->send();
 
                     return;

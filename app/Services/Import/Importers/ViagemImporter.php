@@ -92,6 +92,13 @@ class ViagemImporter implements ExcelImportInterface
 
     public function transform(array $row): array
     {
+        Log::info('Dados recebidos pelo ViagemImporter', [
+            'metodo' => __METHOD__ . '@' . __LINE__,
+            'numero_viagem' => $row['Viagem'] ?? null,
+            'headers' => array_keys($row),
+            'row' => $row,
+        ]);
+
         $veiculo = $this->veiculoService->getVeiculoByPlaca($row['Placa']);
         $codigoIntegrado = $this->integradoService->extrairCodigoIntegrado((string) ($row['Destino'] ?? ''));
         $integrado = filled($codigoIntegrado) ? $this->integradoService->getIntegradoByCodigo((string) $codigoIntegrado) : null;

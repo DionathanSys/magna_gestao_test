@@ -46,6 +46,14 @@ class ProcessImportRowJob implements ShouldQueue
             $rowNumber = $index + 2;
             $rowData = array_combine($this->headers, $row);
 
+            Log::info('Linha bruta do lote de importacao de viagens', [
+                'metodo' => __METHOD__ . '@' . __LINE__,
+                'import_log_id' => $this->importLogId,
+                'row_number' => $rowNumber,
+                'headers' => $this->headers,
+                'row_data' => $rowData,
+            ]);
+
             try {
                 $importer->process($rowData, $rowNumber);
                 if ($importer->hasError()) {
@@ -86,4 +94,3 @@ class ProcessImportRowJob implements ShouldQueue
         ]);
     }
 }
-

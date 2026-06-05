@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Inerba\DbConfig\AbstractPageSettings;
+
+class MailInboundSettings extends AbstractPageSettings
+{
+    protected static ?string $title = 'Entrada de E-mails';
+
+    protected function settingName(): string
+    {
+        return 'config-mail-inbound';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Configurações';
+    }
+
+    public function getDefaultData(): array
+    {
+        return [
+            'enabled' => true,
+            'allowed_senders' => [],
+            'bugio_recipient_cnpj' => null,
+            'unidade_negocio' => null,
+        ];
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->columns(12)
+            ->components([
+                Section::make('Captura e Correspondência')
+                    ->columns(12)
+                    ->columnSpan(8)
+                    ->schema([
+                        Toggle::make('enabled')
+                            ->label('Habilitado')
+                            ->columnSpanFull()
+                            ->default(true),
+                        Repeater::make('allowed_senders')
+                            ->label('Remetentes Permitidos')
+                            ->columnSpanFull()
+                            ->addActionLabel('Adicionar remetente')
+                            ->simple(
+                                TextInput::make('email')
+                                    ->label('E-mail')
+                                    ->email()
+                                    ->required()
+                                    ->autocomplete(false)
+                            ),
+                        TextInput::make('bugio_recipient_cnpj')
+                            ->label('CNPJ do destinatário da nota de venda')
+                            ->columnSpan(6)
+                            ->required()
+                            ->autocomplete(false),
+                        TextInput::make('unidade_negocio')
+                            ->label('Unidade de Negócio para criação automática')
+                            ->columnSpan(6)
+                            ->required()
+                            ->autocomplete(false),
+                    ]),
+            ])
+            ->statePath('data');
+    }
+}

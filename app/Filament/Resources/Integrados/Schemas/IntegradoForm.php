@@ -25,6 +25,10 @@ class IntegradoForm
                     ->columnSpan(4)
                     ->autocomplete(false)
                     ->required(),
+                TextInput::make('cnpj')
+                    ->label('CNPJ')
+                    ->columnSpan(3)
+                    ->autocomplete(false),
                 TextInput::make('municipio')
                     ->label('Município')
                     ->columnSpan(2)

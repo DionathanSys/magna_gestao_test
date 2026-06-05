@@ -20,7 +20,8 @@
         "phpoffice/phpspreadsheet": "^5.0",
         "predis/predis": "^3.2",
         "spatie/pdf-to-text": "^1.54",
-        "watheqalshowaiter/filament-sticky-table-header": "^1.0"
+        "watheqalshowaiter/filament-sticky-table-header": "^1.0",
+        "webklex/laravel-imap": "^6.2"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.16",

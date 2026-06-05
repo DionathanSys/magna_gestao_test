@@ -26,6 +26,9 @@ class IntegradosTable
                     ->width('1%')
                     ->disabledClick()
                     ->searchable(isIndividual: true),
+                TextColumn::make('cnpj')
+                    ->label('CNPJ')
+                    ->searchable(isIndividual: true),
                 TextColumn::make('km_rota')
                     ->label('KM Rota')
                     ->width('1%')

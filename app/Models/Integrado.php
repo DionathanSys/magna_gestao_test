@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -23,6 +24,14 @@ class Integrado extends Model
     public function comentarios(): MorphMany
     {
         return $this->morphMany(Comentario::class, 'comentavel');
+    }
+
+    protected function cnpj(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
+            set: fn (?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,
+        );
     }
 
     protected static function booted()

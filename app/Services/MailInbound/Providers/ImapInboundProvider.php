@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Services\MailInbound\Providers;
+
+use App\Contracts\MailInboundProvider;
+use App\Services\MailInbound\Data\InboundAttachmentData;
+use App\Services\MailInbound\Data\InboundMessageData;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Webklex\IMAP\Facades\Client;
+use Webklex\PHPIMAP\Message;
+
+class ImapInboundProvider implements MailInboundProvider
+{
+    public function fetchNewMessages(): iterable
+    {
+        $client = Client::make([
+            'host' => config('mail-inbound.imap.host'),
+            'port' => config('mail-inbound.imap.port'),
+            'encryption' => config('mail-inbound.imap.encryption'),
+            'validate_cert' => config('mail-inbound.imap.validate_cert'),
+            'username' => config('mail-inbound.imap.username'),
+            'password' => config('mail-inbound.imap.password'),
+            'protocol' => config('mail-inbound.imap.protocol'),
+        ]);
+
+        $client->connect();
+
+        $folder = $client->getFolder(config('mail-inbound.imap.folder'));
+
+        $messages = $folder
+            ->query()
+            ->unseen()
+            ->limit((int) config('mail-inbound.imap.fetch_limit', 20))
+            ->get();
+
+        return $messages->map(fn (Message $message) => $this->mapMessage($message));
+    }
+
+    protected function mapMessage(Message $message): InboundMessageData
+    {
+        $from = $message->getFrom()->first();
+        $receivedAt = $this->parseReceivedAt($message);
+
+        return new InboundMessageData(
+            provider: 'imap',
+            externalId: $message->getUid(),
+            messageId: $message->getMessageId(),
+            fromEmail: $from?->mail,
+            fromName: $from?->personal,
+            subject: $message->getSubject(),
+            receivedAt: $receivedAt,
+            headers: [
+                'uid' => $message->getUid(),
+                'message_id' => $message->getMessageId(),
+            ],
+            attachments: $this->mapAttachments($message),
+            sourceMessage: $message,
+        );
+    }
+
+    /**
+     * @return array<int, InboundAttachmentData>
+     */
+    protected function mapAttachments(Message $message): array
+    {
+        return $message->getAttachments()
+            ->map(function ($attachment) {
+                return new InboundAttachmentData(
+                    filename: (string) ($attachment->getName() ?: $attachment->getFilename() ?: 'attachment.bin'),
+                    content: (string) $attachment->getContent(),
+                    mimeType: $attachment->getMimeType(),
+                    size: $attachment->getSize() ? (int) $attachment->getSize() : null,
+                );
+            })
+            ->all();
+    }
+
+    protected function parseReceivedAt(Message $message): ?Carbon
+    {
+        $date = $message->getDate();
+
+        if (is_object($date) && method_exists($date, 'first')) {
+            $date = $date->first();
+        }
+
+        if ($date === null || $date === '') {
+            return null;
+        }
+
+        return Carbon::parse((string) $date);
+    }
+
+    public function markAsSeen(mixed $sourceMessage): void
+    {
+        if (! $sourceMessage instanceof Message) {
+            return;
+        }
+
+        try {
+            $sourceMessage->setFlag('Seen');
+        } catch (\Throwable $exception) {
+            Log::warning('Falha ao marcar email IMAP como lido', [
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+}

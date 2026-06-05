@@ -107,6 +107,11 @@ class Viagem extends Model
         return $this->hasMany(ViagemBugio::class, 'viagem_id');
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(ViagemAttachment::class, 'viagem_id');
+    }
+
 
 
     protected function mapsIntegrados(): Attribute

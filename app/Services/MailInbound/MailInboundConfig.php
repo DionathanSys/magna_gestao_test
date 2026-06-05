@@ -35,10 +35,23 @@ class MailInboundConfig
         return $senders;
     }
 
-    public function bugioRecipientCnpj(): ?string
+    public function saleRecipientDocument(): ?string
+    {
+        $value = db_config('config-mail-inbound.sale_recipient_document');
+
+        if ($value === null || $value === '') {
+            $value = db_config('config-mail-inbound.bugio_recipient_cnpj');
+        }
+
+        return \App\Services\MailInbound\Support\DocumentIdentity::normalizeDigits(
+            $value
+        );
+    }
+
+    public function issuerDocument(): ?string
     {
         return \App\Services\MailInbound\Support\DocumentIdentity::normalizeDigits(
-            db_config('config-mail-inbound.bugio_recipient_cnpj')
+            db_config('config-mail-inbound.issuer_document')
         );
     }
 

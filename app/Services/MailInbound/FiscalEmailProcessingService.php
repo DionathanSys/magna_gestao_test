@@ -51,6 +51,8 @@ class FiscalEmailProcessingService
             'tipo_documento' => $tipoDocumento,
             'numero_nota' => $parsed['numero_nota'] ?? null,
             'chave_nfe' => $parsed['chave_nfe'] ?? null,
+            'emitente_documento' => $parsed['emitente_documento'] ?? null,
+            'destinatario_documento' => $parsed['destinatario_documento'] ?? null,
             'integrado_id' => $integrado?->id,
         ]);
 
@@ -68,10 +70,12 @@ class FiscalEmailProcessingService
                 'numero_nota' => $parsed['numero_nota'],
                 'serie' => $parsed['serie'],
                 'emitido_em' => $parsed['emitido_em'],
+                'emitente_nome' => $parsed['emitente_nome'],
+                'emitente_documento' => $parsed['emitente_documento'],
                 'destinatario_nome' => $parsed['destinatario_nome'],
-                'destinatario_cnpj' => $parsed['destinatario_cnpj'],
+                'destinatario_documento' => $parsed['destinatario_documento'],
                 'transportador_nome' => $parsed['transportador_nome'],
-                'transportador_cnpj' => $parsed['transportador_cnpj'],
+                'transportador_documento' => $parsed['transportador_documento'],
                 'placa_transportador' => $parsed['placa_transportador'],
                 'peso_carga' => $parsed['peso_carga'],
                 'referenced_nfe_key' => $parsed['referenced_nfe_key'],

@@ -26,7 +26,7 @@ class Integrado extends Model
         return $this->morphMany(Comentario::class, 'comentavel');
     }
 
-    protected function cnpj(): Attribute
+    protected function documento(): Attribute
     {
         return Attribute::make(
             get: fn (?string $value) => $value ? preg_replace('/\D+/', '', $value) : null,

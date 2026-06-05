@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('integrados', function (Blueprint $table) {
-            $table->string('cnpj', 20)->nullable()->after('nome');
-            $table->index('cnpj');
+            $table->string('documento', 20)->nullable()->after('nome');
+            $table->index('documento');
         });
 
         Schema::create('incoming_emails', function (Blueprint $table) {
@@ -56,10 +56,12 @@ return new class extends Migration
             $table->string('numero_nota')->nullable();
             $table->string('serie')->nullable();
             $table->timestamp('emitido_em')->nullable();
+            $table->string('emitente_nome')->nullable();
+            $table->string('emitente_documento', 20)->nullable();
             $table->string('destinatario_nome')->nullable();
-            $table->string('destinatario_cnpj', 20)->nullable();
+            $table->string('destinatario_documento', 20)->nullable();
             $table->string('transportador_nome')->nullable();
-            $table->string('transportador_cnpj', 20)->nullable();
+            $table->string('transportador_documento', 20)->nullable();
             $table->string('placa_transportador', 20)->nullable();
             $table->decimal('peso_carga', 12, 3)->nullable();
             $table->string('referenced_nfe_key')->nullable();
@@ -108,8 +110,8 @@ return new class extends Migration
         Schema::dropIfExists('incoming_emails');
 
         Schema::table('integrados', function (Blueprint $table) {
-            $table->dropIndex(['cnpj']);
-            $table->dropColumn('cnpj');
+            $table->dropIndex(['documento']);
+            $table->dropColumn('documento');
         });
     }
 };

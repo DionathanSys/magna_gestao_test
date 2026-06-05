@@ -9,13 +9,18 @@ class FiscalDocumentTypeResolver
      */
     public function resolve(array $parsedDocument): string
     {
-        $bugioCnpj = app(MailInboundConfig::class)->bugioRecipientCnpj();
+        $issuerDocument = app(MailInboundConfig::class)->issuerDocument();
+        $saleRecipientDocument = app(MailInboundConfig::class)->saleRecipientDocument();
 
-        if ($bugioCnpj && ($parsedDocument['destinatario_cnpj'] ?? null) === $bugioCnpj) {
+        if ($issuerDocument && ($parsedDocument['emitente_documento'] ?? null) !== $issuerDocument) {
+            return 'unknown';
+        }
+
+        if ($saleRecipientDocument && ($parsedDocument['destinatario_documento'] ?? null) === $saleRecipientDocument) {
             return 'sale';
         }
 
-        if (! empty($parsedDocument['destinatario_cnpj'])) {
+        if (! empty($parsedDocument['destinatario_documento'])) {
             return 'remittance';
         }
 

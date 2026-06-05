@@ -12,12 +12,12 @@ class IntegradoResolver
      */
     public function resolve(array $parsedDocument): ?Integrado
     {
-        $cnpj = DocumentIdentity::normalizeDigits($parsedDocument['destinatario_cnpj'] ?? null);
+        $documento = DocumentIdentity::normalizeDigits($parsedDocument['destinatario_documento'] ?? null);
 
-        if (! $cnpj) {
+        if (! $documento) {
             return null;
         }
 
-        return Integrado::query()->where('cnpj', $cnpj)->first();
+        return Integrado::query()->where('documento', $documento)->first();
     }
 }

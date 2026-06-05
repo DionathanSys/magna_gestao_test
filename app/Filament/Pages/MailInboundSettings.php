@@ -30,7 +30,8 @@ class MailInboundSettings extends AbstractPageSettings
         return [
             'enabled' => true,
             'allowed_senders' => [],
-            'bugio_recipient_cnpj' => null,
+            'issuer_document' => null,
+            'sale_recipient_document' => db_config('config-mail-inbound.bugio_recipient_cnpj'),
             'unidade_negocio' => null,
         ];
     }
@@ -59,8 +60,13 @@ class MailInboundSettings extends AbstractPageSettings
                                     ->required()
                                     ->autocomplete(false)
                             ),
-                        TextInput::make('bugio_recipient_cnpj')
-                            ->label('CNPJ do destinatário da nota de venda')
+                        TextInput::make('issuer_document')
+                            ->label('Documento do emissor das notas')
+                            ->columnSpan(6)
+                            ->required()
+                            ->autocomplete(false),
+                        TextInput::make('sale_recipient_document')
+                            ->label('Documento do destinatario da nota de venda')
                             ->columnSpan(6)
                             ->required()
                             ->autocomplete(false),

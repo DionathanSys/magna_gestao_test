@@ -3,6 +3,7 @@
 namespace App\Services\MailInbound;
 
 use App\Events\MailInbound\IncomingEmailStored;
+use App\Jobs\MailInbound\ProcessIncomingFiscalEmailJob;
 use App\Models\IncomingEmail;
 use App\Models\IncomingEmailAttachment;
 use App\Services\MailInbound\Data\InboundAttachmentData;
@@ -10,6 +11,7 @@ use App\Services\MailInbound\Data\InboundMessageData;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class InboundMessageIngestionService
 {
@@ -109,10 +111,22 @@ class InboundMessageIngestionService
         }
     }
 
+    public function reprocessStoredEmail(int $incomingEmailId): void
+    {
+        $incomingEmail = IncomingEmail::query()->with('attachments')->findOrFail($incomingEmailId);
+
+        if ($this->attachmentsNeedRestore($incomingEmail)) {
+            $this->restoreAttachmentsFromSource($incomingEmail);
+        }
+
+        ProcessIncomingFiscalEmailJob::dispatch($incomingEmail->id)
+            ->onQueue(config('mail-inbound.queue.process'));
+    }
+
     protected function storeAttachment(IncomingEmail $incomingEmail, InboundAttachmentData $attachment): void
     {
         $disk = config('mail-inbound.storage.disk');
-        $basePath = trim((string) config('mail-inbound.storage.path'), '/');
+        $basePath = $this->normalizeStorageBasePath($disk, (string) config('mail-inbound.storage.path'));
         $directory = sprintf(
             '%s/%s/%s',
             $basePath,
@@ -150,6 +164,63 @@ class InboundMessageIngestionService
             'kind' => $record->kind,
             'path' => $path,
         ]);
+    }
+
+    protected function attachmentsNeedRestore(IncomingEmail $incomingEmail): bool
+    {
+        if ($incomingEmail->attachments->isEmpty()) {
+            return true;
+        }
+
+        foreach ($incomingEmail->attachments as $attachment) {
+            if (! Storage::disk($attachment->disk)->exists($attachment->path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function restoreAttachmentsFromSource(IncomingEmail $incomingEmail): void
+    {
+        $provider = $this->providerRegistry->resolve($incomingEmail->provider);
+
+        if (! method_exists($provider, 'fetchMessageByExternalId') || ! $incomingEmail->external_id) {
+            throw new RuntimeException('Nao foi possivel restaurar anexos a partir da origem.');
+        }
+
+        $message = $provider->fetchMessageByExternalId($incomingEmail->external_id);
+
+        if (! $message instanceof InboundMessageData) {
+            throw new RuntimeException('Email original nao encontrado no provider para restauracao.');
+        }
+
+        foreach ($incomingEmail->attachments as $attachment) {
+            Storage::disk($attachment->disk)->delete($attachment->path);
+        }
+
+        $incomingEmail->attachments()->delete();
+
+        foreach ($message->attachments as $attachment) {
+            $this->storeAttachment($incomingEmail, $attachment);
+        }
+
+        Log::info('Anexos restaurados a partir do provider original', [
+            'incoming_email_id' => $incomingEmail->id,
+            'external_id' => $incomingEmail->external_id,
+            'attachments_count' => count($message->attachments),
+        ]);
+    }
+
+    protected function normalizeStorageBasePath(string $disk, string $basePath): string
+    {
+        $basePath = trim($basePath, '/');
+
+        if ($disk === 'local' && str_starts_with($basePath, 'private/')) {
+            return substr($basePath, strlen('private/'));
+        }
+
+        return $basePath;
     }
 
     protected function resolveKind(?string $extension, ?string $mimeType): string

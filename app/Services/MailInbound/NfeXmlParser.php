@@ -16,6 +16,11 @@ class NfeXmlParser
     public function parse(string $disk, string $path): array
     {
         $content = Storage::disk($disk)->get($path);
+
+        if (! is_string($content) || $content === '') {
+            throw new RuntimeException('Arquivo XML nao encontrado ou vazio para processamento.');
+        }
+
         $xml = simplexml_load_string($content);
 
         if (! $xml instanceof SimpleXMLElement) {

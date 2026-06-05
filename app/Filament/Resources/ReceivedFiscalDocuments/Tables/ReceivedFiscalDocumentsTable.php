@@ -2,7 +2,12 @@
 
 namespace App\Filament\Resources\ReceivedFiscalDocuments\Tables;
 
+use App\Jobs\MailInbound\CreateTripFromShipmentDocumentsJob;
+use App\Models\ReceivedFiscalDocument;
+use App\Services\MailInbound\ShipmentDocumentMatcher;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -35,6 +40,25 @@ class ReceivedFiscalDocumentsTable
                     ]),
             ])
             ->recordActions([
+                Action::make('reprocessar_documento')
+                    ->label('Reprocessar')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->iconButton()
+                    ->action(function (ReceivedFiscalDocument $record, ShipmentDocumentMatcher $matcher): void {
+                        $group = $matcher->match($record->fresh());
+
+                        if ($group) {
+                            CreateTripFromShipmentDocumentsJob::dispatch($group->id)
+                                ->onQueue(config('mail-inbound.queue.trip'));
+                        }
+
+                        Notification::make()
+                            ->success()
+                            ->title('Documento reprocessado')
+                            ->body("Documento fiscal {$record->id} reavaliado para pareamento.")
+                            ->send();
+                    }),
                 ViewAction::make()->iconButton(),
             ]);
     }

@@ -14,19 +14,7 @@ class ImapInboundProvider implements MailInboundProvider
 {
     public function fetchNewMessages(): iterable
     {
-        $client = Client::make([
-            'host' => config('mail-inbound.imap.host'),
-            'port' => config('mail-inbound.imap.port'),
-            'encryption' => config('mail-inbound.imap.encryption'),
-            'validate_cert' => config('mail-inbound.imap.validate_cert'),
-            'username' => config('mail-inbound.imap.username'),
-            'password' => config('mail-inbound.imap.password'),
-            'protocol' => config('mail-inbound.imap.protocol'),
-        ]);
-
-        $client->connect();
-
-        $folder = $client->getFolder(config('mail-inbound.imap.folder'));
+        $folder = $this->connectFolder();
 
         $messages = $folder
             ->query()
@@ -35,6 +23,15 @@ class ImapInboundProvider implements MailInboundProvider
             ->get();
 
         return $messages->map(fn (Message $message) => $this->mapMessage($message));
+    }
+
+    public function fetchMessageByExternalId(string|int $externalId): ?InboundMessageData
+    {
+        $folder = $this->connectFolder();
+
+        $message = $folder->query()->getMessageByUid($externalId);
+
+        return $message ? $this->mapMessage($message) : null;
     }
 
     protected function mapMessage(Message $message): InboundMessageData
@@ -104,5 +101,22 @@ class ImapInboundProvider implements MailInboundProvider
                 'error' => $exception->getMessage(),
             ]);
         }
+    }
+
+    protected function connectFolder(): mixed
+    {
+        $client = Client::make([
+            'host' => config('mail-inbound.imap.host'),
+            'port' => config('mail-inbound.imap.port'),
+            'encryption' => config('mail-inbound.imap.encryption'),
+            'validate_cert' => config('mail-inbound.imap.validate_cert'),
+            'username' => config('mail-inbound.imap.username'),
+            'password' => config('mail-inbound.imap.password'),
+            'protocol' => config('mail-inbound.imap.protocol'),
+        ]);
+
+        $client->connect();
+
+        return $client->getFolder(config('mail-inbound.imap.folder'));
     }
 }

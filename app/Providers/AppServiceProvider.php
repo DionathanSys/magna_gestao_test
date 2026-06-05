@@ -2,11 +2,7 @@
 
 namespace App\Providers;
 
-use App\Events\MailInbound\IncomingEmailStored;
-use App\Events\MailInbound\ShipmentDocumentsMatched;
 use App\Events\Viagem\RecalcularRateioKmDispersaoRequested;
-use App\Listeners\MailInbound\QueueIncomingFiscalEmailProcessing;
-use App\Listeners\MailInbound\QueueMatchedShipmentTripCreation;
 use App\Listeners\Viagem\AtualizarRateioKmDispersaoCargas;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -35,16 +31,6 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(
             RecalcularRateioKmDispersaoRequested::class,
             AtualizarRateioKmDispersaoCargas::class,
-        );
-
-        Event::listen(
-            IncomingEmailStored::class,
-            QueueIncomingFiscalEmailProcessing::class,
-        );
-
-        Event::listen(
-            ShipmentDocumentsMatched::class,
-            QueueMatchedShipmentTripCreation::class,
         );
 
     }

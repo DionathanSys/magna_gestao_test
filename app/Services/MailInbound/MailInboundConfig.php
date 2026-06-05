@@ -2,6 +2,8 @@
 
 namespace App\Services\MailInbound;
 
+use Illuminate\Support\Facades\Log;
+
 class MailInboundConfig
 {
     public function enabled(): bool
@@ -11,11 +13,26 @@ class MailInboundConfig
 
     public function allowedSenders(): array
     {
-        return collect(db_config('config-mail-inbound.allowed_senders', []))
-            ->map(fn ($row) => strtolower(trim((string) ($row['email'] ?? ''))))
+        $raw = db_config('config-mail-inbound.allowed_senders', []);
+
+        $senders = collect($raw)
+            ->map(function ($row) {
+                if (is_array($row)) {
+                    return strtolower(trim((string) ($row['email'] ?? '')));
+                }
+
+                return strtolower(trim((string) $row));
+            })
             ->filter()
             ->values()
             ->all();
+
+        Log::info('Remetentes permitidos carregados da configuracao', [
+            'raw' => $raw,
+            'normalized' => $senders,
+        ]);
+
+        return $senders;
     }
 
     public function bugioRecipientCnpj(): ?string

@@ -20,6 +20,12 @@ class FiscalEmailProcessingService
     {
         $incomingEmail = IncomingEmail::query()->with('attachments')->findOrFail($incomingEmailId);
 
+        Log::info('Iniciando processamento fiscal do email ingerido', [
+            'incoming_email_id' => $incomingEmail->id,
+            'message_id' => $incomingEmail->message_id,
+            'attachments_count' => $incomingEmail->attachments->count(),
+        ]);
+
         $xmlAttachment = $incomingEmail->attachments->firstWhere('kind', 'xml');
         $pdfAttachment = $incomingEmail->attachments->firstWhere('kind', 'pdf');
 
@@ -28,12 +34,25 @@ class FiscalEmailProcessingService
                 'status' => 'ignored',
                 'error_message' => 'Email sem XML para processamento fiscal.',
             ]);
+
+            Log::warning('Email ingerido sem XML, processamento fiscal ignorado', [
+                'incoming_email_id' => $incomingEmail->id,
+            ]);
             return;
         }
 
         $parsed = $this->parser->parse($xmlAttachment->disk, $xmlAttachment->path);
         $tipoDocumento = $this->typeResolver->resolve($parsed);
         $integrado = $this->integradoResolver->resolve($parsed);
+
+        Log::info('XML fiscal parseado com sucesso', [
+            'incoming_email_id' => $incomingEmail->id,
+            'xml_attachment_id' => $xmlAttachment->id,
+            'tipo_documento' => $tipoDocumento,
+            'numero_nota' => $parsed['numero_nota'] ?? null,
+            'chave_nfe' => $parsed['chave_nfe'] ?? null,
+            'integrado_id' => $integrado?->id,
+        ]);
 
         preg_match('/\b(\d{1,9})\b/', (string) ($parsed['inf_adic'] ?? ''), $saleNumberMatch);
 
@@ -69,5 +88,10 @@ class FiscalEmailProcessingService
         ]);
 
         $this->matcher->match($document);
+
+        Log::info('Processamento fiscal finalizado', [
+            'incoming_email_id' => $incomingEmail->id,
+            'received_fiscal_document_id' => $document->id,
+        ]);
     }
 }

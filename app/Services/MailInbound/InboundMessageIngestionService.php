@@ -22,12 +22,27 @@ class InboundMessageIngestionService
     public function ingest(): void
     {
         if (! $this->config->enabled()) {
+            Log::info('Fluxo de ingestao de emails ignorado porque esta desabilitado.');
+            return;
+        }
+
+        if ($this->config->allowedSenders() === []) {
+            Log::warning('Fluxo de ingestao de emails abortado: nenhum remetente permitido configurado.');
             return;
         }
 
         $provider = $this->providerRegistry->resolve();
+        $messages = $provider->fetchNewMessages();
 
-        foreach ($provider->fetchNewMessages() as $message) {
+        $messageCount = is_countable($messages) ? count($messages) : null;
+
+        Log::info('Mensagens capturadas para ingestao', [
+            'provider' => config('mail-inbound.default_provider'),
+            'allowed_senders' => $this->config->allowedSenders(),
+            'count' => $messageCount,
+        ]);
+
+        foreach ($messages as $message) {
             $this->ingestMessage($message, $provider);
         }
     }
@@ -35,8 +50,22 @@ class InboundMessageIngestionService
     protected function ingestMessage(InboundMessageData $message, mixed $provider): void
     {
         $fromEmail = strtolower(trim((string) $message->fromEmail));
+        $allowedSenders = $this->config->allowedSenders();
 
-        if (! in_array($fromEmail, $this->config->allowedSenders(), true)) {
+        Log::info('Analisando email recebido para ingestao', [
+            'message_id' => $message->messageId,
+            'external_id' => $message->externalId,
+            'from_email' => $fromEmail,
+            'subject' => $message->subject,
+            'attachments_count' => count($message->attachments),
+        ]);
+
+        if (! in_array($fromEmail, $allowedSenders, true)) {
+            Log::info('Email ignorado por remetente nao permitido', [
+                'from_email' => $fromEmail,
+                'allowed_senders' => $allowedSenders,
+                'message_id' => $message->messageId,
+            ]);
             return;
         }
 
@@ -58,11 +87,21 @@ class InboundMessageIngestionService
         );
 
         if ($incomingEmail->wasRecentlyCreated) {
+            Log::info('Novo email persistido para processamento', [
+                'incoming_email_id' => $incomingEmail->id,
+                'message_id' => $incomingEmail->message_id,
+            ]);
+
             foreach ($message->attachments as $attachment) {
                 $this->storeAttachment($incomingEmail, $attachment);
             }
 
             event(new IncomingEmailStored($incomingEmail->id));
+        } else {
+            Log::info('Email ja havia sido ingerido anteriormente', [
+                'incoming_email_id' => $incomingEmail->id,
+                'message_id' => $incomingEmail->message_id,
+            ]);
         }
 
         if (config('mail-inbound.imap.mark_as_seen') && method_exists($provider, 'markAsSeen')) {
@@ -89,7 +128,7 @@ class InboundMessageIngestionService
 
         Storage::disk($disk)->put($path, $attachment->content);
 
-        IncomingEmailAttachment::query()->create([
+        $record = IncomingEmailAttachment::query()->create([
             'incoming_email_id' => $incomingEmail->id,
             'original_filename' => $originalName,
             'stored_filename' => $storedFilename,
@@ -102,6 +141,14 @@ class InboundMessageIngestionService
             'kind' => $this->resolveKind($extension, $attachment->mimeType),
             'status' => 'stored',
             'metadata' => [],
+        ]);
+
+        Log::info('Anexo salvo para email recebido', [
+            'incoming_email_id' => $incomingEmail->id,
+            'attachment_id' => $record->id,
+            'original_filename' => $originalName,
+            'kind' => $record->kind,
+            'path' => $path,
         ]);
     }
 

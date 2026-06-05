@@ -2,7 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Enum\UnidadeNegocioEnum;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -62,11 +64,12 @@ class MailInboundSettings extends AbstractPageSettings
                             ->columnSpan(6)
                             ->required()
                             ->autocomplete(false),
-                        TextInput::make('unidade_negocio')
+                        Select::make('unidade_negocio')
                             ->label('Unidade de Negócio para criação automática')
+                            ->options(UnidadeNegocioEnum::toSelectArray())
+                            ->native(false)
                             ->columnSpan(6)
-                            ->required()
-                            ->autocomplete(false),
+                            ->required(),
                     ]),
             ])
             ->statePath('data');

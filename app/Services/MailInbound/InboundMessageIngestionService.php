@@ -8,6 +8,7 @@ use App\Models\IncomingEmail;
 use App\Models\IncomingEmailAttachment;
 use App\Services\MailInbound\Data\InboundAttachmentData;
 use App\Services\MailInbound\Data\InboundMessageData;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -18,6 +19,7 @@ class InboundMessageIngestionService
     public function __construct(
         protected ProviderRegistry $providerRegistry,
         protected MailInboundConfig $config,
+        protected FiscalEmailProcessingService $fiscalEmailProcessingService,
     ) {
     }
 
@@ -119,11 +121,10 @@ class InboundMessageIngestionService
             $this->restoreAttachmentsFromSource($incomingEmail);
         }
 
-        ProcessIncomingFiscalEmailJob::dispatch($incomingEmail->id)
-            ->onQueue(config('mail-inbound.queue.process'));
+        $this->fiscalEmailProcessingService->process($incomingEmail->id);
     }
 
-    protected function storeAttachment(IncomingEmail $incomingEmail, InboundAttachmentData $attachment): void
+    protected function storeAttachment(IncomingEmail $incomingEmail, InboundAttachmentData $attachment): IncomingEmailAttachment
     {
         $disk = config('mail-inbound.storage.disk');
         $basePath = $this->normalizeStorageBasePath($disk, (string) config('mail-inbound.storage.path'));
@@ -139,6 +140,8 @@ class InboundMessageIngestionService
         $sanitizedName = Str::slug(pathinfo($originalName, PATHINFO_FILENAME));
         $storedFilename = Str::uuid() . '_' . ($sanitizedName ?: 'attachment') . ($extension ? '.' . $extension : '');
         $path = $directory . '/' . $storedFilename;
+
+        $this->ensureDirectoryExists($disk, $directory);
 
         Storage::disk($disk)->put($path, $attachment->content);
 
@@ -164,6 +167,8 @@ class InboundMessageIngestionService
             'kind' => $record->kind,
             'path' => $path,
         ]);
+
+        return $record;
     }
 
     protected function attachmentsNeedRestore(IncomingEmail $incomingEmail): bool
@@ -195,14 +200,28 @@ class InboundMessageIngestionService
             throw new RuntimeException('Email original nao encontrado no provider para restauracao.');
         }
 
-        foreach ($incomingEmail->attachments as $attachment) {
-            Storage::disk($attachment->disk)->delete($attachment->path);
-        }
+        $existingAttachments = $incomingEmail->attachments->all();
+        $restoredAttachments = [];
 
-        $incomingEmail->attachments()->delete();
+        try {
+            foreach ($message->attachments as $attachment) {
+                $restoredAttachments[] = $this->storeAttachment($incomingEmail, $attachment);
+            }
 
-        foreach ($message->attachments as $attachment) {
-            $this->storeAttachment($incomingEmail, $attachment);
+            foreach ($existingAttachments as $attachment) {
+                Storage::disk($attachment->disk)->delete($attachment->path);
+            }
+
+            $incomingEmail->attachments()
+                ->whereNotIn('id', collect($restoredAttachments)->pluck('id'))
+                ->delete();
+        } catch (\Throwable $exception) {
+            foreach ($restoredAttachments as $attachment) {
+                Storage::disk($attachment->disk)->delete($attachment->path);
+                $attachment->delete();
+            }
+
+            throw $exception;
         }
 
         Log::info('Anexos restaurados a partir do provider original', [
@@ -221,6 +240,21 @@ class InboundMessageIngestionService
         }
 
         return $basePath;
+    }
+
+    protected function ensureDirectoryExists(string $disk, string $directory): void
+    {
+        if ($disk !== 'local') {
+            Storage::disk($disk)->makeDirectory($directory);
+
+            return;
+        }
+
+        $absolutePath = storage_path('app/private/' . trim($directory, '/'));
+
+        if (! is_dir($absolutePath)) {
+            File::ensureDirectoryExists($absolutePath, 0755, true);
+        }
     }
 
     protected function resolveKind(?string $extension, ?string $mimeType): string

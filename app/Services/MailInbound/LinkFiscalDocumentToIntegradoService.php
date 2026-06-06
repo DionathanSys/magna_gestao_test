@@ -2,7 +2,6 @@
 
 namespace App\Services\MailInbound;
 
-use App\Jobs\MailInbound\CreateTripFromShipmentDocumentsJob;
 use App\Models\Integrado;
 use App\Models\ReceivedFiscalDocument;
 use App\Models\ShipmentDocumentGroup;
@@ -10,6 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class LinkFiscalDocumentToIntegradoService
 {
+    public function __construct(protected ShipmentTripService $shipmentTripService)
+    {
+    }
+
     public function handle(ReceivedFiscalDocument $document, Integrado $integrado): void
     {
         DB::transaction(function () use ($document, $integrado): void {
@@ -32,8 +35,7 @@ class LinkFiscalDocumentToIntegradoService
                     ]);
 
                     if (! $group->viagem_id) {
-                        CreateTripFromShipmentDocumentsJob::dispatch($group->id)
-                            ->onQueue(config('mail-inbound.queue.trip'));
+                        $this->shipmentTripService->createFromGroup($group->id);
                     }
                 });
         });

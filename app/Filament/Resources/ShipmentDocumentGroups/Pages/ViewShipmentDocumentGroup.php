@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\ShipmentDocumentGroups\Pages;
 
 use App\Filament\Resources\ShipmentDocumentGroups\ShipmentDocumentGroupResource;
-use App\Jobs\MailInbound\CreateTripFromShipmentDocumentsJob;
+use App\Services\MailInbound\ShipmentTripService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -19,9 +19,8 @@ class ViewShipmentDocumentGroup extends ViewRecord
                 ->label('Reprocessar Viagem')
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
-                ->action(function (): void {
-                    CreateTripFromShipmentDocumentsJob::dispatch($this->record->id)
-                        ->onQueue(config('mail-inbound.queue.trip'));
+                ->action(function (ShipmentTripService $shipmentTripService): void {
+                    $shipmentTripService->createFromGroup($this->record->id);
 
                     Notification::make()
                         ->success()

@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\ReceivedFiscalDocuments\Tables;
 
-use App\Jobs\MailInbound\CreateTripFromShipmentDocumentsJob;
 use App\Models\Integrado;
 use App\Models\ReceivedFiscalDocument;
 use App\Services\MailInbound\LinkFiscalDocumentToIntegradoService;
+use App\Services\MailInbound\ShipmentTripService;
 use App\Services\MailInbound\ShipmentDocumentMatcher;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -83,18 +83,17 @@ class ReceivedFiscalDocumentsTable
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->iconButton()
-                    ->action(function (ReceivedFiscalDocument $record, ShipmentDocumentMatcher $matcher): void {
+                    ->action(function (ReceivedFiscalDocument $record, ShipmentDocumentMatcher $matcher, ShipmentTripService $shipmentTripService): void {
                         $group = $matcher->match($record->fresh());
 
                         if ($group) {
-                            CreateTripFromShipmentDocumentsJob::dispatch($group->id)
-                                ->onQueue(config('mail-inbound.queue.trip'));
+                            $shipmentTripService->createFromGroup($group->id);
                         }
 
                         Notification::make()
                             ->success()
                             ->title('Documento reprocessado')
-                            ->body("Documento fiscal {$record->id} reavaliado para pareamento.")
+                            ->body("Documento fiscal {$record->id} reavaliado manualmente.")
                             ->send();
                     }),
                 ViewAction::make()->iconButton(),

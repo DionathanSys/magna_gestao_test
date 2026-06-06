@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\ReceivedFiscalDocuments\Pages;
 
 use App\Filament\Resources\ReceivedFiscalDocuments\ReceivedFiscalDocumentResource;
-use App\Jobs\MailInbound\CreateTripFromShipmentDocumentsJob;
 use App\Models\Integrado;
 use App\Services\MailInbound\LinkFiscalDocumentToIntegradoService;
+use App\Services\MailInbound\ShipmentTripService;
 use App\Services\MailInbound\ShipmentDocumentMatcher;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -57,12 +57,11 @@ class ViewReceivedFiscalDocument extends ViewRecord
                 ->label('Reprocessar Documento')
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
-                ->action(function (ShipmentDocumentMatcher $matcher): void {
+                ->action(function (ShipmentDocumentMatcher $matcher, ShipmentTripService $shipmentTripService): void {
                     $group = $matcher->match($this->record->fresh());
 
                     if ($group) {
-                        CreateTripFromShipmentDocumentsJob::dispatch($group->id)
-                            ->onQueue(config('mail-inbound.queue.trip'));
+                        $shipmentTripService->createFromGroup($group->id);
                     }
 
                     Notification::make()

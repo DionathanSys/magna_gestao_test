@@ -128,5 +128,5 @@ Artisan::command('mail:test-imap {--folder=} {--limit=5}', function () {
 Schedule::command('email:diario')->dailyAt('07:00')->runInBackground();
 Schedule::command('email:diario')->dailyAt('17:10')->runInBackground();
 Schedule::job(new ReadIncomingMailboxJob(), config('mail-inbound.queue.ingest'))
-    ->everyMinute()
+    ->everyFifteenMinutes()
     ->withoutOverlapping();

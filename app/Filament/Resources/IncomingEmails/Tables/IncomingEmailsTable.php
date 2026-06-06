@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -31,6 +32,18 @@ class IncomingEmailsTable
                 TextColumn::make('pending_summary')->label('O que falta')->wrap(),
                 TextColumn::make('received_at')->label('Recebido em')->dateTime('d/m/Y H:i')->sortable(),
             ])
+            ->filters([
+                Filter::make('sem_documento_fiscal')
+                    ->label('Nao parseados')
+                    ->query(fn (Builder $query): Builder => $query->whereDoesntHave('fiscalDocument')),
+                Filter::make('com_anexos_sem_grupo')
+                    ->label('Anexos sem agrupamento')
+                    ->query(fn (Builder $query): Builder => $query
+                        ->whereHas('attachments')
+                        ->whereHas('fiscalDocument')
+                        ->whereDoesntHave('fiscalDocument.saleGroups')
+                        ->whereDoesntHave('fiscalDocument.remittanceGroups')),
+            ])
             ->recordActions([
                 Action::make('reprocessar_email')
                     ->label('Reprocessar')
@@ -42,8 +55,8 @@ class IncomingEmailsTable
 
                         Notification::make()
                             ->success()
-                            ->title('Reprocessamento enfileirado')
-                            ->body("Email {$record->id} enviado para reprocessamento fiscal.")
+                            ->title('Email reprocessado')
+                            ->body("Email {$record->id} reprocessado manualmente.")
                             ->send();
                     }),
                 ViewAction::make()->iconButton(),

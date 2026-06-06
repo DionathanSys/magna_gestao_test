@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\ShipmentDocumentGroups\Tables;
 
-use App\Jobs\MailInbound\CreateTripFromShipmentDocumentsJob;
 use App\Models\ShipmentDocumentGroup;
+use App\Services\MailInbound\ShipmentTripService;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
@@ -44,14 +44,13 @@ class ShipmentDocumentGroupsTable
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->iconButton()
-                    ->action(function (ShipmentDocumentGroup $record): void {
-                        CreateTripFromShipmentDocumentsJob::dispatch($record->id)
-                            ->onQueue(config('mail-inbound.queue.trip'));
+                    ->action(function (ShipmentDocumentGroup $record, ShipmentTripService $shipmentTripService): void {
+                        $shipmentTripService->createFromGroup($record->id);
 
                         Notification::make()
                             ->success()
-                            ->title('Grupo reenviado')
-                            ->body("Grupo {$record->id} reenviado para tentativa de criacao da viagem.")
+                            ->title('Grupo reprocessado')
+                            ->body("Grupo {$record->id} reavaliado para criacao da viagem.")
                             ->send();
                     }),
                 ViewAction::make()->iconButton(),

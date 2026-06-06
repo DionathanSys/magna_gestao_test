@@ -39,7 +39,29 @@ class IncomingEmailInfolist
                     ]),
                 Section::make('Headers')
                     ->schema([
-                        KeyValueEntry::make('raw_headers')->label('Headers'),
+                        KeyValueEntry::make('raw_headers')
+                            ->label('Headers')
+                            ->formatStateUsing(function ($state) {
+                                if (! is_array($state)) {
+                                    return [];
+                                }
+
+                                return collect($state)
+                                    ->map(function ($value) {
+                                        if (is_array($value)) {
+                                            return $value === []
+                                                ? '-'
+                                                : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                                        }
+
+                                        if (is_scalar($value) || $value === null) {
+                                            return $value === null || $value === '' ? '-' : (string) $value;
+                                        }
+
+                                        return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '-';
+                                    })
+                                    ->all();
+                            }),
                     ]),
             ]);
     }

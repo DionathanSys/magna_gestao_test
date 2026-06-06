@@ -23,6 +23,11 @@ class ShipmentDocumentGroup extends Model
         return $this->belongsTo(ReceivedFiscalDocument::class, 'remittance_document_id');
     }
 
+    public function integrado(): BelongsTo
+    {
+        return $this->belongsTo(Integrado::class);
+    }
+
     public function viagem(): BelongsTo
     {
         return $this->belongsTo(Viagem::class);

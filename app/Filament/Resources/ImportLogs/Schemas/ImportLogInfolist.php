@@ -96,6 +96,30 @@ class ImportLogInfolist
                 TextEntry::make('errors')
                     ->label('Erros de Importação')
                     ->formatStateUsing(function ($state) {
+                        $normalizeError = function ($value) use (&$normalizeError): array {
+                            if (is_array($value)) {
+                                $normalized = [];
+
+                                foreach ($value as $item) {
+                                    foreach ($normalizeError($item) as $normalizedItem) {
+                                        if ($normalizedItem !== '') {
+                                            $normalized[] = $normalizedItem;
+                                        }
+                                    }
+                                }
+
+                                return $normalized;
+                            }
+
+                            if (is_scalar($value) || $value === null) {
+                                return [trim((string) $value)];
+                            }
+
+                            $encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                            return [is_string($encoded) ? $encoded : 'Erro não legível'];
+                        };
+
                         if (empty($state)) {
                             return '<span class="text-gray-500 italic">Nenhum erro encontrado</span>';
                         }
@@ -113,30 +137,22 @@ class ImportLogInfolist
                             return '<span class="text-gray-500 italic">Nenhum erro encontrado</span>';
                         }
 
-                        $errors = array_map(function ($error) {
-                            if (is_array($error)) {
-                                $parts = [];
+                        $normalizedErrors = [];
 
-                                array_walk_recursive($error, function ($value) use (&$parts) {
-                                    if (is_scalar($value) || $value === null) {
-                                        $parts[] = (string) $value;
-                                    }
-                                });
-
-                                return implode(' | ', array_filter($parts, fn ($part) => $part !== ''));
+                        foreach ($errors as $error) {
+                            foreach ($normalizeError($error) as $normalizedError) {
+                                if ($normalizedError !== '') {
+                                    $normalizedErrors[] = $normalizedError;
+                                }
                             }
+                        }
 
-                            if (is_scalar($error) || $error === null) {
-                                return (string) $error;
-                            }
-
-                            return json_encode($error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: 'Erro não legível';
-                        }, $errors);
-
-                        $errors = array_values(array_filter($errors, fn ($error) => $error !== ''));
+                        if ($normalizedErrors === []) {
+                            return '<span class="text-gray-500 italic">Nenhum erro encontrado</span>';
+                        }
 
                         // Agrupar erros similares
-                        $groupedErrors = array_count_values($errors);
+                        $groupedErrors = array_count_values($normalizedErrors);
 
                         // Formatar com HTML
                         $html = '<div class="space-y-2">';
@@ -144,7 +160,7 @@ class ImportLogInfolist
                             $html .= '<div class="flex items-start gap-2">';
                             $html .= '<span class="text-red-500 mt-0.5">•</span>';
                             $html .= '<div class="flex-1">';
-                            $html .= '<span class="text-sm">' . htmlspecialchars($error) . '</span>';
+                            $html .= '<span class="text-sm">' . htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') . '</span>';
                             if ($count > 1) {
                                 $html .= ' <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-red-700 bg-red-100 rounded-full ml-2">' . $count . 'x</span>';
                             }

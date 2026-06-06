@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\IncomingEmails\Schemas;
 
-use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -39,29 +38,32 @@ class IncomingEmailInfolist
                     ]),
                 Section::make('Headers')
                     ->schema([
-                        KeyValueEntry::make('raw_headers')
+                        TextEntry::make('raw_headers')
                             ->label('Headers')
                             ->formatStateUsing(function ($state) {
                                 if (! is_array($state)) {
-                                    return [];
+                                    return '-';
                                 }
 
-                                return collect($state)
+                                $normalized = collect($state)
                                     ->map(function ($value) {
                                         if (is_array($value)) {
-                                            return $value === []
-                                                ? '-'
-                                                : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                                            return $value === [] ? '-' : $value;
                                         }
 
                                         if (is_scalar($value) || $value === null) {
                                             return $value === null || $value === '' ? '-' : (string) $value;
                                         }
 
-                                        return json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '-';
+                                        return 'Valor nao serializavel';
                                     })
                                     ->all();
-                            }),
+
+                                return json_encode($normalized, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '-';
+                            })
+                            ->columnSpanFull()
+                            ->prose()
+                            ->copyable(),
                     ]),
             ]);
     }

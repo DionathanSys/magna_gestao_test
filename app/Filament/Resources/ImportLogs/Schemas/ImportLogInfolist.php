@@ -93,7 +93,7 @@ class ImportLogInfolist
                 //         return ds(is_array($errorRows) ? $errorRows : []);
                 //     })
                 //     ->columnSpanFull(),
-                     TextEntry::make('errors')
+                TextEntry::make('errors')
                     ->label('Erros de Importação')
                     ->formatStateUsing(function ($state) {
                         if (empty($state)) {
@@ -112,6 +112,28 @@ class ImportLogInfolist
                         if (empty($errors)) {
                             return '<span class="text-gray-500 italic">Nenhum erro encontrado</span>';
                         }
+
+                        $errors = array_map(function ($error) {
+                            if (is_array($error)) {
+                                $parts = [];
+
+                                array_walk_recursive($error, function ($value) use (&$parts) {
+                                    if (is_scalar($value) || $value === null) {
+                                        $parts[] = (string) $value;
+                                    }
+                                });
+
+                                return implode(' | ', array_filter($parts, fn ($part) => $part !== ''));
+                            }
+
+                            if (is_scalar($error) || $error === null) {
+                                return (string) $error;
+                            }
+
+                            return json_encode($error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: 'Erro não legível';
+                        }, $errors);
+
+                        $errors = array_values(array_filter($errors, fn ($error) => $error !== ''));
 
                         // Agrupar erros similares
                         $groupedErrors = array_count_values($errors);

@@ -3,9 +3,13 @@
 namespace App\Filament\Resources\ReceivedFiscalDocuments\Tables;
 
 use App\Jobs\MailInbound\CreateTripFromShipmentDocumentsJob;
+use App\Models\Integrado;
 use App\Models\ReceivedFiscalDocument;
+use App\Services\MailInbound\LinkFiscalDocumentToIntegradoService;
 use App\Services\MailInbound\ShipmentDocumentMatcher;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -40,6 +44,40 @@ class ReceivedFiscalDocumentsTable
                     ]),
             ])
             ->recordActions([
+                Action::make('vincular_integrado')
+                    ->label('Vincular Integrado')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('primary')
+                    ->iconButton()
+                    ->visible(fn (ReceivedFiscalDocument $record): bool => $record->tipo_documento === 'remittance')
+                    ->schema([
+                        TextInput::make('destinatario_nome_xml')
+                            ->label('Nome no XML')
+                            ->default(fn (ReceivedFiscalDocument $record): ?string => $record->destinatario_nome)
+                            ->disabled()
+                            ->dehydrated(false),
+                        TextInput::make('destinatario_documento_xml')
+                            ->label('Documento no XML')
+                            ->default(fn (ReceivedFiscalDocument $record): ?string => $record->destinatario_documento)
+                            ->disabled()
+                            ->dehydrated(false),
+                        Select::make('integrado_id')
+                            ->label('Integrado equivalente')
+                            ->options(fn () => Integrado::query()->orderBy('nome')->pluck('nome', 'id')->toArray())
+                            ->searchable()
+                            ->required(),
+                    ])
+                    ->action(function (ReceivedFiscalDocument $record, array $data, LinkFiscalDocumentToIntegradoService $service): void {
+                        $integrado = Integrado::query()->findOrFail($data['integrado_id']);
+
+                        $service->handle($record, $integrado);
+
+                        Notification::make()
+                            ->success()
+                            ->title('Integrado vinculado')
+                            ->body("Documento fiscal {$record->id} vinculado ao integrado {$integrado->nome}.")
+                            ->send();
+                    }),
                 Action::make('reprocessar_documento')
                     ->label('Reprocessar')
                     ->icon('heroicon-o-arrow-path')

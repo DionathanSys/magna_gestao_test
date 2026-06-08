@@ -1,0 +1,27 @@
+[program:magna_gestao-queue]
+process_name=%(program_name)s_%(process_num)02d
+directory=/home/dionathan/magna_gestao_test
+command=php /home/dionathan/magna_gestao_test/artisan queue:work database --queue=mail-receive,mail-process,mail-trip,default --sleep=3 --tries=3 --timeout=120
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/home/dionathan/magna_gestao_test/storage/logs/worker-queue.log
+stopwaitsecs=3600
+
+[program:magna_gestao-schedule]
+process_name=%(program_name)s_%(process_num)02d
+directory=/home/dionathan/magna_gestao_test
+command=php /home/dionathan/magna_gestao_test/artisan schedule:work
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/home/dionathan/magna_gestao_test/storage/logs/worker-schedule.log
+stopwaitsecs=3600

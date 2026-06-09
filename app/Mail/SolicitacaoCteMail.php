@@ -5,23 +5,25 @@ namespace App\Mail;
 use App\DTO\PayloadCteDTO;
 use App\Services\Bugio\CteEmailTemplateService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class SolicitacaoCteMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     protected $toAddress;
+
     protected $replyToAddress;
+
     protected $ccAddress;
+
     protected string $renderedSubject;
+
     protected string $renderedBody;
 
     /**
@@ -29,9 +31,9 @@ class SolicitacaoCteMail extends Mailable
      */
     public function __construct(public PayloadCteDTO $payload)
     {
-        $this->toAddress        = db_config('config-bugio.email', 'dionathan.transmagnabosco.com.br');
-        $this->replyToAddress   = db_config('config-bugio.email-retorno', 'dionathan.transmagnabosco.com.br');
-        $this->ccAddress        = db_config('config-bugio.emails-copia', '');
+        $this->toAddress = db_config('config-bugio.email', 'dionathan.transmagnabosco.com.br');
+        $this->replyToAddress = db_config('config-bugio.email-retorno', 'dionathan.transmagnabosco.com.br');
+        $this->ccAddress = db_config('config-bugio.emails-copia', '');
 
         $templateService = app(CteEmailTemplateService::class);
         $this->renderedSubject = $templateService->renderSubject($this->payload);
@@ -67,7 +69,7 @@ class SolicitacaoCteMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
@@ -87,5 +89,25 @@ class SolicitacaoCteMail extends Mailable
         }
 
         return $attachments;
+    }
+
+    public function getRenderedSubject(): string
+    {
+        return $this->renderedSubject;
+    }
+
+    public function getToAddress(): mixed
+    {
+        return $this->toAddress;
+    }
+
+    public function getReplyToAddress(): mixed
+    {
+        return $this->replyToAddress;
+    }
+
+    public function getCcAddress(): mixed
+    {
+        return $this->ccAddress;
     }
 }

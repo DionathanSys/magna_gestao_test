@@ -81,6 +81,9 @@ class SolicitarCteBugioFromViagem
             'km_total' => $kmRota,
             'valor_frete' => $kmRota * db_config('config-bugio.valor-quilometro', 0),
             'anexos' => $anexos,
+            'viagem_id' => $viagem->id,
+            'integrado_id' => $integrado->id,
+            'documento_transporte' => $viagem->documento_transporte,
             'destinos' => [[
                 'integrado_id' => $integrado->id,
                 'km_rota' => $kmRota,
@@ -128,7 +131,7 @@ class SolicitarCteBugioFromViagem
 
         $valorFrete = $kmRota * db_config('config-bugio.valor-quilometro', 0);
 
-        return (new DocumentoFreteService())->criarDocumentoFrete([
+        return (new DocumentoFreteService)->criarDocumentoFrete([
             'veiculo_id' => $veiculo->id,
             'parceiro_destino' => $integrado->nome,
             'parceiro_origem' => $saleDocument->emitente_nome ?? 'BUGIO NUTRICAO',

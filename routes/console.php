@@ -1,6 +1,8 @@
 <?php
 
+use App\Jobs\MailInbound\ProcessIncomingBugioCteReturnEmailJob;
 use App\Jobs\MailInbound\ReadIncomingMailboxJob;
+use App\Services\Bugio\CteReturnEmailProcessingService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -32,10 +34,10 @@ Artisan::command('mail:test-imap {--folder=} {--limit=5}', function () {
     $password = (string) config('mail-inbound.imap.password');
 
     $this->info('Testando conexao IMAP...');
-    $this->line('Host: ' . config('mail-inbound.imap.host'));
-    $this->line('Porta: ' . config('mail-inbound.imap.port'));
-    $this->line('Usuario: ' . ($username !== '' ? $username : '[NAO CONFIGURADO]'));
-    $this->line('Pasta: ' . $folderName);
+    $this->line('Host: '.config('mail-inbound.imap.host'));
+    $this->line('Porta: '.config('mail-inbound.imap.port'));
+    $this->line('Usuario: '.($username !== '' ? $username : '[NAO CONFIGURADO]'));
+    $this->line('Pasta: '.$folderName);
 
     Log::info('Iniciando teste de conexao IMAP', [
         'host' => config('mail-inbound.imap.host'),
@@ -93,7 +95,7 @@ Artisan::command('mail:test-imap {--folder=} {--limit=5}', function () {
             ->get();
 
         $this->info('Conexao IMAP estabelecida com sucesso.');
-        $this->line('Mensagens retornadas: ' . $messages->count());
+        $this->line('Mensagens retornadas: '.$messages->count());
 
         Log::info('Mensagens listadas no teste IMAP', [
             'folder' => $folderName,
@@ -104,17 +106,17 @@ Artisan::command('mail:test-imap {--folder=} {--limit=5}', function () {
             $from = $message->getFrom()->first();
 
             $this->newLine();
-            $this->line('Mensagem #' . ($index + 1));
-            $this->line('UID: ' . ($message->getUid() ?? 'N/A'));
-            $this->line('Message-ID: ' . ($message->getMessageId() ?? 'N/A'));
-            $this->line('Assunto: ' . ($message->getSubject() ?? 'Sem assunto'));
-            $this->line('De: ' . (($from?->mail ?? 'N/A')));
-            $this->line('Anexos: ' . $message->getAttachments()->count());
+            $this->line('Mensagem #'.($index + 1));
+            $this->line('UID: '.($message->getUid() ?? 'N/A'));
+            $this->line('Message-ID: '.($message->getMessageId() ?? 'N/A'));
+            $this->line('Assunto: '.($message->getSubject() ?? 'Sem assunto'));
+            $this->line('De: '.(($from?->mail ?? 'N/A')));
+            $this->line('Anexos: '.$message->getAttachments()->count());
         }
 
         return self::SUCCESS;
-    } catch (\Throwable $exception) {
-        $this->error('Falha ao testar IMAP: ' . $exception->getMessage());
+    } catch (Throwable $exception) {
+        $this->error('Falha ao testar IMAP: '.$exception->getMessage());
 
         Log::error('Falha ao testar conexao IMAP', [
             'folder' => $folderName,
@@ -125,8 +127,20 @@ Artisan::command('mail:test-imap {--folder=} {--limit=5}', function () {
     }
 })->purpose('Testar conexao IMAP sem ingerir emails');
 
+Artisan::command('mail:process-bugio-cte-return {incomingEmailId}', function (int $incomingEmailId) {
+    ProcessIncomingBugioCteReturnEmailJob::dispatch($incomingEmailId)
+        ->onQueue(config('mail-inbound.queue.cte_return'));
+
+    $this->info('Job de processamento do retorno de CT-e Bugio enfileirado.');
+})->purpose('Reprocessar um email recebido como retorno de CT-e Bugio');
+
+Artisan::command('mail:reprocess-bugio-cte-request {requestId}', function (int $requestId, CteReturnEmailProcessingService $service) {
+    $service->reprocessRequest($requestId);
+    $this->info('Reprocessamento dos anexos do request Bugio/CT-e disparado.');
+})->purpose('Reprocessar os anexos vinculados a uma solicitacao de CT-e Bugio');
+
 Schedule::command('email:diario')->dailyAt('07:00')->runInBackground();
 Schedule::command('email:diario')->dailyAt('17:10')->runInBackground();
-Schedule::job(new ReadIncomingMailboxJob(), config('mail-inbound.queue.ingest'))
+Schedule::job(new ReadIncomingMailboxJob, config('mail-inbound.queue.ingest'))
     ->everyFifteenMinutes()
     ->withoutOverlapping();

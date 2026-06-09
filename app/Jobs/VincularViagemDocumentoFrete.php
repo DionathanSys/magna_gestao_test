@@ -2,11 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Models\Viagem;
+use App\Services;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use App\Services;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class VincularViagemDocumentoFrete implements ShouldQueue
@@ -17,7 +15,7 @@ class VincularViagemDocumentoFrete implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        protected int $documentoTransporte,
+        protected string $documentoTransporte,
         protected ?int $viagemId = null,
 
     ) {
@@ -29,20 +27,20 @@ class VincularViagemDocumentoFrete implements ShouldQueue
      */
     public function handle(): void
     {
-        
+
         Log::info('Iniciando vinculação do documento de frete à viagem', [
-            'documento_transporte'  => $this->documentoTransporte,
-            'viagem_id'             => $this->viagemId,
+            'documento_transporte' => $this->documentoTransporte,
+            'viagem_id' => $this->viagemId,
         ]);
 
-        $documentoFreteService = new Services\DocumentoFrete\DocumentoFreteService();
+        $documentoFreteService = new Services\DocumentoFrete\DocumentoFreteService;
         $documentoFreteService->vincularDocumentoFrete($this->documentoTransporte, $this->viagemId);
 
         if ($documentoFreteService->hasError()) {
             Log::error('Erro ao vincular documento de frete à viagem', [
-                'documento_transporte'  => $this->documentoTransporte,
-                'message'               => $documentoFreteService->getMessage(),
-                'errors'                => $documentoFreteService->getData(),
+                'documento_transporte' => $this->documentoTransporte,
+                'message' => $documentoFreteService->getMessage(),
+                'errors' => $documentoFreteService->getData(),
             ]);
         }
     }

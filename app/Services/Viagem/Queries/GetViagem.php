@@ -4,13 +4,10 @@ namespace App\Services\Viagem\Queries;
 
 use App\Models;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 class GetViagem
 {
-    public function __construct(protected array $filters = [])
-    {
-    }
+    public function __construct(protected array $filters = []) {}
 
     protected function query(): Builder
     {
@@ -24,7 +21,7 @@ class GetViagem
         return $this->query()->find($id);
     }
 
-    public function byDocumentoTransporte(int $documentoTransporte): ?Models\Viagem
+    public function byDocumentoTransporte(string $documentoTransporte): ?Models\Viagem
     {
         return $this->query()
             ->where('documento_transporte', $documentoTransporte)

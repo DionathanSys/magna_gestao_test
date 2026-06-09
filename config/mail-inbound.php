@@ -8,6 +8,7 @@ return [
         'ingest' => env('MAIL_INBOUND_QUEUE_INGEST', 'mail-receive'),
         'process' => env('MAIL_INBOUND_QUEUE_PROCESS', 'mail-process'),
         'trip' => env('MAIL_INBOUND_QUEUE_TRIP', 'mail-trip'),
+        'cte_return' => env('MAIL_INBOUND_QUEUE_CTE_RETURN', 'mail-cte-return'),
     ],
 
     'storage' => [

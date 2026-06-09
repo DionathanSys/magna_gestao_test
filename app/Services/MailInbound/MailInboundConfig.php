@@ -2,6 +2,7 @@
 
 namespace App\Services\MailInbound;
 
+use App\Services\MailInbound\Support\DocumentIdentity;
 use Illuminate\Support\Facades\Log;
 
 class MailInboundConfig
@@ -14,8 +15,10 @@ class MailInboundConfig
     public function allowedSenders(): array
     {
         $raw = db_config('config-mail-inbound.allowed_senders', []);
+        $bugioReturnSenders = db_config('config-bugio.cte-return-senders', []);
 
-        $senders = collect($raw)
+        $senders = collect([$raw, $bugioReturnSenders])
+            ->flatten(1)
             ->map(function ($row) {
                 if (is_array($row)) {
                     return strtolower(trim((string) ($row['email'] ?? '')));
@@ -24,11 +27,13 @@ class MailInboundConfig
                 return strtolower(trim((string) $row));
             })
             ->filter()
+            ->unique()
             ->values()
             ->all();
 
         Log::info('Remetentes permitidos carregados da configuracao', [
             'raw' => $raw,
+            'bugio_return_senders' => $bugioReturnSenders,
             'normalized' => $senders,
         ]);
 
@@ -43,14 +48,14 @@ class MailInboundConfig
             $value = db_config('config-mail-inbound.bugio_recipient_cnpj');
         }
 
-        return \App\Services\MailInbound\Support\DocumentIdentity::normalizeDigits(
+        return DocumentIdentity::normalizeDigits(
             $value
         );
     }
 
     public function issuerDocument(): ?string
     {
-        return \App\Services\MailInbound\Support\DocumentIdentity::normalizeDigits(
+        return DocumentIdentity::normalizeDigits(
             db_config('config-mail-inbound.issuer_document')
         );
     }

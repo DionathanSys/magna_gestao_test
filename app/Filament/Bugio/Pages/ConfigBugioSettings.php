@@ -3,21 +3,18 @@
 namespace App\Filament\Bugio\Pages;
 
 use App\Models;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Inerba\DbConfig\AbstractPageSettings;
-use Filament\Schemas\Components;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
-use Inerba\DbConfig\DbConfig;
-use App\Services\NotificacaoService as notify;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
+use Inerba\DbConfig\AbstractPageSettings;
+use Inerba\DbConfig\DbConfig;
 
 class ConfigBugioSettings extends AbstractPageSettings
 {
@@ -64,7 +61,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                     ->schema([
                         TextInput::make('email')
                             ->label('Email Emissor CTe')
-                            ->disabled(fn(): bool => !Auth::user()->is_admin)
+                            ->disabled(fn (): bool => ! Auth::user()->is_admin)
                             ->columnSpan(6)
                             ->email()
                             ->autocomplete(false)
@@ -79,7 +76,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                         Repeater::make('emails-copia')
                             ->label('Email\'s em Cópia')
                             ->addActionLabel('Incluir Email em Cópia')
-                            ->deletable(fn(): bool => Auth::user()->is_admin)
+                            ->deletable(fn (): bool => Auth::user()->is_admin)
                             ->defaultItems(1)
                             ->columnSpan(6)
                             ->columnStart(1)
@@ -88,8 +85,8 @@ class ConfigBugioSettings extends AbstractPageSettings
                                     ->columnSpanFull()
                                     ->email()
                                     ->required()
-                                    ->afterStateUpdated(function (Set $set, ?string $state, ?string  $old) {
-                                        if(($old != null) && ($old != Auth::user()->email)) {
+                                    ->afterStateUpdated(function (Set $set, ?string $state, ?string $old) {
+                                        if (($old != null) && ($old != Auth::user()->email)) {
                                             $set('email', strtolower($old));
                                             notify::error('Não possui permissão para alterar este e-mail!');
                                         }
@@ -101,7 +98,18 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->label('Assunto do Email CTe')
                             ->columnSpanFull()
                             ->autocomplete(false)
-                            ->helperText('Placeholders: {placa}, {notas}, {agora}'),
+                            ->helperText('Placeholders: {documento_transporte}, {placa}, {notas}, {agora}. Se não informar {documento_transporte}, ele será acrescentado automaticamente ao assunto.'),
+                        Repeater::make('cte-return-senders')
+                            ->label('Remetentes de Retorno CTe')
+                            ->addActionLabel('Incluir remetente')
+                            ->columnSpan(6)
+                            ->simple(
+                                TextInput::make('email')
+                                    ->columnSpanFull()
+                                    ->email()
+                                    ->required()
+                                    ->autocomplete(false)
+                            ),
                         RichEditor::make('email-corpo-cte')
                             ->label('Corpo do Email CTe')
                             ->columnSpanFull()
@@ -175,7 +183,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                     ->schema([
                         TextInput::make('valor-quilometro')
                             ->label('R$/Km')
-                            ->disabled(fn(): bool => !Auth::user()->is_admin)
+                            ->disabled(fn (): bool => ! Auth::user()->is_admin)
                             ->columnStart(1)
                             ->columnSpan(2)
                             ->numeric()
@@ -185,7 +193,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->required(),
                         TextInput::make('coeficiente-ccd')
                             ->label('Coeficiente CCD (Custo de Deslocamento)')
-                            ->disabled(fn(): bool => !Auth::user()->is_admin)
+                            ->disabled(fn (): bool => ! Auth::user()->is_admin)
                             ->columnSpan(2)
                             ->numeric()
                             ->step('0.01')
@@ -194,7 +202,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->required(),
                         TextInput::make('coeficiente-cc')
                             ->label('Coeficiente CC (Carga/Descarga)')
-                            ->disabled(fn(): bool => !Auth::user()->is_admin)
+                            ->disabled(fn (): bool => ! Auth::user()->is_admin)
                             ->columnSpan(2)
                             ->numeric()
                             ->step('0.01')
@@ -204,7 +212,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->required(),
                         TextInput::make('percentual-retorno-vazio')
                             ->label('% Retorno Vazio')
-                            ->disabled(fn(): bool => !Auth::user()->is_admin)
+                            ->disabled(fn (): bool => ! Auth::user()->is_admin)
                             ->columnSpan(2)
                             ->numeric()
                             ->step('0.01')
@@ -212,7 +220,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->minValue(0)
                             ->maxValue(1)
                             ->required(),
-                    ])
+                    ]),
             ])
             ->statePath('data');
     }
@@ -222,7 +230,7 @@ class ConfigBugioSettings extends AbstractPageSettings
         return [
             Action::make('save')
                 ->label('Salvar')
-                ->action(fn() => $this->save()),
+                ->action(fn () => $this->save()),
         ];
     }
 
@@ -232,7 +240,7 @@ class ConfigBugioSettings extends AbstractPageSettings
         $state = $this->content->getState();
 
         collect($state)->each(function ($setting, $key) {
-            DbConfig::set($this->settingName() . '.' . $key, $setting);
+            DbConfig::set($this->settingName().'.'.$key, $setting);
         });
 
         notify::success('Configurações salvas com sucesso!');

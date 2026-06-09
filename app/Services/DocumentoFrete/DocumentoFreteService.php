@@ -4,19 +4,16 @@ namespace App\Services\DocumentoFrete;
 
 use App\Contracts\XlsxImportInterface;
 use App\Jobs\ProcessXlsxRowJob;
-use App\{Models, Services};
 use App\Jobs\VincularViagemDocumentoFrete;
+use App\Models;
 use App\Models\Viagem;
 use App\Services\DocumentoFrete\Actions\VincularViagemDocumento;
 use App\Traits\ServiceResponseTrait;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class DocumentoFreteService
 {
-
     use ServiceResponseTrait;
 
     protected array $firstRowData = [];
@@ -28,16 +25,17 @@ class DocumentoFreteService
 
         try {
 
-            $action = new Actions\RegistrarDocumentoFrete();
+            $action = new Actions\RegistrarDocumentoFrete;
             $documentoFrete = $action->handle($dados);
 
-            if (!$documentoFrete) {
+            if (! $documentoFrete) {
                 $this->setWarning('Documento de frete não foi registrado.');
                 VincularViagemDocumentoFrete::dispatch($dados['documento_transporte']);
+
                 return;
             }
 
-            //TODO: Devido alteração na regra de negócio, o job de vinculação do registro de resultado foi comentado temporariamente.
+            // TODO: Devido alteração na regra de negócio, o job de vinculação do registro de resultado foi comentado temporariamente.
             // VincularRegistroResultadoJob::dispatch($documentoFrete->id, Models\DocumentoFrete::class);
 
             // Log::info('Job de vinculação de registro de resultado despachado para documento de frete ID: ' . $documentoFrete->id, [
@@ -52,9 +50,9 @@ class DocumentoFreteService
         } catch (\Exception $e) {
 
             Log::error('Erro ao criar documento de frete.', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'dados' => $dados,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             $this->setError('Erro ao criar documento de frete', [
@@ -69,7 +67,7 @@ class DocumentoFreteService
 
             $isWindows = PHP_OS_FAMILY === 'Windows';
             $dir = $isWindows ? 'app\\private\\' : 'app/private/';
-            $filePath = storage_path($dir . $fileName);
+            $filePath = storage_path($dir.$fileName);
 
             $reader = IOFactory::createReaderForFile($filePath);
             $reader->setReadDataOnly(true);
@@ -79,7 +77,7 @@ class DocumentoFreteService
             $rowIterator = $worksheet->getRowIterator();
 
             // Processar primeira linha (header)
-            if (!$rowIterator->valid()) {
+            if (! $rowIterator->valid()) {
                 throw new \Exception('Arquivo vazio.');
             }
 
@@ -120,6 +118,7 @@ class DocumentoFreteService
                 // Verificar se a linha não está vazia
                 if (empty(array_filter($rowData))) {
                     $rowIterator->next();
+
                     continue;
                 }
 
@@ -131,6 +130,7 @@ class DocumentoFreteService
                         'linha' => $linhaCount + 2,
                     ]);
                     $rowIterator->next();
+
                     continue;
                 }
 
@@ -144,6 +144,7 @@ class DocumentoFreteService
                         'linha' => $linhaCount + 2,
                     ]);
                     $rowIterator->next();
+
                     continue;
                 }
 
@@ -164,56 +165,59 @@ class DocumentoFreteService
                 'first_row_data' => $this->firstRowData,
             ]);
             $this->setError($e->getMessage());
+
             return;
         }
 
         $this->setSuccess('Registrado arquivo para importação.');
-        return;
+
     }
 
-    public function vincularDocumentoFrete(int $documentoTransporte, int|null $viagemId = null): void
+    public function vincularDocumentoFrete(string $documentoTransporte, ?int $viagemId = null): void
     {
         try {
 
-            Log::debug(__METHOD__ . '@' . __LINE__, [
+            Log::debug(__METHOD__.'@'.__LINE__, [
                 'documento_transporte' => $documentoTransporte,
                 'viagem_id' => $viagemId,
             ]);
-            
-            if (!$viagemId) {
+
+            if (! $viagemId) {
                 $viagemId = Viagem::query()
                     ->where('documento_transporte', $documentoTransporte)
                     ->value('id');
             }
 
-            if(!$viagemId) {
+            if (! $viagemId) {
                 Log::warning('Viagem não encontrada para vinculação do documento de frete', [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'metodo' => __METHOD__.'@'.__LINE__,
                     'documento_transporte' => $documentoTransporte,
                 ]);
                 $this->setError("Viagem não encontrada para o documento de transporte {$documentoTransporte}.");
+
                 return;
             }
 
-            $action = new Actions\VincularViagemDocumento();
+            $action = new VincularViagemDocumento;
             $documentosFreteAtualizados = $action->handle($documentoTransporte, $viagemId);
 
             Log::info('Vinculação do documento de frete à viagem concluída', [
-                'metodo'                => __METHOD__ . '@' . __LINE__,
-                'documento_transporte'  => $documentoTransporte,
-                'viagem_id'             => $viagemId,
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'documento_transporte' => $documentoTransporte,
+                'viagem_id' => $viagemId,
                 'documentos_frete_atualizados' => $documentosFreteAtualizados,
             ]);
 
-            if (!$documentosFreteAtualizados) {
+            if (! $documentosFreteAtualizados) {
                 $this->setError("Falha ao vincular documento de frete à viagem {$viagemId}.");
+
                 return;
             }
 
             $this->setSuccess("Documento de frete vinculado à viagem {$viagemId} com sucesso.");
 
         } catch (\Exception $e) {
-            Log::error(__METHOD__ . '@' . __LINE__, [
+            Log::error(__METHOD__.'@'.__LINE__, [
                 'error' => $e->getMessage(),
                 'documento_transporte' => $documentoTransporte,
             ]);

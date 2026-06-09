@@ -4,14 +4,10 @@ namespace App\Services\DocumentoFrete\Queries;
 
 use App\Models;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 class GetDocumentoFrete
 {
-
-    public function __construct(protected array $filters = [])
-    {
-    }
+    public function __construct(protected array $filters = []) {}
 
     protected function query(): Builder
     {
@@ -29,7 +25,7 @@ class GetDocumentoFrete
         return $this->query()->find($id);
     }
 
-    public function byDocumentoTransporte(int $documentoTransporte): ?Models\DocumentoFrete
+    public function byDocumentoTransporte(string $documentoTransporte): ?Models\DocumentoFrete
     {
         return $this->query()
             ->where('documento_transporte', $documentoTransporte)

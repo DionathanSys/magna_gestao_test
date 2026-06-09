@@ -2,17 +2,16 @@
 
 namespace App\Services\DocumentoFrete\Actions;
 
-use App\Models;
 use App\Models\DocumentoFrete;
 use Illuminate\Support\Facades\Log;
 
 class VincularViagemDocumento
 {
-    public function handle(int $documentoTransporte, int $viagemId): int
+    public function handle(string $documentoTransporte, int $viagemId): int
     {
         try {
             Log::info('Iniciando ação de vinculação do documento de frete à viagem', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'documento_transporte' => $documentoTransporte,
                 'viagem_id' => $viagemId,
             ]);
@@ -31,11 +30,12 @@ class VincularViagemDocumento
             return $updated;
         } catch (\Exception $e) {
             Log::error('Erro ao iniciar ação de vinculação do documento de frete à viagem', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'documento_transporte' => $documentoTransporte,
                 'viagem_id' => $viagemId,
                 'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }

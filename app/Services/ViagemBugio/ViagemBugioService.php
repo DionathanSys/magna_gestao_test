@@ -2,43 +2,44 @@
 
 namespace App\Services\ViagemBugio;
 
-use App\{Models, Services, Enum};
 use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Enum\MotivoDivergenciaViagem;
 use App\Jobs\SolicitarCteBugio;
+use App\Models\Integrado;
 use App\Models\Viagem;
 use App\Models\ViagemBugio;
 use App\Services\Carga\CargaService;
 use App\Services\DocumentoFrete\DocumentoFreteService;
-use App\Services\ViagemNumberService;
+use App\Services\NotificacaoService as notify;
+use App\Services\Viagem\ViagemService;
 use App\Traits\ServiceResponseTrait;
 use App\Traits\UserCheckTrait;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Services\NotificacaoService as notify;
-use Illuminate\Support\Facades\Auth;
 
 class ViagemBugioService
 {
-
     use ServiceResponseTrait, UserCheckTrait;
 
-    public function criarViagem(array $data): ?Models\ViagemBugio
+    public function criarViagem(array $data): ?ViagemBugio
     {
         try {
 
-            $action = new Actions\CriarViagem();
+            $action = new Actions\CriarViagem;
             $viagem = $action->handle($data);
             $this->setSuccess('Viagem criada com sucesso!');
+
             return $viagem;
         } catch (\Exception $e) {
-            Log::error(__METHOD__ . '-' . __LINE__, [
-                'error'     => $e->getMessage(),
-                'data'      => $data,
-                'user_id'   => $this->getUserIdChecked(),
+            Log::error(__METHOD__.'-'.__LINE__, [
+                'error' => $e->getMessage(),
+                'data' => $data,
+                'user_id' => $this->getUserIdChecked(),
             ]);
             $this->setError('Erro ao criar viagem', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -56,22 +57,24 @@ class ViagemBugioService
                 if (Storage::disk('local')->exists($anexo)) {
                     $anexos[$index] = $anexo;
                 } else {
-                    Log::alert($anexo . ' Não encontrado');
+                    Log::alert($anexo.' Não encontrado');
                 }
             }
 
             $data = [
-                'km_total'          => $viagemBugio->km_pago,
-                'valor_frete'       => $viagemBugio->frete,
-                'anexos'            => $anexos,
-                'destinos'          => $viagemBugio->destinos,
-                'veiculo'           => $viagemBugio->veiculo->placa,
-                'created_by'        => $viagemBugio->created_by,
-                'nro_notas'         => $viagemBugio->nro_notas,
-                'cte_retroativo'    => $viagemBugio->info_adicionais['cte_retroativo'] ?? false,
-                'cte_complementar'  => $viagemBugio->info_adicionais['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
-                'cte_referencia'    => $viagemBugio->info_adicionais['cte_referencia'] ?? null,
-                'motorista'         => [
+                'km_total' => $viagemBugio->km_pago,
+                'valor_frete' => $viagemBugio->frete,
+                'anexos' => $anexos,
+                'viagem_id' => $viagemBugio->viagem_id,
+                'documento_transporte' => $viagemBugio->viagem?->documento_transporte ?? ('BG-'.$viagemBugio->numero_sequencial),
+                'destinos' => $viagemBugio->destinos,
+                'veiculo' => $viagemBugio->veiculo->placa,
+                'created_by' => $viagemBugio->created_by,
+                'nro_notas' => $viagemBugio->nro_notas,
+                'cte_retroativo' => $viagemBugio->info_adicionais['cte_retroativo'] ?? false,
+                'cte_complementar' => $viagemBugio->info_adicionais['tipo_documento'] == TipoDocumentoEnum::CTE_COMPLEMENTO->value,
+                'cte_referencia' => $viagemBugio->info_adicionais['cte_referencia'] ?? null,
+                'motorista' => [
                     'cpf' => $viagemBugio->info_adicionais['motorista-cpf'],
                 ],
 
@@ -104,8 +107,8 @@ class ViagemBugioService
             $destinos = ViagemBugio::query()
                 ->where('numero_sequencial', $viagemBugio->numero_sequencial)
                 ->get()
-                ->flatMap(fn($row) => collect($row['destinos'])->pluck('integrado_id'))
-                ->map(fn($v) => (int) $v)
+                ->flatMap(fn ($row) => collect($row['destinos'])->pluck('integrado_id'))
+                ->map(fn ($v) => (int) $v)
                 ->unique()
                 ->values();
 
@@ -114,33 +117,34 @@ class ViagemBugioService
             ]);
 
             $data = [
-                'veiculo_id'            => $viagemBugio->veiculo_id,
-                'unidade_negocio'       => $viagemBugio->veiculo->filial,
-                'cliente'               => ClienteEnum::BUGIO->value,
-                'numero_viagem'         => 'BG-' . $viagemBugio->numero_sequencial,
-                'documento_transporte'  => (string) $viagemBugio->numero_sequencial,
-                'km_rodado'             => 0,
-                'km_cadastro'           => $viagemBugio->km_pago,
-                'km_pago'               => $viagemBugio->km_pago,
-                'motivo_divergencia'    => MotivoDivergenciaViagem::SEM_OBS->value,
-                'data_competencia'      => $viagemBugio->data_competencia,
-                'data_inicio'           => $viagemBugio->data_competencia,
-                'data_fim'              => $viagemBugio->data_competencia,
-                'conferido'             => false,
-                'condutor'              => $viagemBugio->condutor,
-                'created_by'            => Auth::id(),
+                'veiculo_id' => $viagemBugio->veiculo_id,
+                'unidade_negocio' => $viagemBugio->veiculo->filial,
+                'cliente' => ClienteEnum::BUGIO->value,
+                'numero_viagem' => 'BG-'.$viagemBugio->numero_sequencial,
+                'documento_transporte' => (string) $viagemBugio->numero_sequencial,
+                'km_rodado' => 0,
+                'km_cadastro' => $viagemBugio->km_pago,
+                'km_pago' => $viagemBugio->km_pago,
+                'motivo_divergencia' => MotivoDivergenciaViagem::SEM_OBS->value,
+                'data_competencia' => $viagemBugio->data_competencia,
+                'data_inicio' => $viagemBugio->data_competencia,
+                'data_fim' => $viagemBugio->data_competencia,
+                'conferido' => false,
+                'condutor' => $viagemBugio->condutor,
+                'created_by' => Auth::id(),
             ];
 
-            $viagemService = new \App\Services\Viagem\ViagemService();
+            $viagemService = new ViagemService;
             $viagem = $viagemService->create($data);
 
-            if (!$viagem) {
-                notify::error('Erro ao criar viagem para o registro ID: ' . $viagemBugio->id);
+            if (! $viagem) {
+                notify::error('Erro ao criar viagem para o registro ID: '.$viagemBugio->id);
 
                 $viagem = Viagem::query()->where('numero_viagem', 'BG-'.$viagemBugio->numero_sequencial)->get()->first();
 
-                if(!$viagem){
+                if (! $viagem) {
                     notify::error(mensagem: 'Viagem não encontrada');
+
                     return null;
                 }
 
@@ -153,24 +157,24 @@ class ViagemBugioService
                 ]);
 
             } else {
-                notify::success('Viagem criada com sucesso! ID da Viagem: ' . $viagem->id);
+                notify::success('Viagem criada com sucesso! ID da Viagem: '.$viagem->id);
             }
 
             $dataDocFrete = [
-                'veiculo_id'            => $viagemBugio->veiculo_id,
-                'parceiro_destino'      => 'BUGIO AGROPECUARIA',
-                'parceiro_origem'       => 'BUGIO NUTRICAO',
-                'numero_documento'      => (string) $viagemBugio->nro_documento,
-                'documento_transporte'  => $viagemBugio->numero_sequencial,
-                'data_emissao'          => $viagemBugio->data_emissao,
-                'valor_total'           => $viagemBugio->frete,
-                'valor_icms'            => 0,
-                'tipo_documento'        => $viagemBugio->info_adicionais['tipo_documento'],
-                'viagem_id'             => $viagem->id ?? null,
-                'data_emissao'          => now(),
+                'veiculo_id' => $viagemBugio->veiculo_id,
+                'parceiro_destino' => 'BUGIO AGROPECUARIA',
+                'parceiro_origem' => 'BUGIO NUTRICAO',
+                'numero_documento' => (string) $viagemBugio->nro_documento,
+                'documento_transporte' => $viagemBugio->numero_sequencial,
+                'data_emissao' => $viagemBugio->data_emissao,
+                'valor_total' => $viagemBugio->frete,
+                'valor_icms' => 0,
+                'tipo_documento' => $viagemBugio->info_adicionais['tipo_documento'],
+                'viagem_id' => $viagem->id ?? null,
+                'data_emissao' => now(),
             ];
 
-            $documentoService = new DocumentoFreteService();
+            $documentoService = new DocumentoFreteService;
             $documentoFrete = $documentoService->criarDocumentoFrete($dataDocFrete);
 
             notify::success('Documento de frete criado');
@@ -183,33 +187,34 @@ class ViagemBugioService
                 ]);
 
             foreach ($destinos as $integradoId) {
-                $integrado = \App\Models\Integrado::find($integradoId);
+                $integrado = Integrado::find($integradoId);
 
                 Log::debug('Integrado', [
                     'integrado' => $integrado,
                 ]);
 
-                if (!$integrado) {
-                    notify::alert('Integrado ID: ' . $integradoId . ' não encontrado. Pulando criação de carga.');
+                if (! $integrado) {
+                    notify::alert('Integrado ID: '.$integradoId.' não encontrado. Pulando criação de carga.');
+
                     continue;
                 }
 
-                $cargaService = new CargaService();
+                $cargaService = new CargaService;
                 $carga = $cargaService->create($integrado, $viagem);
 
                 Log::debug('Carga criada', [
                     'carga' => $carga,
                 ]);
 
-                notify::success('Carga criada para Integrado ID: ' . $integrado->nome . ' na Viagem ID: ' . $viagem->id);
+                notify::success('Carga criada para Integrado ID: '.$integrado->nome.' na Viagem ID: '.$viagem->id);
             }
 
-            notify::success(mensagem: 'Cadastro da viagem BG-' . $viagemBugio->numero_sequencial . ' finalizada com sucesso!');
+            notify::success(mensagem: 'Cadastro da viagem BG-'.$viagemBugio->numero_sequencial.' finalizada com sucesso!');
 
             return $viagem;
         } catch (\Exception $e) {
             Log::debug('Erro em criação de viagem/doc frete Bugio ', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'viagemBugio' => $viagemBugio,
                 'erro' => $e->getMessage(),
             ]);

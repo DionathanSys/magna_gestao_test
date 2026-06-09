@@ -8,7 +8,7 @@ class CteEmailTemplateService
 {
     public function subjectTemplate(): string
     {
-        return (string) db_config('config-bugio.email-assunto-cte', 'Solicitação CT-e Magnabosco - Bugio {placa} - {notas} - {agora}');
+        return (string) db_config('config-bugio.email-assunto-cte', 'Solicitação CT-e Magnabosco - Bugio {documento_transporte} - {placa} - {notas} - {agora}');
     }
 
     public function bodyTemplate(): string
@@ -18,7 +18,13 @@ class CteEmailTemplateService
 
     public function renderSubject(PayloadCteDTO $payload): string
     {
-        return trim(strip_tags($this->replacePlaceholders($this->subjectTemplate(), $payload, false)));
+        $template = $this->subjectTemplate();
+
+        if (! str_contains($template, '{documento_transporte}')) {
+            $template .= ' - {documento_transporte}';
+        }
+
+        return trim(strip_tags($this->replacePlaceholders($template, $payload, false)));
     }
 
     public function renderBody(PayloadCteDTO $payload): string
@@ -46,7 +52,7 @@ class CteEmailTemplateService
 
         $destinatariosFormatted = $htmlMode
             ? $destinatarios->implode('<br>')
-            : $destinatarios->map(fn (string $destino) => '- ' . $destino)->implode("\n");
+            : $destinatarios->map(fn (string $destino) => '- '.$destino)->implode("\n");
 
         $linhaCteRetroativo = $payload->cte_retroativo
             ? ($htmlMode ? '<p><strong>CTe Retroativo</strong></p>' : 'CTe Retroativo')
@@ -54,8 +60,8 @@ class CteEmailTemplateService
 
         $linhaCteComplementar = $payload->cte_complementar
             ? ($htmlMode
-                ? '<p><strong>Complementar ao CT-e: ' . $stringOrNA($payload->cte_referencia) . '</strong></p>'
-                : 'Complementar ao CT-e: ' . $stringOrNA($payload->cte_referencia))
+                ? '<p><strong>Complementar ao CT-e: '.$stringOrNA($payload->cte_referencia).'</strong></p>'
+                : 'Complementar ao CT-e: '.$stringOrNA($payload->cte_referencia))
             : '';
 
         $linhaAltoDesempenho = (! $payload->cte_retroativo && ! $payload->cte_complementar)
@@ -64,6 +70,7 @@ class CteEmailTemplateService
 
         return strtr($template, [
             '{placa}' => $stringOrNA($payload->veiculo),
+            '{documento_transporte}' => $stringOrNA($payload->documentoTransporte),
             '{notas}' => $payload->nro_notas !== [] ? $escape(implode(', ', $payload->nro_notas)) : 'N/A',
             '{agora}' => $escape(now()->format('d/m/Y H:i')),
             '{valor_frete_total}' => $escape(number_format($payload->valorFreteTotal, 2, ',', '.')),
@@ -76,7 +83,7 @@ class CteEmailTemplateService
             '{linha_cte_retroativo}' => $linhaCteRetroativo,
             '{linha_cte_complementar}' => $linhaCteComplementar,
             '{linha_alto_desempenho}' => $linhaAltoDesempenho,
-            '{peso_carga}' => $payload->pesoCarga !== null ? $escape(number_format($payload->pesoCarga, 3, ',', '.') . ' kg') : 'N/A',
+            '{peso_carga}' => $payload->pesoCarga !== null ? $escape(number_format($payload->pesoCarga, 3, ',', '.').' kg') : 'N/A',
             '{data_competencia}' => $stringOrNA($payload->dataCompetencia),
             '{observacao}' => $stringOrEmpty($payload->observacao),
         ]);

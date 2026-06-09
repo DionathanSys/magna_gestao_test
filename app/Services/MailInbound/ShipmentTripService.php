@@ -2,13 +2,14 @@
 
 namespace App\Services\MailInbound;
 
+use App\Enum\ClienteEnum;
 use App\Models\ShipmentDocumentGroup;
 use App\Models\ViagemAttachment;
 use App\Services\Carga\CargaService;
 use App\Services\Veiculo\VeiculoService;
 use App\Services\Viagem\ViagemService;
+use App\Services\ViagemNumberService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class ShipmentTripService
 {
@@ -17,8 +18,7 @@ class ShipmentTripService
         protected CargaService $cargaService,
         protected VeiculoService $veiculoService,
         protected MailInboundConfig $config,
-    ) {
-    }
+    ) {}
 
     public function createFromGroup(int $groupId): void
     {
@@ -50,24 +50,22 @@ class ShipmentTripService
                     'veiculo_id' => $veiculoId,
                 ],
             ]);
+
             return;
         }
 
         DB::transaction(function () use ($group, $veiculoId, $unidadeNegocio) {
-            $numeroViagem = sprintf(
-                'AUTO-NF-%s-%s',
-                $group->sale_number,
-                $group->remittance_number,
-            );
+            $numeroViagem = (new ViagemNumberService)
+                ->next(ClienteEnum::BUGIO->prefixoViagem())['numero_viagem'];
 
             $dataReferencia = $group->remittanceDocument?->emitido_em ?: $group->saleDocument?->emitido_em ?: now();
 
             $viagem = $this->viagemService->create([
                 'veiculo_id' => $veiculoId,
                 'unidade_negocio' => $unidadeNegocio,
-                'cliente' => $group->saleDocument?->destinatario_nome,
+                'cliente' => ClienteEnum::BUGIO->value,
                 'numero_viagem' => $numeroViagem,
-                'documento_transporte' => (string) ($group->remittance_number ?: $group->sale_number),
+                'documento_transporte' => $numeroViagem,
                 'data_competencia' => $dataReferencia->format('Y-m-d H:i:s'),
                 'data_inicio' => $dataReferencia->format('Y-m-d H:i:s'),
                 'data_fim' => $dataReferencia->format('Y-m-d H:i:s'),
@@ -79,6 +77,7 @@ class ShipmentTripService
 
             if (! $viagem) {
                 $group->update(['status' => 'failed']);
+
                 return;
             }
 

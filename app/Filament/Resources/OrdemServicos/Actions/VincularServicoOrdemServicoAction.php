@@ -21,19 +21,20 @@ use Illuminate\Support\Facades\Log;
 
 class VincularServicoOrdemServicoAction
 {
-    public static function make($ordemServicoId = null): Action
+    public static function make(): Action
     {
         return Action::make('vincular_servico')
             ->label('Adicionar Serviço')
             ->icon('heroicon-o-plus')
             ->schema(fn(Schema $schema) => ItemOrdemServicoForm::configure($schema))
             ->model(Models\ItemOrdemServico::class)
-            ->mutateDataUsing(function (array $data) use ($ordemServicoId): array {
-                $data['ordem_servico_id'] = $ordemServicoId;
-                return $data;
-            })
-            ->action(function (array $data, string $model, Action $action): ?Model {
-                
+            ->extraModalFooterActions(fn(Action $action): array => [
+                $action->makeModalSubmitAction('vincularOutro', arguments: ['another' => true]),
+            ])
+            ->modalSubmitActionLabel('Vincular')
+            ->action(function (Action $action, Schema $form, Models\OrdemServico $record, array $data, array $arguments): ?Model {
+                $data['ordem_servico_id'] = $record->id;
+
                 $service = new Services\ItemOrdemServico\ItemOrdemServicoService();
                 $itemOrdemServico = $service->create($data);
 
@@ -44,6 +45,19 @@ class VincularServicoOrdemServicoAction
                 }
 
                 notify::success(mensagem: 'Serviço vinculado com sucesso!');
+
+                if ($arguments['another'] ?? false) {
+                    $form->fill([
+                        'servico_id' => null,
+                        'controla_posicao' => $data['controla_posicao'] ?? false,
+                        'posicao' => $data['posicao'] ?? null,
+                        'observacao' => $data['observacao'] ?? null,
+                        'status' => $data['status'] ?? null,
+                    ]);
+
+                    $action->halt();
+                }
+
                 return $itemOrdemServico;
             });
     }

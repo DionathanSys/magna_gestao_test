@@ -27,7 +27,6 @@ class VincularServicoOrdemServicoAction
             ->label('Adicionar Serviço')
             ->icon('heroicon-o-plus')
             ->schema(fn(Schema $schema) => ItemOrdemServicoForm::configure($schema))
-            ->model(Models\ItemOrdemServico::class)
             ->extraModalFooterActions(fn(Action $action): array => [
                 $action->makeModalSubmitAction('vincularOutro', arguments: ['another' => true]),
             ])

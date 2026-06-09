@@ -9,11 +9,9 @@ use App\Services\NotificacaoService as notify;
 use App\Services\Viagem\Actions\SolicitarCteBugioFromViagem;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Support\Enums\Width;
@@ -34,12 +32,14 @@ class SolicitarCteBugioAction
                 Section::make('Resumo da Viagem')
                     ->columns(2)
                     ->schema([
-                        Placeholder::make('resumo_viagem')
+                        TextInput::make('resumo_viagem')
                             ->label('Viagem')
-                            ->content(fn(Viagem $record): string => $record->numero_viagem . ' | Placa ' . ($record->veiculo?->placa ?? 'N/A')),
-                        Placeholder::make('resumo_notas')
+                            ->default(fn(Viagem $record): string => $record->numero_viagem . ' | Placa ' . ($record->veiculo?->placa ?? 'N/A'))
+                            ->readOnly()
+                            ->dehydrated(false),
+                        TextInput::make('resumo_notas')
                             ->label('Notas Fiscais')
-                            ->content(function (Viagem $record): string {
+                            ->default(function (Viagem $record): string {
                                 $record->loadMissing('attachments.receivedFiscalDocument');
 
                                 return $record->attachments
@@ -47,10 +47,12 @@ class SolicitarCteBugioAction
                                     ->filter()
                                     ->unique()
                                     ->implode(', ') ?: 'Não informado';
-                            }),
-                        TextEntry::make('resumo_anexos')
+                            })
+                            ->readOnly()
+                            ->dehydrated(false),
+                        TextInput::make('resumo_anexos')
                             ->label('Anexos')
-                            ->state(function (Viagem $record): string {
+                            ->default(function (Viagem $record): string {
                                 $record->loadMissing('attachments.incomingEmailAttachment');
 
                                 return $record->attachments
@@ -59,6 +61,8 @@ class SolicitarCteBugioAction
                                     ->unique()
                                     ->implode(', ') ?: 'Não informado';
                             })
+                            ->readOnly()
+                            ->dehydrated(false)
                             ->columnSpanFull(),
                     ]),
                 Section::make('Solicitação')
@@ -115,14 +119,16 @@ class SolicitarCteBugioAction
                             })
                             ->required()
                             ->columnSpan(2),
-                        TextEntry::make('valor_frete_preview')
+                        TextInput::make('valor_frete_preview')
                             ->label('Valor do Frete')
-                            ->state(fn(Get $get): string => 'R$ ' . number_format(((float) ($get('km_rota') ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0), 2, ',', '.'))
+                            ->formatStateUsing(fn(Get $get): string => 'R$ ' . number_format(((float) ($get('km_rota') ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0), 2, ',', '.'))
+                            ->readOnly()
+                            ->dehydrated(false)
                             ->columnSpan(2)
                             ->columnStart(1),
-                        TextEntry::make('peso_carga_preview')
+                        TextInput::make('peso_carga_preview')
                             ->label('Peso da Carga')
-                            ->state(function (Viagem $record): string {
+                            ->default(function (Viagem $record): string {
                                 $record->loadMissing('attachments.receivedFiscalDocument');
                                 $peso = $record->attachments
                                     ->map(fn($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
@@ -131,6 +137,8 @@ class SolicitarCteBugioAction
 
                                 return $peso ? number_format((float) $peso, 3, ',', '.') . ' kg' : 'Não informado';
                             })
+                            ->readOnly()
+                            ->dehydrated(false)
                             ->columnSpan(2),
                         TextInput::make('peso_carga')
                             ->default(function (Viagem $record): ?float {

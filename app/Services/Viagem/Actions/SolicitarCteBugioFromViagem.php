@@ -23,7 +23,7 @@ class SolicitarCteBugioFromViagem
         ]);
 
         $integrado = Integrado::query()->findOrFail($data['integrado_id']);
-        $veiculo = Veiculo::query()->findOrFail($data['veiculo_id']);
+        $veiculo = Veiculo::query()->findOrFail($viagem->veiculo_id);
         $motoristaCpf = $data['motorista'];
         $motoristaNome = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $motoristaCpf)['motorista'] ?? null;
         $tipoDocumento = $data['tipo_documento'];

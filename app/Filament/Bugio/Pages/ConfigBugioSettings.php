@@ -6,6 +6,7 @@ use App\Models;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Inerba\DbConfig\AbstractPageSettings;
 use Filament\Schemas\Components;
@@ -95,6 +96,17 @@ class ConfigBugioSettings extends AbstractPageSettings
                                     ->autocomplete(false)
 
                             ),
+                        TextInput::make('email-assunto-cte')
+                            ->label('Assunto do Email CTe')
+                            ->columnSpanFull()
+                            ->autocomplete(false)
+                            ->helperText('Placeholders: {placa}, {notas}, {agora}'),
+                        Textarea::make('email-corpo-cte')
+                            ->label('Corpo do Email CTe')
+                            ->columnSpanFull()
+                            ->rows(14)
+                            ->autocomplete(false)
+                            ->helperText('Placeholders: {placa}, {notas}, {valor_frete_total}, {quantidade_cte}, {valor_frete_unitario}, {motorista_nome}, {motorista_cpf}, {destinatarios}, {cte_referencia}, {peso_carga}, {data_competencia}, {linha_cte_retroativo}, {linha_cte_complementar}, {linha_alto_desempenho}'),
                     ]),
                 Section::make('Cadastro Motorista/Veículo')
                     ->columnSpanFull()

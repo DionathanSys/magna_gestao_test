@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\DTO\PayloadCteDTO;
+use App\Services\Bugio\CteEmailTemplateService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -20,6 +21,8 @@ class SolicitacaoCteMail extends Mailable
     protected $toAddress;
     protected $replyToAddress;
     protected $ccAddress;
+    protected string $renderedSubject;
+    protected string $renderedBody;
 
     /**
      * Create a new message instance.
@@ -29,6 +32,10 @@ class SolicitacaoCteMail extends Mailable
         $this->toAddress        = db_config('config-bugio.email', 'dionathan.transmagnabosco.com.br');
         $this->replyToAddress   = db_config('config-bugio.email-retorno', 'dionathan.transmagnabosco.com.br');
         $this->ccAddress        = db_config('config-bugio.emails-copia', '');
+
+        $templateService = app(CteEmailTemplateService::class);
+        $this->renderedSubject = $templateService->renderSubject($this->payload);
+        $this->renderedBody = $templateService->renderBody($this->payload);
     }
 
     /**
@@ -38,7 +45,7 @@ class SolicitacaoCteMail extends Mailable
     {
 
         return new Envelope(
-            subject: 'Solicitação CT-e Magnabosco - Bugio ' . $this->payload->veiculo . ' - ' . implode(', ', $this->payload->nro_notas ?? []) . ' - ' . now()->format('d/m/Y H:i'),
+            subject: $this->renderedSubject,
             to: $this->toAddress,
             replyTo: $this->replyToAddress,
             cc: $this->ccAddress,
@@ -52,7 +59,8 @@ class SolicitacaoCteMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.solicitacao-cte-mail',
+            view: 'mail.solicitacao-cte-mail',
+            with: ['body' => $this->renderedBody],
         );
     }
 

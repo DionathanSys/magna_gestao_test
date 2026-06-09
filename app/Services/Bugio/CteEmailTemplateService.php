@@ -34,28 +34,33 @@ class CteEmailTemplateService
 
             return $value !== '' ? $escape($value) : 'N/A';
         };
+        $stringOrEmpty = function (mixed $value) use ($escape): string {
+            $value = trim((string) ($value ?? ''));
+
+            return $value !== '' ? $escape($value) : '';
+        };
 
         $destinatarios = collect($payload->destinos)
             ->map(fn (array $destino) => $stringOrNA($destino['integrado_nome'] ?? null))
             ->values();
 
         $destinatariosFormatted = $htmlMode
-            ? '<ul><li>' . $destinatarios->implode('</li><li>') . '</li></ul>'
+            ? $destinatarios->implode('<br>')
             : $destinatarios->map(fn (string $destino) => '- ' . $destino)->implode("\n");
 
         $linhaCteRetroativo = $payload->cte_retroativo
             ? ($htmlMode ? '<p><strong>CTe Retroativo</strong></p>' : 'CTe Retroativo')
-            : 'N/A';
+            : '';
 
         $linhaCteComplementar = $payload->cte_complementar
             ? ($htmlMode
                 ? '<p><strong>Complementar ao CT-e: ' . $stringOrNA($payload->cte_referencia) . '</strong></p>'
                 : 'Complementar ao CT-e: ' . $stringOrNA($payload->cte_referencia))
-            : 'N/A';
+            : '';
 
         $linhaAltoDesempenho = (! $payload->cte_retroativo && ! $payload->cte_complementar)
             ? ($htmlMode ? '<p><strong>Marcar MDF-e como "Alto Desempenho"</strong></p>' : 'Marcar MDF-e como "Alto Desempenho"')
-            : 'N/A';
+            : '';
 
         return strtr($template, [
             '{placa}' => $stringOrNA($payload->veiculo),
@@ -73,6 +78,7 @@ class CteEmailTemplateService
             '{linha_alto_desempenho}' => $linhaAltoDesempenho,
             '{peso_carga}' => $payload->pesoCarga !== null ? $escape(number_format($payload->pesoCarga, 3, ',', '.') . ' kg') : 'N/A',
             '{data_competencia}' => $stringOrNA($payload->dataCompetencia),
+            '{observacao}' => $stringOrEmpty($payload->observacao),
         ]);
     }
 }

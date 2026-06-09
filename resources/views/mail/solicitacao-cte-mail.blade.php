@@ -13,6 +13,6 @@
     </style>
 </head>
 <body>
-    {!! nl2br(e($body)) !!}
+    {!! $body !!}
 </body>
 </html>

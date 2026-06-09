@@ -25,10 +25,9 @@ class SolicitarCteBugioAction
     {
         return Action::make('solicitar_cte_bugio')
             ->label('Solicitar CTe')
-            ->tooltip('Solicitar CTe ou registrar NFS com anexos da viagem')
+            ->tooltip('Solicitar Document Frete')
             ->icon('heroicon-o-paper-airplane')
             ->color('info')
-            ->iconButton()
             ->visible(fn(Viagem $record): bool => $record->attachments()->exists())
             ->modalWidth(Width::FiveExtraLarge)
             ->schema([

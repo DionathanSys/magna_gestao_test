@@ -5,6 +5,7 @@ namespace App\Filament\Bugio\Pages;
 use App\Models;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -101,12 +102,23 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->columnSpanFull()
                             ->autocomplete(false)
                             ->helperText('Placeholders: {placa}, {notas}, {agora}'),
-                        Textarea::make('email-corpo-cte')
+                        RichEditor::make('email-corpo-cte')
                             ->label('Corpo do Email CTe')
                             ->columnSpanFull()
-                            ->rows(14)
-                            ->autocomplete(false)
-                            ->helperText('Placeholders: {placa}, {notas}, {valor_frete_total}, {quantidade_cte}, {valor_frete_unitario}, {motorista_nome}, {motorista_cpf}, {destinatarios}, {cte_referencia}, {peso_carga}, {data_competencia}, {linha_cte_retroativo}, {linha_cte_complementar}, {linha_alto_desempenho}'),
+                            ->toolbarButtons([
+                                'bold',
+                                'italic',
+                                'underline',
+                                'strike',
+                                'bulletList',
+                                'orderedList',
+                                'h2',
+                                'h3',
+                                'blockquote',
+                                'redo',
+                                'undo',
+                            ])
+                            ->helperText('Placeholders: {placa}, {notas}, {valor_frete_total}, {quantidade_cte}, {valor_frete_unitario}, {motorista_nome}, {motorista_cpf}, {destinatarios}, {cte_referencia}, {peso_carga}, {data_competencia}, {linha_cte_retroativo}, {linha_cte_complementar}, {linha_alto_desempenho}. Campos sem valor viram N/A automaticamente.'),
                     ]),
                 Section::make('Cadastro Motorista/Veículo')
                     ->columnSpanFull()

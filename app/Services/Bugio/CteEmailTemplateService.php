@@ -18,36 +18,61 @@ class CteEmailTemplateService
 
     public function renderSubject(PayloadCteDTO $payload): string
     {
-        return $this->replacePlaceholders($this->subjectTemplate(), $payload);
+        return trim(strip_tags($this->replacePlaceholders($this->subjectTemplate(), $payload, false)));
     }
 
     public function renderBody(PayloadCteDTO $payload): string
     {
-        return $this->replacePlaceholders($this->bodyTemplate(), $payload);
+        return $this->replacePlaceholders($this->bodyTemplate(), $payload, true);
     }
 
-    protected function replacePlaceholders(string $template, PayloadCteDTO $payload): string
+    protected function replacePlaceholders(string $template, PayloadCteDTO $payload, bool $htmlMode): string
     {
+        $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+        $stringOrNA = function (mixed $value) use ($escape): string {
+            $value = trim((string) ($value ?? ''));
+
+            return $value !== '' ? $escape($value) : 'N/A';
+        };
+
         $destinatarios = collect($payload->destinos)
-            ->map(fn (array $destino) => '- ' . ($destino['integrado_nome'] ?? 'N/A'))
-            ->implode("\n");
+            ->map(fn (array $destino) => $stringOrNA($destino['integrado_nome'] ?? null))
+            ->values();
+
+        $destinatariosFormatted = $htmlMode
+            ? '<ul><li>' . $destinatarios->implode('</li><li>') . '</li></ul>'
+            : $destinatarios->map(fn (string $destino) => '- ' . $destino)->implode("\n");
+
+        $linhaCteRetroativo = $payload->cte_retroativo
+            ? ($htmlMode ? '<p><strong>CTe Retroativo</strong></p>' : 'CTe Retroativo')
+            : 'N/A';
+
+        $linhaCteComplementar = $payload->cte_complementar
+            ? ($htmlMode
+                ? '<p><strong>Complementar ao CT-e: ' . $stringOrNA($payload->cte_referencia) . '</strong></p>'
+                : 'Complementar ao CT-e: ' . $stringOrNA($payload->cte_referencia))
+            : 'N/A';
+
+        $linhaAltoDesempenho = (! $payload->cte_retroativo && ! $payload->cte_complementar)
+            ? ($htmlMode ? '<p><strong>Marcar MDF-e como "Alto Desempenho"</strong></p>' : 'Marcar MDF-e como "Alto Desempenho"')
+            : 'N/A';
 
         return strtr($template, [
-            '{placa}' => $payload->veiculo,
-            '{notas}' => implode(', ', $payload->nro_notas ?? []),
-            '{agora}' => now()->format('d/m/Y H:i'),
-            '{valor_frete_total}' => number_format($payload->valorFreteTotal, 2, ',', '.'),
-            '{quantidade_cte}' => (string) $payload->quantidadeCte,
-            '{valor_frete_unitario}' => number_format($payload->valorFreteUnitario, 2, ',', '.'),
-            '{motorista_nome}' => (string) ($payload->motorista['nome'] ?? 'Não informado'),
-            '{motorista_cpf}' => (string) ($payload->motorista['cpf'] ?? 'Não informado'),
-            '{destinatarios}' => $destinatarios,
-            '{cte_referencia}' => (string) ($payload->cte_referencia ?? ''),
-            '{linha_cte_retroativo}' => $payload->cte_retroativo ? "CTe Retroativo\n\n" : '',
-            '{linha_cte_complementar}' => $payload->cte_complementar ? 'Complementar ao CT-e: ' . ($payload->cte_referencia ?? '-') . "\n\n" : '',
-            '{linha_alto_desempenho}' => (! $payload->cte_retroativo && ! $payload->cte_complementar) ? "Marcar MDF-e como \"Alto Desempenho\"\n\n" : '',
-            '{peso_carga}' => $payload->pesoCarga !== null ? number_format($payload->pesoCarga, 3, ',', '.') . ' kg' : 'Não informado',
-            '{data_competencia}' => $payload->dataCompetencia ?: 'Não informado',
+            '{placa}' => $stringOrNA($payload->veiculo),
+            '{notas}' => $payload->nro_notas !== [] ? $escape(implode(', ', $payload->nro_notas)) : 'N/A',
+            '{agora}' => $escape(now()->format('d/m/Y H:i')),
+            '{valor_frete_total}' => $escape(number_format($payload->valorFreteTotal, 2, ',', '.')),
+            '{quantidade_cte}' => $escape((string) $payload->quantidadeCte),
+            '{valor_frete_unitario}' => $escape(number_format($payload->valorFreteUnitario, 2, ',', '.')),
+            '{motorista_nome}' => $stringOrNA($payload->motorista['nome'] ?? null),
+            '{motorista_cpf}' => $stringOrNA($payload->motorista['cpf'] ?? null),
+            '{destinatarios}' => $destinatariosFormatted,
+            '{cte_referencia}' => $stringOrNA($payload->cte_referencia),
+            '{linha_cte_retroativo}' => $linhaCteRetroativo,
+            '{linha_cte_complementar}' => $linhaCteComplementar,
+            '{linha_alto_desempenho}' => $linhaAltoDesempenho,
+            '{peso_carga}' => $payload->pesoCarga !== null ? $escape(number_format($payload->pesoCarga, 3, ',', '.') . ' kg') : 'N/A',
+            '{data_competencia}' => $stringOrNA($payload->dataCompetencia),
         ]);
     }
 }

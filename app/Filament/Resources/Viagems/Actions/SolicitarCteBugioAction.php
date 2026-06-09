@@ -14,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Width;
 use Filament\Schemas\Components\Utilities\Get;
 
@@ -102,6 +103,7 @@ class SolicitarCteBugioAction
                             ->options(TipoDocumentoEnum::toSelectArray())
                             ->default(TipoDocumentoEnum::CTE->value)
                             ->live()
+                            ->native(false)
                             ->required()
                             ->columnSpan(2),
                         DatePicker::make('data_competencia')
@@ -117,13 +119,20 @@ class SolicitarCteBugioAction
                                 $record->loadMissing('cargas.integrado');
                                 return (float) ($record->cargas->first()?->integrado?->km_rota ?? $record->km_pago ?? 0);
                             })
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (?string $state, Set $set): void {
+                                $valorFrete = ((float) ($state ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0);
+
+                                $set('valor_frete_preview', number_format($valorFrete, 2, '.', ''));
+                            })
                             ->required()
                             ->columnSpan(2),
                         TextInput::make('valor_frete_preview')
                             ->label('Valor do Frete')
-                            ->formatStateUsing(fn(Get $get): string => 'R$ ' . number_format(((float) ($get('km_rota') ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0), 2, ',', '.'))
+                            ->default(fn(Get $get): string => number_format(((float) ($get('km_rota') ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0), 2, '.', ''))
                             ->readOnly()
                             ->dehydrated(false)
+                            ->suffix('R$')
                             ->columnSpan(2)
                             ->columnStart(1),
                         TextInput::make('peso_carga_preview')
@@ -135,11 +144,12 @@ class SolicitarCteBugioAction
                                     ->filter()
                                     ->first();
 
-                                return $peso ? number_format((float) $peso, 3, ',', '.') . ' kg' : 'Não informado';
+                                return $peso ? number_format((float) $peso, 3, ',', '.') : 'Não informado';
                             })
                             ->readOnly()
                             ->dehydrated(false)
-                            ->columnSpan(2),
+                            ->columnSpan(2)
+                            ->suffix('kg'),
                         TextInput::make('peso_carga')
                             ->default(function (Viagem $record): ?float {
                                 $record->loadMissing('attachments.receivedFiscalDocument');

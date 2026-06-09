@@ -19,4 +19,10 @@ echo "[4/4] Garantindo diretorio de logs"
 sudo mkdir -p "${ROOT_DIR}/storage/logs"
 sudo chmod 775 "${ROOT_DIR}/storage/logs"
 
+echo "[extra] Garantindo diretorio de anexos privados"
+sudo mkdir -p "${ROOT_DIR}/storage/app/private/mail/incoming"
+sudo chown -R "${APP_USER}:${APP_GROUP}" "${ROOT_DIR}/storage/app/private"
+sudo find "${ROOT_DIR}/storage/app/private" -type d -exec chmod 775 {} \;
+sudo find "${ROOT_DIR}/storage/app/private" -type f -exec chmod 664 {} \;
+
 echo "Permissoes ajustadas com sucesso."

@@ -589,6 +589,7 @@ class ViagemsTable
                         ->url(fn(Models\Viagem $record) => $record->maps_integrados['directions_url'] ?? null)
                         ->openUrlInNewTab()
                         ->visible(fn(Models\Viagem $record): bool => $record->cargas_count > 0),
+                    Viagems\Actions\SolicitarCteBugioAction::make(),
                     ReplicateAction::make()
                         ->label('Duplicar')
                         ->mutateRecordDataUsing(function (array $data): array {

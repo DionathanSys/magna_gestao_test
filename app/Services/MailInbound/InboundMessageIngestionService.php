@@ -90,22 +90,37 @@ class InboundMessageIngestionService
             ]
         );
 
-        if ($incomingEmail->wasRecentlyCreated) {
-            Log::info('Novo email persistido para processamento', [
-                'incoming_email_id' => $incomingEmail->id,
-                'message_id' => $incomingEmail->message_id,
-            ]);
+        try {
+            if ($incomingEmail->wasRecentlyCreated) {
+                Log::info('Novo email persistido para processamento', [
+                    'incoming_email_id' => $incomingEmail->id,
+                    'message_id' => $incomingEmail->message_id,
+                ]);
 
-            foreach ($message->attachments as $attachment) {
-                $this->storeAttachment($incomingEmail, $attachment);
+                foreach ($message->attachments as $attachment) {
+                    $this->storeAttachment($incomingEmail, $attachment);
+                }
+
+                event(new IncomingEmailStored($incomingEmail->id));
+            } else {
+                Log::info('Email ja havia sido ingerido anteriormente', [
+                    'incoming_email_id' => $incomingEmail->id,
+                    'message_id' => $incomingEmail->message_id,
+                ]);
             }
+        } catch (\Throwable $exception) {
+            $incomingEmail->update([
+                'status' => 'failed',
+                'error_message' => $exception->getMessage(),
+            ]);
 
-            event(new IncomingEmailStored($incomingEmail->id));
-        } else {
-            Log::info('Email ja havia sido ingerido anteriormente', [
+            Log::error('Falha ao persistir anexos do email recebido', [
                 'incoming_email_id' => $incomingEmail->id,
                 'message_id' => $incomingEmail->message_id,
+                'error' => $exception->getMessage(),
             ]);
+
+            throw $exception;
         }
 
         if (config('mail-inbound.imap.mark_as_seen') && method_exists($provider, 'markAsSeen')) {
@@ -251,6 +266,12 @@ class InboundMessageIngestionService
         }
 
         $absolutePath = storage_path('app/private/' . trim($directory, '/'));
+
+        Log::info('Garantindo diretorio local para anexos de email', [
+            'disk' => $disk,
+            'directory' => $directory,
+            'absolute_path' => $absolutePath,
+        ]);
 
         if (! is_dir($absolutePath)) {
             File::ensureDirectoryExists($absolutePath, 0755, true);

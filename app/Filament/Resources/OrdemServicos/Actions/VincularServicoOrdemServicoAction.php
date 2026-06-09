@@ -32,7 +32,16 @@ class VincularServicoOrdemServicoAction
                 $action->makeModalSubmitAction('vincularOutro', arguments: ['another' => true]),
             ])
             ->modalSubmitActionLabel('Vincular')
-            ->action(function (Action $action, Schema $form, Models\OrdemServico $record, array $data, array $arguments): ?Model {
+            ->action(function (Action $action, Schema $form, array $data, array $arguments): ?Model {
+                $record = $action->getRecord();
+
+                if (! $record instanceof Models\OrdemServico) {
+                    notify::error(mensagem: 'Ordem de servico nao encontrada para vincular o item.');
+                    $action->halt();
+
+                    return null;
+                }
+
                 $data['ordem_servico_id'] = $record->id;
 
                 $service = new Services\ItemOrdemServico\ItemOrdemServicoService();

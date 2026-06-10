@@ -35,4 +35,13 @@ class CteReturnConfig
 
         return null;
     }
+
+    public function extractCorrelationCode(string $subject): ?string
+    {
+        if (preg_match('/\b(CTE-REQ-[A-HJKMNP-TV-Z0-9]{20,})\b/i', $subject, $matches)) {
+            return strtoupper($matches[1]);
+        }
+
+        return null;
+    }
 }

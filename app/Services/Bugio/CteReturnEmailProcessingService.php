@@ -17,19 +17,22 @@ class CteReturnEmailProcessingService
     public function process(int $incomingEmailId): void
     {
         $incomingEmail = IncomingEmail::query()->with('attachments')->findOrFail($incomingEmailId);
-        $request = $this->matchingService->match($incomingEmail);
+        $match = $this->matchingService->matchWithStrategy($incomingEmail);
+        $request = $match['request'] ?? null;
 
         if (! $request) {
             Log::info('Email recebido nao corresponde a retorno de CT-e Bugio rastreavel', [
                 'incoming_email_id' => $incomingEmail->id,
                 'from_email' => $incomingEmail->from_email,
                 'subject' => $incomingEmail->subject,
+                'in_reply_to' => $incomingEmail->in_reply_to,
+                'references_header' => $incomingEmail->references_header,
             ]);
 
             return;
         }
 
-        $message = $this->requestService->registerInboundMessage($request, $incomingEmail, 'documento_transporte_subject');
+        $message = $this->requestService->registerInboundMessage($request, $incomingEmail, $match['matched_by']);
 
         foreach ($incomingEmail->attachments as $attachment) {
             ProcessIncomingBugioCteAttachmentJob::dispatch($message->id, $attachment->id)

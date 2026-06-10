@@ -38,6 +38,8 @@ class ImapInboundProvider implements MailInboundProvider
     {
         $from = $message->getFrom()->first();
         $receivedAt = $this->parseReceivedAt($message);
+        $inReplyTo = $this->normalizeHeaderValue($message->getInReplyTo()?->first());
+        $references = $this->normalizeHeaderList($message->getReferences()?->all() ?? []);
 
         return new InboundMessageData(
             provider: 'imap',
@@ -50,6 +52,8 @@ class ImapInboundProvider implements MailInboundProvider
             headers: [
                 'uid' => $message->getUid(),
                 'message_id' => $message->getMessageId(),
+                'in_reply_to' => $inReplyTo,
+                'references' => $references,
             ],
             attachments: $this->mapAttachments($message),
             sourceMessage: $message,
@@ -86,6 +90,26 @@ class ImapInboundProvider implements MailInboundProvider
         }
 
         return Carbon::parse((string) $date);
+    }
+
+    protected function normalizeHeaderValue(mixed $value): ?string
+    {
+        $value = trim((string) ($value ?? ''));
+
+        return $value !== '' ? trim($value, "<> \t\n\r\0\x0B") : null;
+    }
+
+    /**
+     * @param  array<int, mixed>  $values
+     * @return array<int, string>
+     */
+    protected function normalizeHeaderList(array $values): array
+    {
+        return collect($values)
+            ->map(fn (mixed $value): ?string => $this->normalizeHeaderValue($value))
+            ->filter()
+            ->values()
+            ->all();
     }
 
     public function markAsSeen(mixed $sourceMessage): void

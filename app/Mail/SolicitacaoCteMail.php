@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Headers;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
@@ -25,6 +26,10 @@ class SolicitacaoCteMail extends Mailable
     protected string $renderedSubject;
 
     protected string $renderedBody;
+
+    protected ?string $correlationCode = null;
+
+    protected ?string $messageId = null;
 
     /**
      * Create a new message instance.
@@ -45,13 +50,23 @@ class SolicitacaoCteMail extends Mailable
      */
     public function envelope(): Envelope
     {
-
         return new Envelope(
-            subject: $this->renderedSubject,
+            subject: $this->getRenderedSubject(),
             to: $this->toAddress,
             replyTo: $this->replyToAddress,
             cc: $this->ccAddress,
             bcc: 'suporte@axionsoft.com.br'
+        );
+    }
+
+    public function headers(): Headers
+    {
+        return new Headers(
+            messageId: $this->messageId,
+            text: array_filter([
+                'X-Cte-Correlation-Code' => $this->correlationCode,
+                'X-Cte-Documento-Transporte' => $this->payload->documentoTransporte,
+            ])
         );
     }
 
@@ -93,7 +108,11 @@ class SolicitacaoCteMail extends Mailable
 
     public function getRenderedSubject(): string
     {
-        return $this->renderedSubject;
+        if (! $this->correlationCode || str_contains($this->renderedSubject, $this->correlationCode)) {
+            return $this->renderedSubject;
+        }
+
+        return trim($this->renderedSubject.' ['.$this->correlationCode.']');
     }
 
     public function getToAddress(): mixed
@@ -109,5 +128,13 @@ class SolicitacaoCteMail extends Mailable
     public function getCcAddress(): mixed
     {
         return $this->ccAddress;
+    }
+
+    public function applyTracking(string $correlationCode, string $messageId): self
+    {
+        $this->correlationCode = $correlationCode;
+        $this->messageId = $messageId;
+
+        return $this;
     }
 }

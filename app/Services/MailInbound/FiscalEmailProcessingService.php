@@ -5,6 +5,8 @@ namespace App\Services\MailInbound;
 use App\Models\IncomingEmail;
 use App\Models\ReceivedFiscalDocument;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use SimpleXMLElement;
 use Throwable;
 
 class FiscalEmailProcessingService
@@ -14,8 +16,7 @@ class FiscalEmailProcessingService
         protected FiscalDocumentTypeResolver $typeResolver,
         protected IntegradoResolver $integradoResolver,
         protected ShipmentDocumentMatcher $matcher,
-    ) {
-    }
+    ) {}
 
     public function process(int $incomingEmailId): void
     {
@@ -40,6 +41,16 @@ class FiscalEmailProcessingService
                 Log::warning('Email ingerido sem XML, processamento fiscal ignorado', [
                     'incoming_email_id' => $incomingEmail->id,
                 ]);
+
+                return;
+            }
+
+            if ($this->isCteXml($xmlAttachment->disk, $xmlAttachment->path)) {
+                Log::info('XML de CT-e detectado no processamento fiscal — ignorado (sera processado pelo pipeline de retorno de CT-e)', [
+                    'incoming_email_id' => $incomingEmail->id,
+                    'xml_attachment_id' => $xmlAttachment->id,
+                ]);
+
                 return;
             }
 
@@ -113,6 +124,38 @@ class FiscalEmailProcessingService
 
             throw $exception;
         }
+    }
+
+    protected function isCteXml(string $disk, string $path): bool
+    {
+        $content = Storage::disk($disk)->get($path);
+
+        if (! is_string($content) || $content === '') {
+            return false;
+        }
+
+        $xml = @simplexml_load_string($content);
+
+        if (! $xml instanceof SimpleXMLElement) {
+            return false;
+        }
+
+        $namespaces = $xml->getNamespaces(true);
+        $defaultNs = $namespaces[''] ?? null;
+
+        if ($defaultNs) {
+            $xml->registerXPathNamespace('ns', $defaultNs);
+
+            $result = $xml->xpath('//ns:infCte');
+
+            if (is_array($result) && $result !== []) {
+                return true;
+            }
+        }
+
+        $result = $xml->xpath('//infCte');
+
+        return is_array($result) && $result !== [];
     }
 
     protected function extractReferencedSaleNumber(string $info): ?string

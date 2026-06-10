@@ -3,7 +3,6 @@
 namespace App\Services\MailInbound;
 
 use App\Events\MailInbound\IncomingEmailStored;
-use App\Jobs\MailInbound\ProcessIncomingFiscalEmailJob;
 use App\Models\IncomingEmail;
 use App\Models\IncomingEmailAttachment;
 use App\Services\MailInbound\Data\InboundAttachmentData;
@@ -20,18 +19,19 @@ class InboundMessageIngestionService
         protected ProviderRegistry $providerRegistry,
         protected MailInboundConfig $config,
         protected FiscalEmailProcessingService $fiscalEmailProcessingService,
-    ) {
-    }
+    ) {}
 
     public function ingest(): void
     {
         if (! $this->config->enabled()) {
             Log::info('Fluxo de ingestao de emails ignorado porque esta desabilitado.');
+
             return;
         }
 
         if ($this->config->allowedSenders() === []) {
             Log::warning('Fluxo de ingestao de emails abortado: nenhum remetente permitido configurado.');
+
             return;
         }
 
@@ -70,6 +70,7 @@ class InboundMessageIngestionService
                 'allowed_senders' => $allowedSenders,
                 'message_id' => $message->messageId,
             ]);
+
             return;
         }
 
@@ -83,6 +84,8 @@ class InboundMessageIngestionService
                 'from_email' => $fromEmail,
                 'from_name' => $message->fromName,
                 'subject' => $message->subject,
+                'in_reply_to' => $this->extractHeaderValue($message->headers, 'in_reply_to'),
+                'references_header' => $this->extractReferencesHeader($message->headers),
                 'received_at' => $message->receivedAt,
                 'raw_headers' => $message->headers,
                 'status' => 'stored',
@@ -153,8 +156,8 @@ class InboundMessageIngestionService
         $originalName = $attachment->filename;
         $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
         $sanitizedName = Str::slug(pathinfo($originalName, PATHINFO_FILENAME));
-        $storedFilename = Str::uuid() . '_' . ($sanitizedName ?: 'attachment') . ($extension ? '.' . $extension : '');
-        $path = $directory . '/' . $storedFilename;
+        $storedFilename = Str::uuid().'_'.($sanitizedName ?: 'attachment').($extension ? '.'.$extension : '');
+        $path = $directory.'/'.$storedFilename;
 
         $this->ensureDirectoryExists($disk, $directory);
 
@@ -265,7 +268,7 @@ class InboundMessageIngestionService
             return;
         }
 
-        $absolutePath = storage_path('app/private/' . trim($directory, '/'));
+        $absolutePath = storage_path('app/private/'.trim($directory, '/'));
 
         Log::info('Garantindo diretorio local para anexos de email', [
             'disk' => $disk,
@@ -299,5 +302,38 @@ class InboundMessageIngestionService
             $message->subject,
             $message->receivedAt?->toIso8601String(),
         ]));
+    }
+
+    /**
+     * @param  array<string, mixed>  $headers
+     */
+    protected function extractHeaderValue(array $headers, string $key): ?string
+    {
+        $value = trim((string) ($headers[$key] ?? ''));
+
+        return $value !== '' ? $value : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $headers
+     */
+    protected function extractReferencesHeader(array $headers): ?string
+    {
+        $references = $headers['references'] ?? [];
+
+        if (is_string($references)) {
+            $references = array_filter(preg_split('/\s+/', trim($references)) ?: []);
+        }
+
+        if (! is_array($references)) {
+            return null;
+        }
+
+        $references = collect($references)
+            ->map(fn (mixed $reference): string => trim((string) $reference))
+            ->filter()
+            ->implode(' ');
+
+        return $references !== '' ? $references : null;
     }
 }

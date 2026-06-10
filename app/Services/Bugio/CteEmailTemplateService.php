@@ -45,6 +45,11 @@ class CteEmailTemplateService
 
             return $value !== '' ? $escape($value) : '';
         };
+        $labeledStringOrEmpty = function (string $label, mixed $value) use ($stringOrEmpty): string {
+            $value = $stringOrEmpty($value);
+
+            return $value !== '' ? "{$label}: {$value}" : '';
+        };
 
         $destinatarios = collect($payload->destinos)
             ->map(fn (array $destino) => $stringOrNA($destino['integrado_nome'] ?? null))
@@ -79,7 +84,7 @@ class CteEmailTemplateService
             '{motorista_nome}' => $stringOrNA($payload->motorista['nome'] ?? null),
             '{motorista_cpf}' => $stringOrNA($payload->motorista['cpf'] ?? null),
             '{destinatarios}' => $destinatariosFormatted,
-            '{cte_referencia}' => $stringOrNA($payload->cte_referencia),
+            '{cte_referencia}' => $labeledStringOrEmpty('CTe Referência', $payload->cte_referencia),
             '{linha_cte_retroativo}' => $linhaCteRetroativo,
             '{linha_cte_complementar}' => $linhaCteComplementar,
             '{linha_alto_desempenho}' => $linhaAltoDesempenho,

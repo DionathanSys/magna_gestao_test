@@ -126,7 +126,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                                 'redo',
                                 'undo',
                             ])
-                            ->helperText('Placeholders: {placa}, {notas}, {valor_frete_total}, {quantidade_cte}, {valor_frete_unitario}, {motorista_nome}, {motorista_cpf}, {destinatarios}, {cte_referencia}, {peso_carga}, {data_competencia}, {linha_cte_retroativo}, {linha_cte_complementar}, {linha_alto_desempenho}. Campos sem valor viram N/A automaticamente.'),
+                            ->helperText('Placeholders: {placa}, {notas}, {valor_frete_total}, {quantidade_cte}, {valor_frete_unitario}, {motorista_nome}, {motorista_cpf}, {destinatarios}, {cte_referencia}, {peso_carga}, {data_competencia}, {linha_cte_retroativo}, {linha_cte_complementar}, {linha_alto_desempenho}. Campos sem valor viram N/A automaticamente, exceto os placeholders condicionais, que podem ficar vazios.'),
                     ]),
                 Section::make('Cadastro Motorista/Veículo')
                     ->columnSpanFull()

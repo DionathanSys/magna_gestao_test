@@ -6,6 +6,8 @@ use App\Jobs\MailInbound\ProcessIncomingBugioCteReturnEmailJob;
 use App\Models\IncomingEmail;
 use App\Services\MailInbound\InboundMessageIngestionService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -83,6 +85,11 @@ class IncomingEmailsTable
                             ->send();
                     }),
                 ViewAction::make()->iconButton(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

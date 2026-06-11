@@ -11,6 +11,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Throwable;
 use UnitEnum;
 
 class ShipmentDocumentGroupResource extends Resource
@@ -24,6 +25,17 @@ class ShipmentDocumentGroupResource extends Resource
     protected static ?string $modelLabel = 'Grupo de Notas';
 
     protected static ?string $pluralModelLabel = 'Grupos de Notas';
+
+    public static function getNavigationBadge(): ?string
+    {
+        try {
+            $pending = ShipmentDocumentGroup::query()->where('status', 'pending_data')->count();
+
+            return $pending > 0 ? (string) $pending : null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
 
     public static function infolist(Schema $schema): Schema
     {

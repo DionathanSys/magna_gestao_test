@@ -12,6 +12,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Throwable;
 use UnitEnum;
 
 class IncomingEmailResource extends Resource
@@ -25,6 +26,17 @@ class IncomingEmailResource extends Resource
     protected static ?string $modelLabel = 'Email Capturado';
 
     protected static ?string $pluralModelLabel = 'Emails Capturados';
+
+    public static function getNavigationBadge(): ?string
+    {
+        try {
+            $pending = IncomingEmail::query()->where('status', 'stored')->count();
+
+            return $pending > 0 ? (string) $pending : null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
 
     public static function infolist(Schema $schema): Schema
     {

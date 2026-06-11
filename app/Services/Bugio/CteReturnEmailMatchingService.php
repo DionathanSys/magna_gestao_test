@@ -24,6 +24,17 @@ class CteReturnEmailMatchingService
      */
     public function matchWithStrategy(IncomingEmail $incomingEmail): ?array
     {
+        $match = $this->matchByHeaders($incomingEmail);
+
+        if ($match) {
+            return $match;
+        }
+
+        return $this->matchBySubject($incomingEmail);
+    }
+
+    protected function matchByHeaders(IncomingEmail $incomingEmail): ?array
+    {
         if (! $this->config->isAllowedSender($incomingEmail->from_email)) {
             return null;
         }
@@ -65,6 +76,11 @@ class CteReturnEmailMatchingService
             }
         }
 
+        return null;
+    }
+
+    protected function matchBySubject(IncomingEmail $incomingEmail): ?array
+    {
         $documentoTransporte = $this->config->extractDocumentoTransporte((string) $incomingEmail->subject);
 
         if (! $documentoTransporte) {

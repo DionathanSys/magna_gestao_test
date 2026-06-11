@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ReceivedFiscalDocuments\Tables;
 
+use App\Filament\Actions\ExportPdfBulkAction;
 use App\Models\Integrado;
 use App\Models\ReceivedFiscalDocument;
 use App\Services\MailInbound\LinkFiscalDocumentToIntegradoService;
@@ -20,6 +21,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ReceivedFiscalDocumentsTable
@@ -304,6 +306,37 @@ class ReceivedFiscalDocumentsTable
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ExportPdfBulkAction::make(
+                        'exportar_pdf',
+                        'Documentos Fiscais Recebidos',
+                        [
+                            ['key' => 'id', 'label' => 'ID', 'align' => 'center', 'width' => '5%'],
+                            ['key' => 'tipo_doc', 'label' => 'Tipo', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'numero_nota', 'label' => 'N° da Nota', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'emitente', 'label' => 'Emitente', 'width' => '12%'],
+                            ['key' => 'destinatario', 'label' => 'Destinatario', 'width' => '12%'],
+                            ['key' => 'integrado', 'label' => 'Integrado', 'width' => '14%'],
+                            ['key' => 'pendencia', 'label' => 'Situacao', 'width' => '18%'],
+                            ['key' => 'email_subject', 'label' => 'Email', 'width' => '18%'],
+                            ['key' => 'emitido_em', 'label' => 'Emissao', 'align' => 'center', 'width' => '10%'],
+                        ],
+                        fn ($records) => $records->load(['incomingEmail', 'integrado'])
+                            ->map(fn ($r) => [
+                                'id' => $r->id,
+                                'tipo_doc' => match ($r->tipo_documento) {
+                                    'sale' => 'Venda',
+                                    'remittance' => 'Remessa',
+                                    default => 'Desconhecido',
+                                },
+                                'numero_nota' => e($r->numero_nota ?? '-'),
+                                'emitente' => e($r->emitente_documento ?? '-'),
+                                'destinatario' => e($r->destinatario_documento ?? '-'),
+                                'integrado' => e($r->integrado?->nome ?? '-'),
+                                'pendencia' => e($r->pending_summary ?? '-'),
+                                'email_subject' => e(Str::limit($r->incomingEmail?->subject, 50) ?? '-'),
+                                'emitido_em' => $r->emitido_em?->format('d/m/Y H:i') ?? '-',
+                            ])->toArray(),
+                    ),
                 ]),
             ]);
     }

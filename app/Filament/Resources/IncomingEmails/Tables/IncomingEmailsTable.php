@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\IncomingEmails\Tables;
 
+use App\Filament\Actions\ExportPdfBulkAction;
 use App\Jobs\MailInbound\ProcessIncomingBugioCteReturnEmailJob;
 use App\Models\IncomingEmail;
 use App\Services\MailInbound\InboundMessageIngestionService;
@@ -14,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class IncomingEmailsTable
 {
@@ -90,6 +92,35 @@ class IncomingEmailsTable
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ExportPdfBulkAction::make(
+                        'exportar_pdf',
+                        'Emails Capturados',
+                        [
+                            ['key' => 'id', 'label' => 'ID', 'align' => 'center', 'width' => '5%'],
+                            ['key' => 'from_email', 'label' => 'Remetente', 'width' => '15%'],
+                            ['key' => 'subject', 'label' => 'Assunto', 'width' => '22%'],
+                            ['key' => 'status', 'label' => 'Status', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'num_anexos', 'label' => 'Anexos', 'align' => 'center', 'width' => '6%'],
+                            ['key' => 'retorno_cte', 'label' => 'Retorno CTe', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'tipo_doc', 'label' => 'Tipo Doc.', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'nota', 'label' => 'Nota', 'width' => '10%'],
+                            ['key' => 'integrado', 'label' => 'Integrado', 'width' => '14%'],
+                            ['key' => 'received_at', 'label' => 'Recebido em', 'align' => 'center', 'width' => '12%'],
+                        ],
+                        fn ($records) => $records->load(['attachments', 'fiscalDocument.integrado'])
+                            ->map(fn ($r) => [
+                                'id' => $r->id,
+                                'from_email' => e($r->from_email ?? '-'),
+                                'subject' => e(Str::limit($r->subject, 60) ?? '-'),
+                                'status' => e($r->status ?? '-'),
+                                'num_anexos' => $r->attachments->count(),
+                                'retorno_cte' => $r->tem_retorno_cte ? 'Vinculado' : 'Nao mapeado',
+                                'tipo_doc' => e($r->fiscalDocument?->tipo_documento ?? '-'),
+                                'nota' => e($r->fiscalDocument?->numero_nota ?? '-'),
+                                'integrado' => e($r->fiscalDocument?->integrado?->nome ?? '-'),
+                                'received_at' => $r->received_at?->format('d/m/Y H:i') ?? '-',
+                            ])->toArray(),
+                    ),
                 ]),
             ]);
     }

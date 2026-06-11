@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CteEmailRequests\Tables;
 
+use App\Filament\Actions\ExportPdfBulkAction;
 use App\Models\CteEmailRequest;
 use App\Services\Bugio\CteReturnEmailProcessingService;
 use Filament\Actions\Action;
@@ -12,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class CteEmailRequestsTable
 {
@@ -65,6 +67,35 @@ class CteEmailRequestsTable
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ExportPdfBulkAction::make(
+                        'exportar_pdf',
+                        'Solicitacoes CTe',
+                        [
+                            ['key' => 'id', 'label' => 'ID', 'align' => 'center', 'width' => '5%'],
+                            ['key' => 'doc_transporte', 'label' => 'Doc. Transporte', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'viagem', 'label' => 'Viagem', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'placa', 'label' => 'Placa', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'integrado', 'label' => 'Integrado', 'width' => '15%'],
+                            ['key' => 'tipo', 'label' => 'Tipo', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'status', 'label' => 'Status', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'assunto', 'label' => 'Assunto', 'width' => '20%'],
+                            ['key' => 'solicitado_em', 'label' => 'Solicitado', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'concluido_em', 'label' => 'Concluido', 'align' => 'center', 'width' => '10%'],
+                        ],
+                        fn ($records) => $records->load(['viagem.veiculo', 'integrado'])
+                            ->map(fn ($r) => [
+                                'id' => $r->id,
+                                'doc_transporte' => e($r->documento_transporte ?? '-'),
+                                'viagem' => e($r->viagem?->numero_viagem ?? '-'),
+                                'placa' => e($r->viagem?->veiculo?->placa ?? '-'),
+                                'integrado' => e($r->integrado?->nome ?? '-'),
+                                'tipo' => e($r->tipo_documento_solicitado ?? '-'),
+                                'status' => e($r->status ?? '-'),
+                                'assunto' => e(Str::limit($r->sent_subject, 50) ?? '-'),
+                                'solicitado_em' => $r->requested_at?->format('d/m/Y H:i') ?? '-',
+                                'concluido_em' => $r->completed_at?->format('d/m/Y H:i') ?? '-',
+                            ])->toArray(),
+                    ),
                 ]),
             ]);
     }

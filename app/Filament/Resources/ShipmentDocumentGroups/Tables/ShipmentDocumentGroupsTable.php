@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ShipmentDocumentGroups\Tables;
 
+use App\Filament\Actions\ExportPdfBulkAction;
 use App\Models\ShipmentDocumentGroup;
 use App\Services\MailInbound\ShipmentTripService;
 use Filament\Actions\Action;
@@ -125,6 +126,31 @@ class ShipmentDocumentGroupsTable
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ExportPdfBulkAction::make(
+                        'exportar_pdf',
+                        'Grupos de Notas',
+                        [
+                            ['key' => 'id', 'label' => 'ID', 'align' => 'center', 'width' => '5%'],
+                            ['key' => 'nota_venda', 'label' => 'Nota Venda', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'nota_remessa', 'label' => 'Nota Remessa', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'integrado', 'label' => 'Integrado', 'width' => '18%'],
+                            ['key' => 'status', 'label' => 'Status', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'pendencia', 'label' => 'O que falta', 'width' => '22%'],
+                            ['key' => 'viagem', 'label' => 'Viagem', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'pareado_em', 'label' => 'Pareado em', 'align' => 'center', 'width' => '12%'],
+                        ],
+                        fn ($records) => $records->load(['integrado', 'viagem'])
+                            ->map(fn ($r) => [
+                                'id' => $r->id,
+                                'nota_venda' => e($r->sale_number ?? '-'),
+                                'nota_remessa' => e($r->remittance_number ?? '-'),
+                                'integrado' => e($r->integrado?->nome ?? '-'),
+                                'status' => e($r->status ?? '-'),
+                                'pendencia' => e($r->pending_summary ?? '-'),
+                                'viagem' => $r->viagem_id ? (string) $r->viagem_id : '-',
+                                'pareado_em' => $r->matched_at?->format('d/m/Y H:i') ?? '-',
+                            ])->toArray(),
+                    ),
                 ]),
             ]);
     }

@@ -3,37 +3,50 @@
 namespace App\Filament\Resources\Viagems\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
-use Filament\Actions\{ActionGroup, BulkAction, BulkActionGroup, CreateAction, DeleteBulkAction, EditAction, ImportAction, ReplicateAction,};
-use Filament\Tables\Columns\{ColumnGroup, IconColumn, SelectColumn, StaticAction, TextInputColumn, TextColumn};
-use Filament\Tables\Table;
-use App\{Models, Services, Enum};
-use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
-use App\Filament\Resources\{DocumentoFretes, Viagems};
+use App\Enum;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Actions\ExportPdfBulkAction;
+use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
+use App\Filament\Resources\DocumentoFretes;
+use App\Filament\Resources\Viagems;
 use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
+use App\Models;
 use App\Models\Viagem;
+use App\Services;
 use Carbon\Carbon;
-use Filament\Tables\Enums\ColumnManagerLayout;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Forms\Components\{DatePicker, Select, TextInput};
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Tables\Filters\{Filter, Indicator, QueryBuilder, SelectFilter, TernaryFilter};
-use Filament\Tables\Grouping\Group;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\ColumnGroup;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\Summarizers\Summarizer;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Enums\ColumnManagerLayout;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Livewire\Component;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemsTable
@@ -87,7 +100,7 @@ class ViagemsTable
                     ->label('Integrado')
                     ->width('1%')
                     ->html()
-                    ->formatStateUsing(fn(?string $state): string => $state ?: 'Sem Carga Vinculada')
+                    ->formatStateUsing(fn (?string $state): string => $state ?: 'Sem Carga Vinculada')
                     ->placeholder('Sem Carga Vinculada')
                     ->disabledClick()
                     ->toggleable(isToggledHiddenByDefault: false),
@@ -99,7 +112,7 @@ class ViagemsTable
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documentos_frete_resumo_cache')
                     ->label('Fretes')
-                    ->formatStateUsing(fn(?string $state): string => $state ?: 'Sem Frete')
+                    ->formatStateUsing(fn (?string $state): string => $state ?: 'Sem Frete')
                     ->html()
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -123,7 +136,7 @@ class ViagemsTable
                     TextColumn::make('km_dispersao')
                         ->label('Km Dispersão')
                         ->width('1%')
-                        ->color(fn($state, Models\Viagem $record): string => $record->km_dispersao > 3.99 ? 'danger' : 'info')
+                        ->color(fn ($state, Viagem $record): string => $record->km_dispersao > 3.99 ? 'danger' : 'info')
                         ->badge()
                         ->wrapHeader()
                         ->sortable()
@@ -134,7 +147,7 @@ class ViagemsTable
                         ->label('Dispersão %')
                         ->width('1%')
                         ->suffix('%')
-                        ->color(fn($state, Models\Viagem $record): string => $record->dispersao_percentual > 2 ? 'danger' : 'info')
+                        ->color(fn ($state, Viagem $record): string => $record->dispersao_percentual > 2 ? 'danger' : 'info')
                         ->badge()
                         ->wrapHeader()
                         ->sortable()
@@ -192,7 +205,7 @@ class ViagemsTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('conferido')
                     ->width('1%')
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         '1' => 'info',
                         default => 'danger',
                     }),
@@ -231,7 +244,7 @@ class ViagemsTable
                     ->grow()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('resultado_periodo_id')
-                    ->label("Resultado Período ID")
+                    ->label('Resultado Período ID')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
@@ -249,7 +262,7 @@ class ViagemsTable
                     ->label('Pendências')
                     ->wrap()
                     ->badge()
-                    ->color(fn (Models\Viagem $record): string => $record->possui_pendencia ? 'warning' : 'success')
+                    ->color(fn (Viagem $record): string => $record->possui_pendencia ? 'warning' : 'success')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->groups(
@@ -257,7 +270,7 @@ class ViagemsTable
                     Group::make('data_competencia')
                         ->label('Data Competência')
                         ->titlePrefixedWithLabel(false)
-                        ->getTitleFromRecordUsing(fn(Models\Viagem $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
+                        ->getTitleFromRecordUsing(fn (Viagem $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
                         ->collapsible(),
                     Group::make('veiculo.placa')
                         ->label('Veículo')
@@ -271,7 +284,7 @@ class ViagemsTable
                     ->label('Integrado')
                     ->relationship('cargas.integrado', 'nome')
                     ->searchable(['codigo', 'nome'])
-                    ->getOptionLabelFromRecordUsing(fn(Models\Integrado $record) => "{$record->codigo} {$record->nome}")
+                    ->getOptionLabelFromRecordUsing(fn (Models\Integrado $record) => "{$record->codigo} {$record->nome}")
                     ->searchable()
                     ->multiple(),
                 SelectFilter::make('veiculo_id')
@@ -295,7 +308,7 @@ class ViagemsTable
                         return $query
                             ->when(
                                 $data['numero_viagem'],
-                                fn(Builder $query, $numeroViagem): Builder => $query->where('numero_viagem', $numeroViagem),
+                                fn (Builder $query, $numeroViagem): Builder => $query->where('numero_viagem', $numeroViagem),
                             );
                     }),
                 Filter::make('numero_interno')
@@ -314,7 +327,7 @@ class ViagemsTable
                         return $query
                             ->when(
                                 $data['numero_interno'],
-                                fn(Builder $query, $numeroInterno): Builder => $query->where('numero_interno', $numeroInterno),
+                                fn (Builder $query, $numeroInterno): Builder => $query->where('numero_interno', $numeroInterno),
                             );
                     }),
                 Filter::make('documento_transporte')
@@ -333,7 +346,7 @@ class ViagemsTable
                         return $query
                             ->when(
                                 $data['documento_transporte'],
-                                fn(Builder $query, $documentoTransporte): Builder => $query->where('documento_transporte', $documentoTransporte),
+                                fn (Builder $query, $documentoTransporte): Builder => $query->where('documento_transporte', $documentoTransporte),
                             );
                     }),
 
@@ -365,17 +378,17 @@ class ViagemsTable
                     ->trueLabel('Com Integrado')
                     ->falseLabel('Sem Integrado')
                     ->queries(
-                        true: fn(Builder $query) => $query->whereHas('cargas', function (Builder $subQuery) {
+                        true: fn (Builder $query) => $query->whereHas('cargas', function (Builder $subQuery) {
                             $subQuery->whereNotNull('integrado_id');
                         }),
-                        false: fn(Builder $query) => $query->where(function (Builder $subQuery) {
+                        false: fn (Builder $query) => $query->where(function (Builder $subQuery) {
                             $subQuery
                                 ->whereHas('cargas', function (Builder $innerQuery) {
                                     $innerQuery->whereNull('integrado_id');
                                 })
                                 ->orWhereDoesntHave('cargas');
                         }),
-                        blank: fn(Builder $query) => $query,
+                        blank: fn (Builder $query) => $query,
                     ),
                 TernaryFilter::make('sem_frete')
                     ->label('Possui Doc. Frete?')
@@ -384,9 +397,9 @@ class ViagemsTable
                     ->trueLabel('Com Doc. Frete')
                     ->falseLabel('Sem Doc. Frete')
                     ->queries(
-                        true: fn(Builder $query) => $query->whereHas('documentos'),
-                        false: fn(Builder $query) => $query->whereDoesntHave('documentos'),
-                        blank: fn(Builder $query) => $query,
+                        true: fn (Builder $query) => $query->whereHas('documentos'),
+                        false: fn (Builder $query) => $query->whereDoesntHave('documentos'),
+                        blank: fn (Builder $query) => $query,
                     ),
                 TernaryFilter::make('conferido')
                     ->label('Conferido')
@@ -418,9 +431,9 @@ class ViagemsTable
                                     ->options([
                                         '>=' => 'Maior ou igual',
                                         '<=' => 'Menor ou igual',
-                                        '='  => 'Igual',
-                                        '>'  => 'Maior que',
-                                        '<'  => 'Menor que',
+                                        '=' => 'Igual',
+                                        '>' => 'Maior que',
+                                        '<' => 'Menor que',
                                     ])
                                     ->default('>='),
                                 TextInput::make('count')
@@ -480,21 +493,22 @@ class ViagemsTable
                             ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        //verificar se possui valor e aplicar filtros
+                        // verificar se possui valor e aplicar filtros
                         $min = $data['minimo'] ?? null;
                         $max = $data['maximo'] ?? null;
+
                         return $query
-                            ->when($min !== null, fn(Builder $query, $min): Builder => $query->where('km_dispersao', '>=', $min))
-                            ->when($max !== null, fn(Builder $query, $max): Builder => $query->where('km_dispersao', '<=', $max));
+                            ->when($min !== null, fn (Builder $query, $min): Builder => $query->where('km_dispersao', '>=', $min))
+                            ->when($max !== null, fn (Builder $query, $max): Builder => $query->where('km_dispersao', '<=', $max));
                     }),
                 SelectFilter::make('unidade_negocio')
                     ->label('Unidade de Negócio')
                     ->selectablePlaceholder(false)
                     ->native(false)
                     ->options([
-                        'CHAPECO'       => 'Chapecó',
-                        'CATANDUVAS'    => 'Catanduvas',
-                        'CONCORDIA'     => 'Concórdia',
+                        'CHAPECO' => 'Chapecó',
+                        'CATANDUVAS' => 'Catanduvas',
+                        'CONCORDIA' => 'Concórdia',
                     ])
                     ->default('CHAPECO'),
                 SelectFilter::make('cliente')
@@ -505,7 +519,7 @@ class ViagemsTable
             ])
             ->filtersFormColumns(2)
             ->filtersTriggerAction(
-                fn(Action $action) => $action
+                fn (Action $action) => $action
                     ->button()
                     ->label('Filtros')
                     ->slideOver(),
@@ -515,7 +529,7 @@ class ViagemsTable
             ->columnManagerWidth(Width::ScreenTwoExtraLarge)
             ->columnManagerMaxHeight('80vh')
             ->columnManagerTriggerAction(
-                fn(Action $action) => $action
+                fn (Action $action) => $action
                     ->modalWidth(Width::ScreenTwoExtraLarge)
             )
             ->reorderableColumns()
@@ -534,51 +548,51 @@ class ViagemsTable
                         ->action(function () {
                             // Não faz nada no backend - evita refresh imediato
                         })
-                        
+
                         ->color('primary'),
                     Action::make('sem-viagem')
                         ->label('Sem Viagem')
                         ->icon('heroicon-o-x-circle')
                         ->accessSelectedRecords()
                         ->action(function (Collection $selectedRecords) {
-                            Log::debug('Iniciando ação em massa Sem Viagem para ' . $selectedRecords->count() . ' registros pelo usuário ID ' . Auth::id());
-                            $selectedRecords->each(function (Models\Viagem $record) {
-                                Log::debug("Processando Viagem ID {$record->id} na ação Sem Viagem pelo usuário ID " . Auth::id());
+                            Log::debug('Iniciando ação em massa Sem Viagem para '.$selectedRecords->count().' registros pelo usuário ID '.Auth::id());
+                            $selectedRecords->each(function (Viagem $record) {
+                                Log::debug("Processando Viagem ID {$record->id} na ação Sem Viagem pelo usuário ID ".Auth::id());
                                 $record->update([
                                     'possui_pendencia' => false,
                                     'pendencias' => [],
                                     'conferido' => true,
                                 ]);
                                 $record->carga()->create([
-                                    'integrado_id' => 517,  //BRF CCO
+                                    'integrado_id' => 517,  // BRF CCO
                                     'created_by' => Auth::id(),
                                     'updated_by' => Auth::id(),
                                 ]);
-                                Log::info("Viagem ID {$record->id} marcada como SEM VIAGEM e vinculada ao integrado BRF CCO pelo usuário ID " . Auth::id());
+                                Log::info("Viagem ID {$record->id} marcada como SEM VIAGEM e vinculada ao integrado BRF CCO pelo usuário ID ".Auth::id());
                             });
                         })
-                        ->hidden(fn(Models\Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
+                        ->hidden(fn (Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),
                     Viagems\Actions\AdicionarComentarioAction::make(),
                     Viagems\Actions\VisualizarComentarioAction::make(),
                     EditAction::make()
-                        ->visible(fn(Models\Viagem $record) => ! $record->conferido || Auth::user()->is_admin)
-                        // ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record))
-                        ,
+                        ->visible(fn (Viagem $record) => ! $record->conferido || Auth::user()->is_admin)
+                    // ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record))
+                    ,
                     Action::make('buscar_documentos')
                         ->label('Buscar Documentos')
                         ->icon('heroicon-o-document-magnifying-glass')
 
-                        ->url(fn(Models\Viagem $record) => DocumentoFretes\DocumentoFreteResource::getUrl('index', [
+                        ->url(fn (Viagem $record) => DocumentoFretes\DocumentoFreteResource::getUrl('index', [
                             'filters' => [
                                 'veiculo_id' => [
                                     'values' => [
                                         0 => $record->veiculo_id,
-                                    ]
+                                    ],
                                 ],
                                 'sem_vinculo_viagem' => [
-                                    'isActive' => true
-                                ]
+                                    'isActive' => true,
+                                ],
                             ],
                         ]))
                         ->openUrlInNewTab()
@@ -586,9 +600,9 @@ class ViagemsTable
                     Action::make('directions')
                         ->label('Direções')
                         ->icon('heroicon-o-map')
-                        ->url(fn(Models\Viagem $record) => $record->maps_integrados['directions_url'] ?? null)
+                        ->url(fn (Viagem $record) => $record->maps_integrados['directions_url'] ?? null)
                         ->openUrlInNewTab()
-                        ->visible(fn(Models\Viagem $record): bool => $record->cargas_count > 0),
+                        ->visible(fn (Viagem $record): bool => $record->cargas_count > 0),
                     Viagems\Actions\SolicitarCteBugioAction::make(),
                     ReplicateAction::make()
                         ->label('Duplicar')
@@ -596,27 +610,27 @@ class ViagemsTable
                             $data['created_by'] = Auth::id();
                             $data['updated_by'] = Auth::id();
                             $data['conferido'] = false;
-                            $data['numero_viagem'] = $data['numero_viagem'] . '-B';
+                            $data['numero_viagem'] = $data['numero_viagem'].'-B';
                             $data['updated_by'] = Auth::id();
 
                             return $data;
                         })
-                        ->fillForm(fn(Viagem $record) => [
-                            'veiculo_id'            => $record->veiculo_id,
-                            'unidade_negocio'       => $record->unidade_negocio,
-                            'numero_viagem'         => $record->numero_viagem,
-                            'data_aquisicao'        => $record->data_aquisicao,
-                            'data_competencia'      => $record->data_competencia,
-                            'data_inicio'           => $record->data_inicio,
-                            'data_fim'              => $record->data_fim,
-                            'km_rodado'             => $record->km_rodado,
-                            'km_pago'               => $record->km_pago,
-                            'total_destinos'        => $record->total_destinos,
-                            'ignorar'               => $record->ignorar,
-                            'motorista1'            => $record->motorista1,
-                            'motorista2'            => $record->motorista2,
+                        ->fillForm(fn (Viagem $record) => [
+                            'veiculo_id' => $record->veiculo_id,
+                            'unidade_negocio' => $record->unidade_negocio,
+                            'numero_viagem' => $record->numero_viagem,
+                            'data_aquisicao' => $record->data_aquisicao,
+                            'data_competencia' => $record->data_competencia,
+                            'data_inicio' => $record->data_inicio,
+                            'data_fim' => $record->data_fim,
+                            'km_rodado' => $record->km_rodado,
+                            'km_pago' => $record->km_pago,
+                            'total_destinos' => $record->total_destinos,
+                            'ignorar' => $record->ignorar,
+                            'motorista1' => $record->motorista1,
+                            'motorista2' => $record->motorista2,
                         ])
-                        ->schema(fn(Schema $schema) => ViagemResource::form($schema))
+                        ->schema(fn (Schema $schema) => ViagemResource::form($schema))
                         ->successNotificationTitle('Viagem Duplicada')
                         ->excludeAttributes([
                             'id',
@@ -649,13 +663,44 @@ class ViagemsTable
                 Viagems\Actions\MarcarViagemConferidaAction::make(),
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(): bool => Auth::user()->is_admin),
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
                     VincularViagemResultadoPeriodoBulkAction::make(),
                     Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                     Viagems\Actions\ExportarViagensExcelBulkAction::make(),
                     Viagems\Actions\ExportarRelatorioViagensDocumentosBulkAction::make(),
-                    FilamentExportBulkAction::make('export')
+                    FilamentExportBulkAction::make('export'),
+                    ExportPdfBulkAction::make(
+                        'exportar_pdf',
+                        'Viagens',
+                        [
+                            ['key' => 'id', 'label' => 'ID', 'align' => 'center', 'width' => '5%'],
+                            ['key' => 'numero_viagem', 'label' => 'N° Viagem', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'doc_transporte', 'label' => 'Doc. Transporte', 'align' => 'center', 'width' => '12%'],
+                            ['key' => 'placa', 'label' => 'Placa', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'cliente', 'label' => 'Cliente', 'width' => '12%'],
+                            ['key' => 'data_competencia', 'label' => 'Data Competencia', 'align' => 'center', 'width' => '10%'],
+                            ['key' => 'km_pago', 'label' => 'Km Pago', 'align' => 'right', 'width' => '8%'],
+                            ['key' => 'total_destinos', 'label' => 'Destinos', 'align' => 'center', 'width' => '6%'],
+                            ['key' => 'conferido', 'label' => 'Conferido', 'align' => 'center', 'width' => '8%'],
+                            ['key' => 'status', 'label' => 'Status', 'width' => '12%'],
+                        ],
+                        fn ($records) => $records->load('veiculo')
+                            ->map(fn ($r) => [
+                                'id' => $r->id,
+                                'numero_viagem' => e($r->numero_viagem ?? '-'),
+                                'doc_transporte' => e($r->documento_transporte ?? '-'),
+                                'placa' => e($r->veiculo?->placa ?? '-'),
+                                'cliente' => e($r->cliente ?? '-'),
+                                'data_competencia' => $r->data_competencia
+                                    ? Carbon::parse($r->data_competencia)->format('d/m/Y')
+                                    : '-',
+                                'km_pago' => $r->km_pago ?? '-',
+                                'total_destinos' => $r->total_destinos ?? '-',
+                                'conferido' => $r->conferido ? 'Sim' : 'Nao',
+                                'status' => e($r->status ?? '-'),
+                            ])->toArray(),
+                    ),
                 ]),
             ]);
     }

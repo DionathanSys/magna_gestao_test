@@ -34,7 +34,7 @@ class AttachmentsRelationManager extends RelationManager
                 Action::make('visualizar')
                     ->label('Visualizar')
                     ->icon('heroicon-o-eye')
-                    ->size(Size::Small)
+                    ->size(Size::Ex)
                     ->visible(fn (IncomingEmailAttachment $record): bool => $record->kind === 'pdf')
                     ->modalHeading(fn (IncomingEmailAttachment $record): string => "PDF: {$record->original_filename}")
                     ->modalSubmitAction(false)
@@ -44,8 +44,8 @@ class AttachmentsRelationManager extends RelationManager
                         $url = route('attachments.view', ['attachment' => $record->id]);
 
                         return new HtmlString("
-<div class=\"w-full\">
-    <iframe src=\"{$url}\" class=\"w-full\" style=\"height: 85vh;\" frameborder=\"0\"></iframe>
+<div class=\"-m-6\">
+    <iframe src=\"{$url}\" class=\"w-full\" style=\"height: 85vh; display: block;\" frameborder=\"0\"></iframe>
 </div>");
                     }),
             ]);

@@ -5,7 +5,7 @@ namespace App\Filament\Resources\IncomingEmails\RelationManagers;
 use App\Models\IncomingEmailAttachment;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Support\Enums\ActionSize;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
@@ -34,7 +34,7 @@ class AttachmentsRelationManager extends RelationManager
                 Action::make('visualizar')
                     ->label('Visualizar')
                     ->icon('heroicon-o-eye')
-                    ->size(ActionSize::Small)
+                    ->size(Size::Small)
                     ->modalHeading(fn (IncomingEmailAttachment $record): string => "Anexo: {$record->original_filename}")
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Fechar')

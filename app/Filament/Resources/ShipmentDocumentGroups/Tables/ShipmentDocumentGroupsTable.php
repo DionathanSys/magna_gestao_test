@@ -22,7 +22,7 @@ class ShipmentDocumentGroupsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with(['saleDocument', 'remittanceDocument', 'integrado', 'viagem']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['saleDocument', 'remittanceDocument', 'integrado', 'viagem']))
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable()->toggleable(),
@@ -40,30 +40,30 @@ class ShipmentDocumentGroupsTable
                     ->schema([
                         TextInput::make('id')->label('ID')->numeric(),
                     ])
-                    ->indicateUsing(fn(array $data): ?string => filled($data['id'] ?? null) ? "ID: {$data['id']}" : null)
-                    ->query(fn(Builder $query, array $data): Builder => $query->when(
+                    ->indicateUsing(fn (array $data): ?string => filled($data['id'] ?? null) ? "ID: {$data['id']}" : null)
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['id'] ?? null),
-                        fn(Builder $query): Builder => $query->whereKey($data['id']),
+                        fn (Builder $query): Builder => $query->whereKey($data['id']),
                     )),
                 Filter::make('sale_number')
                     ->label('Nota Venda')
                     ->schema([
                         TextInput::make('sale_number')->label('Nota Venda'),
                     ])
-                    ->indicateUsing(fn(array $data): ?string => filled($data['sale_number'] ?? null) ? "Nota Venda: {$data['sale_number']}" : null)
-                    ->query(fn(Builder $query, array $data): Builder => $query->when(
+                    ->indicateUsing(fn (array $data): ?string => filled($data['sale_number'] ?? null) ? "Nota Venda: {$data['sale_number']}" : null)
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['sale_number'] ?? null),
-                        fn(Builder $query): Builder => $query->where('sale_number', 'like', "%{$data['sale_number']}%"),
+                        fn (Builder $query): Builder => $query->where('sale_number', 'like', "%{$data['sale_number']}%"),
                     )),
                 Filter::make('remittance_number')
                     ->label('Nota Remessa')
                     ->schema([
                         TextInput::make('remittance_number')->label('Nota Remessa'),
                     ])
-                    ->indicateUsing(fn(array $data): ?string => filled($data['remittance_number'] ?? null) ? "Nota Remessa: {$data['remittance_number']}" : null)
-                    ->query(fn(Builder $query, array $data): Builder => $query->when(
+                    ->indicateUsing(fn (array $data): ?string => filled($data['remittance_number'] ?? null) ? "Nota Remessa: {$data['remittance_number']}" : null)
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['remittance_number'] ?? null),
-                        fn(Builder $query): Builder => $query->where('remittance_number', 'like', "%{$data['remittance_number']}%"),
+                        fn (Builder $query): Builder => $query->where('remittance_number', 'like', "%{$data['remittance_number']}%"),
                     )),
                 SelectFilter::make('status')
                     ->options([
@@ -84,9 +84,9 @@ class ShipmentDocumentGroupsTable
                     ->trueLabel('Com viagem')
                     ->falseLabel('Sem viagem')
                     ->queries(
-                        true: fn(Builder $query): Builder => $query->whereNotNull('viagem_id'),
-                        false: fn(Builder $query): Builder => $query->whereNull('viagem_id'),
-                        blank: fn(Builder $query): Builder => $query,
+                        true: fn (Builder $query): Builder => $query->whereNotNull('viagem_id'),
+                        false: fn (Builder $query): Builder => $query->whereNull('viagem_id'),
+                        blank: fn (Builder $query): Builder => $query,
                     ),
             ])
             ->recordActions([
@@ -98,11 +98,27 @@ class ShipmentDocumentGroupsTable
                     ->action(function (ShipmentDocumentGroup $record, ShipmentTripService $shipmentTripService): void {
                         $shipmentTripService->createFromGroup($record->id);
 
-                        Notification::make()
-                            ->success()
-                            ->title('Grupo reprocessado')
-                            ->body("Grupo {$record->id} reavaliado para criacao da viagem.")
-                            ->send();
+                        $group = $record->fresh()->load('viagem');
+
+                        if ($group->viagem) {
+                            Notification::make()
+                                ->success()
+                                ->title('Viagem criada')
+                                ->body("Viagem {$group->viagem->numero_viagem} criada a partir do grupo {$record->id}.")
+                                ->send();
+                        } elseif ($group->status === 'pending_data') {
+                            Notification::make()
+                                ->warning()
+                                ->title('Dados insuficientes')
+                                ->body("Grupo {$record->id} pendente de dados (integrado, unidade ou veiculo).")
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->success()
+                                ->title('Grupo reprocessado')
+                                ->body("Grupo {$record->id} reavaliado.")
+                                ->send();
+                        }
                     }),
                 ViewAction::make()->iconButton(),
             ])

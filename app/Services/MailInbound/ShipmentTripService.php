@@ -31,7 +31,7 @@ class ShipmentTripService
             ])
             ->findOrFail($groupId);
 
-        if ($group->viagem_id || $group->status !== 'matched') {
+        if ($group->viagem_id && $group->viagem()->exists()) {
             return;
         }
 

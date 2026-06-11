@@ -8,6 +8,8 @@ use App\Services\MailInbound\LinkFiscalDocumentToIntegradoService;
 use App\Services\MailInbound\ShipmentDocumentMatcher;
 use App\Services\MailInbound\ShipmentTripService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -28,7 +30,7 @@ class ReceivedFiscalDocumentsTable
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['incomingEmail', 'integrado', 'saleGroups', 'remittanceGroups']))
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
+                TextColumn::make('id')->label('ID')->sortable()->toggleable(),
                 TextColumn::make('tipo_documento')
                     ->label('Tipo de Documento')
                     ->badge()
@@ -36,14 +38,15 @@ class ReceivedFiscalDocumentsTable
                         'sale' => 'Venda',
                         'remittance' => 'Remessa',
                         default => 'Desconhecido',
-                    }),
-                TextColumn::make('numero_nota')->label('Nº da Nota')->searchable(),
-                TextColumn::make('emitente_documento')->label('Doc. do Emitente')->searchable(),
-                TextColumn::make('destinatario_documento')->label('Doc. do Destinatário')->searchable(),
-                TextColumn::make('integrado.nome')->label('Integrado')->placeholder('-')->wrap(),
-                TextColumn::make('pending_summary')->label('O que falta')->wrap(),
+                    })
+                    ->toggleable(),
+                TextColumn::make('numero_nota')->label('Nº da Nota')->searchable()->toggleable(),
+                TextColumn::make('emitente_documento')->label('Doc. do Emitente')->searchable()->toggleable(),
+                TextColumn::make('destinatario_documento')->label('Doc. do Destinatário')->searchable()->toggleable(),
+                TextColumn::make('integrado.nome')->label('Integrado')->placeholder('-')->wrap()->toggleable(),
+                TextColumn::make('pending_summary')->label('O que falta')->wrap()->toggleable(),
                 TextColumn::make('incomingEmail.subject')->label('E-mail')->toggleable()->wrap(),
-                TextColumn::make('emitido_em')->label('Emissão')->dateTime('d/m/Y H:i')->sortable(),
+                TextColumn::make('emitido_em')->label('Emissão')->dateTime('d/m/Y H:i')->sortable()->toggleable(),
             ])
             ->filters([
                 Filter::make('id')
@@ -297,6 +300,11 @@ class ReceivedFiscalDocumentsTable
                             ->send();
                     }),
                 ViewAction::make()->iconButton(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

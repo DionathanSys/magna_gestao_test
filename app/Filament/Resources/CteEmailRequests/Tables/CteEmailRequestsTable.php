@@ -19,12 +19,12 @@ class CteEmailRequestsTable
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['viagem.veiculo', 'integrado']))
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('documento_transporte')->label('Doc. Transporte')->searchable(),
-                TextColumn::make('viagem.numero_viagem')->label('Viagem')->searchable()->placeholder('-'),
-                TextColumn::make('viagem.veiculo.placa')->label('Placa')->placeholder('-'),
-                TextColumn::make('integrado.nome')->label('Integrado')->wrap()->placeholder('-'),
-                TextColumn::make('tipo_documento_solicitado')->label('Tipo'),
+                TextColumn::make('id')->label('ID')->sortable()->toggleable(),
+                TextColumn::make('documento_transporte')->label('Doc. Transporte')->searchable()->toggleable(),
+                TextColumn::make('viagem.numero_viagem')->label('Viagem')->searchable()->placeholder('-')->toggleable(),
+                TextColumn::make('viagem.veiculo.placa')->label('Placa')->placeholder('-')->toggleable(),
+                TextColumn::make('integrado.nome')->label('Integrado')->wrap()->placeholder('-')->toggleable(),
+                TextColumn::make('tipo_documento_solicitado')->label('Tipo')->toggleable(),
                 TextColumn::make('status')->label('Status')->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'pending_send' => 'warning',
@@ -34,13 +34,14 @@ class CteEmailRequestsTable
                         'completed' => 'success',
                         'failed' => 'danger',
                         default => 'gray',
-                    }),
-                TextColumn::make('sent_subject')->label('Assunto enviado')->wrap()->limit(60),
-                TextColumn::make('requested_at')->label('Solicitado em')->dateTime('d/m/Y H:i')->sortable(),
-                TextColumn::make('sent_at')->label('Enviado em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-'),
-                TextColumn::make('last_response_at')->label('Resposta em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-'),
-                TextColumn::make('completed_at')->label('Concluido em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-'),
-                TextColumn::make('error_message')->label('Erro')->wrap()->placeholder('-'),
+                    })
+                    ->toggleable(),
+                TextColumn::make('sent_subject')->label('Assunto enviado')->wrap()->limit(60)->toggleable(),
+                TextColumn::make('requested_at')->label('Solicitado em')->dateTime('d/m/Y H:i')->sortable()->toggleable(),
+                TextColumn::make('sent_at')->label('Enviado em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
+                TextColumn::make('last_response_at')->label('Resposta em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
+                TextColumn::make('completed_at')->label('Concluido em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
+                TextColumn::make('error_message')->label('Erro')->wrap()->placeholder('-')->toggleable(),
             ])
             ->recordActions([
                 Action::make('reprocessar_request')

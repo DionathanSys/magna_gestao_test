@@ -25,22 +25,23 @@ class IncomingEmailsTable
                 ->withExists(['cteReturnMessages as tem_retorno_cte']))
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('from_email')->label('Remetente')->searchable(),
-                TextColumn::make('subject')->label('Assunto')->searchable()->wrap(),
-                TextColumn::make('status')->label('Status')->badge(),
-                TextColumn::make('attachments_count')->label('Anexos')->counts('attachments'),
-                TextColumn::make('fiscalDocument.tipo_documento')->label('Tipo Doc.')->placeholder('-'),
-                TextColumn::make('fiscalDocument.numero_nota')->label('Nota')->placeholder('-'),
-                TextColumn::make('fiscalDocument.destinatario_documento')->label('Doc. Destino')->placeholder('-'),
-                TextColumn::make('fiscalDocument.integrado.nome')->label('Integrado')->placeholder('-')->wrap(),
+                TextColumn::make('id')->label('ID')->sortable()->toggleable(),
+                TextColumn::make('from_email')->label('Remetente')->searchable()->toggleable(),
+                TextColumn::make('subject')->label('Assunto')->searchable()->wrap()->toggleable(),
+                TextColumn::make('status')->label('Status')->badge()->toggleable(),
+                TextColumn::make('attachments_count')->label('Anexos')->counts('attachments')->toggleable(),
+                TextColumn::make('fiscalDocument.tipo_documento')->label('Tipo Doc.')->placeholder('-')->toggleable(),
+                TextColumn::make('fiscalDocument.numero_nota')->label('Nota')->placeholder('-')->toggleable(),
+                TextColumn::make('fiscalDocument.destinatario_documento')->label('Doc. Destino')->placeholder('-')->toggleable(),
+                TextColumn::make('fiscalDocument.integrado.nome')->label('Integrado')->placeholder('-')->wrap()->toggleable(),
                 TextColumn::make('tem_retorno_cte')
                     ->label('Retorno CTe')
                     ->badge()
                     ->formatStateUsing(fn (bool $state): string => $state ? 'Vinculado' : 'Nao mapeado')
-                    ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
-                TextColumn::make('pending_summary')->label('O que falta')->wrap(),
-                TextColumn::make('received_at')->label('Recebido em')->dateTime('d/m/Y H:i')->sortable(),
+                    ->color(fn (bool $state): string => $state ? 'success' : 'gray')
+                    ->toggleable(),
+                TextColumn::make('pending_summary')->label('O que falta')->wrap()->toggleable(),
+                TextColumn::make('received_at')->label('Recebido em')->dateTime('d/m/Y H:i')->sortable()->toggleable(),
             ])
             ->filters([
                 Filter::make('sem_documento_fiscal')

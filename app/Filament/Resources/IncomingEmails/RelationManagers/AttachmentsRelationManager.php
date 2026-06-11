@@ -17,13 +17,13 @@ class AttachmentsRelationManager extends RelationManager
         return $table
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('id')->label('ID'),
-                TextColumn::make('original_filename')->label('Arquivo')->wrap(),
-                TextColumn::make('kind')->label('Tipo')->badge(),
+                TextColumn::make('id')->label('ID')->toggleable(),
+                TextColumn::make('original_filename')->label('Arquivo')->wrap()->toggleable(),
+                TextColumn::make('kind')->label('Tipo')->badge()->toggleable(),
                 TextColumn::make('mime_type')->label('MIME')->toggleable(),
-                TextColumn::make('size_bytes')->label('Tamanho')->numeric(),
-                TextColumn::make('path')->label('Path')->wrap(),
-                TextColumn::make('created_at')->label('Criado em')->dateTime('d/m/Y H:i'),
+                TextColumn::make('size_bytes')->label('Tamanho')->numeric()->toggleable(),
+                TextColumn::make('path')->label('Path')->wrap()->toggleable(),
+                TextColumn::make('created_at')->label('Criado em')->dateTime('d/m/Y H:i')->toggleable(),
             ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\IncomingEmailAttachment;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
@@ -38,7 +39,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->modalHeading(fn (IncomingEmailAttachment $record): string => "PDF: {$record->original_filename}")
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Fechar')
-                    ->modalWidth(Size::ExtraLarge)
+                    ->modalWidth(Width::ExtraLarge)
                     ->modalContent(function (IncomingEmailAttachment $record): HtmlString {
                         $url = route('attachments.view', ['attachment' => $record->id]);
 

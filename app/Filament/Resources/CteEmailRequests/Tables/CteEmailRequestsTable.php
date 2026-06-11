@@ -5,6 +5,8 @@ namespace App\Filament\Resources\CteEmailRequests\Tables;
 use App\Models\CteEmailRequest;
 use App\Services\Bugio\CteReturnEmailProcessingService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -59,6 +61,11 @@ class CteEmailRequestsTable
                             ->send();
                     }),
                 ViewAction::make()->iconButton(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

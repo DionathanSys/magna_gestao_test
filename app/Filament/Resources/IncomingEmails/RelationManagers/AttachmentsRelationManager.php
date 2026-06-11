@@ -5,7 +5,6 @@ namespace App\Filament\Resources\IncomingEmails\RelationManagers;
 use App\Models\IncomingEmailAttachment;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -34,7 +33,6 @@ class AttachmentsRelationManager extends RelationManager
                 Action::make('visualizar')
                     ->label('Visualizar')
                     ->icon('heroicon-o-eye')
-                    ->size(Size::Ex)
                     ->visible(fn (IncomingEmailAttachment $record): bool => $record->kind === 'pdf')
                     ->modalHeading(fn (IncomingEmailAttachment $record): string => "PDF: {$record->original_filename}")
                     ->modalSubmitAction(false)

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -23,6 +23,11 @@ class IncomingEmail extends Model
     public function fiscalDocument(): HasOne
     {
         return $this->hasOne(ReceivedFiscalDocument::class);
+    }
+
+    public function cteReturnMessages(): HasMany
+    {
+        return $this->hasMany(CteEmailRequestMessage::class, 'incoming_email_id');
     }
 
     protected function pendingSummary(): Attribute

@@ -2,16 +2,16 @@
 
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\DocumentoFreteResource;
-use App\Imports\DocumentoFreteImport;
-use App\Jobs\ProcessImportRowJob;
-use App\Jobs\TesteJob;
-use App\Models\Pneu;
-use App\Services\Carga\Actions\AtualizarKmDispersao;
+use App\Models\IncomingEmailAttachment;
+use App\Models\OrdemServico;
+use App\Models\Veiculo;
 use App\Services\DocumentoFrete\DocumentoFreteService;
-use App\Traits\PdfExtractorTrait;
+use App\Services\Import\Importers\ViagemEspelhoFreteImporter;
+use App\Services\OrdemServico\OrdemServicoPdfService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use Spatie\PdfToText\Pdf as PdfToTextPdf;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -20,8 +20,9 @@ Route::get('/', function () {
     return view('landing');
 })->name('landing');
 
-Route::get('/ordem-servico/{ordemServico}/pdf', function (\App\Models\OrdemServico $ordemServico) {
-    $service = new \App\Services\OrdemServico\OrdemServicoPdfService();
+Route::get('/ordem-servico/{ordemServico}/pdf', function (OrdemServico $ordemServico) {
+    $service = new OrdemServicoPdfService;
+
     return $service->visualizarPdfOrdemServico($ordemServico);
 })->name('ordem-servico.pdf.visualizar');
 
@@ -29,19 +30,19 @@ Route::get('/import-pdf', function () {
     return view('importPdf');
 })->name('import.pdf');
 
-Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
+Route::post('/upload-pdf', function (Request $request) {
 
     $request->validate([
         'pdfFile' => 'required|file|mimes:pdf|max:2048',
     ]);
 
     $file = $request->file('pdfFile');
-    
-    Log::debug(__METHOD__ . '@' . __LINE__, [
-        'file' => $file
+
+    Log::debug(__METHOD__.'@'.__LINE__, [
+        'file' => $file,
     ]);
 
-    $importer = new \App\Services\Import\Importers\ViagemEspelhoFreteImporter();
+    $importer = new ViagemEspelhoFreteImporter;
 
     $data = $importer->handle($file->getRealPath());
 
@@ -49,45 +50,46 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
 
     $data->each(function ($frete) {
         Log::debug('Frete ', [
-            'data' => $frete
+            'data' => $frete,
         ]);
 
-        if(!($veiculo_id = \App\Models\Veiculo::where('placa', $frete['placa'])->first()?->id)) {
+        if (! ($veiculo_id = Veiculo::where('placa', $frete['placa'])->first()?->id)) {
             Log::warning('Veículo não encontrado para a placa informada.', [
-                'placa' => $frete['placa']
+                'placa' => $frete['placa'],
             ]);
+
             return;
         }
 
         $docFrete = [
-            'veiculo_id'           => $veiculo_id,
-            'parceiro_origem'      => 'BRF S.A. CHAPECO/SC',
-            'parceiro_destino'     => trim(preg_replace('/^\d+\s*-\s*/', '', $frete['destino'])),
+            'veiculo_id' => $veiculo_id,
+            'parceiro_origem' => 'BRF S.A. CHAPECO/SC',
+            'parceiro_destino' => trim(preg_replace('/^\d+\s*-\s*/', '', $frete['destino'])),
             'documento_transporte' => $frete['doc_transporte'],
-            'numero_documento'     => $frete['nfe'],
-            'data_emissao'         => $frete['data_emissao'],
-            'valor_total'          => $frete['valor'],
-            'valor_icms'           => 0,
-            'tipo_documento'       => TipoDocumentoEnum::NFS,
+            'numero_documento' => $frete['nfe'],
+            'data_emissao' => $frete['data_emissao'],
+            'valor_total' => $frete['valor'],
+            'valor_icms' => 0,
+            'tipo_documento' => TipoDocumentoEnum::NFS,
         ];
 
         try {
-            $documentoFreteService = new DocumentoFreteService();
+            $documentoFreteService = new DocumentoFreteService;
             $documentoFreteService->criarDocumentoFrete($docFrete);
             Log::info('Documento de frete criado com sucesso.', [
-                'data' => $docFrete
+                'data' => $docFrete,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Erro ao criar documento de frete', [
                 'error' => $e->getMessage(),
-                'data' => $docFrete
+                'data' => $docFrete,
             ]);
         }
 
     });
-    
+
     echo '<h2>Importação concluída!</h2>';
-    echo '<a href="' . DocumentoFreteResource::getUrl() . '">Acessar Documentos de Frete</a>';
+    echo '<a href="'.DocumentoFreteResource::getUrl().'">Acessar Documentos de Frete</a>';
     // $spreadsheet = new Spreadsheet();
     // $sheet = $spreadsheet->getActiveSheet();
 
@@ -123,16 +125,26 @@ Route::post('/upload-pdf', function (\Illuminate\Http\Request $request) {
     // return $response;
 })->name('upload.pdf');
 
+Route::get('/admin/attachments/{attachment}/view', function (IncomingEmailAttachment $attachment) {
+    if (! Storage::disk($attachment->disk)->exists($attachment->path)) {
+        abort(404);
+    }
+
+    return response()->file(
+        Storage::disk($attachment->disk)->path($attachment->path),
+        ['Content-Type' => $attachment->mime_type ?: 'application/pdf'],
+    );
+})->middleware('auth')->name('attachments.view');
+
 Route::get('/teste-job', function () {
 
-    //crie na sessão um valor true ou false para mudar o estado de groupOnly na table de CargaViagems
-    //cada vez que acessar essa rota, o valor será invertido
+    // crie na sessão um valor true ou false para mudar o estado de groupOnly na table de CargaViagems
+    // cada vez que acessar essa rota, o valor será invertido
     $current = session()->get('cargaViagemsGroupOnly', false);
-    session()->put('cargaViagemsGroupOnly', !$current);
-    Log::debug('Toggle cargaViagemsGroupOnly to ' . (!$current) , [
-        'metodo' => __METHOD__ . '@' . __LINE__,
-        'new_value' => !$current
+    session()->put('cargaViagemsGroupOnly', ! $current);
+    Log::debug('Toggle cargaViagemsGroupOnly to '.(! $current), [
+        'metodo' => __METHOD__.'@'.__LINE__,
+        'new_value' => ! $current,
     ]);
-    echo 'cargaViagemsGroupOnly set to ' . (!$current);
+    echo 'cargaViagemsGroupOnly set to '.(! $current);
 });
-

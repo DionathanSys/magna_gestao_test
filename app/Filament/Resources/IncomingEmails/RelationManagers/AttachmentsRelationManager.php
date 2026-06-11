@@ -8,7 +8,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\Size;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 class AttachmentsRelationManager extends RelationManager
@@ -35,51 +34,18 @@ class AttachmentsRelationManager extends RelationManager
                     ->label('Visualizar')
                     ->icon('heroicon-o-eye')
                     ->size(Size::Small)
-                    ->modalHeading(fn (IncomingEmailAttachment $record): string => "Anexo: {$record->original_filename}")
+                    ->visible(fn (IncomingEmailAttachment $record): bool => $record->kind === 'pdf')
+                    ->modalHeading(fn (IncomingEmailAttachment $record): string => "PDF: {$record->original_filename}")
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Fechar')
+                    ->modalWidth(Size::ExtraLarge)
                     ->modalContent(function (IncomingEmailAttachment $record): HtmlString {
-                        $size = $record->size_bytes
-                            ? number_format($record->size_bytes / 1024, 1).' KB'
-                            : '-';
+                        $url = route('attachments.view', ['attachment' => $record->id]);
 
-                        $html = "
-<div class=\"space-y-4\">
-    <div class=\"grid grid-cols-2 gap-4\">
-        <div><strong>ID:</strong> {$record->id}</div>
-        <div><strong>Nome:</strong> ".e($record->original_filename).'</div>
-        <div><strong>Tipo:</strong> <span class="filament-badge">'.e($record->kind ?? '-').'</span></div>
-        <div><strong>MIME:</strong> '.e($record->mime_type ?? '-')."</div>
-        <div><strong>Tamanho:</strong> {$size}</div>
-        <div><strong>Status:</strong> <span class=\"filament-badge\">".e($record->status ?? 'stored')."</span></div>
-        <div><strong>Criado em:</strong> {$record->created_at?->format('d/m/Y H:i')}</div>
-        <div><strong>Caminho:</strong> ".e($record->path).'</div>
-    </div>';
-
-                        if ($record->kind === 'xml') {
-                            $content = Storage::disk($record->disk)->get($record->path);
-                            $escaped = $content ? e($content) : 'Arquivo nao encontrado';
-                            $html .= "
-    <div>
-        <h4 class=\"text-sm font-medium mb-2\">Conteudo do XML</h4>
-        <pre class=\"bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs overflow-auto max-h-96\">{$escaped}</pre>
-    </div>";
-                        }
-
-                        if ($record->kind === 'pdf') {
-                            $url = Storage::disk($record->disk)->url($record->path);
-                            $src = $url ? e($url) : '';
-                            $html .= $src ? "
-    <div>
-        <h4 class=\"text-sm font-medium mb-2\">Visualizacao do PDF</h4>
-        <iframe src=\"{$src}\" class=\"w-full\" style=\"height: 80vh;\" frameborder=\"0\"></iframe>
-    </div>" : '
-    <div class="text-gray-400">Arquivo nao encontrado</div>';
-                        }
-
-                        $html .= '</div>';
-
-                        return new HtmlString($html);
+                        return new HtmlString("
+<div class=\"w-full\">
+    <iframe src=\"{$url}\" class=\"w-full\" style=\"height: 85vh;\" frameborder=\"0\"></iframe>
+</div>");
                     }),
             ]);
     }

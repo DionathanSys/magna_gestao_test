@@ -35,8 +35,6 @@ class IncomingEmailsTable
                 TextColumn::make('tem_retorno_cte')
                     ->label('Retorno CTe')
                     ->badge()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
                     ->formatStateUsing(fn (bool $state): string => $state ? 'Vinculado' : 'Nao mapeado')
                     ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                 TextColumn::make('pending_summary')->label('O que falta')->wrap(),

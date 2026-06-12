@@ -116,12 +116,6 @@ class ViagemsTable
                     ->html()
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('parceiro_frete_cache')
-                    ->label('Destinos Frete')
-                    ->html()
-                    ->placeholder('Sem Frete')
-                    ->wrap()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 ColumnGroup::make('KM', [
                     TextColumn::make('km_rodado')
                         ->width('1%')

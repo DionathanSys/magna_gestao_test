@@ -37,12 +37,12 @@ class AttachmentsRelationManager extends RelationManager
                     ->modalHeading(fn (IncomingEmailAttachment $record): string => "PDF: {$record->original_filename}")
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Fechar')
-                    ->modalWidth(Width::ExtraLarge)
+                    ->modalWidth(Width::Full)
                     ->modalContent(function (IncomingEmailAttachment $record): HtmlString {
                         $url = route('attachments.view', ['attachment' => $record->id]);
 
                         return new HtmlString("
-<div class=\"-m-6\">
+<div class=\"-m-6 w-[calc(100%+3rem)]\">
     <iframe src=\"{$url}\" class=\"w-full\" style=\"height: 85vh; display: block;\" frameborder=\"0\"></iframe>
 </div>");
                     }),

@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Events\Viagem\RecalcularRateioKmDispersaoRequested;
 use App\Listeners\Viagem\AtualizarRateioKmDispersaoCargas;
+use App\Models\DocumentoFrete;
+use App\Observers\DocumentoFreteObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +34,8 @@ class AppServiceProvider extends ServiceProvider
             RecalcularRateioKmDispersaoRequested::class,
             AtualizarRateioKmDispersaoCargas::class,
         );
+
+        DocumentoFrete::observe(DocumentoFreteObserver::class);
 
     }
 }

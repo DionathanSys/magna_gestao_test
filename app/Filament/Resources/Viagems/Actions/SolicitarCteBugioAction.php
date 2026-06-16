@@ -120,7 +120,7 @@ class SolicitarCteBugioAction
                                     ->map(fn ($carga) => $carga->integrado)
                                     ->filter()
                                     ->unique('id')
-                                    ->mapWithKeys(fn (Integrado $integrado) => [$integrado->id => $integrado->nome.' ('.($integrado->municipio ?? '').'/'.($integrado->estado ?? '').')'])
+                                    ->mapWithKeys(fn (Integrado $integrado) => [$integrado->id => $integrado->nome])
                                     ->toArray();
                             })
                             ->default(function (Viagem $record): ?int {

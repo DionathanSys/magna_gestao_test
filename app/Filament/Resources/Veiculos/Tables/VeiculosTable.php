@@ -127,6 +127,10 @@ class VeiculosTable
                     ->label('Cliente')
                     ->options(ClienteEnum::toSelectArray())
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('informacoes_complementares.motorista_padrao_cte_cpf')
+                    ->label('Motorista Padrão CTe')
+                    ->formatStateUsing(fn (?string $state): string => collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $state)['motorista'] ?? 'Nao definido')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Criado Em')
                     ->dateTime('d/m/Y H:i')

@@ -75,6 +75,13 @@ class VeiculoForm
                             ->searchable()
                             ->options(ClienteEnum::toSelectArray())
                             ->required(),
+                        Select::make('informacoes_complementares.motorista_padrao_cte_cpf')
+                            ->label('Motorista Padrão CTe')
+                            ->columnSpan(3)
+                            ->searchable()
+                            ->native(false)
+                            ->options(fn () => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
+                            ->helperText('Usado para preencher automaticamente a action de Solicitar CTe deste caminhão.'),
                         TextInput::make('informacoes_complementares.codigo_imobilizado')
                             ->label('Código Imobilizado')
                             ->columnSpan(2),

@@ -48,7 +48,14 @@ class SolicitarCteBugioAction
             ->visible(fn (Viagem $record): bool => $record->attachments()->exists())
             ->modalWidth(Width::FiveExtraLarge)
             ->fillForm(function (Viagem $record): array {
-                $record->loadMissing('cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');
+                $record->loadMissing('veiculo', 'cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');
+
+                $motoristas = collect(db_config('config-bugio.motoristas'));
+                $motoristaPadraoCpf = data_get($record->veiculo?->informacoes_complementares, 'motorista_padrao_cte_cpf');
+
+                if ($motoristaPadraoCpf && ! $motoristas->contains(fn (array $motorista): bool => (string) ($motorista['cpf'] ?? '') === (string) $motoristaPadraoCpf)) {
+                    $motoristaPadraoCpf = null;
+                }
 
                 $integrado = $record->cargas
                     ->map(fn ($carga) => $carga->integrado)
@@ -77,6 +84,7 @@ class SolicitarCteBugioAction
                     'resumo_anexos' => $resumoAnexos,
                     'integrado_id' => $integrado?->id,
                     'integrado_municipio_uf' => $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '',
+                    'motorista' => $motoristaPadraoCpf,
                     'data_competencia' => $record->data_competencia,
                     'tipo_documento' => TipoDocumentoEnum::CTE->value,
                     'cte_retroativo' => true,

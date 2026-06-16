@@ -9,6 +9,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -99,6 +100,12 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->columnSpanFull()
                             ->autocomplete(false)
                             ->helperText('Placeholders: {documento_transporte}, {placa}, {notas}, {agora}. Se não informar {documento_transporte}, ele será acrescentado automaticamente ao assunto.'),
+                        Toggle::make('cte-email-delay-enabled')
+                            ->label('Habilitar delay entre envios de CTe')
+                            ->columnSpan(6)
+                            ->columnStart(1)
+                            ->default(true)
+                            ->helperText('Quando desativado, os emails de solicitação de CTe serão enviados imediatamente, sem aguardar o intervalo mínimo de 4 minutos entre envios.'),
                         Repeater::make('cte-return-senders')
                             ->label('Remetentes de Retorno CTe')
                             ->addActionLabel('Incluir remetente')

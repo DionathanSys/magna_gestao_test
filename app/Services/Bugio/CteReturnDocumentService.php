@@ -45,8 +45,8 @@ class CteReturnDocumentService
                     ?? $parsed['tomador_nome']
                     ?? $parsed['destinatario_nome']
                     ?? 'BUGIO',
-                'parceiro_origem' => $parsed['emitente_nome']
-                    ?? $parsed['remetente_nome']
+                'parceiro_origem' => $parsed['remetente_nome']
+                    ?? $parsed['emitente_nome']
                     ?? 'EMISSOR CT-E',
                 'numero_documento' => $parsed['numero_cte'] ?? $parsed['chave_cte'],
                 'documento_transporte' => $request->documento_transporte,

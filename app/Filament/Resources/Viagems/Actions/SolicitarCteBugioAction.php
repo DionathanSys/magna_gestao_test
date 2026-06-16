@@ -17,12 +17,14 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Width;
+use Illuminate\Support\Facades\Log;
 
 class SolicitarCteBugioAction
 {
     public static function make(): Action
     {
         $syncIntegradoData = function (?string $state, Set $set): void {
+            Log::debug('Integrado selecionado', ['integrado_id' => $state]);
             if (! $state) {
                 $set('integrado_municipio_uf', '');
                 $set('km_rota', 0);
@@ -34,6 +36,14 @@ class SolicitarCteBugioAction
             $integrado = Integrado::find($state);
             $kmRota = (float) ($integrado?->km_rota ?? 0);
             $valorFrete = $kmRota * (float) db_config('config-bugio.valor-quilometro', 0);
+
+            Log::debug('Dados do Integrado', [
+                'integrado_id' => $state,
+                'municipio' => $integrado?->municipio,
+                'estado' => $integrado?->estado,
+                'km_rota' => $kmRota,
+                'valor_frete_calculado' => $valorFrete,
+            ]);
 
             $set('integrado_municipio_uf', $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '');
             $set('km_rota', $kmRota);

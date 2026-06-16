@@ -263,6 +263,16 @@ class Viagem extends Model
                     ->values();
 
                 if ($integrados->isEmpty()) {
+                    $integrados = $this->cargas
+                        ->pluck('integrado')
+                        ->filter()
+                        ->map(fn ($integrado) => trim(($integrado->nome ?? '').' - '.($integrado->municipio ?? '')))
+                        ->filter()
+                        ->unique()
+                        ->values();
+                }
+
+                if ($integrados->isEmpty()) {
                     return 'Sem Carga Vinculada';
                 }
 

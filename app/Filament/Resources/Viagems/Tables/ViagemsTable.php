@@ -74,6 +74,7 @@ class ViagemsTable
                         'cte_email_requested_at'
                     )
                     ->with([
+                        'cargas.integrado:id,codigo,nome,municipio',
                         'veiculo:id,placa',
                         'checker:id,name',
                         'creator:id,name',
@@ -435,6 +436,17 @@ class ViagemsTable
                     ->queries(
                         true: fn (Builder $query) => $query->whereHas('documentos'),
                         false: fn (Builder $query) => $query->whereDoesntHave('documentos'),
+                        blank: fn (Builder $query) => $query,
+                    ),
+                TernaryFilter::make('possui_solicitacao_cte')
+                    ->label('Possui Solic. CTe?')
+                    ->nullable()
+                    ->placeholder('Todos')
+                    ->trueLabel('Com Solicitação')
+                    ->falseLabel('Sem Solicitação')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereHas('cteEmailRequests'),
+                        false: fn (Builder $query) => $query->whereDoesntHave('cteEmailRequests'),
                         blank: fn (Builder $query) => $query,
                     ),
                 TernaryFilter::make('conferido')

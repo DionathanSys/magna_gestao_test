@@ -48,7 +48,7 @@ class SolicitarCteBugioAction
             ->visible(fn (Viagem $record): bool => $record->attachments()->exists())
             ->modalWidth(Width::FiveExtraLarge)
             ->fillForm(function (Viagem $record): array {
-                $record->loadMissing('cargas.integrado', 'attachments.receivedFiscalDocument');
+                $record->loadMissing('cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');
 
                 $integrado = $record->cargas
                     ->map(fn ($carga) => $carga->integrado)
@@ -60,8 +60,21 @@ class SolicitarCteBugioAction
                     ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
                     ->filter()
                     ->first();
+                $resumoNotas = $record->attachments
+                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->numero_nota)
+                    ->filter()
+                    ->unique()
+                    ->implode(', ') ?: 'Não informado';
+                $resumoAnexos = $record->attachments
+                    ->map(fn ($attachment) => $attachment->incomingEmailAttachment?->original_filename)
+                    ->filter()
+                    ->unique()
+                    ->implode(', ') ?: 'Não informado';
 
                 return [
+                    'resumo_viagem' => $record->numero_viagem.' | Placa '.($record->veiculo?->placa ?? 'N/A'),
+                    'resumo_notas' => $resumoNotas,
+                    'resumo_anexos' => $resumoAnexos,
                     'integrado_id' => $integrado?->id,
                     'integrado_municipio_uf' => $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '',
                     'data_competencia' => $record->data_competencia,

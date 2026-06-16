@@ -133,6 +133,7 @@ class SolicitarCteBugioAction
                         Select::make('motorista')
                             ->label('Motorista')
                             ->options(fn () => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
+                            ->autofocus()
                             ->searchable()
                             ->required()
                             ->columnSpan(3),

@@ -75,7 +75,7 @@ class AtualizarResumoViagem
 
             if (in_array('documentos_frete_resumo_cache', $this->availableColumns)) {
                 $updateData['documentos_frete_resumo_cache'] = $documentos
-                    ->map(fn ($doc) => 'Nº '.$doc->numero_documento.' - R$'.number_format(($doc->valor_liquido ?? 0) / 100, 2, ',', '.'))
+                    ->map(fn ($doc) => 'Nº '.$doc->numero_documento.' - R$'.number_format($doc->valor_liquido ?? 0, 2, ',', '.'))
                     ->implode('<br>');
             }
 

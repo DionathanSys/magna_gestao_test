@@ -113,7 +113,7 @@ class SolicitarCteBugioFromViagem
             'nro_notas' => $nroNotas,
         ]);
 
-        SolicitarCteBugio::dispatch($payload);
+        SolicitarCteBugio::dispatch($payload)->onConnection('database');
     }
 
     protected function createDocumentoFrete(

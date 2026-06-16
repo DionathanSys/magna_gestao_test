@@ -12,6 +12,7 @@ use App\Filament\Resources\Viagems;
 use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
+use App\Models\CteEmailRequest;
 use App\Models\Viagem;
 use App\Services;
 use Carbon\Carbon;
@@ -56,6 +57,22 @@ class ViagemsTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->select('viagens.*')
+                    ->selectSub(
+                        CteEmailRequest::query()
+                            ->select('status')
+                            ->whereColumn('viagem_id', 'viagens.id')
+                            ->latest('id')
+                            ->limit(1),
+                        'cte_email_request_status'
+                    )
+                    ->selectSub(
+                        CteEmailRequest::query()
+                            ->select('requested_at')
+                            ->whereColumn('viagem_id', 'viagens.id')
+                            ->latest('id')
+                            ->limit(1),
+                        'cte_email_requested_at'
+                    )
                     ->with([
                         'veiculo:id,placa',
                         'checker:id,name',
@@ -63,7 +80,7 @@ class ViagemsTable
                         'updater:id,name',
                         'resultadoPeriodo:id,data_inicio',
                     ])
-                    ->withCount(['cargas', 'documentos']);
+                    ->withCount(['cargas', 'documentos', 'cteEmailRequests']);
             })
             ->poll(null)
             ->columns([
@@ -109,6 +126,31 @@ class ViagemsTable
                     ->width('1%')
                     ->disabledClick()
                     ->placeholder('Sem Doc. Transp.')
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('cte_email_request_status')
+                    ->label('Solic. CTe')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'pending_send' => 'Pendente envio',
+                        'sent' => 'Enviado',
+                        'response_received' => 'Resposta recebida',
+                        'processing' => 'Processando',
+                        'completed' => 'Concluida',
+                        'failed' => 'Falhou',
+                        default => 'Nao solicitada',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'pending_send' => 'warning',
+                        'sent' => 'info',
+                        'response_received' => 'primary',
+                        'processing' => 'warning',
+                        'completed' => 'success',
+                        'failed' => 'danger',
+                        default => 'gray',
+                    })
+                    ->tooltip(fn (Viagem $record): ?string => $record->cte_email_requested_at
+                        ? 'Solicitado em '.Carbon::parse($record->cte_email_requested_at)->format('d/m/Y H:i')
+                        : null)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('documentos_frete_resumo_cache')
                     ->label('Fretes')

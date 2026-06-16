@@ -3,25 +3,25 @@
 namespace App\Models;
 
 use App\Events\Viagem\RecalcularRateioKmDispersaoRequested;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Viagem extends Model
 {
     protected $table = 'viagens';
 
     protected $casts = [
-        'pendencias'            => 'array',
-        'conferido'             => 'boolean',
-        'ignorar'               => 'boolean',
-        'integrados_json'       => 'array',
-        'possui_pendencia'      => 'boolean',
-        'numero_sequencial'     => 'integer',
+        'pendencias' => 'array',
+        'conferido' => 'boolean',
+        'ignorar' => 'boolean',
+        'integrados_json' => 'array',
+        'possui_pendencia' => 'boolean',
+        'numero_sequencial' => 'integer',
     ];
 
     protected $appends = []; // Accessors removidos para evitar N+1/Lazy Loading em listagens
@@ -37,8 +37,6 @@ class Viagem extends Model
 
     /**
      * Relação com o modelo ResultadoPeriodo
-     *
-     * @return BelongsTo
      */
     public function resultadoPeriodo(): BelongsTo
     {
@@ -70,6 +68,11 @@ class Viagem extends Model
     public function documentos(): HasMany
     {
         return $this->hasMany(DocumentoFrete::class, 'viagem_id', 'id');
+    }
+
+    public function cteEmailRequests(): HasMany
+    {
+        return $this->hasMany(CteEmailRequest::class, 'viagem_id', 'id');
     }
 
     public function veiculo()
@@ -112,8 +115,6 @@ class Viagem extends Model
         return $this->hasMany(ViagemAttachment::class, 'viagem_id');
     }
 
-
-
     protected function mapsIntegrados(): Attribute
     {
         return Attribute::make(
@@ -121,7 +122,7 @@ class Viagem extends Model
                 $origin = '-27.0927894,-52.6491463';
 
                 // ✅ Verifica se cargas já foram carregadas
-                if (!$this->relationLoaded('cargas')) {
+                if (! $this->relationLoaded('cargas')) {
                     // Carrega sob demanda se necessário
                     $this->load('cargas.integrado');
                 }
@@ -130,10 +131,9 @@ class Viagem extends Model
                 $integrados = $this->cargas
                     ->pluck('integrado')
                     ->filter(
-                        fn($integrado) =>
-                        $integrado !== null &&
-                            !empty($integrado->latitude) &&
-                            !empty($integrado->longitude)
+                        fn ($integrado) => $integrado !== null &&
+                            ! empty($integrado->latitude) &&
+                            ! empty($integrado->longitude)
                     )
                     ->unique('id') // Remove duplicados
                     ->values();
@@ -142,7 +142,7 @@ class Viagem extends Model
                     return null;
                 }
 
-                $coords = $integrados->map(fn($i) => "{$i->latitude},{$i->longitude}")->values();
+                $coords = $integrados->map(fn ($i) => "{$i->latitude},{$i->longitude}")->values();
                 $waypoints = $coords->implode('|');
 
                 $originEnc = urlencode($origin);
@@ -151,12 +151,12 @@ class Viagem extends Model
 
                 $directionsUrl = "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&waypoints={$waypointsEnc}&destination={$destinationEnc}&travelmode=driving";
 
-                $items = $integrados->map(fn($i) => [
+                $items = $integrados->map(fn ($i) => [
                     'id' => $i->id,
                     'nome' => $i->nome ?? null,
                     'municipio' => $i->municipio ?? null,
                     'coords' => "{$i->latitude},{$i->longitude}",
-                    'url' => "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&destination=" . urlencode("{$i->latitude},{$i->longitude}") . "&travelmode=driving",
+                    'url' => "https://www.google.com/maps/dir/?api=1&origin={$originEnc}&destination=".urlencode("{$i->latitude},{$i->longitude}").'&travelmode=driving',
                 ])->values()->toArray();
 
                 return [
@@ -178,9 +178,9 @@ class Viagem extends Model
 
                 $docs = $this->documentos
                     ->whereNotNull('viagem_id') // somente vinculados
-                    ->map(fn($doc) => [
+                    ->map(fn ($doc) => [
                         'numero' => $doc->numero_documento,
-                        'valor'  => $doc->valor_liquido,
+                        'valor' => $doc->valor_liquido,
                     ])
                     ->values();
 
@@ -188,18 +188,17 @@ class Viagem extends Model
                     return 'Sem frete';
                 }
 
-
                 // Formato amigável para Table do Filament
                 $result = $docs
-                    ->map(fn($d) => "Nº {$d['numero']} - R$" . number_format($d['valor'], 2, ',', '.'))
+                    ->map(fn ($d) => "Nº {$d['numero']} - R$".number_format($d['valor'], 2, ',', '.'))
                     ->implode('<br>');
 
                 Log::debug('Documentos de frete para Viagem', [
                     'viagem_id' => $this->id,
                     'documentos' => $docs->toArray(),
-                    'result' => $result
+                    'result' => $result,
                 ]);
-                
+
                 return $result;
             }
         );
@@ -216,9 +215,9 @@ class Viagem extends Model
 
                 $docs = $this->documentos
                     ->whereNotNull('viagem_id') // somente vinculados
-                    ->map(fn($doc) => [
+                    ->map(fn ($doc) => [
                         'destino' => $doc->parceiro_destino,
-                        'numero'  => $doc->numero_documento,
+                        'numero' => $doc->numero_documento,
                     ])
                     ->values();
 
@@ -228,7 +227,7 @@ class Viagem extends Model
 
                 // Formato amigável para Table do Filament
                 return $docs
-                    ->map(fn($d) => "{$d['destino']}")
+                    ->map(fn ($d) => "{$d['destino']}")
                     ->implode(';<br>');
             }
         );
@@ -258,7 +257,7 @@ class Viagem extends Model
         return Attribute::make(
             get: function (): string {
                 $integrados = collect($this->integrados_json ?? [])
-                    ->map(fn ($integrado) => trim(($integrado['nome'] ?? '') . ' - ' . ($integrado['municipio'] ?? '')))
+                    ->map(fn ($integrado) => trim(($integrado['nome'] ?? '').' - '.($integrado['municipio'] ?? '')))
                     ->filter()
                     ->unique()
                     ->values();
@@ -271,5 +270,4 @@ class Viagem extends Model
             }
         );
     }
-
 }

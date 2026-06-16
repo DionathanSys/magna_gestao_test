@@ -17,14 +17,12 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Width;
-use Illuminate\Support\Facades\Log;
 
 class SolicitarCteBugioAction
 {
     public static function make(): Action
     {
         $syncIntegradoData = function (?string $state, Set $set): void {
-            Log::debug('Integrado selecionado', ['integrado_id' => $state]);
             if (! $state) {
                 $set('integrado_municipio_uf', '');
                 $set('km_rota', 0);
@@ -36,14 +34,6 @@ class SolicitarCteBugioAction
             $integrado = Integrado::find($state);
             $kmRota = (float) ($integrado?->km_rota ?? 0);
             $valorFrete = $kmRota * (float) db_config('config-bugio.valor-quilometro', 0);
-
-            Log::debug('Dados do Integrado', [
-                'integrado_id' => $state,
-                'municipio' => $integrado?->municipio,
-                'estado' => $integrado?->estado,
-                'km_rota' => $kmRota,
-                'valor_frete_calculado' => $valorFrete,
-            ]);
 
             $set('integrado_municipio_uf', $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '');
             $set('km_rota', $kmRota);
@@ -57,6 +47,30 @@ class SolicitarCteBugioAction
             ->color('info')
             ->visible(fn (Viagem $record): bool => $record->attachments()->exists())
             ->modalWidth(Width::FiveExtraLarge)
+            ->fillForm(function (Viagem $record): array {
+                $record->loadMissing('cargas.integrado', 'attachments.receivedFiscalDocument');
+
+                $integrado = $record->cargas
+                    ->map(fn ($carga) => $carga->integrado)
+                    ->filter()
+                    ->first();
+
+                $kmRota = (float) ($integrado?->km_rota ?? $record->km_pago ?? 0);
+                $pesoCarga = $record->attachments
+                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
+                    ->filter()
+                    ->first();
+
+                return [
+                    'integrado_id' => $integrado?->id,
+                    'integrado_municipio_uf' => $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '',
+                    'data_competencia' => $record->data_competencia,
+                    'tipo_documento' => TipoDocumentoEnum::CTE->value,
+                    'km_rota' => $kmRota,
+                    'valor_frete_preview' => number_format($kmRota * (float) db_config('config-bugio.valor-quilometro', 0), 2, '.', ''),
+                    'peso_carga' => $pesoCarga,
+                ];
+            })
             ->schema([
                 Section::make('Resumo da Viagem')
                     ->columns(2)
@@ -125,15 +139,6 @@ class SolicitarCteBugioAction
                             ->columnSpan(3),
                         TextInput::make('integrado_municipio_uf')
                             ->label('Município - UF')
-                            ->default(function (Viagem $record): string {
-                                $record->loadMissing('cargas.integrado');
-                                $integrado = $record->cargas
-                                    ->map(fn ($carga) => $carga->integrado)
-                                    ->filter()
-                                    ->first();
-
-                                return $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '';
-                            })
                             ->readOnly()
                             ->dehydrated(false)
                             ->columnSpan(3),
@@ -153,18 +158,12 @@ class SolicitarCteBugioAction
                             ->columnSpan(2),
                         DatePicker::make('data_competencia')
                             ->label('Data Competência')
-                            ->default(fn (Viagem $record) => $record->data_competencia)
                             ->required()
                             ->columnSpan(2),
 
                         TextInput::make('km_rota')
                             ->label('KM da Viagem')
                             ->numeric()
-                            ->default(function (Viagem $record) {
-                                $record->loadMissing('cargas.integrado');
-
-                                return (float) ($record->cargas->first()?->integrado?->km_rota ?? $record->km_pago ?? 0);
-                            })
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (?string $state, Set $set): void {
                                 $valorFrete = ((float) ($state ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0);
@@ -175,7 +174,6 @@ class SolicitarCteBugioAction
                             ->columnSpan(2),
                         TextInput::make('valor_frete_preview')
                             ->label('Valor do Frete')
-                            ->default(fn (Get $get): string => number_format(((float) ($get('km_rota') ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0), 2, '.', ''))
                             ->readOnly()
                             ->dehydrated(false)
                             ->suffix('R$')

@@ -14,9 +14,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Width;
-use Filament\Schemas\Components\Utilities\Get;
 
 class SolicitarCteBugioAction
 {
@@ -27,7 +27,7 @@ class SolicitarCteBugioAction
             ->tooltip('Solicitar Document Frete')
             ->icon('heroicon-o-paper-airplane')
             ->color('info')
-            ->visible(fn(Viagem $record): bool => $record->attachments()->exists())
+            ->visible(fn (Viagem $record): bool => $record->attachments()->exists())
             ->modalWidth(Width::FiveExtraLarge)
             ->schema([
                 Section::make('Resumo da Viagem')
@@ -35,7 +35,7 @@ class SolicitarCteBugioAction
                     ->schema([
                         TextInput::make('resumo_viagem')
                             ->label('Viagem')
-                            ->default(fn(Viagem $record): string => $record->numero_viagem . ' | Placa ' . ($record->veiculo?->placa ?? 'N/A'))
+                            ->default(fn (Viagem $record): string => $record->numero_viagem.' | Placa '.($record->veiculo?->placa ?? 'N/A'))
                             ->readOnly()
                             ->dehydrated(false),
                         TextInput::make('resumo_notas')
@@ -44,7 +44,7 @@ class SolicitarCteBugioAction
                                 $record->loadMissing('attachments.receivedFiscalDocument');
 
                                 return $record->attachments
-                                    ->map(fn($attachment) => $attachment->receivedFiscalDocument?->numero_nota)
+                                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->numero_nota)
                                     ->filter()
                                     ->unique()
                                     ->implode(', ') ?: 'Não informado';
@@ -57,7 +57,7 @@ class SolicitarCteBugioAction
                                 $record->loadMissing('attachments.incomingEmailAttachment');
 
                                 return $record->attachments
-                                    ->map(fn($attachment) => $attachment->incomingEmailAttachment?->original_filename)
+                                    ->map(fn ($attachment) => $attachment->incomingEmailAttachment?->original_filename)
                                     ->filter()
                                     ->unique()
                                     ->implode(', ') ?: 'Não informado';
@@ -75,10 +75,10 @@ class SolicitarCteBugioAction
                                 $record->loadMissing('cargas.integrado');
 
                                 return $record->cargas
-                                    ->map(fn($carga) => $carga->integrado)
+                                    ->map(fn ($carga) => $carga->integrado)
                                     ->filter()
                                     ->unique('id')
-                                    ->mapWithKeys(fn(Integrado $integrado) => [$integrado->id => $integrado->nome])
+                                    ->mapWithKeys(fn (Integrado $integrado) => [$integrado->id => $integrado->nome.' ('.($integrado->municipio ?? '').'/'.($integrado->estado ?? '').')'])
                                     ->toArray();
                             })
                             ->default(function (Viagem $record): ?int {
@@ -91,10 +91,34 @@ class SolicitarCteBugioAction
                             })
                             ->searchable()
                             ->required()
+                            ->live()
+                            ->afterStateUpdated(function (?string $state, Set $set): void {
+                                if (! $state) {
+                                    $set('integrado_municipio_uf', '');
+
+                                    return;
+                                }
+                                $integrado = Integrado::find($state);
+                                $set('integrado_municipio_uf', $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '');
+                            })
+                            ->columnSpan(3),
+                        TextInput::make('integrado_municipio_uf')
+                            ->label('Município - UF')
+                            ->default(function (Viagem $record): string {
+                                $record->loadMissing('cargas.integrado');
+                                $integrado = $record->cargas
+                                    ->map(fn ($carga) => $carga->integrado)
+                                    ->filter()
+                                    ->first();
+
+                                return $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '';
+                            })
+                            ->readOnly()
+                            ->dehydrated(false)
                             ->columnSpan(3),
                         Select::make('motorista')
                             ->label('Motorista')
-                            ->options(fn() => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
+                            ->options(fn () => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
                             ->searchable()
                             ->required()
                             ->columnSpan(3),
@@ -108,7 +132,7 @@ class SolicitarCteBugioAction
                             ->columnSpan(2),
                         DatePicker::make('data_competencia')
                             ->label('Data Competência')
-                            ->default(fn(Viagem $record) => $record->data_competencia)
+                            ->default(fn (Viagem $record) => $record->data_competencia)
                             ->required()
                             ->columnSpan(2),
 
@@ -117,6 +141,7 @@ class SolicitarCteBugioAction
                             ->numeric()
                             ->default(function (Viagem $record) {
                                 $record->loadMissing('cargas.integrado');
+
                                 return (float) ($record->cargas->first()?->integrado?->km_rota ?? $record->km_pago ?? 0);
                             })
                             ->live(onBlur: true)
@@ -129,7 +154,7 @@ class SolicitarCteBugioAction
                             ->columnSpan(2),
                         TextInput::make('valor_frete_preview')
                             ->label('Valor do Frete')
-                            ->default(fn(Get $get): string => number_format(((float) ($get('km_rota') ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0), 2, '.', ''))
+                            ->default(fn (Get $get): string => number_format(((float) ($get('km_rota') ?? 0)) * (float) db_config('config-bugio.valor-quilometro', 0), 2, '.', ''))
                             ->readOnly()
                             ->dehydrated(false)
                             ->suffix('R$')
@@ -140,7 +165,7 @@ class SolicitarCteBugioAction
                             ->default(function (Viagem $record): string {
                                 $record->loadMissing('attachments.receivedFiscalDocument');
                                 $peso = $record->attachments
-                                    ->map(fn($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
+                                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
                                     ->filter()
                                     ->first();
 
@@ -153,8 +178,9 @@ class SolicitarCteBugioAction
                         TextInput::make('peso_carga')
                             ->default(function (Viagem $record): ?float {
                                 $record->loadMissing('attachments.receivedFiscalDocument');
+
                                 return $record->attachments
-                                    ->map(fn($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
+                                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
                                     ->filter()
                                     ->first();
                             })
@@ -163,16 +189,16 @@ class SolicitarCteBugioAction
                             ->label('CTe Retroativo')
                             ->default(true)
                             ->inline(false)
-                            ->visible(fn(Get $get): bool => in_array($get('tipo_documento'), [TipoDocumentoEnum::CTE->value, TipoDocumentoEnum::CTE_COMPLEMENTO->value], true))
+                            ->visible(fn (Get $get): bool => in_array($get('tipo_documento'), [TipoDocumentoEnum::CTE->value, TipoDocumentoEnum::CTE_COMPLEMENTO->value], true))
                             ->columnSpan(2),
                         TextInput::make('cte_referencia')
                             ->label('CTe de Referência')
-                            ->required(fn(Get $get): bool => $get('tipo_documento') === TipoDocumentoEnum::CTE_COMPLEMENTO->value)
-                            ->visible(fn(Get $get): bool => $get('tipo_documento') === TipoDocumentoEnum::CTE_COMPLEMENTO->value)
+                            ->required(fn (Get $get): bool => $get('tipo_documento') === TipoDocumentoEnum::CTE_COMPLEMENTO->value)
+                            ->visible(fn (Get $get): bool => $get('tipo_documento') === TipoDocumentoEnum::CTE_COMPLEMENTO->value)
                             ->columnSpan(4),
                     ]),
             ])
-            ->modalDescription(fn(Viagem $record): string => 'Viagem ' . $record->numero_viagem . ' | Placa ' . ($record->veiculo?->placa ?? 'N/A'))
+            ->modalDescription(fn (Viagem $record): string => 'Viagem '.$record->numero_viagem.' | Placa '.($record->veiculo?->placa ?? 'N/A'))
             ->action(function (Viagem $record, array $data, SolicitarCteBugioFromViagem $service): void {
                 try {
                     $service->handle($record, $data);

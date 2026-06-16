@@ -102,8 +102,7 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->helperText('Placeholders: {documento_transporte}, {placa}, {notas}, {agora}. Se não informar {documento_transporte}, ele será acrescentado automaticamente ao assunto.'),
                         Toggle::make('cte-email-delay-enabled')
                             ->label('Habilitar delay entre envios de CTe')
-                            ->columnSpan(6)
-                            ->columnStart(1)
+                            ->columnSpanFull()
                             ->default(true)
                             ->helperText('Quando desativado, os emails de solicitação de CTe serão enviados imediatamente, sem aguardar o intervalo mínimo de 4 minutos entre envios.'),
                         Repeater::make('cte-return-senders')

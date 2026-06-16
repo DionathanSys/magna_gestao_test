@@ -79,8 +79,10 @@ class SolicitarCteBugioAction
                     'integrado_municipio_uf' => $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '',
                     'data_competencia' => $record->data_competencia,
                     'tipo_documento' => TipoDocumentoEnum::CTE->value,
+                    'cte_retroativo' => true,
                     'km_rota' => $kmRota,
                     'valor_frete_preview' => number_format($kmRota * (float) db_config('config-bugio.valor-quilometro', 0), 2, '.', ''),
+                    'peso_carga_preview' => $pesoCarga ? number_format((float) $pesoCarga, 3, ',', '.') : 'Não informado',
                     'peso_carga' => $pesoCarga,
                 ];
             })
@@ -90,33 +92,14 @@ class SolicitarCteBugioAction
                     ->schema([
                         TextInput::make('resumo_viagem')
                             ->label('Viagem')
-                            ->default(fn (Viagem $record): string => $record->numero_viagem.' | Placa '.($record->veiculo?->placa ?? 'N/A'))
                             ->readOnly()
                             ->dehydrated(false),
                         TextInput::make('resumo_notas')
                             ->label('Notas Fiscais')
-                            ->default(function (Viagem $record): string {
-                                $record->loadMissing('attachments.receivedFiscalDocument');
-
-                                return $record->attachments
-                                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->numero_nota)
-                                    ->filter()
-                                    ->unique()
-                                    ->implode(', ') ?: 'Não informado';
-                            })
                             ->readOnly()
                             ->dehydrated(false),
                         TextInput::make('resumo_anexos')
                             ->label('Anexos')
-                            ->default(function (Viagem $record): string {
-                                $record->loadMissing('attachments.incomingEmailAttachment');
-
-                                return $record->attachments
-                                    ->map(fn ($attachment) => $attachment->incomingEmailAttachment?->original_filename)
-                                    ->filter()
-                                    ->unique()
-                                    ->implode(', ') ?: 'Não informado';
-                            })
                             ->readOnly()
                             ->dehydrated(false)
                             ->columnSpanFull(),
@@ -135,14 +118,6 @@ class SolicitarCteBugioAction
                                     ->unique('id')
                                     ->mapWithKeys(fn (Integrado $integrado) => [$integrado->id => $integrado->nome])
                                     ->toArray();
-                            })
-                            ->default(function (Viagem $record): ?int {
-                                $record->loadMissing('cargas.integrado');
-
-                                return $record->cargas
-                                    ->pluck('integrado_id')
-                                    ->filter()
-                                    ->first();
                             })
                             ->searchable()
                             ->required()
@@ -164,7 +139,6 @@ class SolicitarCteBugioAction
                         Select::make('tipo_documento')
                             ->label('Tipo de Documento')
                             ->options(TipoDocumentoEnum::toSelectArray())
-                            ->default(TipoDocumentoEnum::CTE->value)
                             ->live()
                             ->native(false)
                             ->required()
@@ -194,32 +168,14 @@ class SolicitarCteBugioAction
                             ->columnStart(1),
                         TextInput::make('peso_carga_preview')
                             ->label('Peso da Carga')
-                            ->default(function (Viagem $record): string {
-                                $record->loadMissing('attachments.receivedFiscalDocument');
-                                $peso = $record->attachments
-                                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
-                                    ->filter()
-                                    ->first();
-
-                                return $peso ? number_format((float) $peso, 3, ',', '.') : 'Não informado';
-                            })
                             ->readOnly()
                             ->dehydrated(false)
                             ->columnSpan(2)
                             ->suffix('kg'),
                         TextInput::make('peso_carga')
-                            ->default(function (Viagem $record): ?float {
-                                $record->loadMissing('attachments.receivedFiscalDocument');
-
-                                return $record->attachments
-                                    ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
-                                    ->filter()
-                                    ->first();
-                            })
                             ->hidden(),
                         Toggle::make('cte_retroativo')
                             ->label('CTe Retroativo')
-                            ->default(true)
                             ->inline(false)
                             ->visible(fn (Get $get): bool => in_array($get('tipo_documento'), [TipoDocumentoEnum::CTE->value, TipoDocumentoEnum::CTE_COMPLEMENTO->value], true))
                             ->columnSpan(2),

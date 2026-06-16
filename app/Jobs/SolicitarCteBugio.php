@@ -15,8 +15,6 @@ class SolicitarCteBugio implements ShouldQueue
 {
     use Queueable;
 
-    public string $connection = 'database';
-
     public $tries = 10; // Tentativas ilimitadas
 
     const LOCK_TTL = 300; // Tempo em segundos para o lock

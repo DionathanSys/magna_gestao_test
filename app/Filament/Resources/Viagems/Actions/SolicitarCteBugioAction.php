@@ -22,6 +22,24 @@ class SolicitarCteBugioAction
 {
     public static function make(): Action
     {
+        $syncIntegradoData = function (?string $state, Set $set): void {
+            if (! $state) {
+                $set('integrado_municipio_uf', '');
+                $set('km_rota', 0);
+                $set('valor_frete_preview', number_format(0, 2, '.', ''));
+
+                return;
+            }
+
+            $integrado = Integrado::find($state);
+            $kmRota = (float) ($integrado?->km_rota ?? 0);
+            $valorFrete = $kmRota * (float) db_config('config-bugio.valor-quilometro', 0);
+
+            $set('integrado_municipio_uf', $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '');
+            $set('km_rota', $kmRota);
+            $set('valor_frete_preview', number_format($valorFrete, 2, '.', ''));
+        };
+
         return Action::make('solicitar_cte_bugio')
             ->label('Solicitar CTe')
             ->tooltip('Solicitar Document Frete')
@@ -92,15 +110,8 @@ class SolicitarCteBugioAction
                             ->searchable()
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function (?string $state, Set $set): void {
-                                if (! $state) {
-                                    $set('integrado_municipio_uf', '');
-
-                                    return;
-                                }
-                                $integrado = Integrado::find($state);
-                                $set('integrado_municipio_uf', $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '');
-                            })
+                            ->afterStateHydrated($syncIntegradoData)
+                            ->afterStateUpdated($syncIntegradoData)
                             ->columnSpan(3),
                         TextInput::make('integrado_municipio_uf')
                             ->label('Município - UF')

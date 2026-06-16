@@ -4,12 +4,16 @@ namespace App\Filament\Resources\CteEmailRequests\Tables;
 
 use App\Filament\Actions\ExportPdfBulkAction;
 use App\Models\CteEmailRequest;
+use App\Models\Veiculo;
 use App\Services\Bugio\CteReturnEmailProcessingService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,6 +50,54 @@ class CteEmailRequestsTable
                 TextColumn::make('last_response_at')->label('Resposta em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
                 TextColumn::make('completed_at')->label('Concluido em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
                 TextColumn::make('error_message')->label('Erro')->wrap()->placeholder('-')->toggleable(),
+            ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'pending_send' => 'Pendente envio',
+                        'sent' => 'Enviado',
+                        'response_received' => 'Resposta recebida',
+                        'processing' => 'Processando',
+                        'completed' => 'Concluido',
+                        'failed' => 'Falhou',
+                    ]),
+                SelectFilter::make('tipo_documento_solicitado')
+                    ->label('Tipo')
+                    ->options(fn () => CteEmailRequest::query()
+                        ->whereNotNull('tipo_documento_solicitado')
+                        ->distinct()
+                        ->orderBy('tipo_documento_solicitado')
+                        ->pluck('tipo_documento_solicitado', 'tipo_documento_solicitado')
+                        ->toArray()),
+                SelectFilter::make('placa')
+                    ->label('Placa')
+                    ->options(fn () => Veiculo::query()
+                        ->orderBy('placa')
+                        ->pluck('placa', 'id')
+                        ->toArray())
+                    ->searchable()
+                    ->preload()
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        $data['value'] ?? null,
+                        fn (Builder $query, $veiculoId): Builder => $query->whereHas('viagem', fn (Builder $query): Builder => $query->where('veiculo_id', $veiculoId))
+                    )),
+                SelectFilter::make('integrado_id')
+                    ->label('Integrado')
+                    ->relationship('integrado', 'nome')
+                    ->searchable()
+                    ->preload(),
+                Filter::make('requested_at')
+                    ->label('Solicitado em')
+                    ->schema([
+                        DatePicker::make('requested_from')->label('De'),
+                        DatePicker::make('requested_until')->label('Até'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['requested_from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '>=', $date))
+                            ->when($data['requested_until'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '<=', $date));
+                    }),
             ])
             ->recordActions([
                 Action::make('reprocessar_request')

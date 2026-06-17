@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Collection;
 
 class IncomingEmail extends Model
 {
@@ -28,6 +29,23 @@ class IncomingEmail extends Model
     public function cteReturnMessages(): HasMany
     {
         return $this->hasMany(CteEmailRequestMessage::class, 'incoming_email_id');
+    }
+
+    protected function capturedDocumentType(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => $this->fiscalDocument?->tipo_documento
+                ?? $this->firstProcessedCteAttachmentMetadata()['tipo_documento']
+                ?? $this->firstCteReturnRequest()?->tipo_documento_solicitado
+        );
+    }
+
+    protected function capturedDocumentNumber(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => $this->fiscalDocument?->numero_nota
+                ?? $this->firstProcessedCteAttachmentMetadata()['numero_documento']
+        );
     }
 
     protected function pendingSummary(): Attribute
@@ -59,5 +77,36 @@ class IncomingEmail extends Model
                 return 'Pendente de analise';
             }
         );
+    }
+
+    protected function firstProcessedCteAttachmentMetadata(): array
+    {
+        $attachments = $this->relationLoaded('attachments')
+            ? $this->attachments
+            : $this->attachments()->get();
+
+        return $attachments
+            ->pluck('metadata')
+            ->filter(fn ($metadata): bool => is_array($metadata) && (($metadata['cte_return'] ?? null) === 'document_created'))
+            ->first() ?? [];
+    }
+
+    protected function firstCteReturnRequest(): ?CteEmailRequest
+    {
+        $messages = $this->relationLoaded('cteReturnMessages')
+            ? $this->cteReturnMessages
+            : $this->cteReturnMessages()->with('request')->get();
+
+        $message = $messages instanceof Collection
+            ? $messages->first()
+            : null;
+
+        if (! $message) {
+            return null;
+        }
+
+        return $message->relationLoaded('request')
+            ? $message->request
+            : $message->request()->first();
     }
 }

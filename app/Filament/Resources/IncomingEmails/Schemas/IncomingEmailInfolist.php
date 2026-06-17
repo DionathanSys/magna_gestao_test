@@ -27,8 +27,8 @@ class IncomingEmailInfolist
                 Section::make('Documento Fiscal')
                     ->columns(2)
                     ->schema([
-                        TextEntry::make('fiscalDocument.tipo_documento')->label('Tipo')->placeholder('-'),
-                        TextEntry::make('fiscalDocument.numero_nota')->label('Numero Nota')->placeholder('-'),
+                        TextEntry::make('captured_document_type')->label('Tipo')->placeholder('-'),
+                        TextEntry::make('captured_document_number')->label('Numero Nota')->placeholder('-'),
                         TextEntry::make('fiscalDocument.chave_nfe')->label('Chave NFe')->columnSpanFull()->placeholder('-'),
                         TextEntry::make('fiscalDocument.emitente_documento')->label('Doc. Emissor')->placeholder('-'),
                         TextEntry::make('fiscalDocument.destinatario_documento')->label('Doc. Destinatario')->placeholder('-'),

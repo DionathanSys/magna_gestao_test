@@ -7,6 +7,7 @@ use App\Filament\Resources\ShipmentDocumentGroups\Pages\ViewShipmentDocumentGrou
 use App\Filament\Resources\ShipmentDocumentGroups\Schemas\ShipmentDocumentGroupInfolist;
 use App\Filament\Resources\ShipmentDocumentGroups\Tables\ShipmentDocumentGroupsTable;
 use App\Models\ShipmentDocumentGroup;
+use App\Services\Filament\StatusTabCountService;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -29,7 +30,7 @@ class ShipmentDocumentGroupResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         try {
-            $pending = ShipmentDocumentGroup::query()->where('status', 'pending_data')->count();
+            $pending = StatusTabCountService::getShipmentDocumentGroupCounts()['pending_data'] ?? 0;
 
             return $pending > 0 ? (string) $pending : null;
         } catch (Throwable) {

@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -67,6 +68,7 @@ class ShipmentDocumentGroupsTable
                         fn (Builder $query): Builder => $query->where('remittance_number', 'like', "%{$data['remittance_number']}%"),
                     )),
                 SelectFilter::make('status')
+                    ->label('Status')
                     ->options([
                         'matched' => 'Matched',
                         'pending_data' => 'Pending data',
@@ -89,6 +91,50 @@ class ShipmentDocumentGroupsTable
                         false: fn (Builder $query): Builder => $query->whereNull('viagem_id'),
                         blank: fn (Builder $query): Builder => $query,
                     ),
+                Filter::make('created_at')
+                    ->label('Criado em')
+                    ->schema([
+                        DatePicker::make('created_from')->label('De'),
+                        DatePicker::make('created_until')->label('Até'),
+                    ])
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if (filled($data['created_from'] ?? null)) {
+                            $indicators[] = 'Criado de: ' . $data['created_from'];
+                        }
+
+                        if (filled($data['created_until'] ?? null)) {
+                            $indicators[] = 'Criado até: ' . $data['created_until'];
+                        }
+
+                        return $indicators;
+                    })
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['created_from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
+                        ->when($data['created_until'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date))),
+                Filter::make('matched_at')
+                    ->label('Pareado em')
+                    ->schema([
+                        DatePicker::make('matched_from')->label('De'),
+                        DatePicker::make('matched_until')->label('Até'),
+                    ])
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if (filled($data['matched_from'] ?? null)) {
+                            $indicators[] = 'Pareado de: ' . $data['matched_from'];
+                        }
+
+                        if (filled($data['matched_until'] ?? null)) {
+                            $indicators[] = 'Pareado até: ' . $data['matched_until'];
+                        }
+
+                        return $indicators;
+                    })
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['matched_from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('matched_at', '>=', $date))
+                        ->when($data['matched_until'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('matched_at', '<=', $date))),
             ])
             ->recordActions([
                 Action::make('reprocessar_viagem')

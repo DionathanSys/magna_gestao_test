@@ -73,6 +73,7 @@ class CteReturnDocumentService
                 'metadata' => [
                     ...$metadata,
                     'cte_return' => 'document_created',
+                    'tipo_documento' => $documentoFrete['tipo_documento']->value,
                     'documento_transporte' => $request->documento_transporte,
                     'numero_documento' => $documentoFrete['numero_documento'],
                     'processed_at' => now()->toISOString(),

@@ -56,6 +56,8 @@ class ListIncomingEmails extends ListRecords
 
     public function updatedActiveTab(): void
     {
+        parent::updatedActiveTab();
+
         session([self::LAST_ACTIVE_TAB_SESSION_KEY => $this->activeTab]);
     }
 }

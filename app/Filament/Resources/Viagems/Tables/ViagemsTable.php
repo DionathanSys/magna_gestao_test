@@ -75,7 +75,7 @@ class ViagemsTable
                     )
                     ->with([
                         'cargas.integrado:id,codigo,nome,municipio',
-                        'veiculo:id,placa',
+                        'veiculo:id,placa,informacoes_complementares',
                         'checker:id,name',
                         'creator:id,name',
                         'updater:id,name',

@@ -17,9 +17,12 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Width;
+use Illuminate\Support\Collection;
 
 class SolicitarCteBugioAction
 {
+    protected static ?Collection $motoristasCache = null;
+
     public static function make(): Action
     {
         $syncIntegradoData = function (?string $state, Set $set): void {
@@ -50,7 +53,7 @@ class SolicitarCteBugioAction
             ->fillForm(function (Viagem $record): array {
                 $record->loadMissing('veiculo', 'cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');
 
-                $motoristas = collect(db_config('config-bugio.motoristas'));
+                $motoristas = self::getMotoristas();
                 $motoristaPadraoCpf = data_get($record->veiculo?->informacoes_complementares, 'motorista_padrao_cte_cpf');
 
                 if ($motoristaPadraoCpf && ! $motoristas->contains(fn (array $motorista): bool => (string) ($motorista['cpf'] ?? '') === (string) $motoristaPadraoCpf)) {
@@ -140,7 +143,7 @@ class SolicitarCteBugioAction
                             ->columnSpan(3),
                         Select::make('motorista')
                             ->label('Motorista')
-                            ->options(fn () => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
+                            ->options(fn () => self::getMotoristasOptions())
                             ->autofocus()
                             ->searchable()
                             ->required()
@@ -212,5 +215,21 @@ class SolicitarCteBugioAction
                 }
             })
             ->requiresConfirmation();
+    }
+
+    protected static function getMotoristas(): Collection
+    {
+        if (self::$motoristasCache instanceof Collection) {
+            return self::$motoristasCache;
+        }
+
+        return self::$motoristasCache = collect(db_config('config-bugio.motoristas'));
+    }
+
+    protected static function getMotoristasOptions(): array
+    {
+        return self::getMotoristas()
+            ->pluck('motorista', 'cpf')
+            ->toArray();
     }
 }

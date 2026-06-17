@@ -35,7 +35,7 @@ class IncomingEmail extends Model
     {
         return Attribute::make(
             get: fn (): ?string => $this->fiscalDocument?->tipo_documento
-                ?? $this->firstProcessedCteAttachmentMetadata()['tipo_documento']
+                ?? ($this->firstProcessedCteAttachmentMetadata()['tipo_documento'] ?? null)
                 ?? $this->firstCteReturnRequest()?->tipo_documento_solicitado
         );
     }
@@ -44,7 +44,7 @@ class IncomingEmail extends Model
     {
         return Attribute::make(
             get: fn (): ?string => $this->fiscalDocument?->numero_nota
-                ?? $this->firstProcessedCteAttachmentMetadata()['numero_documento']
+                ?? ($this->firstProcessedCteAttachmentMetadata()['numero_documento'] ?? null)
         );
     }
 

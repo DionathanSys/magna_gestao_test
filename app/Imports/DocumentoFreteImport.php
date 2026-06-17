@@ -80,6 +80,15 @@ class DocumentoFreteImport extends BaseXlsxImport
         unset($dadosConvertidos['observacao']);
 
         $dadosConvertidos['documento_transporte'] = $this->extrairNumeroDocumentoTransporte($observacao);
+
+        if (! filled($dadosConvertidos['documento_transporte'])) {
+            Log::warning('Documento de transporte nao encontrado na observacao do relatorio Sankhya CTE.', [
+                'numero_documento' => $dadosConvertidos['numero_documento'] ?? null,
+                'observacao' => $observacao,
+                'linha' => $row,
+            ]);
+        }
+
         $dadosConvertidos['tipo_documento'] = TipoDocumentoEnum::CTE;
 
         // Salva no banco de dados
@@ -98,9 +107,21 @@ class DocumentoFreteImport extends BaseXlsxImport
         return parent::processRelationship($valor, $config);
     }
 
-    private function extrairNumeroDocumentoTransporte(string $valor): int
+    private function extrairNumeroDocumentoTransporte(?string $valor): ?string
     {
-        return preg_match('/Transporte:\s*(\d+)/', $valor, $matches) ? $matches[1] : null;
+        if (! filled($valor)) {
+            return null;
+        }
+
+        $valorNormalizado = preg_replace('/\s+/', ' ', trim($valor));
+
+        if (! is_string($valorNormalizado) || $valorNormalizado === '') {
+            return null;
+        }
+
+        return preg_match('/(?:doc\.?\s*)?transporte\s*:\s*(\d+)/i', $valorNormalizado, $matches)
+            ? (string) $matches[1]
+            : null;
     }
 
 }

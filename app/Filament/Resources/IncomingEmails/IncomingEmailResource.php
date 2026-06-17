@@ -8,6 +8,7 @@ use App\Filament\Resources\IncomingEmails\RelationManagers\AttachmentsRelationMa
 use App\Filament\Resources\IncomingEmails\Schemas\IncomingEmailInfolist;
 use App\Filament\Resources\IncomingEmails\Tables\IncomingEmailsTable;
 use App\Models\IncomingEmail;
+use App\Services\Filament\StatusTabCountService;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -30,7 +31,7 @@ class IncomingEmailResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         try {
-            $pending = IncomingEmail::query()->where('status', 'stored')->count();
+            $pending = StatusTabCountService::getIncomingEmailCounts()['stored'] ?? 0;
 
             return $pending > 0 ? (string) $pending : null;
         } catch (Throwable) {

@@ -8,6 +8,7 @@ use App\Filament\Resources\CteEmailRequests\RelationManagers\MessagesRelationMan
 use App\Filament\Resources\CteEmailRequests\Schemas\CteEmailRequestInfolist;
 use App\Filament\Resources\CteEmailRequests\Tables\CteEmailRequestsTable;
 use App\Models\CteEmailRequest;
+use App\Services\Filament\StatusTabCountService;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -29,9 +30,9 @@ class CteEmailRequestResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         try {
-            $pending = CteEmailRequest::query()
-                ->whereIn('status', ['pending_send', 'sent', 'response_received', 'processing'])
-                ->count();
+            $counts = StatusTabCountService::getCteEmailRequestCounts();
+            $pending = collect(['pending_send', 'sent', 'response_received', 'processing'])
+                ->sum(fn (string $status): int => $counts[$status] ?? 0);
 
             return $pending > 0 ? (string) $pending : null;
         } catch (\Throwable) {

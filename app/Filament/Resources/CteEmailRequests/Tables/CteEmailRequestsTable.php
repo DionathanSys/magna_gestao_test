@@ -53,16 +53,6 @@ class CteEmailRequestsTable
                 TextColumn::make('error_message')->label('Erro')->wrap()->placeholder('-')->toggleable(),
             ])
             ->filters([
-                SelectFilter::make('status')
-                    ->label('Status')
-                    ->options([
-                        'pending_send' => 'Pendente envio',
-                        'sent' => 'Enviado',
-                        'response_received' => 'Resposta recebida',
-                        'processing' => 'Processando',
-                        'completed' => 'Concluido',
-                        'failed' => 'Falhou',
-                    ]),
                 SelectFilter::make('tipo_documento_solicitado')
                     ->label('Tipo')
                     ->options(fn () => CteEmailRequest::query()
@@ -107,6 +97,10 @@ class CteEmailRequestsTable
                     ->collapsible(),
                 Group::make('viagem.veiculo.placa')
                     ->label('Placa')
+                    ->titlePrefixedWithLabel(false)
+                    ->collapsible(),
+                Group::make('status')
+                    ->label('Status')
                     ->titlePrefixedWithLabel(false)
                     ->collapsible(),
             ])

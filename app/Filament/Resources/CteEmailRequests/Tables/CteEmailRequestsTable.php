@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -98,6 +99,16 @@ class CteEmailRequestsTable
                             ->when($data['requested_from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '>=', $date))
                             ->when($data['requested_until'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '<=', $date));
                     }),
+            ])
+            ->groups([
+                Group::make('documento_transporte')
+                    ->label('Documento Transporte')
+                    ->titlePrefixedWithLabel(false)
+                    ->collapsible(),
+                Group::make('viagem.veiculo.placa')
+                    ->label('Placa')
+                    ->titlePrefixedWithLabel(false)
+                    ->collapsible(),
             ])
             ->recordActions([
                 Action::make('reprocessar_request')

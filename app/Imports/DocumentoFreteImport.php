@@ -119,9 +119,11 @@ class DocumentoFreteImport extends BaseXlsxImport
             return null;
         }
 
-        return preg_match('/(?:doc\.?\s*)?transporte\s*:\s*(\d+)/i', $valorNormalizado, $matches)
-            ? (string) $matches[1]
-            : null;
+        if (! preg_match('/(?:doc\.?\s*)?transporte\s*:\s*(\d+)/i', $valorNormalizado, $matches)) {
+            return null;
+        }
+
+        return ltrim((string) $matches[1], '0') ?: '0';
     }
 
 }

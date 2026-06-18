@@ -32,6 +32,8 @@ class IncomingEmailsTable
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable()->toggleable(),
+                TextColumn::make('external_id')->label('UID/Externo')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('message_id')->label('Message-ID')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('from_email')->label('Remetente')->searchable()->toggleable(),
                 TextColumn::make('subject')->label('Assunto')->searchable()->wrap()->toggleable(),
                 TextColumn::make('status')->label('Status')->badge()->toggleable(),
@@ -59,6 +61,26 @@ class IncomingEmailsTable
                     ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['id'] ?? null),
                         fn (Builder $query): Builder => $query->whereKey($data['id']),
+                    )),
+                Filter::make('external_id')
+                    ->label('UID/Externo')
+                    ->schema([
+                        TextInput::make('external_id')->label('UID/Externo'),
+                    ])
+                    ->indicateUsing(fn (array $data): ?string => filled($data['external_id'] ?? null) ? "UID/Externo: {$data['external_id']}" : null)
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        filled($data['external_id'] ?? null),
+                        fn (Builder $query): Builder => $query->where('external_id', 'like', "%{$data['external_id']}%"),
+                    )),
+                Filter::make('message_id')
+                    ->label('Message-ID')
+                    ->schema([
+                        TextInput::make('message_id')->label('Message-ID'),
+                    ])
+                    ->indicateUsing(fn (array $data): ?string => filled($data['message_id'] ?? null) ? "Message-ID: {$data['message_id']}" : null)
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        filled($data['message_id'] ?? null),
+                        fn (Builder $query): Builder => $query->where('message_id', 'like', "%{$data['message_id']}%"),
                     )),
                 Filter::make('from_email')
                     ->label('Remetente')

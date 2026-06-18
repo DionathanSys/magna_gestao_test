@@ -55,9 +55,10 @@ class InboundMessageIngestionService
     {
         $fromEmail = strtolower(trim((string) $message->fromEmail));
         $allowedSenders = $this->config->allowedSenders();
+        $messageId = $message->messageId ?: $this->buildFallbackMessageId($message);
 
         Log::info('Analisando email recebido para ingestao', [
-            'message_id' => $message->messageId,
+            'message_id' => $messageId,
             'external_id' => $message->externalId,
             'from_email' => $fromEmail,
             'subject' => $message->subject,
@@ -65,16 +66,41 @@ class InboundMessageIngestionService
         ]);
 
         if (! in_array($fromEmail, $allowedSenders, true)) {
+            $incomingEmail = IncomingEmail::query()->updateOrCreate(
+                ['message_id' => $messageId],
+                [
+                    'provider' => $message->provider,
+                    'external_id' => $message->externalId,
+                    'from_email' => $fromEmail,
+                    'from_name' => $message->fromName,
+                    'subject' => $message->subject,
+                    'in_reply_to' => $this->extractHeaderValue($message->headers, 'in_reply_to'),
+                    'references_header' => $this->extractReferencesHeader($message->headers),
+                    'received_at' => $message->receivedAt,
+                    'raw_headers' => $message->headers,
+                    'status' => 'ignored',
+                    'metadata' => [
+                        'ingestion_decision' => 'ignored_sender_not_allowed',
+                        'allowed_senders_snapshot' => $allowedSenders,
+                    ],
+                    'error_message' => 'Email ignorado por remetente nao permitido.',
+                ]
+            );
+
             Log::info('Email ignorado por remetente nao permitido', [
                 'from_email' => $fromEmail,
                 'allowed_senders' => $allowedSenders,
-                'message_id' => $message->messageId,
+                'message_id' => $messageId,
+                'external_id' => $message->externalId,
+                'incoming_email_id' => $incomingEmail->id,
             ]);
+
+            if (config('mail-inbound.imap.mark_as_seen') && method_exists($provider, 'markAsSeen')) {
+                $provider->markAsSeen($message->sourceMessage);
+            }
 
             return;
         }
-
-        $messageId = $message->messageId ?: $this->buildFallbackMessageId($message);
 
         $incomingEmail = IncomingEmail::query()->firstOrCreate(
             ['message_id' => $messageId],

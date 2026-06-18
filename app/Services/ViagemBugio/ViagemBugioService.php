@@ -103,6 +103,12 @@ class ViagemBugioService
     {
 
         try {
+            $kmPagoViagem = collect($viagemBugio->destinos)
+                ->sum(fn (array $destino): float => (float) ($destino['km_rota'] ?? 0));
+
+            if ($kmPagoViagem <= 0) {
+                $kmPagoViagem = (float) $viagemBugio->km_pago;
+            }
 
             $destinos = ViagemBugio::query()
                 ->where('numero_sequencial', $viagemBugio->numero_sequencial)
@@ -123,8 +129,8 @@ class ViagemBugioService
                 'numero_viagem' => 'BG-'.$viagemBugio->numero_sequencial,
                 'documento_transporte' => (string) $viagemBugio->numero_sequencial,
                 'km_rodado' => 0,
-                'km_cadastro' => $viagemBugio->km_pago,
-                'km_pago' => $viagemBugio->km_pago,
+                'km_cadastro' => $kmPagoViagem,
+                'km_pago' => $kmPagoViagem,
                 'motivo_divergencia' => MotivoDivergenciaViagem::SEM_OBS->value,
                 'data_competencia' => $viagemBugio->data_competencia,
                 'data_inicio' => $viagemBugio->data_competencia,

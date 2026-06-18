@@ -3,7 +3,10 @@
 namespace App\Services\MailInbound;
 
 use App\Enum\ClienteEnum;
+use App\Models\Integrado;
 use App\Models\ShipmentDocumentGroup;
+use App\Models\Veiculo;
+use App\Models\Viagem;
 use App\Models\ViagemAttachment;
 use App\Services\Carga\CargaService;
 use App\Services\Veiculo\VeiculoService;
@@ -90,6 +93,49 @@ class ShipmentTripService
             ]);
 
             $this->attachDocumentFiles($viagem->id, $group);
+        });
+    }
+
+    public function createManualBugioTrip(array $data): Viagem
+    {
+        return DB::transaction(function () use ($data): Viagem {
+            $integrado = Integrado::query()->findOrFail($data['integrado_id']);
+            $veiculo = Veiculo::query()->findOrFail($data['veiculo_id']);
+            $unidadeNegocio = $this->config->unidadeNegocio() ?: $veiculo->filial;
+
+            if (! $unidadeNegocio) {
+                throw new \InvalidArgumentException('Nao foi possivel resolver a unidade de negocio para a Viagem Bugio.');
+            }
+
+            $numeroViagem = (new ViagemNumberService)
+                ->next(ClienteEnum::BUGIO->prefixoViagem())['numero_viagem'];
+
+            $dataReferencia = $data['data_competencia'] ?? now()->toDateString();
+            $kmRodado = (float) ($data['km_rodado'] ?? 0);
+
+            $viagem = $this->viagemService->create([
+                'veiculo_id' => $veiculo->id,
+                'unidade_negocio' => $unidadeNegocio,
+                'cliente' => ClienteEnum::BUGIO->value,
+                'numero_viagem' => $numeroViagem,
+                'documento_transporte' => $numeroViagem,
+                'km_rodado' => $kmRodado,
+                'data_competencia' => $dataReferencia,
+                'data_inicio' => $dataReferencia,
+                'data_fim' => $dataReferencia,
+                'total_destinos' => 1,
+                'conferido' => false,
+                'ignorar' => false,
+                'possui_pendencia' => false,
+            ]);
+
+            if (! $viagem) {
+                throw new \RuntimeException($this->viagemService->getMessage() ?: 'Nao foi possivel criar a Viagem Bugio.');
+            }
+
+            $this->cargaService->create($integrado, $viagem);
+
+            return $viagem;
         });
     }
 

@@ -9,6 +9,7 @@ use App\Filament\Actions\ExportPdfBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\DocumentoFretes;
 use App\Filament\Resources\Viagems;
+use App\Filament\Resources\Viagems\Actions\CriarViagemBugioAction;
 use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
@@ -707,6 +708,7 @@ class ViagemsTable
                 Viagems\Actions\ImportDocumentosAction::make(),
             ])
             ->toolbarActions([
+                CriarViagemBugioAction::make(),
                 CreateAction::make(),
                 Viagems\Actions\MarcarViagemConferidaAction::make(),
                 BulkActionGroup::make([

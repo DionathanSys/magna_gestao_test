@@ -10,6 +10,8 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 
 class CriarViagemBugioAction
@@ -32,6 +34,16 @@ class CriarViagemBugioAction
                         ->all())
                     ->searchable()
                     ->preload()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, ?string $state): void {
+                        $kmRota = 0;
+
+                        if ($state) {
+                            $kmRota = (float) (Integrado::query()->whereKey($state)->value('km_rota') ?? 0);
+                        }
+
+                        $set('km_pago', number_format($kmRota, 2, '.', ''));
+                    })
                     ->required(),
                 Select::make('veiculo_id')
                     ->label('Veiculo')
@@ -52,6 +64,12 @@ class CriarViagemBugioAction
                     ->numeric()
                     ->minValue(0)
                     ->default(0)
+                    ->required(),
+                TextInput::make('km_pago')
+                    ->label('KM Pago')
+                    ->numeric()
+                    ->minValue(0)
+                    ->default(fn (Get $get): float => (float) (Integrado::query()->whereKey($get('integrado_id'))->value('km_rota') ?? 0))
                     ->required(),
             ])
             ->action(function (array $data, ShipmentTripService $shipmentTripService): void {

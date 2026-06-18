@@ -112,6 +112,7 @@ class ShipmentTripService
 
             $dataReferencia = $data['data_competencia'] ?? now()->toDateString();
             $kmRodado = (float) ($data['km_rodado'] ?? 0);
+            $kmPago = (float) ($data['km_pago'] ?? 0);
 
             $viagem = $this->viagemService->create([
                 'veiculo_id' => $veiculo->id,
@@ -120,6 +121,7 @@ class ShipmentTripService
                 'numero_viagem' => $numeroViagem,
                 'documento_transporte' => $numeroViagem,
                 'km_rodado' => $kmRodado,
+                'km_pago' => $kmPago,
                 'data_competencia' => $dataReferencia,
                 'data_inicio' => $dataReferencia,
                 'data_fim' => $dataReferencia,

@@ -114,6 +114,7 @@ class ShipmentTripService
 
             $numeroViagem = (new ViagemNumberService)
                 ->next(ClienteEnum::BUGIO->prefixoViagem())['numero_viagem'];
+            $documentoTransporte = (string) ($data['documento_transporte'] ?? $numeroViagem);
 
             $dataReferencia = $data['data_competencia'] ?? now()->toDateString();
             $kmRodado = (float) ($data['km_rodado'] ?? 0);
@@ -124,7 +125,7 @@ class ShipmentTripService
                 'unidade_negocio' => $unidadeNegocio,
                 'cliente' => ClienteEnum::BUGIO->value,
                 'numero_viagem' => $numeroViagem,
-                'documento_transporte' => $numeroViagem,
+                'documento_transporte' => $documentoTransporte,
                 'km_rodado' => $kmRodado,
                 'km_pago' => $kmPago,
                 'data_competencia' => $dataReferencia,

@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
 class CriarViagemBugioAction
 {
@@ -22,8 +23,13 @@ class CriarViagemBugioAction
             ->label('+ Viagem Bugio')
             ->icon('heroicon-o-plus-circle')
             ->modalHeading('Criar Viagem Bugio')
-            ->modalDescription('Cliente, numero da viagem, documento de transporte e demais padroes do fluxo automatico serao preenchidos pelo sistema.')
+            ->modalDescription('Cliente, numero da viagem e demais padroes do fluxo automatico serao preenchidos pelo sistema.')
             ->modalSubmitActionLabel('Criar viagem')
+            ->extraModalFooterActions(fn (Action $action): array => [
+                $action->makeModalSubmitAction('criarOutro', arguments: ['another' => true])
+                    ->label('Criar outro'),
+            ])
+            ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'documento_transporte', 'data_competencia'])
             ->schema([
                 Select::make('integrado_id')
                     ->label('Integrado')
@@ -55,6 +61,9 @@ class CriarViagemBugioAction
                     ->searchable()
                     ->preload()
                     ->required(),
+                TextInput::make('documento_transporte')
+                    ->label('Documento Transporte')
+                    ->required(),
                 DatePicker::make('data_competencia')
                     ->label('Data da viagem')
                     ->default(now()->toDateString())
@@ -72,7 +81,7 @@ class CriarViagemBugioAction
                     ->default(fn (Get $get): float => (float) (Integrado::query()->whereKey($get('integrado_id'))->value('km_rota') ?? 0))
                     ->required(),
             ])
-            ->action(function (array $data, ShipmentTripService $shipmentTripService): void {
+            ->action(function (Action $action, Schema $schema, array $data, array $arguments, ShipmentTripService $shipmentTripService): void {
                 $viagem = $shipmentTripService->createManualBugioTrip($data);
 
                 Notification::make()
@@ -80,6 +89,16 @@ class CriarViagemBugioAction
                     ->title('Viagem Bugio criada')
                     ->body("Viagem {$viagem->numero_viagem} criada com carga inicial vinculada.")
                     ->send();
+
+                if ($arguments['another'] ?? false) {
+                    $schema->fill([
+                        'veiculo_id' => $data['veiculo_id'] ?? null,
+                        'documento_transporte' => $data['documento_transporte'] ?? null,
+                        'data_competencia' => $data['data_competencia'] ?? null,
+                    ]);
+
+                    $action->halt();
+                }
             });
     }
 }

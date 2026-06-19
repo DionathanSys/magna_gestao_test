@@ -42,6 +42,14 @@ class NfeXmlParser
             ->map(fn (SimpleXMLElement $volume) => (float) ($volume->pesoB ?: $volume->pesoL ?: 0))
             ->sum();
 
+        if ($pesoCarga <= 0) {
+            $itens = $this->allNodes($xml, ['//nfe:det/nfe:prod/nfe:qCom', '//det/prod/qCom']);
+
+            $pesoCarga = collect($itens)
+                ->map(fn (SimpleXMLElement $item) => (float) $item)
+                ->sum();
+        }
+
         $emitidoEm = $this->value($xml, ['//nfe:ide/nfe:dhEmi', '//ide/dhEmi', '//nfe:ide/nfe:dEmi', '//ide/dEmi']);
 
         return [

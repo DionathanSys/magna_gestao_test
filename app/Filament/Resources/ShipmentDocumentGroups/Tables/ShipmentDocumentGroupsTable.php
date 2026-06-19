@@ -4,12 +4,14 @@ namespace App\Filament\Resources\ShipmentDocumentGroups\Tables;
 
 use App\Filament\Actions\ExportPdfBulkAction;
 use App\Models\ShipmentDocumentGroup;
+use App\Models\Veiculo;
 use App\Services\MailInbound\ShipmentTripService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -101,11 +103,11 @@ class ShipmentDocumentGroupsTable
                         $indicators = [];
 
                         if (filled($data['created_from'] ?? null)) {
-                            $indicators[] = 'Criado de: ' . $data['created_from'];
+                            $indicators[] = 'Criado de: '.$data['created_from'];
                         }
 
                         if (filled($data['created_until'] ?? null)) {
-                            $indicators[] = 'Criado até: ' . $data['created_until'];
+                            $indicators[] = 'Criado até: '.$data['created_until'];
                         }
 
                         return $indicators;
@@ -123,11 +125,11 @@ class ShipmentDocumentGroupsTable
                         $indicators = [];
 
                         if (filled($data['matched_from'] ?? null)) {
-                            $indicators[] = 'Pareado de: ' . $data['matched_from'];
+                            $indicators[] = 'Pareado de: '.$data['matched_from'];
                         }
 
                         if (filled($data['matched_until'] ?? null)) {
-                            $indicators[] = 'Pareado até: ' . $data['matched_until'];
+                            $indicators[] = 'Pareado até: '.$data['matched_until'];
                         }
 
                         return $indicators;
@@ -142,7 +144,30 @@ class ShipmentDocumentGroupsTable
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->iconButton()
-                    ->action(function (ShipmentDocumentGroup $record, ShipmentTripService $shipmentTripService): void {
+                    ->schema([
+                        Select::make('veiculo_id')
+                            ->label('Placa / Veiculo')
+                            ->helperText('Use este campo quando a nota chegou sem placa no XML/email.')
+                            ->options(fn (): array => Veiculo::query()
+                                ->where('is_active', true)
+                                ->orderBy('placa')
+                                ->pluck('placa', 'id')
+                                ->all())
+                            ->searchable()
+                            ->preload()
+                            ->default(fn (ShipmentDocumentGroup $record): ?int => $record->payload['veiculo_id'] ?? null),
+                    ])
+                    ->action(function (ShipmentDocumentGroup $record, array $data, ShipmentTripService $shipmentTripService): void {
+                        $payload = [
+                            ...($record->payload ?? []),
+                            'veiculo_id' => $data['veiculo_id'] ?? null,
+                            'placa_manual' => filled($data['veiculo_id'] ?? null)
+                                ? Veiculo::query()->whereKey($data['veiculo_id'])->value('placa')
+                                : null,
+                        ];
+
+                        $record->update(['payload' => $payload]);
+
                         $shipmentTripService->createFromGroup($record->id);
 
                         $group = $record->fresh()->load('viagem');

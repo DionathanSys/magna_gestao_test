@@ -34,6 +34,8 @@ class ShipmentTripService
             ])
             ->findOrFail($groupId);
 
+        $payload = collect($group->payload ?? []);
+
         if ($group->viagem_id && $group->viagem()->exists()) {
             return;
         }
@@ -42,6 +44,8 @@ class ShipmentTripService
         $unidadeNegocio = $this->config->unidadeNegocio();
         $placa = $group->remittanceDocument?->placa_transportador ?: $group->saleDocument?->placa_transportador;
         $veiculoId = $placa ? $this->veiculoService->getVeiculoIdByPlaca($placa) : null;
+        $veiculoId ??= $payload->get('veiculo_id');
+        $placaManual = $payload->get('placa_manual');
 
         if (! $integradoId || ! $unidadeNegocio || ! $veiculoId) {
             $group->update([
@@ -50,6 +54,7 @@ class ShipmentTripService
                     'integrado_id' => $integradoId,
                     'unidade_negocio' => $unidadeNegocio,
                     'placa_transportador' => $placa,
+                    'placa_manual' => $placaManual,
                     'veiculo_id' => $veiculoId,
                 ],
             ]);

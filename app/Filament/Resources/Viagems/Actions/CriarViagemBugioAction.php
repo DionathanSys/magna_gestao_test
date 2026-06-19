@@ -29,7 +29,6 @@ class CriarViagemBugioAction
                 $action->makeModalSubmitAction('criarOutro', arguments: ['another' => true])
                     ->label('Criar outro'),
             ])
-            ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'documento_transporte', 'data_competencia'])
             ->schema([
                 Select::make('integrado_id')
                     ->label('Integrado')

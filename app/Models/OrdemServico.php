@@ -31,7 +31,8 @@ class OrdemServico extends Model
 
     public function itens(): HasMany
     {
-        return $this->hasMany(ItemOrdemServico::class, 'ordem_servico_id');
+        return $this->hasMany(ItemOrdemServico::class, 'ordem_servico_id')
+            ->with('servico:id,codigo,descricao');
     }
 
     public function servicos(): HasManyThrough

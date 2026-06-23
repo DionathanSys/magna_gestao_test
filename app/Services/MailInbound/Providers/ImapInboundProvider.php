@@ -46,8 +46,8 @@ class ImapInboundProvider implements MailInboundProvider
             externalId: $message->getUid(),
             messageId: $message->getMessageId(),
             fromEmail: $from?->mail,
-            fromName: $from?->personal,
-            subject: $message->getSubject(),
+            fromName: $this->decodeMimeHeader($from?->personal),
+            subject: $this->decodeMimeHeader($message->getSubject()),
             receivedAt: $receivedAt,
             headers: [
                 'uid' => $message->getUid(),
@@ -97,6 +97,23 @@ class ImapInboundProvider implements MailInboundProvider
         $value = trim((string) ($value ?? ''));
 
         return $value !== '' ? trim($value, "<> \t\n\r\0\x0B") : null;
+    }
+
+    protected function decodeMimeHeader(mixed $value): ?string
+    {
+        $value = trim((string) ($value ?? ''));
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (! str_contains($value, '=?')) {
+            return $value;
+        }
+
+        $decoded = iconv_mime_decode($value, 0, 'UTF-8');
+
+        return $decoded !== false ? $decoded : $value;
     }
 
     /**

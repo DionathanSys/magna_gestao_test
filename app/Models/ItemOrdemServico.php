@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -11,6 +12,11 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class ItemOrdemServico extends Model
 {
     protected $table = 'itens_ordem_servico';
+
+    protected $appends = [
+        'servico_nome',
+        'servico_codigo',
+    ];
 
     protected $casts = [
         'status' => StatusOrdemServicoEnum::class,
@@ -49,6 +55,24 @@ class ItemOrdemServico extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    protected function servicoNome(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => $this->relationLoaded('servico')
+                ? $this->servico?->descricao
+                : $this->servico()->value('descricao'),
+        );
+    }
+
+    protected function servicoCodigo(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => $this->relationLoaded('servico')
+                ? $this->servico?->codigo
+                : $this->servico()->value('codigo'),
+        );
     }
 
 

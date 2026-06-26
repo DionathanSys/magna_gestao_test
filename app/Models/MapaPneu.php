@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MapaPneu extends Model
 {
+    protected $table = 'mapa_pneus';
+    
+    protected $fillable = [
+        'codigo',
+        'nome',
+        'quantidade_posicoes',
+        'ativo',
+    ];
     public function posicoes(): HasMany
     {
         return $this->hasMany(MapaPneuPosicao::class);

@@ -31,7 +31,7 @@ class PneusTable
                     ->width('1%')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->url(fn (Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
+                    ->url(fn(Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
                     ->openUrlInNewTab(),
                 TextColumn::make('numero_fogo')
                     ->label('Nº de Fogo')
@@ -98,8 +98,8 @@ class PneusTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-            ])
+            ->searchDebounce(500)
+            ->filters([])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

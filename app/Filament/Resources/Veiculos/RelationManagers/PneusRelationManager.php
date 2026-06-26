@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Veiculos\RelationManagers;
 use App\Filament\Resources\Pneus\PneuResource;
 use App\Filament\Resources\Veiculos\Actions;
 use App\Models\PneuPosicaoVeiculo;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
@@ -31,7 +30,9 @@ class PneusRelationManager extends RelationManager
                     ->label('Sequência')
                     ->columnSpan(2)
                     ->numeric()
-                    ->required(),
+                    ->required()
+                    ->disabled()
+                    ->dehydrated(false),
                 Select::make('pneu_id')
                     ->label('Pneu')
                     ->columnSpan(4)
@@ -44,12 +45,16 @@ class PneusRelationManager extends RelationManager
                     ->columnStart(1)
                     ->columnSpan(2)
                     ->numeric()
-                    ->required(),
+                    ->required()
+                    ->disabled()
+                    ->dehydrated(false),
                 TextInput::make('posicao')
                     ->label('Posição')
                     ->columnSpan(2)
                     ->required()
-                    ->maxLength(20),
+                    ->maxLength(20)
+                    ->disabled()
+                    ->dehydrated(false),
                 TextInput::make('km_inicial')
                     ->label('KM Inicial')
                     ->columnSpan(2)
@@ -154,13 +159,7 @@ class PneusRelationManager extends RelationManager
             // ->groupingSettingsHidden()
             ->defaultSort('sequencia')
             ->paginated(false)
-            ->headerActions([
-                CreateAction::make()
-                    ->label('Adicionar Pneu')
-                    ->icon('heroicon-o-plus-circle')
-                    ->visible(fn () => Auth::user()->is_admin)
-                    ->preserveFormDataWhenCreatingAnother(['eixo', 'km_inicial', 'data_inicial']),
-            ])
+            ->headerActions([])
             ->recordActions([
                 Actions\InverterPneuAction::make(),
                 Actions\DesvincularPneuAction::make(),

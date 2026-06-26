@@ -63,6 +63,13 @@ class VeiculoForm
                             ->searchable()
                             ->relationship('tipoVeiculo', 'descricao')
                             ->required(),
+                        Select::make('mapa_pneu_id')
+                            ->label('Mapa de Pneu')
+                            ->columnSpan(3)
+                            ->searchable()
+                            ->preload()
+                            ->relationship('mapaPneu', 'nome')
+                            ->required(),
                     ]),
                 Section::make('Informações Complementares')
                     ->columns(12)

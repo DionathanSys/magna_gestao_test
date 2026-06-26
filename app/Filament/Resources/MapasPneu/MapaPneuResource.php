@@ -38,9 +38,11 @@ class MapaPneuResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(12)
             ->components([
                 Section::make('Dados do Mapa')
                     ->columns(12)
+                    ->columnSpanFull()
                     ->schema([
                         TextInput::make('codigo')
                             ->label('Codigo')
@@ -52,19 +54,19 @@ class MapaPneuResource extends Resource
                             ->label('Nome')
                             ->required()
                             ->maxLength(100)
-                            ->columnSpan(5),
+                            ->columnSpan(6),
+                        Toggle::make('ativo')
+                            ->label('Ativo')
+                            ->default(true)
+                            ->inline(false)
+                            ->columnSpan(3),
                         TextInput::make('quantidade_posicoes')
                             ->label('Qtd. Posições')
                             ->numeric()
                             ->minValue(0)
                             ->default(0)
                             ->helperText('Campo informativo nesta fase. Depois podera ser sincronizado pelas posições cadastradas.')
-                            ->columnSpan(2),
-                        Toggle::make('ativo')
-                            ->label('Ativo')
-                            ->default(true)
-                            ->inline(false)
-                            ->columnSpan(2),
+                            ->columnSpan(3),
                         Textarea::make('descricao')
                             ->label('Descricao')
                             ->rows(3)
@@ -72,6 +74,7 @@ class MapaPneuResource extends Resource
                     ]),
                 Section::make('Posições do Mapa')
                     ->description('Cadastre aqui as posições fixas atendidas por este mapa.')
+                    ->columnSpanFull()
                     ->schema([
                         Repeater::make('posicoes')
                             ->label('Posições')
@@ -79,6 +82,7 @@ class MapaPneuResource extends Resource
                             ->orderColumn('sequencia')
                             ->defaultItems(0)
                             ->columns(12)
+                            ->columnSpanFull()
                             ->collapsible()
                             ->cloneable()
                             ->itemLabel(fn (array $state): ?string => $state['codigo'] ?? $state['nome'] ?? null)
@@ -92,7 +96,7 @@ class MapaPneuResource extends Resource
                                     ->label('Nome')
                                     ->required()
                                     ->maxLength(120)
-                                    ->columnSpan(4),
+                                    ->columnSpan(5),
                                 TextInput::make('sequencia')
                                     ->label('Sequencia')
                                     ->numeric()
@@ -108,7 +112,7 @@ class MapaPneuResource extends Resource
                                 Toggle::make('ativo')
                                     ->label('Ativo')
                                     ->default(true)
-                                    ->columnSpan(2),
+                                    ->columnSpan(1),
                                 Select::make('lado')
                                     ->label('Lado')
                                     ->options([

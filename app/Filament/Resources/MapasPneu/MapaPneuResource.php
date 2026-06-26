@@ -2,9 +2,7 @@
 
 namespace App\Filament\Resources\MapasPneu;
 
-use App\Filament\Resources\MapasPneu\Pages\CreateMapaPneu;
-use App\Filament\Resources\MapasPneu\Pages\EditMapaPneu;
-use App\Filament\Resources\MapasPneu\Pages\ListMapasPneu;
+use App\Filament\Resources\MapasPneu\Pages\ManageMapasPneu;
 use App\Filament\Resources\MapasPneu\RelationManagers\PosicoesRelationManager;
 use App\Models\MapaPneu;
 use Filament\Actions\BulkActionGroup;
@@ -114,9 +112,7 @@ class MapaPneuResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListMapasPneu::route('/'),
-            'create' => CreateMapaPneu::route('/create'),
-            'edit' => EditMapaPneu::route('/{record}/edit'),
+            'index' => ManageMapasPneu::route('/'),
         ];
     }
 }

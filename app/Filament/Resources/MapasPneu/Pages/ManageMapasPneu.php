@@ -4,9 +4,9 @@ namespace App\Filament\Resources\MapasPneu\Pages;
 
 use App\Filament\Resources\MapasPneu\MapaPneuResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListMapasPneu extends ListRecords
+class ManageMapasPneu extends ManageRecords
 {
     protected static string $resource = MapaPneuResource::class;
 

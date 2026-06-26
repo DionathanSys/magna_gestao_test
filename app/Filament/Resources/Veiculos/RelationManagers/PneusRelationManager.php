@@ -77,7 +77,7 @@ class PneusRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('numero_fogo')
             // ->stackedOnMobile()
-            ->modifyQueryUsing(fn ($query) => $query->with(['pneu', 'veiculo', 'veiculo.kmAtual'])->orderBy('sequencia'))
+            ->modifyQueryUsing(fn ($query) => $query->with(['pneu', 'veiculo', 'veiculo.kmAtual', 'mapaPosicao'])->orderBy('sequencia'))
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -89,10 +89,25 @@ class PneusRelationManager extends RelationManager
                     ->width('1%')
                     ->url(fn (PneuPosicaoVeiculo $record) => PneuResource::getUrl('view', ['record' => $record->pneu_id ?? 0]))
                     ->openUrlInNewTab(),
-                TextColumn::make('posicao')
-                    ->label('Posição')
+                TextColumn::make('mapaPosicao.codigo')
+                    ->label('Código')
+                    ->placeholder(fn (PneuPosicaoVeiculo $record): string => (string) $record->posicao)
                     ->width('1%'),
-                TextColumn::make('eixo')
+                TextColumn::make('mapaPosicao.nome')
+                    ->label('Posição')
+                    ->placeholder(fn (PneuPosicaoVeiculo $record): string => (string) $record->posicao)
+                    ->width('1%'),
+                TextColumn::make('mapaPosicao.eixo_numero')
+                    ->label('Eixo Mapa')
+                    ->placeholder(fn (PneuPosicaoVeiculo $record): string => (string) $record->eixo)
+                    ->width('1%')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('mapaPosicao.lado')
+                    ->label('Lado')
+                    ->width('1%')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('mapaPosicao.conjunto')
+                    ->label('Conjunto')
                     ->width('1%')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('km_inicial')

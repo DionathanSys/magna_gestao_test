@@ -18,7 +18,7 @@ class MapaPneusLayout
         $kmHistoricoPorCiclo = static::resolveKmHistoricoPorCiclo($posicoes);
         $eixos = $posicoes
             ->sortBy('sequencia')
-            ->groupBy('eixo')
+            ->groupBy(fn (PneuPosicaoVeiculo $posicao) => $posicao->mapaPosicao?->eixo_numero ?? $posicao->eixo)
             ->sortKeys()
             ->map(fn (Collection $group, $eixo) => static::buildEixo(
                 (int) $eixo,
@@ -29,8 +29,8 @@ class MapaPneusLayout
             ->values();
 
         return [
-            'configuracao' => $configuracao?->value,
-            'configuracao_label' => $configuracao?->label() ?? 'Mapa personalizado',
+            'configuracao' => $veiculo->mapaPneu?->codigo ?? $configuracao?->value,
+            'configuracao_label' => $veiculo->mapaPneu?->nome ?? $configuracao?->label() ?? 'Mapa personalizado',
             'eixos' => $eixos->all(),
             'resumo' => [
                 'total_posicoes' => $posicoes->count(),
@@ -115,6 +115,16 @@ class MapaPneusLayout
 
     protected static function detectSide(PneuPosicaoVeiculo $posicao): ?string
     {
+        $lado = strtoupper((string) $posicao->mapaPosicao?->lado);
+
+        if ($lado === 'ESQUERDO') {
+            return 'left';
+        }
+
+        if ($lado === 'DIREITO') {
+            return 'right';
+        }
+
         $texto = Str::upper(preg_replace('/[^A-Z]/', '', (string) $posicao->posicao));
 
         if (Str::contains($texto, ['ESQ', 'ESQUERD', 'MOTORISTA', 'LEFT'])) {
@@ -166,6 +176,16 @@ class MapaPneusLayout
 
     protected static function getSideOrderWeight(PneuPosicaoVeiculo $posicao, string $side): int
     {
+        $conjunto = strtoupper((string) $posicao->mapaPosicao?->conjunto);
+
+        if ($conjunto === 'EXTERNO') {
+            return $side === 'left' ? 0 : 1;
+        }
+
+        if ($conjunto === 'INTERNO') {
+            return $side === 'left' ? 1 : 0;
+        }
+
         $texto = Str::upper(preg_replace('/[^A-Z]/', '', (string) $posicao->posicao));
         $isInterno = Str::contains($texto, 'I') || Str::contains($texto, 'INT');
         $isExterno = Str::contains($texto, 'E') || Str::contains($texto, 'EXT');
@@ -206,7 +226,8 @@ class MapaPneusLayout
         return [
             'id' => $posicao->id,
             'label' => 'P'.str_pad((string) ($posicao->sequencia ?? ($index + 1)), 2, '0', STR_PAD_LEFT),
-            'posicao' => $posicao->posicao,
+            'posicao' => $posicao->mapaPosicao?->codigo ?? $posicao->posicao,
+            'posicao_nome' => $posicao->mapaPosicao?->nome,
             'sequencia' => $posicao->sequencia,
             'pneu_id' => $posicao->pneu_id,
             'numero_fogo' => $posicao->pneu?->numero_fogo,

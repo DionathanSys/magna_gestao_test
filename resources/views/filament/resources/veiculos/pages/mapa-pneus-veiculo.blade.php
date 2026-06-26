@@ -260,7 +260,7 @@
                                 <div>
                                     <div class="tire-map-modebar__title">Posicao Selecionada</div>
                                     <div class="tire-map-modebar__meta">
-                                        {{ $selectedPosicao->eixo }}o eixo / {{ $selectedPosicao->posicao }}
+                                        {{ $selectedPosicao->eixo }}o eixo / {{ $selectedPosicao->mapaPosicao?->nome ?? $selectedPosicao->posicao }}
                                     </div>
                                     <div class="tire-map-modebar__submeta">
                                         {{ $selectedPosicao->pneu?->numero_fogo ? 'Pneu ' . $selectedPosicao->pneu->numero_fogo : 'Posicao vazia' }}
@@ -299,7 +299,7 @@
                                             >
                                                 <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>
                                                 <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
-                                                <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                                <span class="tire-slot__meta">{{ $slot['posicao_nome'] ?? $slot['posicao'] }}</span>
                                                 @if($slot['pneu_id'])
                                                     <span class="tire-slot__meta">{{ $slot['desenho_atual'] ?: 'Sem desenho' }}</span>
                                                 @endif
@@ -327,7 +327,7 @@
                                                 >
                                                     <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>
                                                     <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
-                                                    <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                                    <span class="tire-slot__meta">{{ $slot['posicao_nome'] ?? $slot['posicao'] }}</span>
                                                     @if($slot['pneu_id'])
                                                         <span class="tire-slot__meta">{{ $slot['desenho_atual'] ?: 'Sem desenho' }}</span>
                                                     @endif
@@ -356,7 +356,7 @@
                                                 >
                                                     <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>
                                                     <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
-                                                    <span class="tire-slot__meta">{{ $slot['posicao'] }}</span>
+                                                    <span class="tire-slot__meta">{{ $slot['posicao_nome'] ?? $slot['posicao'] }}</span>
                                                     @if($slot['pneu_id'])
                                                         <span class="tire-slot__meta">{{ $slot['desenho_atual'] ?: 'Sem desenho' }}</span>
                                                     @endif

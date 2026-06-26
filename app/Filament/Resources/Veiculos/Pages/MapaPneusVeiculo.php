@@ -12,6 +12,7 @@ use App\Models\Veiculo;
 use App\Services\NotificacaoService as notify;
 use App\Services\Pneus\MovimentarPneuService;
 use App\Services\Pneus\PneuService;
+use App\Services\Pneus\SincronizarPosicoesMapaVeiculoService;
 use App\Support\Pneus\MapaPneusLayout;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -56,6 +57,7 @@ class MapaPneusVeiculo extends Page implements HasActions
     public function mount(int|string $record): void
     {
         $this->recordId = $record;
+        $this->syncMapPositions();
         $this->selectedPosicaoId = request()->integer('selected') ?: $this->getPosicoes()->first()?->id;
     }
 
@@ -146,7 +148,7 @@ class MapaPneusVeiculo extends Page implements HasActions
         }
 
         return $this->cachedRecord = Veiculo::query()
-            ->with(['kmAtual', 'tipoVeiculo'])
+            ->with(['kmAtual', 'tipoVeiculo', 'mapaPneu.posicoes'])
             ->findOrFail($this->recordId);
     }
 
@@ -183,9 +185,22 @@ class MapaPneusVeiculo extends Page implements HasActions
                 'pneu.cicloAtual.desenhoPneu',
                 'pneu.desenhoPneu',
                 'veiculo.kmAtual',
+                'mapaPosicao',
             ])
             ->orderBy('sequencia')
             ->get();
+    }
+
+    protected function syncMapPositions(): void
+    {
+        $record = $this->getRecord();
+
+        if (! $record->mapa_pneu_id) {
+            return;
+        }
+
+        app(SincronizarPosicoesMapaVeiculoService::class)->handle($record);
+        $this->flushPageCache();
     }
 
     public function inspecionarPosicaoAction(): Action
@@ -747,7 +762,7 @@ class MapaPneusVeiculo extends Page implements HasActions
             'pneu_posicao_veiculo_id' => $record?->id,
             'pneu_info' => ($record?->pneu?->numero_fogo ?? 'N/A').' - '.($record?->pneu?->marcaCatalogo?->nome ?? 'N/A').' / '.($record?->pneu?->modeloCatalogo?->nome ?? 'N/A'),
             'veiculo_info' => $this->getRecord()->placa,
-            'posicao_info' => $record ? ($record->eixo.'º eixo / '.$record->posicao) : 'N/A',
+            'posicao_info' => $record ? ($record->eixo.'º eixo / '.($record->mapaPosicao?->nome ?? $record->posicao)) : 'N/A',
             'medida_info' => $record?->pneu?->medidaCatalogo?->codigo ?? 'N/A',
             'ciclo_info' => (string) ($record?->pneu?->ciclo_vida ?? 'N/A'),
             'km_info' => number_format($record?->km_rodado ?? 0, 0, ',', '.'),

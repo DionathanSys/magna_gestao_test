@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MapaPneuPosicao extends Model
 {
+    protected $table = 'mapa_pneu_posicoes';
+
     public function mapa(): BelongsTo
     {
         return $this->belongsTo(MapaPneu::class, 'mapa_pneu_id');

@@ -59,6 +59,7 @@ class PneuAlertaService
                 'pneu.modeloCatalogo',
                 'pneu.medidaCatalogo',
                 'veiculo.kmAtual',
+                'mapaPosicao',
             ])
             ->aplicados()
             ->whereHas('veiculo', fn ($query) => $query->where('is_active', true))
@@ -105,12 +106,13 @@ class PneuAlertaService
                     'severidade' => 'warning',
                     'placa' => $primeiro->veiculo?->placa ?? 'N/A',
                     'veiculo_id' => $primeiro->veiculo_id,
-                    'eixo' => $primeiro->eixo,
+                    'eixo' => $primeiro->mapaPosicao?->eixo_numero ?? $primeiro->eixo,
                     'hub' => $this->resolveHub($primeiro),
-                    'titulo' => 'Pneus despareados no '.$primeiro->eixo.'º eixo / '.$this->resolveHub($primeiro),
+                    'titulo' => 'Pneus despareados no '.($primeiro->mapaPosicao?->eixo_numero ?? $primeiro->eixo).'º eixo / '.$this->resolveHub($primeiro),
                     'descricao' => 'Diferenças em '.implode(', ', $camposDivergentes->keys()->all()).'.',
                     'posicoes' => $grupo->map(fn (PneuPosicaoVeiculo $posicao) => [
-                        'posicao' => $posicao->posicao,
+                        'posicao' => $posicao->mapaPosicao?->codigo ?? $posicao->posicao,
+                        'posicao_nome' => $posicao->mapaPosicao?->nome,
                         'numero_fogo' => $posicao->pneu?->numero_fogo ?? 'N/A',
                         'medida' => $posicao->pneu?->medidaCatalogo?->codigo ?? '-',
                         'marca' => $posicao->pneu?->marcaCatalogo?->nome ?? '-',
@@ -144,12 +146,13 @@ class PneuAlertaService
                     'severidade' => 'danger',
                     'placa' => $posicao->veiculo?->placa ?? 'N/A',
                     'veiculo_id' => $posicao->veiculo_id,
-                    'eixo' => $posicao->eixo,
+                    'eixo' => $posicao->mapaPosicao?->eixo_numero ?? $posicao->eixo,
                     'hub' => $this->resolveHub($posicao),
                     'titulo' => 'Rodízio recomendado',
                     'descricao' => 'Pneu '.$posicao->pneu?->numero_fogo.' atingiu '.number_format($kmPosicaoAtual, 0, ',', '.').' km na posição atual.',
                     'posicoes' => collect([[
-                        'posicao' => $posicao->posicao,
+                        'posicao' => $posicao->mapaPosicao?->codigo ?? $posicao->posicao,
+                        'posicao_nome' => $posicao->mapaPosicao?->nome,
                         'numero_fogo' => $posicao->pneu?->numero_fogo ?? 'N/A',
                         'km_posicao' => $kmPosicaoAtual,
                         'limite' => $threshold,
@@ -166,16 +169,26 @@ class PneuAlertaService
 
     protected function resolveHub(PneuPosicaoVeiculo $posicao): string
     {
-        return match ($this->detectSide($posicao->posicao)) {
+        return match ($this->detectSide($posicao)) {
             'left' => 'LE',
             'right' => 'LD',
             default => 'CENTRO',
         };
     }
 
-    protected function detectSide(?string $posicao): ?string
+    protected function detectSide(PneuPosicaoVeiculo $posicao): ?string
     {
-        $texto = Str::upper(preg_replace('/[^A-Z]/', '', (string) $posicao));
+        $lado = strtoupper((string) $posicao->mapaPosicao?->lado);
+
+        if ($lado === 'ESQUERDO') {
+            return 'left';
+        }
+
+        if ($lado === 'DIREITO') {
+            return 'right';
+        }
+
+        $texto = Str::upper(preg_replace('/[^A-Z]/', '', (string) $posicao->posicao));
 
         if (Str::contains($texto, ['ESQ', 'ESQUERD', 'MOTORISTA', 'LEFT'])) {
             return 'left';

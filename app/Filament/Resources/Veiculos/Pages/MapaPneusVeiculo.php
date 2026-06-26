@@ -119,6 +119,10 @@ class MapaPneusVeiculo extends Page implements HasActions
             return;
         }
 
+        if (! $this->ensureOperationalPosition($posicao)) {
+            return;
+        }
+
         match ($this->interactionMode) {
             'inspect' => filled($posicao->pneu_id)
                 ? $this->openInspection($posicaoId)
@@ -275,7 +279,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 $posicao = $this->resolvePosicaoFromArguments($arguments);
 
                 return [
-                    'posicao' => $posicao?->posicao,
+                    'posicao' => $this->formatPosicaoCode($posicao),
                     'data_inicial' => now()->toDateString(),
                 ];
             })
@@ -762,7 +766,7 @@ class MapaPneusVeiculo extends Page implements HasActions
             'pneu_posicao_veiculo_id' => $record?->id,
             'pneu_info' => ($record?->pneu?->numero_fogo ?? 'N/A').' - '.($record?->pneu?->marcaCatalogo?->nome ?? 'N/A').' / '.($record?->pneu?->modeloCatalogo?->nome ?? 'N/A'),
             'veiculo_info' => $this->getRecord()->placa,
-            'posicao_info' => $record ? ($record->eixo.'º eixo / '.($record->mapaPosicao?->nome ?? $record->posicao)) : 'N/A',
+            'posicao_info' => $record ? $this->formatPosicaoTitle($record) : 'N/A',
             'medida_info' => $record?->pneu?->medidaCatalogo?->codigo ?? 'N/A',
             'ciclo_info' => (string) ($record?->pneu?->ciclo_vida ?? 'N/A'),
             'km_info' => number_format($record?->km_rodado ?? 0, 0, ',', '.'),
@@ -801,5 +805,33 @@ class MapaPneusVeiculo extends Page implements HasActions
             ->directory('pneus/movimentacoes')
             ->visibility('private')
             ->columnSpanFull();
+    }
+
+    protected function ensureOperationalPosition(PneuPosicaoVeiculo $posicao): bool
+    {
+        if (! $this->getRecord()->mapa_pneu_id || $posicao->mapa_pneu_posicao_id) {
+            return true;
+        }
+
+        $this->notifyInvalidSelection('A posição ainda não foi sincronizada com o mapa do veículo. Salve o veículo novamente ou revise o mapa configurado.');
+
+        return false;
+    }
+
+    protected function formatPosicaoCode(?PneuPosicaoVeiculo $posicao): string
+    {
+        return (string) ($posicao?->mapaPosicao?->codigo ?? $posicao?->posicao ?? 'N/A');
+    }
+
+    protected function formatPosicaoTitle(?PneuPosicaoVeiculo $posicao): string
+    {
+        if (! $posicao) {
+            return 'N/A';
+        }
+
+        $label = $posicao->mapaPosicao?->nome ?? $posicao->posicao;
+        $codigo = $posicao->mapaPosicao?->codigo ?? $posicao->posicao;
+
+        return $posicao->eixo.'º eixo / '.$label.' ('.$codigo.')';
     }
 }

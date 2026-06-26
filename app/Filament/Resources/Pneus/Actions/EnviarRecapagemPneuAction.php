@@ -16,7 +16,7 @@ class EnviarRecapagemPneuAction
             ->icon('heroicon-o-paper-airplane')
             ->color('warning')
             ->requiresConfirmation()
-            ->visible(fn (Pneu $record) => $record->status->value === 'INDISPONIVEL' && $record->local?->value === 'AGUARDANDO RECAPAGEM')
+            // ->visible(fn (Pneu $record) => $record->status->value === 'INDISPONIVEL' && $record->local?->value === 'AGUARDANDO RECAPAGEM')
             ->action(function (Action $action, Pneu $record): void {
                 $service = new PneuService;
                 $service->enviarParaRecapagem($record);

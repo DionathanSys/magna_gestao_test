@@ -27,6 +27,11 @@ class PneuPosicaoVeiculo extends Model
         return $this->belongsTo(PneuCiclo::class, 'pneu_ciclo_id');
     }
 
+    public function mapaPosicao(): BelongsTo
+    {
+        return $this->belongsTo(MapaPneuPosicao::class, 'mapa_pneu_posicao_id');
+    }
+
     public function kmPercorrido(): Attribute
     {
         return Attribute::get(

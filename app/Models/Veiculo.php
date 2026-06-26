@@ -56,6 +56,11 @@ class Veiculo extends Model
         return $this->belongsTo(TipoVeiculo::class, 'tipo_veiculo_id');
     }
 
+    public function mapaPneu(): BelongsTo
+    {
+        return $this->belongsTo(MapaPneu::class, 'mapa_pneu_id');
+    }
+
 
     /**
      * Accessor: retorna a quilometragem atual (numero) via relação kmAtual().

@@ -6,6 +6,7 @@ use App\Enum;
 use App\Models;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CreatePneu
 {
@@ -40,7 +41,14 @@ class CreatePneu
             'ciclo_vida' => 'required|integer|min:0',
             'data_aquisicao' => 'required|date',
             'pneu_marca_id' => 'nullable|exists:pneu_marcas,id',
-            'pneu_modelo_id' => 'nullable|exists:pneu_modelos,id',
+            'pneu_modelo_id' => [
+                'nullable',
+                Rule::exists('pneu_modelos', 'id')->where(function ($query) use ($data) {
+                    if (! empty($data['pneu_marca_id'])) {
+                        $query->where('pneu_marca_id', $data['pneu_marca_id']);
+                    }
+                }),
+            ],
             'pneu_medida_id' => 'nullable|exists:pneu_medidas,id',
             'pneu_local_id' => 'nullable|exists:pneu_locais,id',
             'fornecedor_compra_id' => 'nullable|exists:parceiros,id',

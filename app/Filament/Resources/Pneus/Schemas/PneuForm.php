@@ -45,7 +45,7 @@ class PneuForm
                         Components\MedidaInput::make()
                             ->columnSpan(4)
                             ->columnStart(1)
-                            ->default(fn () => \App\Models\PneuMedida::query()->orderBy('codigo')->value('id')),
+                            ->default(fn() => \App\Models\PneuMedida::query()->orderBy('codigo')->value('id')),
                         Components\MarcaInput::make()
                             ->columnSpan(4),
                         Components\ModeloInput::make()
@@ -53,8 +53,10 @@ class PneuForm
                             ->columnSpan(4),
                         TextInput::make('numero_serie')
                             ->label('Nº Série')
+                            ->visible(false)
                             ->columnSpan(4),
                         TextInput::make('dot')
+                            ->visible(false)
                             ->label('DOT')
                             ->columnSpan(4),
                         Components\DesenhoPneuInput::make()
@@ -70,9 +72,10 @@ class PneuForm
                             ->columnSpan(4)
                             ->options(\App\Models\PneuLocal::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray())
                             ->required()
-                            ->default(fn () => \App\Models\PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
+                            ->default(fn() => \App\Models\PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
                         Select::make('fornecedor_compra_id')
                             ->label('Fornecedor Compra')
+                            ->visible(false)
                             ->relationship('fornecedorCompra', 'nome')
                             ->searchable()
                             ->preload()
@@ -80,16 +83,12 @@ class PneuForm
                             ->columnSpan(4),
                         TextInput::make('nota_fiscal')
                             ->label('Nota Fiscal')
+                            ->visible(false)
                             ->columnSpan(4),
                         TextInput::make('sulco_inicial')
                             ->label('Sulco Inicial')
                             ->numeric()
                             ->default(0)
-                            ->columnSpan(2),
-                        Toggle::make('recapavel')
-                            ->label('Recapável')
-                            ->default(true)
-                            ->inline(false)
                             ->columnSpan(2),
                         TextInput::make('limite_recapagens')
                             ->label('Lim. Recapagens')
@@ -98,7 +97,11 @@ class PneuForm
                             ->minValue(0)
                             ->maxValue(9)
                             ->columnSpan(2),
-
+                        Toggle::make('recapavel')
+                            ->label('Recapável')
+                            ->default(true)
+                            ->inline(false)
+                            ->columnSpan(2),
                     ]),
                 Section::make('Recapagem')
                     ->description('Registrar recapagem do pneu.')
@@ -124,10 +127,10 @@ class PneuForm
                             ->prefix('R$'),
                         Select::make('recap.desenho_pneu_id_recapagem')
                             ->label('Desenho Borracha')
-                            ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', Enum\Pneu\EstadoPneuEnum::RECAPADO))
+                            ->relationship('desenhoPneu', 'descricao', fn($query) => $query->where('estado_pneu', Enum\Pneu\EstadoPneuEnum::RECAPADO)->where('ativo', true))
                             ->searchable()
                             ->preload()
-                            ->createOptionForm(fn (Schema $schema) => DesenhoPneuResource::form($schema))
+                            ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
                             ->columnSpan(4),
 
                     ]),

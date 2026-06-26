@@ -158,7 +158,10 @@ class Pneu extends Model
         if ($this->pneu_modelo_id) {
             $this->modelo = PneuModelo::query()->whereKey($this->pneu_modelo_id)->value('nome') ?? $this->modelo;
         } elseif ($this->modelo) {
-            $this->pneu_modelo_id = PneuModelo::query()->where('nome', $this->modelo)->value('id');
+            $this->pneu_modelo_id = PneuModelo::query()
+                ->where('nome', $this->modelo)
+                ->when($this->pneu_marca_id, fn ($query) => $query->where('pneu_marca_id', $this->pneu_marca_id))
+                ->value('id');
         }
 
         if ($this->pneu_medida_id) {

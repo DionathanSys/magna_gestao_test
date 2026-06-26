@@ -13,7 +13,7 @@ class DesenhoPneuInput
     {
         return Select::make('desenho_pneu_id')
             ->label('Desenho Borracha')
-            ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', 'NOVO'))
+            ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', 'NOVO')->where('ativo', true))
             ->searchable()
             ->preload()
             ->required()

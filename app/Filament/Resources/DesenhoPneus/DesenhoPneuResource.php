@@ -5,9 +5,10 @@ namespace App\Filament\Resources\DesenhoPneus;
 use App\{Models, Enum};
 use App\Filament\Resources\DesenhoPneus\Pages\ManageDesenhoPneus;
 use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction};
-use Filament\Forms\Components\{Select, TextInput};
+use Filament\Forms\Components\{Select, TextInput, Toggle};
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use UnitEnum;
@@ -44,6 +45,11 @@ class DesenhoPneuResource extends Resource
                     ->native(false)
                     ->options(Enum\Pneu\EstadoPneuEnum::toSelectArray())
                     ->default(Enum\Pneu\EstadoPneuEnum::RECAPADO->value),
+                Toggle::make('ativo')
+                    ->label('Ativo')
+                    ->inline(false)
+                    ->default(true)
+                    ->columnSpan(2),
                 TextInput::make('medida')
                     ->label('Medida Borracha')
                     ->columnSpan(2)
@@ -78,6 +84,9 @@ class DesenhoPneuResource extends Resource
                     ->width('1%')
                     ->searchable()
                     ->sortable(),
+                IconColumn::make('ativo')
+                    ->label('Ativo')
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y H:i')

@@ -21,6 +21,7 @@ class NumeroFogoInput
             ->label('Nº de Fogo')
             ->reactive()
             ->required()
+            ->disabledOn('edit')
             ->numeric()
             ->maxLength(255)
             ->live(onBlur: true)

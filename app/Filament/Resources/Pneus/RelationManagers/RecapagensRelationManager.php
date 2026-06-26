@@ -37,7 +37,7 @@ class RecapagensRelationManager extends RelationManager
                     ->required(),
                 Select::make('desenho_pneu_id')
                     ->label('Desenho do Pneu')
-                    ->relationship('desenhoPneu', 'descricao')
+                    ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('ativo', true))
                     ->required()
                     ->searchable()
                     ->preload()

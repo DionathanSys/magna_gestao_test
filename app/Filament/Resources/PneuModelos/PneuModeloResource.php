@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PneuModelos;
 
 use App\Filament\Resources\PneuModelos\Pages\ManagePneuModelos;
 use App\Models\PneuModelo;
+use Filament\Forms\Components\Select;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -33,6 +34,12 @@ class PneuModeloResource extends Resource
     {
         return $schema
             ->components([
+                Select::make('pneu_marca_id')
+                    ->label('Marca')
+                    ->relationship('marca', 'nome', fn ($query) => $query->where('ativo', true))
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('nome')
                     ->label('Nome')
                     ->required()
@@ -49,6 +56,10 @@ class PneuModeloResource extends Resource
         return $table
             ->recordTitleAttribute('nome')
             ->columns([
+                TextColumn::make('marca.nome')
+                    ->label('Marca')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('nome')
                     ->searchable()
                     ->sortable(),

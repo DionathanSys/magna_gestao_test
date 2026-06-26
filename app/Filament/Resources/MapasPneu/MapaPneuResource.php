@@ -42,6 +42,8 @@ class MapaPneuResource extends Resource
             ->components([
                 Section::make('Dados do Mapa')
                     ->columns(12)
+                    ->collapsible()
+                    ->collapsed()
                     ->columnSpanFull()
                     ->schema([
                         TextInput::make('codigo')
@@ -55,22 +57,21 @@ class MapaPneuResource extends Resource
                             ->required()
                             ->maxLength(100)
                             ->columnSpan(6),
-                        Toggle::make('ativo')
-                            ->label('Ativo')
-                            ->default(true)
-                            ->inline(false)
-                            ->columnSpan(3),
                         TextInput::make('quantidade_posicoes')
                             ->label('Qtd. Posições')
                             ->numeric()
                             ->minValue(0)
                             ->default(0)
-                            ->helperText('Campo informativo nesta fase. Depois podera ser sincronizado pelas posições cadastradas.')
                             ->columnSpan(3),
                         Textarea::make('descricao')
-                            ->label('Descricao')
+                            ->label('Descrição')
                             ->rows(3)
                             ->columnSpanFull(),
+                        Toggle::make('ativo')
+                            ->label('Ativo')
+                            ->default(true)
+                            ->inline(false)
+                            ->columnSpan(3),
                     ]),
                 Section::make('Posições do Mapa')
                     ->description('Cadastre aqui as posições fixas atendidas por este mapa.')
@@ -85,7 +86,7 @@ class MapaPneuResource extends Resource
                             ->columnSpanFull()
                             ->collapsible()
                             ->cloneable()
-                            ->itemLabel(fn (array $state): ?string => $state['codigo'] ?? $state['nome'] ?? null)
+                            ->itemLabel(fn(array $state): ?string => $state['codigo'] ?? $state['nome'] ?? null)
                             ->schema([
                                 TextInput::make('codigo')
                                     ->label('Codigo')
@@ -112,6 +113,7 @@ class MapaPneuResource extends Resource
                                 Toggle::make('ativo')
                                     ->label('Ativo')
                                     ->default(true)
+                                    ->inline(false)
                                     ->columnSpan(1),
                                 Select::make('lado')
                                     ->label('Lado')
@@ -151,6 +153,7 @@ class MapaPneuResource extends Resource
                                 Toggle::make('aceita_pneu_reserva')
                                     ->label('Aceita Pneu Reserva')
                                     ->default(false)
+                                    ->inline(false)
                                     ->columnSpan(2),
                             ]),
                     ]),

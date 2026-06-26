@@ -3,16 +3,18 @@
 namespace App\Filament\Resources\MapasPneu;
 
 use App\Filament\Resources\MapasPneu\Pages\ManageMapasPneu;
-use App\Filament\Resources\MapasPneu\RelationManagers\PosicoesRelationManager;
 use App\Models\MapaPneu;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -37,29 +39,117 @@ class MapaPneuResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('codigo')
-                    ->label('Codigo')
-                    ->required()
-                    ->maxLength(20)
-                    ->unique(ignoreRecord: true),
-                TextInput::make('nome')
-                    ->label('Nome')
-                    ->required()
-                    ->maxLength(100),
-                TextInput::make('quantidade_posicoes')
-                    ->label('Qtd. Posições')
-                    ->numeric()
-                    ->minValue(0)
-                    ->default(0)
-                    ->helperText('Campo informativo nesta fase. Depois podera ser sincronizado pelas posições cadastradas.'),
-                Toggle::make('ativo')
-                    ->label('Ativo')
-                    ->default(true)
-                    ->inline(false),
-                Textarea::make('descricao')
-                    ->label('Descricao')
-                    ->rows(3)
-                    ->columnSpanFull(),
+                Section::make('Dados do Mapa')
+                    ->columns(12)
+                    ->schema([
+                        TextInput::make('codigo')
+                            ->label('Codigo')
+                            ->required()
+                            ->maxLength(20)
+                            ->unique(ignoreRecord: true)
+                            ->columnSpan(3),
+                        TextInput::make('nome')
+                            ->label('Nome')
+                            ->required()
+                            ->maxLength(100)
+                            ->columnSpan(5),
+                        TextInput::make('quantidade_posicoes')
+                            ->label('Qtd. Posições')
+                            ->numeric()
+                            ->minValue(0)
+                            ->default(0)
+                            ->helperText('Campo informativo nesta fase. Depois podera ser sincronizado pelas posições cadastradas.')
+                            ->columnSpan(2),
+                        Toggle::make('ativo')
+                            ->label('Ativo')
+                            ->default(true)
+                            ->inline(false)
+                            ->columnSpan(2),
+                        Textarea::make('descricao')
+                            ->label('Descricao')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ]),
+                Section::make('Posições do Mapa')
+                    ->description('Cadastre aqui as posições fixas atendidas por este mapa.')
+                    ->schema([
+                        Repeater::make('posicoes')
+                            ->label('Posições')
+                            ->relationship()
+                            ->orderColumn('sequencia')
+                            ->defaultItems(0)
+                            ->columns(12)
+                            ->collapsible()
+                            ->cloneable()
+                            ->itemLabel(fn (array $state): ?string => $state['codigo'] ?? $state['nome'] ?? null)
+                            ->schema([
+                                TextInput::make('codigo')
+                                    ->label('Codigo')
+                                    ->required()
+                                    ->maxLength(30)
+                                    ->columnSpan(2),
+                                TextInput::make('nome')
+                                    ->label('Nome')
+                                    ->required()
+                                    ->maxLength(120)
+                                    ->columnSpan(4),
+                                TextInput::make('sequencia')
+                                    ->label('Sequencia')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->required()
+                                    ->columnSpan(2),
+                                TextInput::make('eixo_numero')
+                                    ->label('Eixo')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required()
+                                    ->columnSpan(2),
+                                Toggle::make('ativo')
+                                    ->label('Ativo')
+                                    ->default(true)
+                                    ->columnSpan(2),
+                                Select::make('lado')
+                                    ->label('Lado')
+                                    ->options([
+                                        'ESQUERDO' => 'Esquerdo',
+                                        'DIREITO' => 'Direito',
+                                        'CENTRO' => 'Centro',
+                                    ])
+                                    ->default('CENTRO')
+                                    ->required()
+                                    ->native(false)
+                                    ->columnSpan(3),
+                                Select::make('conjunto')
+                                    ->label('Conjunto')
+                                    ->options([
+                                        'SIMPLES' => 'Simples',
+                                        'INTERNO' => 'Interno',
+                                        'EXTERNO' => 'Externo',
+                                        'RESERVA' => 'Reserva',
+                                    ])
+                                    ->default('SIMPLES')
+                                    ->required()
+                                    ->native(false)
+                                    ->columnSpan(3),
+                                Select::make('tipo_posicao')
+                                    ->label('Tipo da Posição')
+                                    ->options([
+                                        'DIRECIONAL' => 'Direcional',
+                                        'TRACAO' => 'Tração',
+                                        'LIVRE' => 'Livre',
+                                        'RESERVA' => 'Reserva',
+                                    ])
+                                    ->default('LIVRE')
+                                    ->required()
+                                    ->native(false)
+                                    ->columnSpan(4),
+                                Toggle::make('aceita_pneu_reserva')
+                                    ->label('Aceita Pneu Reserva')
+                                    ->default(false)
+                                    ->columnSpan(2),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -100,13 +190,6 @@ class MapaPneuResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            PosicoesRelationManager::class,
-        ];
     }
 
     public static function getPages(): array

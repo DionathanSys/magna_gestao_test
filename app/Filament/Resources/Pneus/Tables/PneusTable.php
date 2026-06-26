@@ -8,6 +8,7 @@ use App\Filament\Resources\Pneus\Actions\ReceberRecapagemPneuAction;
 use App\Filament\Resources\Pneus\Actions\RetornarConsertoPneuAction;
 use App\Filament\Resources\Veiculos\VeiculoResource;
 use App\Models;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -101,11 +102,13 @@ class PneusTable
             ->searchDebounce(500)
             ->filters([])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                RetornarConsertoPneuAction::make(),
-                EnviarRecapagemPneuAction::make(),
-                ReceberRecapagemPneuAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    ViewAction::make(),
+                    EnviarRecapagemPneuAction::make(),
+                    ReceberRecapagemPneuAction::make(),
+                    RetornarConsertoPneuAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

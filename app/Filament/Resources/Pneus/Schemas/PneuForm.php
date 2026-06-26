@@ -63,18 +63,21 @@ class PneuForm
                             ->columnSpan(4),
                         Select::make('status')
                             ->columnStart(1)
+                            ->native(false)
                             ->columnSpan(4)
                             ->options(Enum\Pneu\StatusPneuEnum::toSelectArray())
                             ->required()
                             ->default(Enum\Pneu\StatusPneuEnum::DISPONIVEL->value),
                         Select::make('pneu_local_id')
                             ->label('Local')
+                            ->native(false)
                             ->columnSpan(4)
                             ->options(\App\Models\PneuLocal::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray())
                             ->required()
                             ->default(fn() => \App\Models\PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
                         Select::make('fornecedor_compra_id')
                             ->label('Fornecedor Compra')
+                            ->native(false)
                             ->visible(false)
                             ->relationship('fornecedorCompra', 'nome')
                             ->searchable()

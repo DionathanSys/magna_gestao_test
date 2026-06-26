@@ -29,6 +29,13 @@ class EditPneu extends EditRecord
         ];
     }
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        unset($data['numero_fogo']);
+
+        return $data;
+    }
+
     // public function hasCombinedRelationManagerTabsWithContent(): bool
     // {
     //     return true;

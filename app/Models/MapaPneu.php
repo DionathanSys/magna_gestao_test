@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MapaPneu extends Model
 {
-    protected $table = 'mapa_pneus';
-    
+    protected $table = 'mapas_pneu';
+
     protected $fillable = [
         'codigo',
         'nome',

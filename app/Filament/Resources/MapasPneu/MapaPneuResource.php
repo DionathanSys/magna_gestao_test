@@ -43,8 +43,7 @@ class MapaPneuResource extends Resource
                     ->label('Codigo')
                     ->required()
                     ->maxLength(20)
-                    ->unique(ignoreRecord: true)
-                    ->uppercase(),
+                    ->unique(ignoreRecord: true),
                 TextInput::make('nome')
                     ->label('Nome')
                     ->required()

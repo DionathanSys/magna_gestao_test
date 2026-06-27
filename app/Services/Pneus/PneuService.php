@@ -135,8 +135,12 @@ class PneuService
     public function enviarParaRecapagem(Models\Pneu $pneu): bool
     {
         try {
+            $localId = $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::AGUARDANDO_RETORNO_RECAP->value);
+
             $pneu->update([
+                'status' => \App\Enum\Pneu\StatusPneuEnum::INDISPONIVEL,
                 'local' => \App\Enum\Pneu\LocalPneuEnum::AGUARDANDO_RETORNO_RECAP,
+                'pneu_local_id' => $localId,
             ]);
 
             $this->setSuccess('Pneu enviado para recapagem.');
@@ -157,10 +161,23 @@ class PneuService
                     $pneu->update([
                         'status' => \App\Enum\Pneu\StatusPneuEnum::SUCATA,
                         'local' => \App\Enum\Pneu\LocalPneuEnum::SUCATA,
+                        'pneu_local_id' => $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::SUCATA->value),
                     ]);
 
                     (new PneuCicloService)->closeCurrentCycle($pneu, $data['data_recapagem'] ?? now()->toDateString());
                     $this->setSuccess('Pneu recusado no recap e descartado automaticamente.');
+
+                    return true;
+                }
+
+                if (($data['resultado_retorno'] ?? null) === 'RETORNAR_ESTOQUE') {
+                    $pneu->update([
+                        'status' => \App\Enum\Pneu\StatusPneuEnum::DISPONIVEL,
+                        'local' => \App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO,
+                        'pneu_local_id' => $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value),
+                    ]);
+
+                    $this->setSuccess('Pneu retornou para estoque sem recapagem e permanece no ciclo atual.');
 
                     return true;
                 }
@@ -170,6 +187,7 @@ class PneuService
                     'valor' => $data['valor'] ?? 0,
                     'desenho_pneu_id' => $data['desenho_pneu_id'],
                     'data_recapagem' => $data['data_recapagem'],
+                    'ignorar_validacao_inspecao' => true,
                 ]);
 
                 if (! $recapagem) {
@@ -180,6 +198,7 @@ class PneuService
                 $pneu->update([
                     'status' => \App\Enum\Pneu\StatusPneuEnum::DISPONIVEL,
                     'local' => \App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO,
+                    'pneu_local_id' => $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value),
                 ]);
 
                 $this->setSuccess('Pneu recebido do recap e liberado para estoque.');
@@ -191,6 +210,13 @@ class PneuService
 
             return false;
         }
+    }
+
+    protected function resolveLocalId(string $localNome): ?int
+    {
+        return Models\PneuLocal::query()
+            ->where('nome', $localNome)
+            ->value('id');
     }
 
     public function retornarDeConserto(Models\Pneu $pneu, array $data): bool

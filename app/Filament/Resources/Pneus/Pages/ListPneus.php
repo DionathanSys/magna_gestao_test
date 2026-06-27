@@ -31,7 +31,9 @@ class ListPneus extends ListRecords
 
                     if ($arguments['apenasRecapar'] ?? false) {
 
-                        $data = self::mutateDataRecap($dataRecap ?? []);
+                        $data = array_merge(self::mutateDataRecap($dataRecap ?? []), [
+                            'ignorar_validacao_inspecao' => true,
+                        ]);
 
                         $service = new Services\Pneus\PneuService;
                         $service->recapar($data);
@@ -66,6 +68,8 @@ class ListPneus extends ListRecords
                         $dataRecap = $this->mutateDataRecap(
                             array_merge($dataRecap, ['pneu_id' => $pneu->id])
                         );
+
+                        $dataRecap['ignorar_validacao_inspecao'] = true;
 
                         Log::debug(__METHOD__.' - Iniciando recapagem após criação do pneu', ['data_recap' => $dataRecap]);
 

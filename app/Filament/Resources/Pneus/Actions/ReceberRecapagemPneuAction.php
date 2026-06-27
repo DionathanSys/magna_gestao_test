@@ -32,6 +32,7 @@ class ReceberRecapagemPneuAction
                         ->label('Resultado do retorno')
                         ->options([
                             'APROVADO' => 'Aprovado',
+                            'RETORNAR_ESTOQUE' => 'Retornar ao estoque sem recapar',
                             'RECUSADO' => 'Recusado / Descarte automático',
                         ])
                         ->native(false)

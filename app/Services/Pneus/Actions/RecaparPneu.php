@@ -72,7 +72,7 @@ class RecaparPneu
             return;
         }
 
-        if ($this->validarInspecaoPreRecapagem($data['pneu_id'] ?? 0) === false) {
+        if (($data['ignorar_validacao_inspecao'] ?? false) !== true && $this->validarInspecaoPreRecapagem($data['pneu_id'] ?? 0) === false) {
             return;
         }
     }

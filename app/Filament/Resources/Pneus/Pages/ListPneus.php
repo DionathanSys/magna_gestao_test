@@ -26,8 +26,11 @@ class ListPneus extends ListRecords
                 ->icon('heroicon-o-plus-circle')
                 ->using(function (array $data, array $arguments): ?Models\Pneu {
 
-                    $dataRecap = $data['recap'];
-                    $dataHistoricoMov = $data['historicoMovimentacao'] ?? [];
+                    $dataRecap = $data['recap'] ?? [];
+                    $dataHistoricoMov = (bool) ($data['registrar_historico_inicial'] ?? false)
+                        ? ($data['historicoMovimentacao'] ?? [])
+                        : [];
+                    $registrarRecapInicial = (bool) ($data['registrar_recap_inicial'] ?? false);
 
                     if ($arguments['apenasRecapar'] ?? false) {
 
@@ -52,6 +55,8 @@ class ListPneus extends ListRecords
 
                     unset($data['recap']);
                     unset($data['historicoMovimentacao']);
+                    unset($data['registrar_recap_inicial']);
+                    unset($data['registrar_historico_inicial']);
 
                     $service = new Services\Pneus\PneuService;
                     $pneu = $service->create($data);
@@ -63,7 +68,7 @@ class ListPneus extends ListRecords
 
                     notify::success('Pneu cadastrado com sucesso.');
 
-                    if ($arguments['recapar'] ?? false) {
+                    if (($arguments['recapar'] ?? false) && $registrarRecapInicial) {
 
                         $dataRecap = $this->mutateDataRecap(
                             array_merge($dataRecap, ['pneu_id' => $pneu->id])

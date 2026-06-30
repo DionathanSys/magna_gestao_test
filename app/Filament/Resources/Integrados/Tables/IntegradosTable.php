@@ -2,15 +2,14 @@
 
 namespace App\Filament\Resources\Integrados\Tables;
 
-use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
+use App\Enum;
+use App\Filament\Resources\Integrados\Actions\ExportarIntegradosExcelBulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use App\Enum;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
 class IntegradosTable
 {
@@ -67,14 +66,14 @@ class IntegradosTable
                 SelectFilter::make('cliente')
                     ->label('Cliente')
                     ->native(false)
-                    ->options(Enum\ClienteEnum::toSelectArray())
+                    ->options(Enum\ClienteEnum::toSelectArray()),
             ])
             ->recordActions([
                 EditAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
-                    FilamentExportBulkAction::make('export'),
+                    ExportarIntegradosExcelBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

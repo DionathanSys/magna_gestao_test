@@ -55,6 +55,7 @@ class PneuForm
                                 ->columnSpan(4),
                             TextInput::make('numero_serie')
                                 ->label('Nº Série')
+                                ->columnStart(1)
                                 ->columnSpan(4),
                             TextInput::make('dot')
                                 ->label('DOT')

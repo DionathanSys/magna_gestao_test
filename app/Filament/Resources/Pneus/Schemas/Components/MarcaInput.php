@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Pneus\Schemas\Components;
 
+use App\Filament\Resources\PneuMarcas\PneuMarcaResource;
 use App\Models\PneuMarca;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
 class MarcaInput
 {
@@ -12,6 +14,8 @@ class MarcaInput
     {
         return Select::make('pneu_marca_id')
             ->label('Marca')
+            ->relationship('marcaCatalogo', 'nome', fn ($query) => $query->where('ativo', true)->orderBy('nome'))
+            ->createOptionForm(fn (Schema $schema) => PneuMarcaResource::form($schema))
             ->searchable()
             ->preload()
             ->required()

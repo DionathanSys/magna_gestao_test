@@ -32,27 +32,6 @@ class ListPneus extends ListRecords
                         : [];
                     $registrarRecapInicial = (bool) ($data['registrar_recap_inicial'] ?? false);
 
-                    if ($arguments['apenasRecapar'] ?? false) {
-
-                        $data = array_merge(self::mutateDataRecap($dataRecap ?? []), [
-                            'ignorar_validacao_inspecao' => true,
-                        ]);
-
-                        $service = new Services\Pneus\PneuService;
-                        $service->recapar($data);
-
-                        if ($service->hasError()) {
-                            notify::error(titulo: 'Falha no processo de recapagem', mensagem: $service->getMessage());
-                            $this->halt();
-                        }
-
-                        notify::success('Recapagem realizada com sucesso.');
-                        $this->fill(Arr::only($data, ['valor', 'pneu_medida_id', 'pneu_marca_id', 'pneu_modelo_id', 'desenho_pneu_id', 'pneu_local_id', 'status', 'data_aquisicao', 'fornecedor_compra_id', 'sulco_inicial', 'recapavel', 'limite_recapagens']));
-                        $this->halt();
-
-                        return null;
-                    }
-
                     unset($data['recap']);
                     unset($data['historicoMovimentacao']);
                     unset($data['registrar_recap_inicial']);
@@ -68,7 +47,7 @@ class ListPneus extends ListRecords
 
                     notify::success('Pneu cadastrado com sucesso.');
 
-                    if (($arguments['recapar'] ?? false) && $registrarRecapInicial) {
+                    if ($registrarRecapInicial) {
 
                         $dataRecap = $this->mutateDataRecap(
                             array_merge($dataRecap, ['pneu_id' => $pneu->id])
@@ -86,10 +65,6 @@ class ListPneus extends ListRecords
                         }
 
                         notify::success('Recapagem realizada com sucesso.');
-                        $this->fill(Arr::only($data, ['ciclo_vida', 'valor', 'pneu_medida_id', 'pneu_marca_id', 'pneu_modelo_id', 'desenho_pneu_id', 'pneu_local_id', 'status', 'data_aquisicao', 'fornecedor_compra_id', 'sulco_inicial', 'recapavel', 'limite_recapagens']));
-                        $this->halt();
-
-                        return $pneu;
                     }
 
                     if ($dataHistoricoMov) {
@@ -112,13 +87,9 @@ class ListPneus extends ListRecords
                     return $pneu;
                 })
                 ->successNotification(null)
-                ->extraModalFooterActions(function (CreateAction $action, array $data): array {
-                    return [
-                        $action->makeModalSubmitAction('criarERecapar', arguments: ['recapar' => true]),
-                        $action->makeModalSubmitAction('salvarECriarOutro', arguments: ['another' => true]),
-                        $action->makeModalSubmitAction('apenasRecapar', arguments: ['apenasRecapar' => true]),
-                    ];
-                })
+                ->extraModalFooterActions(fn (CreateAction $action): array => [
+                    $action->makeModalSubmitAction('salvarECriarOutro', arguments: ['another' => true]),
+                ])
                 ->preserveFormDataWhenCreatingAnother(['ciclo_vida', 'valor', 'pneu_medida_id', 'pneu_marca_id', 'pneu_modelo_id', 'desenho_pneu_id', 'pneu_local_id', 'status', 'data_aquisicao', 'fornecedor_compra_id', 'sulco_inicial', 'recapavel', 'limite_recapagens']),
 
         ];

@@ -23,6 +23,8 @@ class DocumentoFreteResource extends Resource
 {
     protected static ?string $model = DocumentoFrete::class;
 
+    protected static bool $isGloballySearchable = false;
+
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-newspaper';

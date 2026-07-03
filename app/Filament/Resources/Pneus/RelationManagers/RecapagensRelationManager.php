@@ -20,6 +20,7 @@ use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Validation\ValidationException;
 
 class RecapagensRelationManager extends RelationManager
 {
@@ -107,10 +108,13 @@ class RecapagensRelationManager extends RelationManager
                         $recapagem = $service->recapar([
                             ...$data,
                             'pneu_id' => $pneu->id,
+                            'ignorar_validacao_inspecao' => true,
                         ]);
 
                         if (! $recapagem) {
-                            throw new \RuntimeException($service->getMessage());
+                            throw ValidationException::withMessages([
+                                'data_recapagem' => $service->getMessage(),
+                            ]);
                         }
 
                         return $recapagem;

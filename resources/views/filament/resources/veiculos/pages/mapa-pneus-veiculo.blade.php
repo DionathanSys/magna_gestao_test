@@ -146,6 +146,25 @@
             gap: 0.4rem;
         }
 
+        .tire-map-eixo__front-line {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            align-items: start;
+            gap: 1.5rem;
+        }
+
+        .tire-map-eixo__front-side {
+            display: flex;
+        }
+
+        .tire-map-eixo__front-side.is-left {
+            justify-content: flex-start;
+        }
+
+        .tire-map-eixo__front-side.is-right {
+            justify-content: flex-end;
+        }
+
         .tire-map-note {
             border: 1px solid #dbeafe;
             border-radius: 1rem;
@@ -288,6 +307,7 @@
                                 <div class="tire-map-eixo__title">{{ $eixo['titulo'] }}</div>
 
                                 @php($mergedSlots = array_merge($eixo['left'], $eixo['right']))
+                                @php($isFrontAxleLayout = count($eixo['left']) === 1 && count($eixo['right']) === 1)
 
                                 @if(count($mergedSlots) >= 4)
                                     <div class="tire-map-eixo__line">
@@ -315,6 +335,62 @@
                                                 @endif
                                             </button>
                                         @endforeach
+                                    </div>
+                                @elseif($isFrontAxleLayout)
+                                    <div class="tire-map-eixo__front-line">
+                                        <div class="tire-map-eixo__front-side is-left">
+                                            @foreach($eixo['left'] as $slot)
+                                                <button
+                                                    type="button"
+                                                    wire:click="handleSlotClick({{ $slot['id'] }})"
+                                                    class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
+                                                >
+                                                    <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>
+                                                    <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
+                                                    <span class="tire-slot__meta">{{ $slot['posicao_nome'] ?? $slot['posicao'] }}</span>
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__meta">{{ $slot['desenho_atual'] ?: 'Sem desenho' }}</span>
+                                                    @endif
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__km">
+                                                            Pos.: {{ $slot['km_rodado'] !== null ? number_format((float) $slot['km_rodado'], 0, ',', '.') : '0' }} km
+                                                        </span>
+                                                    @endif
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__km">
+                                                            Ciclo: {{ $slot['km_ciclo_atual'] !== null ? number_format((float) $slot['km_ciclo_atual'], 0, ',', '.') : '0' }} km
+                                                        </span>
+                                                    @endif
+                                                </button>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="tire-map-eixo__front-side is-right">
+                                            @foreach($eixo['right'] as $slot)
+                                                <button
+                                                    type="button"
+                                                    wire:click="handleSlotClick({{ $slot['id'] }})"
+                                                    class="tire-slot tire-slot--{{ $slot['status'] }} {{ $slot['selected'] ? 'is-selected' : '' }}"
+                                                >
+                                                    <span class="tire-slot__code">{{ $slot['modelo'] ?: 'Sem modelo' }}</span>
+                                                    <span class="tire-slot__value">{{ $slot['numero_fogo'] ?: 'Vazio' }}</span>
+                                                    <span class="tire-slot__meta">{{ $slot['posicao_nome'] ?? $slot['posicao'] }}</span>
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__meta">{{ $slot['desenho_atual'] ?: 'Sem desenho' }}</span>
+                                                    @endif
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__km">
+                                                            Pos.: {{ $slot['km_rodado'] !== null ? number_format((float) $slot['km_rodado'], 0, ',', '.') : '0' }} km
+                                                        </span>
+                                                    @endif
+                                                    @if($slot['pneu_id'])
+                                                        <span class="tire-slot__km">
+                                                            Ciclo: {{ $slot['km_ciclo_atual'] !== null ? number_format((float) $slot['km_ciclo_atual'], 0, ',', '.') : '0' }} km
+                                                        </span>
+                                                    @endif
+                                                </button>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 @else
                                     @if(count($eixo['left']))

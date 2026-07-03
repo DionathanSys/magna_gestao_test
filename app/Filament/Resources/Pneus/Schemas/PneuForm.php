@@ -85,7 +85,7 @@ class PneuForm
                                 ->default(0)
                                 ->columnSpan(2),
                             TextInput::make('limite_recapagens')
-                                ->label('Lim. Recapagens')
+                                ->label('Lim. Recap.')
                                 ->numeric()
                                 ->default(3)
                                 ->minValue(0)
@@ -107,7 +107,7 @@ class PneuForm
                                 ->default(false)
                                 ->live()
                                 ->inline(false)
-                                ->columnSpan(3),
+                                ->columnSpanFull(),
                         ]),
                     Step::make('Recapagem Inicial')
                         ->description('Preencha apenas quando o pneu já entrar recapado na frota.')

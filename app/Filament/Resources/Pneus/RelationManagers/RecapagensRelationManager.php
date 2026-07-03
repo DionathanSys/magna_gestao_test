@@ -69,15 +69,15 @@ class RecapagensRelationManager extends RelationManager
                     ->date('d/m/Y')
                     ->width('1%'),
                 TextColumn::make('pneu.modeloCatalogo.nome')
-                    ->label('Modelo')
+                    ->label('Modelo Carcaça')
                     ->width('1%'),
                 TextColumn::make('desenhoPneu.descricao')
                     ->label('Desenho')
                     ->width('1%'),
                 TextColumn::make('desenhoPneu.modelo')
-                    ->label('Modelo')
+                    ->label('Modelo Desenho')
                     ->width('1%'),
-                TextInputColumn::make('ciclo_vida')
+                TextColumn::make('ciclo_vida')
                     ->label('Ciclo de Vida')
                     ->width('1%'),
                 TextColumn::make('valor')

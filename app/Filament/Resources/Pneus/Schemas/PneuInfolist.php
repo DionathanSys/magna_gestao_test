@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Pneus\Schemas;
 
 use App\Models;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -176,6 +178,65 @@ class PneuInfolist
                             )
                             ->placeholder('Não informado')
                             ->columnSpan(6),
+                    ]),
+                Section::make('Histórico de Ciclos de Vida')
+                    ->columns(12)
+                    ->columnSpan(12)
+                    ->components([
+                        RepeatableEntry::make('ciclos_historico')
+                            ->label('Ciclos')
+                            ->columnSpanFull()
+                            ->contained(false)
+                            ->table([
+                                TableColumn::make('Ciclo')->hiddenHeaderLabel(),
+                                TableColumn::make('Status'),
+                                TableColumn::make('Desenho'),
+                                TableColumn::make('Abertura'),
+                                TableColumn::make('Fechamento'),
+                                TableColumn::make('KM Inicial'),
+                                TableColumn::make('KM Final'),
+                                TableColumn::make('Recapagens'),
+                                TableColumn::make('Consertos'),
+                                TableColumn::make('Inspeções'),
+                            ])
+                            ->state(fn (Models\Pneu $record) => $record->ciclos()
+                                ->with('desenhoPneu')
+                                ->withCount(['recapagens', 'consertos', 'inspecoes'])
+                                ->orderByDesc('numero')
+                                ->get())
+                            ->schema([
+                                TextEntry::make('numero')
+                                    ->label('Ciclo')
+                                    ->weight(FontWeight::Bold)
+                                    ->formatStateUsing(fn ($state, Models\PneuCiclo $record): string => 'Ciclo '.$state.($record->status?->value === 'ABERTO' ? ' (Atual)' : '')),
+                                TextEntry::make('status')
+                                    ->badge()
+                                    ->color(fn (Models\PneuCiclo $record): string => $record->status?->value === 'ABERTO' ? 'success' : 'gray')
+                                    ->formatStateUsing(fn ($state) => $state?->value ?? $state ?? 'Não informado'),
+                                TextEntry::make('desenhoPneu.descricao')
+                                    ->placeholder('Sem desenho'),
+                                TextEntry::make('data_abertura')
+                                    ->date('d/m/Y')
+                                    ->placeholder('Não informado'),
+                                TextEntry::make('data_fechamento')
+                                    ->date('d/m/Y')
+                                    ->placeholder('Em aberto'),
+                                TextEntry::make('km_inicial')
+                                    ->numeric(0, ',', '.')
+                                    ->placeholder('Não informado'),
+                                TextEntry::make('km_final')
+                                    ->numeric(0, ',', '.')
+                                    ->placeholder('Em aberto'),
+                                TextEntry::make('recapagens_count')
+                                    ->label('Recapagens')
+                                    ->numeric(),
+                                TextEntry::make('consertos_count')
+                                    ->label('Consertos')
+                                    ->numeric(),
+                                TextEntry::make('inspecoes_count')
+                                    ->label('Inspeções')
+                                    ->numeric(),
+                            ]),
                     ]),
             ]);
     }

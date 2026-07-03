@@ -5,6 +5,7 @@ namespace App\Services\Pneus\Actions;
 use App\Enum;
 use App\Models;
 use App\Services\Pneus\PneuInspecaoService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,7 +25,7 @@ class RecaparPneu
             return null;
         }
 
-        return Models\Recapagem::create($data);
+        return Models\Recapagem::create(Arr::except($data, ['ignorar_validacao_inspecao']));
     }
 
     private function validate(array $data): void
@@ -40,6 +41,7 @@ class RecaparPneu
             'desenho_pneu_id' => 'required|exists:desenhos_pneu,id',
             'ciclo_vida' => 'integer|min:1|max:9',
             'data_recapagem' => 'required|date',
+            'ignorar_validacao_inspecao' => 'sometimes|boolean',
         ], [
             'pneu_id.required' => 'O campo Pneu é obrigatório.',
             'pneu_id.exists' => 'O Pneu informado não existe.',

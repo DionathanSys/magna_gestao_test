@@ -11,6 +11,7 @@
             --map-info: #2563eb;
             --map-danger: #dc2626;
             --map-neutral: #94a3b8;
+            --tire-slot-width: 6.48rem;
         }
 
         .tire-map-board {
@@ -58,7 +59,7 @@
 
         .tire-slot {
             width: 100%;
-            max-width: 6.48rem;
+            max-width: var(--tire-slot-width);
             min-height: 5.4rem;
             border-radius: 0.9rem;
             border: 2px solid currentColor;
@@ -148,13 +149,13 @@
 
         .tire-map-eixo__front-line {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            align-items: start;
-            gap: 1.5rem;
+            grid-template-columns: repeat(4, minmax(0, var(--tire-slot-width)));
+            gap: 0.4rem;
+            justify-content: center;
         }
 
         .tire-map-eixo__front-side {
-            display: flex;
+            display: contents;
         }
 
         .tire-map-eixo__front-side.is-left {
@@ -163,6 +164,14 @@
 
         .tire-map-eixo__front-side.is-right {
             justify-content: flex-end;
+        }
+
+        .tire-map-eixo__front-side.is-left .tire-slot {
+            grid-column: 1;
+        }
+
+        .tire-map-eixo__front-side.is-right .tire-slot {
+            grid-column: 4;
         }
 
         .tire-map-note {

@@ -97,12 +97,14 @@ class PneuForm
                                 ->columnSpanFull(),
                             Toggle::make('registrar_recap_inicial')
                                 ->label('Já entra recapado')
+                                ->visibleOn('create')
                                 ->helperText('Use quando o pneu chega recapado e ainda não possui histórico anterior no sistema.')
                                 ->default(false)
                                 ->live()
                                 ->columnSpanFull(),
                             Toggle::make('registrar_historico_inicial')
                                 ->label('Registrar histórico inicial')
+                                ->visibleOn('create')
                                 ->helperText('Use apenas quando precisar lançar movimentações antigas manualmente.')
                                 ->default(false)
                                 ->live()

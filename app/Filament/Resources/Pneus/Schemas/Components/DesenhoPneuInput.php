@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Pneus\Schemas\Components;
 
-use App\Models;
-use App\Services\NotificacaoService as notify;
+use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
 
 class DesenhoPneuInput
 {
@@ -14,10 +13,9 @@ class DesenhoPneuInput
         return Select::make('desenho_pneu_id')
             ->label('Desenho Borracha')
             ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', 'NOVO')->where('ativo', true))
+            ->createOptionForm(fn (Schema $schema) => DesenhoPneuResource::form($schema))
             ->searchable()
             ->preload()
-            ->required()
-            // ->createOptionForm(fn(Schema $schema) => DesenhoPneuResource::form($schema))
-            ;
+            ->required();
     }
 }

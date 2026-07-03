@@ -80,6 +80,7 @@ class PneuForm
                                 ->default(fn () => \App\Models\PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
                             TextInput::make('sulco_inicial')
                                 ->label('Sulco Inicial')
+                                ->columnStart(1)
                                 ->numeric()
                                 ->default(0)
                                 ->columnSpan(2),
@@ -93,15 +94,13 @@ class PneuForm
                             Toggle::make('recapavel')
                                 ->label('Recapável')
                                 ->default(true)
-                                ->inline(false)
-                                ->columnSpan(3),
+                                ->columnSpanFull(),
                             Toggle::make('registrar_recap_inicial')
                                 ->label('Já entra recapado')
                                 ->helperText('Use quando o pneu chega recapado e ainda não possui histórico anterior no sistema.')
                                 ->default(false)
                                 ->live()
-                                ->inline(false)
-                                ->columnSpan(3),
+                                ->columnSpanFull(),
                             Toggle::make('registrar_historico_inicial')
                                 ->label('Registrar histórico inicial')
                                 ->helperText('Use apenas quando precisar lançar movimentações antigas manualmente.')

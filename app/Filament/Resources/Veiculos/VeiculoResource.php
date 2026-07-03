@@ -13,10 +13,12 @@ use App\Filament\Resources\Veiculos\Schemas\VeiculoForm;
 use App\Filament\Resources\Veiculos\Tables\VeiculosTable;
 use App\Models\Veiculo;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
@@ -60,6 +62,16 @@ class VeiculoResource extends Resource
             'create' => CreateVeiculo::route('/create'),
             'edit' => EditVeiculo::route('/{record}/edit'),
             'mapa-pneus' => MapaPneusVeiculo::route('/{record}/mapa-pneus'),
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(Model $record): array
+    {
+        return [
+            Action::make('mapa-pneus')
+                ->label('Mapa de pneus')
+                ->icon('heroicon-o-map')
+                ->url(static::getUrl('mapa-pneus', ['record' => $record])),
         ];
     }
 

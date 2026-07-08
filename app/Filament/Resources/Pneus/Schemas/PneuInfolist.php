@@ -3,8 +3,6 @@
 namespace App\Filament\Resources\Pneus\Schemas;
 
 use App\Models;
-use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -183,60 +181,48 @@ class PneuInfolist
                     ->columns(12)
                     ->columnSpan(12)
                     ->components([
-                        RepeatableEntry::make('ciclos_historico')
+                        TextEntry::make('ciclos_historico')
                             ->label('Ciclos')
                             ->columnSpanFull()
-                            ->contained(false)
-                            ->table([
-                                TableColumn::make('Ciclo')->hiddenHeaderLabel(),
-                                TableColumn::make('Status'),
-                                TableColumn::make('Desenho'),
-                                TableColumn::make('Abertura'),
-                                TableColumn::make('Fechamento'),
-                                TableColumn::make('KM Inicial'),
-                                TableColumn::make('KM Final'),
-                                TableColumn::make('Recapagens'),
-                                TableColumn::make('Consertos'),
-                                TableColumn::make('Inspeções'),
-                            ])
-                            ->state(fn (Models\Pneu $record) => $record->ciclos()
-                                ->with('desenhoPneu')
-                                ->withCount(['recapagens', 'consertos', 'inspecoes'])
-                                ->orderByDesc('numero')
-                                ->get())
-                            ->schema([
-                                TextEntry::make('numero')
-                                    ->label('Ciclo')
-                                    ->weight(FontWeight::Bold)
-                                    ->formatStateUsing(fn ($state, Models\PneuCiclo $record): string => 'Ciclo '.$state.($record->status?->value === 'ABERTO' ? ' (Atual)' : '')),
-                                TextEntry::make('status')
-                                    ->badge()
-                                    ->color(fn (Models\PneuCiclo $record): string => $record->status?->value === 'ABERTO' ? 'success' : 'gray')
-                                    ->formatStateUsing(fn ($state) => $state?->value ?? $state ?? 'Não informado'),
-                                TextEntry::make('desenhoPneu.descricao')
-                                    ->placeholder('Sem desenho'),
-                                TextEntry::make('data_abertura')
-                                    ->date('d/m/Y')
-                                    ->placeholder('Não informado'),
-                                TextEntry::make('data_fechamento')
-                                    ->date('d/m/Y')
-                                    ->placeholder('Em aberto'),
-                                TextEntry::make('km_inicial')
-                                    ->numeric(0, ',', '.')
-                                    ->placeholder('Não informado'),
-                                TextEntry::make('km_final')
-                                    ->numeric(0, ',', '.')
-                                    ->placeholder('Em aberto'),
-                                TextEntry::make('recapagens_count')
-                                    ->label('Recapagens')
-                                    ->numeric(),
-                                TextEntry::make('consertos_count')
-                                    ->label('Consertos')
-                                    ->numeric(),
-                                TextEntry::make('inspecoes_count')
-                                    ->label('Inspeções')
-                                    ->numeric(),
-                            ]),
+                            ->html()
+                            ->state(function (Models\Pneu $record): string {
+                                $ciclos = $record->ciclos()
+                                    ->with('desenhoPneu')
+                                    ->withCount(['recapagens', 'consertos', 'inspecoes'])
+                                    ->orderByDesc('numero')
+                                    ->get();
+
+                                if ($ciclos->isEmpty()) {
+                                    return '<span class="text-gray-500 italic">Nenhum ciclo de vida registrado.</span>';
+                                }
+
+                                $html = '<div class="space-y-3">';
+
+                                foreach ($ciclos as $ciclo) {
+                                    $status = $ciclo->status?->value ?? 'Não informado';
+                                    $isAtual = $status === 'ABERTO';
+                                    $html .= '<div class="rounded-xl border border-gray-200 bg-white p-4">';
+                                    $html .= '<div class="flex flex-wrap items-center gap-2">';
+                                    $html .= '<span class="text-sm font-semibold text-gray-900">Ciclo ' . e((string) $ciclo->numero) . ($isAtual ? ' (Atual)' : '') . '</span>';
+                                    $html .= '<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ' . ($isAtual ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') . '">' . e($status) . '</span>';
+                                    $html .= '</div>';
+                                    $html .= '<div class="mt-3 grid gap-2 text-sm text-gray-700 md:grid-cols-2 xl:grid-cols-5">';
+                                    $html .= '<div><span class="text-gray-500">Desenho:</span> ' . e($ciclo->desenhoPneu?->descricao ?? 'Sem desenho') . '</div>';
+                                    $html .= '<div><span class="text-gray-500">Abertura:</span> ' . e($ciclo->data_abertura?->format('d/m/Y') ?? 'Não informado') . '</div>';
+                                    $html .= '<div><span class="text-gray-500">Fechamento:</span> ' . e($ciclo->data_fechamento?->format('d/m/Y') ?? 'Em aberto') . '</div>';
+                                    $html .= '<div><span class="text-gray-500">KM Inicial:</span> ' . e($ciclo->km_inicial !== null ? number_format((float) $ciclo->km_inicial, 0, ',', '.') : 'Não informado') . '</div>';
+                                    $html .= '<div><span class="text-gray-500">KM Final:</span> ' . e($ciclo->km_final !== null ? number_format((float) $ciclo->km_final, 0, ',', '.') : 'Em aberto') . '</div>';
+                                    $html .= '<div><span class="text-gray-500">Recapagens:</span> ' . e((string) $ciclo->recapagens_count) . '</div>';
+                                    $html .= '<div><span class="text-gray-500">Consertos:</span> ' . e((string) $ciclo->consertos_count) . '</div>';
+                                    $html .= '<div><span class="text-gray-500">Inspeções:</span> ' . e((string) $ciclo->inspecoes_count) . '</div>';
+                                    $html .= '</div>';
+                                    $html .= '</div>';
+                                }
+
+                                $html .= '</div>';
+
+                                return $html;
+                            }),
                     ]),
             ]);
     }

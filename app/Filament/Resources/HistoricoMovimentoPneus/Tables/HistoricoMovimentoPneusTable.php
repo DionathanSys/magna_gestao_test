@@ -87,6 +87,11 @@ class HistoricoMovimentoPneusTable
                 TextColumn::make('motivo')
                     ->width('1%')
                     ->searchable(),
+                TextColumn::make('tipo_evento')
+                    ->label('Tipo Evento')
+                    ->width('1%')
+                    ->badge()
+                    ->searchable(),
                 TextColumn::make('observacao')
                     ->label('Observação')
                     ->html()

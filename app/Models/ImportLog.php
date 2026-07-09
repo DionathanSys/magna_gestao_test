@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Log;
 
@@ -27,6 +28,11 @@ class ImportLog extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function manutencaoLancamentos(): HasMany
+    {
+        return $this->hasMany(ManutencaoLancamento::class);
     }
 
     // Accessors

@@ -39,6 +39,11 @@ class Veiculo extends Model
         return $this->hasMany(OrdemServico::class, 'veiculo_id');
     }
 
+    public function manutencaoLancamentos(): HasMany
+    {
+        return $this->hasMany(ManutencaoLancamento::class, 'veiculo_id');
+    }
+
     public function itens(): HasManyThrough
     {
         return $this->hasManyThrough(

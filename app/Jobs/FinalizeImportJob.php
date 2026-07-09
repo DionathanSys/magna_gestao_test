@@ -16,7 +16,8 @@ class FinalizeImportJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        private int $importLogId
+        private int $importLogId,
+        private string $importerClass,
     ) {
         // Fazer este job rodar por último
         $this->delay(now()->addSeconds(30));
@@ -38,6 +39,12 @@ class FinalizeImportJob implements ShouldQueue
 
         // Verificar se todos os batches foram processados
         if ($importLog->processed_batches >= $importLog->total_batches) {
+            $importer = app($this->importerClass);
+
+            if (method_exists($importer, 'finalizeImport')) {
+                $importer->finalizeImport($this->importLogId);
+            }
+
             $importLog->markAsCompleted();
 
             Log::info("Importação finalizada", [
@@ -63,7 +70,7 @@ class FinalizeImportJob implements ShouldQueue
                     'processed_batches' => $importLog->processed_batches,
                     'total_batches' => $importLog->total_batches,
                 ]);
-                FinalizeImportJob::dispatch($this->importLogId)->delay(now()->addSeconds(30));
+                FinalizeImportJob::dispatch($this->importLogId, $this->importerClass)->delay(now()->addSeconds(30));
 
             }
         }

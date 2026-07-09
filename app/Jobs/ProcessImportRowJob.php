@@ -23,7 +23,8 @@ class ProcessImportRowJob implements ShouldQueue
         private array   $batch,
         private array   $headers,
         private string  $importerClass,
-        private int     $importLogId
+        private int     $importLogId,
+        private int     $startRowNumber = 2,
     ) {
         $this->importLogService = new Services\Import\ImportLogService($importLogId);
     }
@@ -41,9 +42,16 @@ class ProcessImportRowJob implements ShouldQueue
         
         $importer = app($this->importerClass);
 
-        foreach ($this->batch as $index => $row) {
+        if (method_exists($importer, 'setImportContext')) {
+            $importer->setImportContext($this->importLogId);
+        }
 
-            $rowNumber = $index + 2;
+        foreach ($this->batch as $index => $row) {
+            if (method_exists($importer, 'clearResponse')) {
+                $importer->clearResponse();
+            }
+
+            $rowNumber = $this->startRowNumber + $index;
             $rowData = array_combine($this->headers, $row);
 
             Log::info('Linha bruta do lote de importacao de viagens', [

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\ManutencaoCustos\Pages;
+namespace App\Filament\Resources\ManutencaoLancamentos\Pages;
 
 use App\Filament\Resources\ManutencaoLancamentos\Actions\ImportarManutencaoAction;
-use App\Filament\Resources\ManutencaoCustos\ManutencaoCustoResource;
+use App\Filament\Resources\ManutencaoLancamentos\ManutencaoLancamentoResource;
 use Filament\Resources\Pages\ListRecords;
 
-class ListManutencaoCustos extends ListRecords
+class ListManutencaoLancamentos extends ListRecords
 {
-    protected static string $resource = ManutencaoCustoResource::class;
+    protected static string $resource = ManutencaoLancamentoResource::class;
 
     protected function getHeaderActions(): array
     {

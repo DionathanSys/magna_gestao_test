@@ -29,6 +29,8 @@ abstract class BaseImportService
     public function import(string $filePath, ExcelImportInterface $importer, array $options = []): array
     {
         try {
+            $headerRow = max(1, (int) ($options['header_row'] ?? 1));
+            $options['import_type'] = $options['import_type'] ?? get_class($importer);
 
             // Criar log de importação
             $importLog = Services\Import\ImportLogService::createImportLog($filePath, $options);
@@ -43,7 +45,7 @@ abstract class BaseImportService
             $rows = $worksheet->toArray();
 
             // Validar cabeçalho
-            $this->validateHeaders($rows[0] ?? [], $importer);
+            $this->validateHeaders($rows[$headerRow - 1] ?? [], $importer);
 
             // Processar linhas
             $this->processRows($rows, $importer, $importLog->id, $options);
@@ -121,12 +123,25 @@ abstract class BaseImportService
 
     protected function processRows(array $rows, ExcelImportInterface $importer, int $importLogId, array $options, array $additionalData = []): void
     {
-        $headers = array_shift($rows); // Remove cabeçalho
+        $headerRow = max(1, (int) ($options['header_row'] ?? 1));
+        $headers = $rows[$headerRow - 1] ?? [];
+        $rows = array_slice($rows, $headerRow);
+        $rows = array_values(array_filter($rows, function (array $row): bool {
+            return count(array_filter($row, fn ($value) => $value !== null && trim((string) $value) !== '')) > 0;
+        }));
 
         //Remove caracteres especiais dos cabeçalhos
         foreach ($headers as $key => $value) {
             $value = preg_replace('/[^a-zA-Z0-9_]/', '', $value);
             $headers[$key] = $value;
+        }
+
+        if (method_exists($importer, 'shouldSkipRow')) {
+            $rows = array_values(array_filter($rows, function (array $row) use ($headers, $importer): bool {
+                $rowData = array_combine($headers, $row);
+
+                return ! $importer->shouldSkipRow($rowData);
+            }));
         }
 
         $batchSize = $options['batch_size'] ?? 50;
@@ -149,14 +164,21 @@ abstract class BaseImportService
 
         Log::info("Processando " . count($rows) . " linhas em {$totalBatches} lotes de tamanho {$batchSize}.");
 
-        foreach ($batches as $batch) {
-            ProcessImportRowJob::dispatch($batch, $headers, get_class($importer), $importLogId);
+        $startRowNumber = $headerRow + 1;
+
+        foreach ($batches as $batchIndex => $batch) {
+            ProcessImportRowJob::dispatch(
+                $batch,
+                $headers,
+                get_class($importer),
+                $importLogId,
+                $startRowNumber + ($batchIndex * $batchSize)
+            );
         }
 
-        FinalizeImportJob::dispatch($importLogId);
+        FinalizeImportJob::dispatch($importLogId, get_class($importer));
 
         Log::info("Todos os lotes foram enfileirados para import_log_id: " . $importLogId);
     }
 
 }
-

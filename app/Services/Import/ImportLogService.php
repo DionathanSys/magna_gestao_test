@@ -27,7 +27,7 @@ class ImportLogService
             'import_description' => $options['descricao'] ?? 'Importação de dados',
             'file_name'     => basename($filePath),
             'file_path'     => Storage::disk('public')->path($filePath),
-            'import_type'   => static::class,
+            'import_type'   => $options['import_type'] ?? static::class,
             'user_id'       => Auth::id() ?? null,
             'status'        => Enum\Import\StatusImportacaoEnum::PENDENTE,
             'options'       => json_encode($options),

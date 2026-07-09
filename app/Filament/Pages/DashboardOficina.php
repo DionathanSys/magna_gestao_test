@@ -2,12 +2,20 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\OficinaManutencaoPorGrupoProduto;
+use App\Filament\Widgets\OficinaManutencaoPorVeiculo;
+use App\Filament\Widgets\OficinaManutencaoResumo;
 use BackedEnum;
+use Filament\Pages\Dashboard\Actions\FilterAction;
+use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
 use Filament\Pages\Page;
+use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 use UnitEnum;
 
 class DashboardOficina extends Page
 {
+    use HasFiltersAction;
+
     protected string $view = 'filament.pages.dashboard-oficina';
 
     protected static ?string $title = 'Dashboard Oficina';
@@ -18,18 +26,35 @@ class DashboardOficina extends Page
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar-square';
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            FilterAction::make()
+                ->schema([
+                    DateRangePicker::make('data_negociacao')
+                        ->label('Período de negociação')
+                        ->autoApply()
+                        ->firstDayOfWeek(0)
+                        ->alwaysShowCalendar(),
+                ]),
+        ];
+    }
+
     public function getHeaderWidgetsColumns(): int | array
     {
         return [
             'sm' => 1,
-            'md' => 2,
-            'lg' => 3,
+            'md' => 1,
+            'lg' => 1,
         ];
     }
 
     protected function getHeaderWidgets(): array
     {
         return [
+            OficinaManutencaoResumo::class,
+            OficinaManutencaoPorVeiculo::class,
+            OficinaManutencaoPorGrupoProduto::class,
         ];
     }
 }

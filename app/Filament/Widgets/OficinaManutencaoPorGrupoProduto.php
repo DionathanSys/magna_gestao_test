@@ -8,6 +8,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class OficinaManutencaoPorGrupoProduto extends TableWidget
@@ -34,8 +35,8 @@ class OficinaManutencaoPorGrupoProduto extends TableWidget
 
         return $table
             ->description($start && $end ? 'Período: '.$start->format('d/m/Y').' a '.$end->format('d/m/Y') : 'Período completo')
-            ->query(
-                ManutencaoLancamento::query()
+            ->records(function () use ($start, $end, $totalCentavos): Collection {
+                return ManutencaoLancamento::query()
                     ->select([
                         DB::raw('MIN(id) as id'),
                         DB::raw('COALESCE(grupo_produto, "Sem grupo") as grupo_produto_label'),
@@ -46,7 +47,15 @@ class OficinaManutencaoPorGrupoProduto extends TableWidget
                     ->when($start && $end, fn ($query) => $query->whereBetween('data_negociacao', [$start->toDateString(), $end->toDateString()]))
                     ->groupBy(DB::raw('COALESCE(grupo_produto, "Sem grupo")'))
                     ->orderByDesc('total_centavos')
-            )
+                    ->get()
+                    ->map(function ($record) use ($totalCentavos) {
+                        $record->participacao = $totalCentavos > 0
+                            ? number_format((((int) $record->total_centavos) / $totalCentavos) * 100, 2, ',', '.').'%'
+                            : '0,00%';
+
+                        return $record;
+                    });
+            })
             ->columns([
                 TextColumn::make('grupo_produto_label')
                     ->label('Grupo Produto')
@@ -57,7 +66,7 @@ class OficinaManutencaoPorGrupoProduto extends TableWidget
                     ->sortable(),
                 TextColumn::make('participacao')
                     ->label('% Participação')
-                    ->state(fn ($record): string => number_format($totalCentavos > 0 ? (((int) $record->total_centavos / $totalCentavos) * 100) : 0, 2, ',', '.').'%')
+                    ->state(fn ($record): string => $record->participacao)
                     ->sortable(false),
                 TextColumn::make('total_lancamentos')
                     ->label('Lançamentos')
@@ -67,7 +76,6 @@ class OficinaManutencaoPorGrupoProduto extends TableWidget
                     ->label('Veículos')
                     ->numeric(0, ',', '.')
                     ->sortable(),
-            ])
-            ->defaultPaginationPageOption(10);
+            ]);
     }
 }

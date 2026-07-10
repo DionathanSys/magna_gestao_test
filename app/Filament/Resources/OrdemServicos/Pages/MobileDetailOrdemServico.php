@@ -1,69 +1,56 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Filament\Resources\OrdemServicos\Pages;
 
-use App\Enum;
+use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
-use App\Filament\Resources\OrdemServicos\Schemas\Components;
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
 use App\Filament\Resources\OrdemServicos\Schemas\ItemOrdemServicoForm;
 use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
 use App\Models\Agendamento;
 use App\Models\ItemOrdemServico;
 use App\Models\ManutencaoLancamento;
 use App\Models\OrdemServico;
-use App\Models\Veiculo;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
 use App\Services\OrdemServico\OrdemServicoService;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Actions\Concerns\InteractsWithRecord;
+use Filament\Resources\Pages\Concerns\InteractsWithRecord;
+use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Livewire\Component;
 
-class FormOsMobile extends Component implements HasSchemas
+class MobileDetailOrdemServico extends Page implements HasSchemas
 {
-    use InteractsWithActions;
     use InteractsWithRecord;
     use InteractsWithSchemas;
 
+    protected static string $resource = OrdemServicoResource::class;
+
+    protected static ?string $title = 'OS';
+
+    protected string $view = 'filament.resources.ordem-servicos.pages.mobile-detail';
+
+    protected static bool $shouldRegisterNavigation = false;
+
     public ?array $data = [];
-
-    public ?int $ordemServicoId = null;
-
-    public ?OrdemServico $ordemServico = null;
-
-    public bool $isEditing = false;
 
     public ?string $activeTab = 'servicos';
 
-    public function mount(?int $ordemServicoId = null): void
+    public bool $showFormServico = false;
+
+    public ?array $formDataServico = [];
+
+    public ?int $editandoItemServicoId = null;
+
+    public function mount(int|string $record): void
     {
-        $this->isEditing = $ordemServicoId !== null;
-
-        if ($this->isEditing) {
-            $this->ordemServicoId = $ordemServicoId;
-            $this->loadRecord();
-
-            if (! $this->ordemServico) {
-                notify::error(mensagem: 'Ordem de Serviço não encontrada.');
-                $this->redirect(route('os-mobile.create'));
-
-                return;
-            }
-
-            $this->form->fill($this->ordemServico->attributesToArray());
-        } else {
-            $this->form->fill([
-                'tipo_manutencao' => Enum\OrdemServico\TipoManutencaoEnum::CORRETIVA->value,
-                'status' => Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE->value,
-                'data_inicio' => now()->format('Y-m-d H:i:s'),
-            ]);
-        }
+        $this->record = $this->loadRecordRelations($this->resolveRecord($record));
+        $this->form->fill($this->record->attributesToArray());
     }
 
     public function form(Schema $schema): Schema
@@ -72,79 +59,27 @@ class FormOsMobile extends Component implements HasSchemas
             ->schema([
                 Grid::make(1)
                     ->schema([
-                        Components\OrdemServicoVeiculoInput::make()
+                        OrdemServicoVeiculoInput::make()
                             ->columnSpanFull(),
                         OrdemServicoForm::getQuilometragemFormField()
                             ->label('Quilometragem')
                             ->columnSpanFull(),
-                        Components\OrdemServicoTipoManutencaoInput::make()
+                        OrdemServicoTipoManutencaoInput::make()
                             ->columnSpanFull(),
                         OrdemServicoForm::getStatusFormField()
-                            ->columnSpanFull()
-                            ->visible($this->isEditing),
+                            ->columnSpanFull(),
                         OrdemServicoForm::getStatusSankhyaFormField()
                             ->label('Sankhya')
-                            ->columnSpanFull()
-                            ->visible($this->isEditing),
+                            ->columnSpanFull(),
                         OrdemServicoForm::getParceiroIdFormField()
                             ->label('Parceiro Externo')
-                            ->columnSpanFull()
-                            ->visible($this->isEditing),
+                            ->columnSpanFull(),
                         OrdemServicoForm::getDataFimFormField()
-                            ->columnSpanFull()
-                            ->visible($this->isEditing),
+                            ->columnSpanFull(),
                     ]),
             ])
             ->statePath('data')
-            ->model($this->ordemServico ?? OrdemServico::class);
-    }
-
-    public function save(): void
-    {
-        $data = $this->form->getState();
-
-        if (! $this->isEditing) {
-            $veiculo = Veiculo::with('kmAtual')->find($data['veiculo_id']);
-
-            if (($veiculo->kmAtual->quilometragem ?? 0) > $data['quilometragem']) {
-                notify::error(mensagem: 'A quilometragem informada deve ser maior ou igual à quilometragem atual do veículo.');
-
-                return;
-            }
-
-            $data['created_by'] = auth()->id();
-            $data['status'] = Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE;
-            $data['status_sankhya'] = Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE;
-
-            $this->ordemServico = OrdemServico::create($data);
-            notify::success(mensagem: 'Ordem de Serviço criada com sucesso!');
-
-            $this->redirect(route('os-mobile.edit', $this->ordemServico->id));
-        } else {
-            $this->ordemServico->update($data);
-            notify::success(mensagem: 'Ordem de Serviço atualizada com sucesso!');
-            $this->loadRecord();
-        }
-    }
-
-    public function salvarForm(): void
-    {
-        $this->save();
-    }
-
-    // ── Item Serviço Actions ──────────────────────────────
-
-    public bool $showFormServico = false;
-
-    public ?array $formDataServico = [];
-
-    public ?int $editandoItemServicoId = null;
-
-    public function toggleFormServico(): void
-    {
-        $this->showFormServico = ! $this->showFormServico;
-        $this->editandoItemServicoId = null;
-        $this->formDataServico = [];
+            ->model($this->record);
     }
 
     public function formServico(Schema $schema): Schema
@@ -153,6 +88,45 @@ class FormOsMobile extends Component implements HasSchemas
             ->schema(ItemOrdemServicoForm::configure($schema, includeStatus: true))
             ->statePath('formDataServico')
             ->model(ItemOrdemServico::class);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
+
+    // ── OS Form Actions ──────────────────────────────────
+
+    public function salvarForm(): void
+    {
+        $data = $this->form->getState();
+        $this->record->update($data);
+        notify::success(mensagem: 'Ordem de Serviço atualizada com sucesso!');
+        $this->refreshRecord();
+    }
+
+    public function encerrar(): void
+    {
+        $service = new OrdemServicoService;
+        $service->encerrarOrdemServico($this->record);
+
+        if ($service->hasError()) {
+            notify::error(mensagem: $service->getMessage());
+
+            return;
+        }
+
+        notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
+        $this->refreshRecord();
+    }
+
+    // ── Item Serviço Actions ──────────────────────────────
+
+    public function toggleFormServico(): void
+    {
+        $this->showFormServico = ! $this->showFormServico;
+        $this->editandoItemServicoId = null;
+        $this->formDataServico = [];
     }
 
     public function salvarServico(): void
@@ -170,7 +144,7 @@ class FormOsMobile extends Component implements HasSchemas
 
             notify::success(mensagem: 'Serviço atualizado com sucesso!');
         } else {
-            $this->formDataServico['ordem_servico_id'] = $this->ordemServico->id;
+            $this->formDataServico['ordem_servico_id'] = $this->record->id;
             $service->create($this->formDataServico);
 
             if ($service->hasError()) {
@@ -185,7 +159,7 @@ class FormOsMobile extends Component implements HasSchemas
         $this->showFormServico = false;
         $this->editandoItemServicoId = null;
         $this->formDataServico = [];
-        $this->loadRecord();
+        $this->refreshRecord();
     }
 
     public function editarServico(int $itemServicoId): void
@@ -217,7 +191,7 @@ class FormOsMobile extends Component implements HasSchemas
         $service->delete($item);
 
         notify::success(mensagem: 'Serviço removido com sucesso!');
-        $this->loadRecord();
+        $this->refreshRecord();
     }
 
     // ── Agendamento Actions ──────────────────────────────
@@ -242,7 +216,7 @@ class FormOsMobile extends Component implements HasSchemas
         }
 
         notify::success(mensagem: 'Agendamento vinculado com sucesso!');
-        $this->loadRecord();
+        $this->refreshRecord();
     }
 
     public function cancelarAgendamento(int $agendamentoId): void
@@ -265,7 +239,7 @@ class FormOsMobile extends Component implements HasSchemas
         }
 
         notify::success(mensagem: 'Agendamento cancelado com sucesso!');
-        $this->loadRecord();
+        $this->refreshRecord();
     }
 
     // ── Lancamento Actions ──────────────────────────────
@@ -273,7 +247,7 @@ class FormOsMobile extends Component implements HasSchemas
     public function vincularLancamento(int $lancamentoId): void
     {
         $lancamento = ManutencaoLancamento::query()
-            ->where('veiculo_id', $this->ordemServico->veiculo_id)
+            ->where('veiculo_id', $this->record->veiculo_id)
             ->find($lancamentoId);
 
         if (! $lancamento) {
@@ -282,16 +256,16 @@ class FormOsMobile extends Component implements HasSchemas
             return;
         }
 
-        app(ManutencaoLancamentoVinculoService::class)->vincular($lancamento, $this->ordemServico, 'manual');
+        app(ManutencaoLancamentoVinculoService::class)->vincular($lancamento, $this->record, 'manual');
 
         notify::success(mensagem: 'Custo vinculado com sucesso!');
-        $this->loadRecord();
+        $this->refreshRecord();
     }
 
     public function desvincularLancamento(int $lancamentoId): void
     {
         $lancamento = ManutencaoLancamento::query()
-            ->where('ordem_servico_id', $this->ordemServico->id)
+            ->where('ordem_servico_id', $this->record->id)
             ->find($lancamentoId);
 
         if (! $lancamento) {
@@ -303,42 +277,25 @@ class FormOsMobile extends Component implements HasSchemas
         app(ManutencaoLancamentoVinculoService::class)->desvincular($lancamento);
 
         notify::success(mensagem: 'Vínculo removido com sucesso!');
-        $this->loadRecord();
-    }
-
-    // ── Encerrar ─────────────────────────────────────────
-
-    public function encerrar(): void
-    {
-        $service = new OrdemServicoService;
-        $service->encerrarOrdemServico($this->ordemServico);
-
-        if ($service->hasError()) {
-            notify::error(mensagem: $service->getMessage());
-
-            return;
-        }
-
-        notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
-        $this->loadRecord();
+        $this->refreshRecord();
     }
 
     // ── Helpers ──────────────────────────────────────────
 
     public function getPdfUrl(): string
     {
-        return route('ordem-servico.pdf.visualizar', $this->ordemServico->id);
+        return route('ordem-servico.pdf.visualizar', $this->record->id);
     }
 
-    public function getDesktopUrl(): string
+    public function getListUrl(): string
     {
-        return OrdemServicoResource::getUrl('custom', ['record' => $this->ordemServico->id]);
+        return static::getUrl('mobile-list');
     }
 
     public function getLancamentosPendentesProperty()
     {
         return ManutencaoLancamento::query()
-            ->where('veiculo_id', $this->ordemServico->veiculo_id)
+            ->where('veiculo_id', $this->record->veiculo_id)
             ->whereNull('ordem_servico_id')
             ->orderByDesc('data_negociacao')
             ->orderByDesc('id')
@@ -346,13 +303,15 @@ class FormOsMobile extends Component implements HasSchemas
             ->get();
     }
 
-    protected function loadRecord(): void
+    protected function refreshRecord(): void
     {
-        if (! $this->ordemServico) {
-            return;
-        }
+        $this->record = $this->loadRecordRelations($this->record->fresh());
+    }
 
-        $this->ordemServico = $this->ordemServico->fresh()->load([
+    protected function loadRecordRelations(OrdemServico $record): OrdemServico
+    {
+        return $record->load([
+            'veiculo:id,placa',
             'itens.servico:id,codigo,descricao',
             'itens.comentarios',
             'agendamentosPendentes.servico:id,descricao',
@@ -360,10 +319,5 @@ class FormOsMobile extends Component implements HasSchemas
             'planoPreventivoVinculado.planoPreventivo:id,descricao,intervalo',
             'manutencaoLancamentos',
         ]);
-    }
-
-    public function render()
-    {
-        return view('livewire.form-os-mobile');
     }
 }

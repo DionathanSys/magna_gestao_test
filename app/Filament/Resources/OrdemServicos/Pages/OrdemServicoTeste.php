@@ -30,20 +30,24 @@ class OrdemServicoTeste extends Page
     {
         return [
             ActionGroup::make([
-                Actions\VincularServicoOrdemServicoAction::make(),
-                Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id),
-                Actions\VincularOrdemSankhyaAction::make(),
+                Actions\VincularServicoOrdemServicoAction::make()
+                    ->size(Size::ExtraSmall),
+                Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id)
+                    ->size(Size::ExtraSmall),
+                Actions\VincularOrdemSankhyaAction::make()
+                    ->size(Size::ExtraSmall),
+                Actions\EncerrarOrdemServicoAction::make()
+                    ->size(Size::ExtraSmall)
+                    ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl()),
+                Actions\PdfOrdemServicoAction::make()
+                    ->size(Size::ExtraSmall),
                 ActionGroup::make([
                     DeleteAction::make('delete')
+                        ->size(Size::ExtraSmall)
                         ->requiresConfirmation()
-                        ->action(fn() => $this->record->delete()),
-                ])->label('Ações')->button(),
-
-                Actions\EncerrarOrdemServicoAction::make()
-                    ->successRedirectUrl(fn(Model $record): string => OrdemServicoResource::getUrl()),
-
-                Actions\PdfOrdemServicoAction::make(),
-            ])
+                        ->action(fn () => $this->record->delete()),
+                ])->label('Ações')->button()->size(Size::ExtraSmall),
+            ])->buttonGroup()->size(Size::ExtraSmall),
         ];
     }
 }

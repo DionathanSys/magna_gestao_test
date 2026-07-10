@@ -30,7 +30,7 @@ class OrdemServicoTeste extends Page
     {
         return [
             ActionGroup::make([
-                Actions\VincularServicoOrdemServicoAction::make()
+                Actions\VincularServicoOrdemServicoAction::make($this->record)
                     ->size(Size::ExtraSmall),
                 Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id)
                     ->size(Size::ExtraSmall),

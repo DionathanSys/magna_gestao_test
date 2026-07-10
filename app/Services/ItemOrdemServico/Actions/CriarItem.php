@@ -16,6 +16,8 @@ class CriarItem
 
     public function handle(array $data): Models\ItemOrdemServico
     {
+        $data = $this->sanitize($data);
+
         Log::debug(__METHOD__.' - '.__LINE__, [
             'data' => $data,
         ]);
@@ -30,6 +32,17 @@ class CriarItem
 
         return Models\ItemOrdemServico::query()
             ->create($data);
+    }
+
+    protected function sanitize(array $data): array
+    {
+        return array_intersect_key($data, array_flip([
+            'ordem_servico_id',
+            'servico_id',
+            'plano_preventivo_id',
+            'posicao',
+            'observacao',
+        ]));
     }
 
     private function exists(array $data): bool

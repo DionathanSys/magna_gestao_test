@@ -13,6 +13,8 @@ class AtualizarItem
 
     public function handle(array $data): Models\ItemOrdemServico
     {
+        $data = $this->sanitize($data);
+
         $servico = Models\Servico::query()->findOrFail($data['servico_id']);
         $data['posicao'] = $servico->controla_posicao ? ($data['posicao'] ?? null) : null;
 
@@ -21,6 +23,17 @@ class AtualizarItem
         $this->itemOrdemServico->update($data);
 
         return $this->itemOrdemServico;
+    }
+
+    protected function sanitize(array $data): array
+    {
+        return array_intersect_key($data, array_flip([
+            'servico_id',
+            'plano_preventivo_id',
+            'posicao',
+            'observacao',
+            'status',
+        ]));
     }
 
     protected function exists(array $data): bool

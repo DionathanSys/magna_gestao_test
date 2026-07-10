@@ -41,12 +41,10 @@ class OrdemServicoTeste extends Page
                     ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl()),
                 Actions\PdfOrdemServicoAction::make()
                     ->size(Size::ExtraSmall),
-                ActionGroup::make([
-                    DeleteAction::make('delete')
-                        ->size(Size::ExtraSmall)
-                        ->requiresConfirmation()
-                        ->action(fn () => $this->record->delete()),
-                ])->label('Ações')->button()->size(Size::ExtraSmall),
+                DeleteAction::make('delete')
+                    ->size(Size::ExtraSmall)
+                    ->requiresConfirmation()
+                    ->action(fn () => $this->record->delete()),
             ])->buttonGroup()->size(Size::ExtraSmall),
         ];
     }

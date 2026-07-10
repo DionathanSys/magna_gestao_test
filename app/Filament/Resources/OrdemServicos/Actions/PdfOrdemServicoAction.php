@@ -21,7 +21,6 @@ class PdfOrdemServicoAction
         return Action::make('PDF OS')
             ->label('Abrir PDF')
             ->icon('heroicon-o-eye')
-            ->size(Size::ExtraSmall)
             ->url(function ($record) {
                 return route('ordem-servico.pdf.visualizar', $record);
             })

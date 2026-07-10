@@ -24,7 +24,6 @@ class EncerrarOrdemServicoAction
             ->label('Encerrar')
             ->icon('heroicon-o-check-circle')
             ->color('success')
-            ->size(Size::ExtraSmall)
             ->action(function (Models\OrdemServico $record, Action $action) {
                 $service = new Services\OrdemServico\OrdemServicoService();
                 $service->encerrarOrdemServico($record);

@@ -73,10 +73,6 @@ class OficinaManutencaoPorVeiculo extends TableWidget
                     ->label('% Participação')
                     ->state(fn ($record): string => $record->participacao)
                     ->sortable(false),
-                TextColumn::make('total_lancamentos')
-                    ->label('Lançamentos')
-                    ->numeric(0, ',', '.')
-                    ->sortable(),
                 TextColumn::make('ticket_medio')
                     ->label('Ticket Médio')
                     ->state(fn ($record): int => $record->ticket_medio)

@@ -68,10 +68,6 @@ class OficinaManutencaoPorGrupoProduto extends TableWidget
                     ->label('% Participação')
                     ->state(fn ($record): string => $record->participacao)
                     ->sortable(false),
-                TextColumn::make('total_lancamentos')
-                    ->label('Lançamentos')
-                    ->numeric(0, ',', '.')
-                    ->sortable(),
                 TextColumn::make('total_veiculos')
                     ->label('Veículos')
                     ->numeric(0, ',', '.')

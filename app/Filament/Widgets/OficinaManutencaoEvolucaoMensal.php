@@ -72,9 +72,6 @@ class OficinaManutencaoEvolucaoMensal extends TableWidget
                     ->money('BRL', 100),
                 TextColumn::make('corretiva_percentual')
                     ->label('% Corretiva'),
-                TextColumn::make('total_lancamentos')
-                    ->label('Lançamentos')
-                    ->numeric(0, ',', '.'),
                 TextColumn::make('total_veiculos')
                     ->label('Veículos')
                     ->numeric(0, ',', '.'),

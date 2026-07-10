@@ -173,7 +173,13 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         }
 
         $this->editandoItemServicoId = $itemServicoId;
-        $this->formDataServico = $item->toArray();
+        $this->formDataServico = [
+            'servico_id' => $item->servico_id,
+            'controla_posicao' => (bool) $item->controla_posicao,
+            'posicao' => $item->posicao,
+            'observacao' => $item->observacao,
+            'status' => $item->status?->value ?? $item->status,
+        ];
         $this->showFormServico = true;
     }
 

@@ -22,7 +22,7 @@ class VincularServicoOrdemServicoAction
                 $action->makeModalSubmitAction('vincularOutro', arguments: ['another' => true]),
             ])
             ->modalSubmitActionLabel('Vincular')
-            ->action(function (Action $action, Schema $form, array $data, array $arguments): ?Model {
+            ->action(function (Action $action, Schema $form, array $data, array $arguments) use ($ordemServico): ?Model {
                 $record = static::resolveOrdemServico($ordemServico, $action->getRecord());
 
                 if (! $record instanceof Models\OrdemServico) {

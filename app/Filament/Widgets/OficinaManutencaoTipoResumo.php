@@ -15,7 +15,7 @@ class OficinaManutencaoTipoResumo extends StatsOverviewWidget
     use InteractsWithPageFilters;
     use ParsesDateRangeFilter;
 
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
 
     protected static bool $isDiscovered = false;
 

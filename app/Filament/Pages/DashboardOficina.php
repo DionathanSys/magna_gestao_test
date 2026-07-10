@@ -6,6 +6,7 @@ use App\Filament\Widgets\OficinaManutencaoPorGrupoProduto;
 use App\Filament\Widgets\OficinaManutencaoPorVeiculo;
 use App\Filament\Widgets\OficinaManutencaoEvolucaoMensal;
 use App\Filament\Widgets\OficinaManutencaoItensRecorrentes;
+use App\Filament\Widgets\OficinaManutencaoComparativoPeriodo;
 use App\Filament\Widgets\OficinaManutencaoResumo;
 use App\Filament\Widgets\OficinaManutencaoTipoResumo;
 use BackedEnum;
@@ -56,6 +57,7 @@ class DashboardOficina extends Page
     {
         return [
             OficinaManutencaoResumo::class,
+            OficinaManutencaoComparativoPeriodo::class,
             OficinaManutencaoTipoResumo::class,
             OficinaManutencaoPorVeiculo::class,
             OficinaManutencaoPorGrupoProduto::class,

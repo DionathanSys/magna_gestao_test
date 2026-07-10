@@ -76,7 +76,7 @@ class MobileListOrdemServicos extends Page implements HasTable
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->recordUrl(fn (OrdemServico $record): string => static::getUrl('mobile-detail', ['record' => $record->id]))
+            ->recordUrl(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('mobile-detail', ['record' => $record->id]))
             ->recordClasses('cursor-pointer')
             ->paginated([15, 30, 50])
             ->defaultPaginationPageOption(15);
@@ -88,7 +88,7 @@ class MobileListOrdemServicos extends Page implements HasTable
             Action::make('nova-os')
                 ->label('Nova OS')
                 ->icon('heroicon-o-plus')
-                ->url(static::getUrl('mobile-create')),
+                ->url(OrdemServicoResource::getUrl('mobile-create')),
         ];
     }
 }

@@ -289,7 +289,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public function getListUrl(): string
     {
-        return static::getUrl('mobile-list');
+        return OrdemServicoResource::getUrl('mobile-list');
     }
 
     public function getLancamentosPendentesProperty()

@@ -80,11 +80,11 @@ class MobileCreateOrdemServico extends Page implements HasSchemas
         $ordemServico = OrdemServico::create($data);
         notify::success(mensagem: 'Ordem de Serviço criada com sucesso!');
 
-        $this->redirect(MobileDetailOrdemServico::getUrl('record', ['record' => $ordemServico->id]));
+        $this->redirect(OrdemServicoResource::getUrl('mobile-detail', ['record' => $ordemServico->id]));
     }
 
     public function getListUrl(): string
     {
-        return MobileListOrdemServicos::getUrl();
+        return OrdemServicoResource::getUrl('mobile-list');
     }
 }

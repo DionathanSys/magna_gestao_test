@@ -3,7 +3,7 @@
         .os-mob-page { padding-bottom: 5.5rem; }
         .os-mob-card { background: #fff; border-radius: 0.85rem; padding: 0.85rem; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .os-mob-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.6rem; gap: 0.75rem; }
-        .os-mob-title { font-size: 1rem; font-weight: 700; color: #0f172a; line-height: 1.2; }
+        .os-mob-title { font-size: 1rem; font-weight: 700; color: #0f172a; line-height: 1.2; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
         .os-mob-subtitle { font-size: 0.76rem; color: #64748b; margin-top: 0.15rem; }
         .os-mob-badge { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 9999px; }
         .os-mob-badge-pendente { background: #fef3c7; color: #92400e; }
@@ -26,7 +26,7 @@
         .os-mob-tab-active { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
         .os-mob-cost { font-size: 0.9rem; font-weight: 600; color: #0f172a; }
         .os-mob-total { background: #f8fafc; border-radius: 0.5rem; padding: 0.75rem 1rem; margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .os-mob-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; margin-top: 0.65rem; }
+        .os-mob-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin-top: 0.65rem; }
         .os-mob-kpi { border-radius: 0.7rem; background: #f8fafc; padding: 0.6rem 0.7rem; }
         .os-mob-kpi-label { display: block; font-size: 0.66rem; color: #64748b; }
         .os-mob-kpi-value { display: block; margin-top: 0.1rem; font-size: 0.77rem; font-weight: 700; color: #0f172a; }
@@ -39,7 +39,10 @@
     <div class="os-mob-card">
         <div class="os-mob-header">
             <div>
-                <div class="os-mob-title">OS #{{ $record->id }}</div>
+                <div class="os-mob-title">
+                    <span>OS #{{ $record->id }}</span>
+                    <span style="font-size:0.78rem;font-weight:600;color:#64748b;">{{ $record->tipo_manutencao?->value ?? '—' }}</span>
+                </div>
                 <div class="os-mob-subtitle">
                     {{ $record->veiculo?->placa ?? '—' }}
                     &middot;
@@ -54,10 +57,6 @@
         </div>
 
         <div class="os-mob-kpis">
-            <div class="os-mob-kpi">
-                <span class="os-mob-kpi-label">Tipo</span>
-                <span class="os-mob-kpi-value">{{ $record->tipo_manutencao?->value ?? '—' }}</span>
-            </div>
             <div class="os-mob-kpi">
                 <span class="os-mob-kpi-label">KM</span>
                 <span class="os-mob-kpi-value">{{ number_format($record->quilometragem ?? 0, 0, ',', '.') }}</span>

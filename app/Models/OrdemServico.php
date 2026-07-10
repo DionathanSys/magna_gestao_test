@@ -67,6 +67,11 @@ class OrdemServico extends Model
         return $this->hasMany(Agendamento::class, 'ordem_servico_id');
     }
 
+    public function manutencaoLancamentos(): HasMany
+    {
+        return $this->hasMany(ManutencaoLancamento::class, 'ordem_servico_id');
+    }
+
     public function agendamentosPendentes(): HasMany
     {
         return $this->hasMany(Agendamento::class, 'veiculo_id', 'veiculo_id')

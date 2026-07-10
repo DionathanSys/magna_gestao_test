@@ -13,6 +13,10 @@ class ManutencaoImportSyncService
 {
     use ServiceResponseTrait;
 
+    public function __construct(
+        private readonly ManutencaoLancamentoVinculoService $vinculoService,
+    ) {}
+
     public function upsert(array $data, int $importLogId): ?ManutencaoLancamento
     {
         try {
@@ -23,6 +27,8 @@ class ManutencaoImportSyncService
                     'deleted_at' => null,
                 ])
             );
+
+            $this->vinculoService->conciliarAutomaticamente($lancamento);
 
             $this->setSuccess('Lançamento de manutenção sincronizado com sucesso.');
 

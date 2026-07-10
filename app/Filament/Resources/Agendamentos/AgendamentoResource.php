@@ -13,7 +13,6 @@ use App\Models\Agendamento;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -23,7 +22,7 @@ class AgendamentoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-clock';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clock';
 
     protected static ?string $modelLabel = 'Agendamento';
 
@@ -59,7 +58,7 @@ class AgendamentoResource extends Resource
             'index' => ListAgendamentos::route('/'),
             // 'create' => CreateAgendamento::route('/create'),
             // 'view' => ViewAgendamento::route('/{record}'),
-            // 'edit' => EditAgendamento::route('/{record}/edit'),
+            'edit' => EditAgendamento::route('/{record}/edit'),
         ];
     }
 }

@@ -45,52 +45,51 @@ class FormTeste extends Component implements HasSchemas
                             [
                                 Tabs\Tab::make('Informações Gerais')
                                     ->columns([
-                                        'default' => 2,
-                                        'xl' => 4,
-                                        '2xl' => 6,
+                                        'default' => 1,
+                                        'md' => 2,
                                     ])
                                     ->schema([
                                         OrdemServicoVeiculoInput::make()
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
                                         OrdemServicoForm::getQuilometragemFormField()
                                             ->label('Quilometragem')
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
                                         OrdemServicoTipoManutencaoInput::make()
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
                                         OrdemServicoForm::getStatusFormField()
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
                                         OrdemServicoForm::getStatusSankhyaFormField()
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
                                         OrdemServicoForm::getParceiroIdFormField()
                                             ->label('Parceiro Externo')
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
                                         OrdemServicoDataAberturaInput::make()
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
                                         OrdemServicoForm::getDataFimFormField()
                                             ->columnSpan([
-                                                'default' => 2,
-                                                'xl' => 2,
+                                                'default' => 1,
+                                                'md' => 1,
                                             ]),
 
                                     ]),

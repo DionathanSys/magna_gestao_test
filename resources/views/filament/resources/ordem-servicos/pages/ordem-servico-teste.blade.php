@@ -58,6 +58,12 @@
             font-size: 0.85rem;
             color: rgb(100 116 139);
         }
+        .os-item-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.65rem;
+        }
         @media (min-width: 640px) { /* sm breakpoint */
             .os-flex-container {
                 flex-direction: row;
@@ -100,6 +106,17 @@
                                     @if ($agendamento->observacao)
                                         <span>Obs.: {{ $agendamento->observacao }}</span>
                                     @endif
+                                    <div class="os-item-actions">
+                                        <x-filament::button size="xs" color="primary" wire:click="vincularAgendamento({{ $agendamento->id }})">
+                                            Vincular
+                                        </x-filament::button>
+                                        <x-filament::button size="xs" color="gray" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)">
+                                            Editar
+                                        </x-filament::button>
+                                        <x-filament::button size="xs" color="danger" wire:click="cancelarAgendamento({{ $agendamento->id }})">
+                                            Cancelar
+                                        </x-filament::button>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
@@ -118,6 +135,57 @@
                                     <strong>{{ $planoVinculado->planoPreventivo?->descricao ?? 'Plano não informado' }}</strong>
                                     <span>Plano ID: {{ $planoVinculado->plano_preventivo_id }}</span>
                                     <span>Intervalo: {{ $planoVinculado->planoPreventivo?->intervalo ?? 'N/A' }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </section>
+
+                <section class="os-list-panel">
+                    <div class="os-list-title">Custos Vinculados</div>
+
+                    @if ($record->manutencaoLancamentos->isEmpty())
+                        <div class="os-empty-list">Nenhum custo vinculado.</div>
+                    @else
+                        <div class="os-simple-list">
+                            @foreach ($record->manutencaoLancamentos->sortByDesc('data_negociacao') as $lancamento)
+                                <div class="os-simple-item">
+                                    <strong>{{ $lancamento->produto }}</strong>
+                                    <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                    <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
+                                    <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
+                                    <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
+                                    <span>Vínculo: {{ $lancamento->tipo_vinculo === 'automatico' ? 'Automático' : 'Manual' }}</span>
+                                    <div class="os-item-actions">
+                                        <x-filament::button size="xs" color="danger" wire:click="desvincularLancamento({{ $lancamento->id }})">
+                                            Desvincular
+                                        </x-filament::button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </section>
+
+                <section class="os-list-panel">
+                    <div class="os-list-title">Custos Pendentes do Veículo</div>
+
+                    @if ($this->lancamentosPendentes->isEmpty())
+                        <div class="os-empty-list">Nenhum custo pendente para este veículo.</div>
+                    @else
+                        <div class="os-simple-list">
+                            @foreach ($this->lancamentosPendentes as $lancamento)
+                                <div class="os-simple-item">
+                                    <strong>{{ $lancamento->produto }}</strong>
+                                    <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                    <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
+                                    <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
+                                    <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
+                                    <div class="os-item-actions">
+                                        <x-filament::button size="xs" color="primary" wire:click="vincularLancamento({{ $lancamento->id }})">
+                                            Vincular nesta OS
+                                        </x-filament::button>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>

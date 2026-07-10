@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Agendamentos\Pages;
 
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditAgendamento extends EditRecord
@@ -14,7 +13,6 @@ class EditAgendamento extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
             DeleteAction::make(),
         ];
     }

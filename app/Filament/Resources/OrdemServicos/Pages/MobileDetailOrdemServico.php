@@ -127,14 +127,26 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         $this->showFormServico = ! $this->showFormServico;
         $this->editandoItemServicoId = null;
         $this->formDataServico = [];
+
+        if ($this->showFormServico) {
+            $this->formServico->fill([
+                'servico_id' => null,
+                'controla_posicao' => false,
+                'posicao' => null,
+                'observacao' => null,
+                'status' => Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE->value,
+            ]);
+        }
     }
 
     public function salvarServico(): void
     {
+        $data = $this->formServico->getState();
+
         $service = new ItemOrdemServicoService;
 
         if ($this->editandoItemServicoId) {
-            $service->update($this->editandoItemServicoId, $this->formDataServico);
+            $service->update($this->editandoItemServicoId, $data);
 
             if ($service->hasError()) {
                 notify::error(mensagem: $service->getMessage());
@@ -144,8 +156,8 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
             notify::success(mensagem: 'Serviço atualizado com sucesso!');
         } else {
-            $this->formDataServico['ordem_servico_id'] = $this->record->id;
-            $service->create($this->formDataServico);
+            $data['ordem_servico_id'] = $this->record->id;
+            $service->create($data);
 
             if ($service->hasError()) {
                 notify::error(mensagem: $service->getMessage());
@@ -180,6 +192,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             'observacao' => $item->observacao,
             'status' => $item->status?->value ?? $item->status,
         ];
+        $this->formServico->fill($this->formDataServico);
         $this->showFormServico = true;
     }
 

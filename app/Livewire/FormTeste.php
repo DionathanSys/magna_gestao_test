@@ -2,42 +2,36 @@
 
 namespace App\Livewire;
 
-use App\Filament\Resources\OrdemServicos\Schemas\{OrdemServicoForm, Components};
+use App\Filament\Resources\OrdemServicos\Schemas\Components;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoDataAberturaInput;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
+use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
 use App\Models\OrdemServico;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Concerns\InteractsWithRecord;
-use Livewire\Component;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\FusedGroup;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Illuminate\Contracts\View\View;
 use Filament\Schemas\Schema;
-use App\Services\NotificacaoService as notify;
-
+use Livewire\Component;
 
 class FormTeste extends Component implements HasSchemas
 {
     use InteractsWithActions;
-    use InteractsWithSchemas;
     use InteractsWithRecord;
+    use InteractsWithSchemas;
 
     public ?array $data = [];
+
     public OrdemServico $ordemServico;
 
     public function mount(OrdemServico $ordemServico): void
     {
-        $this->ordemServico = $ordemServico->load(['agendamentosPendentes', 'planoPreventivoVinculado', 'sankhyaId']);
+        $this->ordemServico = $ordemServico->load(['sankhyaId']);
         $this->form->fill($ordemServico->attributesToArray());
     }
-
 
     public function form(Schema $schema): Schema
     {
@@ -59,71 +53,55 @@ class FormTeste extends Component implements HasSchemas
                                         OrdemServicoVeiculoInput::make()
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
                                         OrdemServicoForm::getQuilometragemFormField()
                                             ->label('Quilometragem')
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
                                         OrdemServicoTipoManutencaoInput::make()
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
                                         OrdemServicoForm::getStatusFormField()
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
                                         OrdemServicoForm::getStatusSankhyaFormField()
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
                                         OrdemServicoForm::getParceiroIdFormField()
                                             ->label('Parceiro Externo')
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
                                         OrdemServicoDataAberturaInput::make()
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
                                         OrdemServicoForm::getDataFimFormField()
                                             ->columnSpan([
                                                 'default' => 2,
-                                                'xl' => 2
+                                                'xl' => 2,
                                             ]),
 
-                                    ]),
-                                Tabs\Tab::make('Agendamentos')
-                                    ->badge(fn(): string => (string) $this->ordemServico->agendamentosPendentes()->count())
-                                    ->badgeColor('danger')
-                                    ->columns(4)
-                                    ->schema([
-                                        Components\AgendamentoRepeater::make()
-                                            ->columnSpanFull(),
-                                    ]),
-                                Tabs\Tab::make('Preventivas')
-                                    ->badge(fn(): string => (string) $this->ordemServico->planoPreventivoVinculado()->count())
-                                    ->badgeColor('info')
-                                    ->columns(4)
-                                    ->schema([
-                                        Components\PlanosPreventivosVinculadoRepeater::make()
-                                            ->columnSpanFull(),
                                     ]),
                                 Tabs\Tab::make('Sankhya')
                                     ->columns(4)
                                     ->schema([
-                                        Components\OrdemServicoSankhyaRepeater::make()
+                                        Components\OrdemServicoSankhyaRepeater::make(),
                                     ]),
 
                             ]
-                        )
+                        ),
                 ]
             )
             ->statePath('data')

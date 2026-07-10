@@ -23,7 +23,11 @@ class OrdemServicoTeste extends Page
 
     public function mount(int|string $record): void
     {
-        $this->record = $this->resolveRecord($record);
+        $this->record = $this->resolveRecord($record)->load([
+            'agendamentosPendentes.servico:id,descricao',
+            'agendamentosPendentes.parceiro:id,nome',
+            'planoPreventivoVinculado.planoPreventivo:id,descricao,intervalo',
+        ]);
     }
 
     protected function getHeaderActions(): array

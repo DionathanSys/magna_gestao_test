@@ -2,17 +2,16 @@
 
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
-use App\Models;
 use App\Enum;
-use App\Services\NotificacaoService as notify;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use App\Models;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class ListOrdemServicos extends ListRecords
 {
@@ -21,7 +20,7 @@ class ListOrdemServicos extends ListRecords
     // Habilita a persistência da aba ativa no localStorage
     protected bool $persistTabInLocalStorage = true;
 
-     protected function getHeaderActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
@@ -39,8 +38,10 @@ class ListOrdemServicos extends ListRecords
                     $data['created_by'] = Auth::user()->id;
                     $data['status'] = Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE;
                     $data['status_sankhya'] = Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE;
+
                     return $data;
-                }),
+                })
+                ->successRedirectUrl(fn (Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->getKey()])),
         ];
     }
 
@@ -61,30 +62,31 @@ class ListOrdemServicos extends ListRecords
                 ->badgeColor('info'),
             'encerrar_ordem' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                                                            ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                                                            ->where('parceiro_id', null))
-                                                            ->badge(Models\OrdemServico::query()
-                                                                ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                                                                ->where('status_sankhya', '!=',Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                                                                ->where('parceiro_id', null)->count())
-                                                            ->badgeColor('info'),
+                    ->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
+                    ->where('parceiro_id', null))
+                ->badge(Models\OrdemServico::query()
+                    ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
+                    ->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
+                    ->where('parceiro_id', null)->count())
+                ->badgeColor('info'),
             'Terceiros' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                     ->where('parceiro_id', '!=', null))
                 ->badge(Models\OrdemServico::query()->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                     ->where('parceiro_id', '!=', null)->count())
-                    ->badgeColor('danger'),
+                ->badgeColor('danger'),
 
         ];
     }
 
-    public function getDefaultActiveTab(): string | int | null
+    public function getDefaultActiveTab(): string|int|null
     {
         $lastActiveTab = session('ordem_servicos_last_active_tab');
-        
+
         if ($lastActiveTab && array_key_exists($lastActiveTab, $this->getTabs())) {
             return $lastActiveTab;
-        } 
+        }
+
         return 'pendente';
     }
 

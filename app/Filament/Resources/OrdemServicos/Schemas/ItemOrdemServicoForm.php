@@ -2,25 +2,20 @@
 
 namespace App\Filament\Resources\OrdemServicos\Schemas;
 
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Schema;
 use App\Enum;
-use App\Models;
+use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Filament\Resources\Servicos\Schemas\ServicoForm;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Repeater\TableColumn;
+use App\Models;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
 class ItemOrdemServicoForm
 {
-    public static function configure(Schema $schema): Schema
+    public static function configure(Schema $schema, bool $includeStatus = false): Schema
     {
         return $schema
             ->columns([
@@ -34,26 +29,27 @@ class ItemOrdemServicoForm
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 2,
-                        'lg' => 3
+                        'lg' => 3,
                     ]),
                 self::getControlaPosicaoFormField()
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 1,
-                        'lg' => 2
+                        'lg' => 2,
                     ]),
                 self::getPosicaoFormField()
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 1,
-                        'lg' => 2
+                        'lg' => 2,
                     ]),
                 self::getStatusFormField()
                     ->columnSpan([
                         'sm' => 1,
                         'md' => 2,
-                        'lg' => 3
-                    ]),
+                        'lg' => 3,
+                    ])
+                    ->visible(fn (): bool => $includeStatus),
                 self::getObservacaoFormField()
                     ->columnSpanFull(),
             ]);
@@ -65,24 +61,32 @@ class ItemOrdemServicoForm
             ->label('Serviço')
             ->required()
             // ->relationship('servico', 'descricao') //TODO Não está funcionando por usar no OrdemTable talvez criar um relationship 'servico' de certo
-            ->getSearchResultsUsing(fn(string $search): array => Models\Servico::query()
-                ->where('descricao', 'like', "%".str_replace(' ', '%', $search)."%")
+            ->getSearchResultsUsing(fn (string $search): array => Models\Servico::query()
+                ->where('descricao', 'like', '%'.str_replace(' ', '%', $search).'%')
                 ->limit(10)
-                ->pluck('descricao', 'id')
+                ->get()
+                ->mapWithKeys(fn (Models\Servico $servico): array => [$servico->id => self::formatServicoLabel($servico)])
                 ->all())
-            ->getOptionLabelUsing(fn($value): ?string => Models\Servico::find($value)?->descricao)
+            ->getOptionLabelUsing(fn ($value): ?string => ($servico = Models\Servico::find($value))
+                ? self::formatServicoLabel($servico)
+                : null)
             // ->createOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))    //TODO Não está funcionando por não usar o relationship
             // ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
             ->searchable()
             ->live()
             ->preload()
             ->afterStateUpdated(function (Set $set, $state) {
+                $servico = null;
+
                 if ($state) {
                     $servico = Models\Servico::find($state);
                     $set('controla_posicao', $servico?->controla_posicao ? true : false);
                 } else {
                     $set('controla_posicao', false);
+                }
 
+                if (! $servico?->controla_posicao) {
+                    $set('posicao', null);
                 }
             });
     }
@@ -96,13 +100,17 @@ class ItemOrdemServicoForm
             ->live();
     }
 
-    public static function getPosicaoFormField(): TextInput
+    public static function getPosicaoFormField(): Select
     {
-        return TextInput::make('posicao')
+        return Select::make('posicao')
             ->label('Posição')
+            ->options(PosicaoItemOrdemServicoEnum::toSelectArray())
+            ->placeholder('Selecione a posição')
+            ->searchable()
+            ->preload()
+            ->visible(fn (Get $get): bool => (bool) $get('controla_posicao'))
             ->requiredIf('controla_posicao', true)
-            ->minLength(2)
-            ->maxLength(7);
+            ->dehydrated(fn (Get $get): bool => (bool) $get('controla_posicao'));
     }
 
     public static function getObservacaoFormField(): Textarea
@@ -119,5 +127,10 @@ class ItemOrdemServicoForm
             ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray())
             ->default(Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE->value)
             ->required();
+    }
+
+    protected static function formatServicoLabel(Models\Servico $servico): string
+    {
+        return trim($servico->codigo.' - '.$servico->descricao, ' -');
     }
 }

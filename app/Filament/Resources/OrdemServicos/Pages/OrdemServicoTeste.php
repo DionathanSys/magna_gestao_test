@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
-
-use App\Filament\Resources\OrdemServicos\{OrdemServicoResource, Actions};
+use App\Filament\Resources\OrdemServicos\Actions;
+use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
@@ -29,14 +29,16 @@ class OrdemServicoTeste extends Page
     protected function getHeaderActions(): array
     {
         return [
+            Actions\VincularServicoOrdemServicoAction::make(),
+            Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id),
+            Actions\VincularOrdemSankhyaAction::make(),
             ActionGroup::make([
                 DeleteAction::make('delete')
-                ->requiresConfirmation()
-                ->action(fn () => $this->record->delete()),
-                Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id),
+                    ->requiresConfirmation()
+                    ->action(fn () => $this->record->delete()),
             ])->label('Ações')->button()->size(Size::ExtraSmall),
 
-            Actions\EncerrarOrdemServicoAction::make($this->record->id)
+            Actions\EncerrarOrdemServicoAction::make()
                 ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl()),
 
             Actions\PdfOrdemServicoAction::make(),

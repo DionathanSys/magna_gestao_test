@@ -2,18 +2,16 @@
 
 namespace App\Filament\Resources\Agendamentos\Schemas;
 
-use App\{Models, Services, Enum};
-use App\Enum\OrdemServico\StatusOrdemServicoEnum;
+use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Filament\Resources\Parceiros\ParceiroResource;
 use App\Filament\Resources\Servicos\ServicoResource;
 use App\Filament\Tables\Teste;
-use App\Models\Parceiro;
+use App\Models\Servico;
+use App\Services;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\ModalTableSelect;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -42,8 +40,8 @@ class AgendamentoForm
                             ->placeholder('Buscar ...')
                             ->required()
                             ->afterStateUpdated(function (Set $set, $state) {
-                                    $set('plano_preventivo_id', null);
-                                    $set('ordem_servico_id', null);
+                                $set('plano_preventivo_id', null);
+                                $set('ordem_servico_id', null);
                             }),
                         DatePicker::make('data_agendamento')
                             ->label('Agendado Para')
@@ -68,13 +66,13 @@ class AgendamentoForm
                             ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 4])
                             ->required()
                             ->relationship('servico', 'descricao')
-                            ->createOptionForm(fn(Schema $schema) => ServicoResource::form($schema))
-                            ->editOptionForm(fn(Schema $schema) => ServicoResource::form($schema))
+                            ->createOptionForm(fn (Schema $schema) => ServicoResource::form($schema))
+                            ->editOptionForm(fn (Schema $schema) => ServicoResource::form($schema))
                             ->searchable()
                             ->live()
                             ->afterStateUpdated(function (Set $set, $state) {
                                 if ($state) {
-                                    $servico = \App\Models\Servico::find($state);
+                                    $servico = Servico::find($state);
                                     $set('controla_posicao', $servico?->controla_posicao ? true : false);
                                 } else {
                                     $set('controla_posicao', false);
@@ -86,12 +84,16 @@ class AgendamentoForm
                             ->inline(false)
                             ->disabled()
                             ->live(),
-                        TextInput::make('posicao')
+                        Select::make('posicao')
                             ->label('Posição')
+                            ->options(PosicaoItemOrdemServicoEnum::toSelectArray())
+                            ->placeholder('Selecione a posição')
                             ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 2])
+                            ->searchable()
+                            ->preload()
+                            ->visible(fn (Get $get): bool => (bool) $get('controla_posicao'))
                             ->requiredIf('controla_posicao', true)
-                            ->minLength(2)
-                            ->maxLength(8),
+                            ->dehydrated(fn (Get $get): bool => (bool) $get('controla_posicao')),
                         Select::make('plano_preventivo_id')
                             ->label('Plano Preventivo')
                             ->native(false)
@@ -99,7 +101,8 @@ class AgendamentoForm
                             ->columnSpanFull()
                             ->options(function (Get $get) {
                                 if ($get('veiculo_id')) {
-                                    $service = new Services\Agendamento\AgendamentoService();
+                                    $service = new Services\Agendamento\AgendamentoService;
+
                                     return $service->getPlanosPreventivosByVeiculo($get('veiculo_id'));
                                 }
                             })
@@ -114,8 +117,8 @@ class AgendamentoForm
                             ->label('Parceiro')
                             ->columnSpanFull()
                             ->relationship('parceiro', 'nome')
-                            ->createOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
-                            ->editOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
+                            ->createOptionForm(fn (Schema $schema) => ParceiroResource::form($schema))
+                            ->editOptionForm(fn (Schema $schema) => ParceiroResource::form($schema))
                             ->searchable()
                             ->preload()
                             ->searchPrompt('Buscar Parceiro')
@@ -127,11 +130,12 @@ class AgendamentoForm
                             ->tableArguments(function (Get $get) {
                                 if ($get('veiculo_id')) {
                                     return [
-                                        'veiculo_id' => $get('veiculo_id')
+                                        'veiculo_id' => $get('veiculo_id'),
                                     ];
                                 }
+
                                 return [];
-                            })
+                            }),
 
                     ]),
             ]);

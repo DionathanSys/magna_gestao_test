@@ -2,11 +2,13 @@
 
 namespace App\Services\ItemOrdemServico\Actions;
 
+use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Models;
-use Illuminate\Support\Facades\Validator;
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CriarItem
 {
@@ -14,14 +16,17 @@ class CriarItem
 
     public function handle(array $data): Models\ItemOrdemServico
     {
-        Log::debug(__METHOD__. ' - ' . __LINE__, [
+        Log::debug(__METHOD__.' - '.__LINE__, [
             'data' => $data,
         ]);
 
+        $servico = Models\Servico::query()->findOrFail($data['servico_id']);
+
         $data['created_by'] = $this->getUserIdChecked();
         $data['status'] = StatusOrdemServicoEnum::PENDENTE;
+        $data['posicao'] = $servico->controla_posicao ? ($data['posicao'] ?? null) : null;
 
-        $this->validate($data);
+        $this->validate($data, $servico->controla_posicao);
 
         return Models\ItemOrdemServico::query()
             ->create($data);
@@ -36,13 +41,19 @@ class CriarItem
             ->exists();
     }
 
-    private function validate(array $data): void
+    private function validate(array $data, bool $controlaPosicao): void
     {
         $validator = Validator::make($data, [
-            'ordem_servico_id'    => 'required|exists:ordens_servico,id',
-            'servico_id'          => 'required|exists:servicos,id',
+            'ordem_servico_id' => 'required|exists:ordens_servico,id',
+            'servico_id' => 'required|exists:servicos,id',
             'plano_preventivo_id' => 'nullable|exists:planos_preventivo,id',
-            'observacao'          => 'nullable|string|max:255',
+            'posicao' => [
+                Rule::requiredIf($controlaPosicao),
+                'nullable',
+                'string',
+                Rule::in(PosicaoItemOrdemServicoEnum::values()),
+            ],
+            'observacao' => 'nullable|string|max:255',
         ])->validate();
 
         if ($this->exists($data)) {

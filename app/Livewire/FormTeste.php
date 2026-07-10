@@ -47,20 +47,27 @@ class FormTeste extends Component implements HasSchemas
                                 Tabs\Tab::make('Informações Gerais')
                                     ->schema([
                                         Grid::make([
-                                            'default' => 1,
-                                            'md' => 2,
+                                            'default' => 2,
                                         ])
                                             ->schema([
-                                                OrdemServicoVeiculoInput::make(),
+                                                OrdemServicoVeiculoInput::make()
+                                                    ->columnSpan(1),
                                                 OrdemServicoForm::getQuilometragemFormField()
-                                                    ->label('Quilometragem'),
-                                                OrdemServicoTipoManutencaoInput::make(),
-                                                OrdemServicoForm::getStatusFormField(),
-                                                OrdemServicoForm::getStatusSankhyaFormField(),
+                                                    ->label('Quilometragem')
+                                                    ->columnSpan(1),
+                                                OrdemServicoTipoManutencaoInput::make()
+                                                    ->columnSpan(1),
+                                                OrdemServicoForm::getStatusFormField()
+                                                    ->columnSpan(1),
+                                                OrdemServicoForm::getStatusSankhyaFormField()
+                                                    ->columnSpan(1),
                                                 OrdemServicoForm::getParceiroIdFormField()
-                                                    ->label('Parceiro Externo'),
-                                                OrdemServicoDataAberturaInput::make(),
-                                                OrdemServicoForm::getDataFimFormField(),
+                                                    ->label('Parceiro Externo')
+                                                    ->columnSpan(1),
+                                                OrdemServicoDataAberturaInput::make()
+                                                    ->columnSpan(1),
+                                                OrdemServicoForm::getDataFimFormField()
+                                                    ->columnSpan(1),
                                             ]),
                                     ]),
                                 Tabs\Tab::make('Sankhya')

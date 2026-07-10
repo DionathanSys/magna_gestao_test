@@ -2,6 +2,7 @@
 
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\DocumentoFreteResource;
+use App\Livewire\FormOsMobile;
 use App\Models\IncomingEmailAttachment;
 use App\Models\OrdemServico;
 use App\Models\Veiculo;
@@ -147,4 +148,9 @@ Route::get('/teste-job', function () {
         'new_value' => ! $current,
     ]);
     echo 'cargaViagemsGroupOnly set to '.(! $current);
+});
+
+Route::middleware(['auth'])->prefix('os-mobile')->name('os-mobile.')->group(function () {
+    Route::get('/', FormOsMobile::class)->name('create');
+    Route::get('/{ordemServicoId}', FormOsMobile::class)->name('edit');
 });

@@ -97,6 +97,7 @@ class ItemOrdemServicoForm
             ->label('Controla Posição')
             ->inline(false)
             ->disabled()
+            ->dehydrated(false)
             ->live();
     }
 

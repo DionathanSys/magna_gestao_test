@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
+use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
@@ -134,7 +135,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
                 'controla_posicao' => false,
                 'posicao' => null,
                 'observacao' => null,
-                'status' => Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE->value,
+                'status' => StatusOrdemServicoEnum::PENDENTE->value,
             ]);
         }
     }

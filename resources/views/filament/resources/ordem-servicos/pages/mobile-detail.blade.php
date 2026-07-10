@@ -89,7 +89,7 @@
                 <div class="os-mob-section" style="margin-bottom:0;">
                     Serviços ({{ $record->itens->count() }})
                 </div>
-                <x-filament::button size="sm" :color="$showFormServico ? 'danger' : 'primary'" wire:click="toggleFormServico" :icon="$showFormServico ? 'heroicon-o-x-mark' : 'heroicon-o-plus'">
+                <x-filament::button type="button" size="sm" :color="$showFormServico ? 'danger' : 'primary'" wire:click="toggleFormServico" :icon="$showFormServico ? 'heroicon-o-x-mark' : 'heroicon-o-plus'">
                     {{ $showFormServico ? 'Fechar' : 'Adicionar' }}
                 </x-filament::button>
             </div>
@@ -104,7 +104,7 @@
                         {{ $this->formServico }}
                     </form>
                     <div style="margin-top:0.5rem;">
-                        <x-filament::button size="sm" color="success" wire:click="salvarServico" style="width:100%" icon="heroicon-o-check">
+                        <x-filament::button type="button" size="sm" color="success" wire:click="salvarServico" style="width:100%" icon="heroicon-o-check">
                             {{ $editandoItemServicoId ? 'Atualizar' : 'Vincular' }}
                         </x-filament::button>
                     </div>
@@ -130,8 +130,8 @@
                             <div class="os-mob-item-meta" style="font-style:italic;">{{ $item->observacao }}</div>
                         @endif
                         <div class="os-mob-icon-actions">
-                            <x-filament::icon-button color="gray" size="sm" wire:click="editarServico({{ $item->id }})" icon="heroicon-o-pencil" label="Editar serviço" />
-                            <x-filament::icon-button color="danger" size="sm" wire:click="excluirServico({{ $item->id }})" icon="heroicon-o-trash" label="Excluir serviço" x-on:click="return confirm('Remover este serviço?')" />
+                            <x-filament::icon-button type="button" color="gray" size="sm" wire:click="editarServico({{ $item->id }})" icon="heroicon-o-pencil" label="Editar serviço" />
+                            <x-filament::icon-button type="button" color="danger" size="sm" wire:click="excluirServico({{ $item->id }})" icon="heroicon-o-trash" label="Excluir serviço" x-on:click="return confirm('Remover este serviço?')" />
                         </div>
                     </div>
                 @endforeach
@@ -172,8 +172,8 @@
                             <div class="os-mob-item-meta" style="font-style:italic;">Obs.: {{ $agendamento->observacao }}</div>
                         @endif
                         <div class="os-mob-icon-actions">
-                            <x-filament::icon-button color="primary" size="sm" wire:click="vincularAgendamento({{ $agendamento->id }})" icon="heroicon-o-link" label="Vincular agendamento" />
-                            <x-filament::icon-button color="danger" size="sm" wire:click="cancelarAgendamento({{ $agendamento->id }})" icon="heroicon-o-x-mark" label="Cancelar agendamento" x-on:click="return confirm('Cancelar este agendamento?')" />
+                            <x-filament::icon-button type="button" color="primary" size="sm" wire:click="vincularAgendamento({{ $agendamento->id }})" icon="heroicon-o-link" label="Vincular agendamento" />
+                            <x-filament::icon-button type="button" color="danger" size="sm" wire:click="cancelarAgendamento({{ $agendamento->id }})" icon="heroicon-o-x-mark" label="Cancelar agendamento" x-on:click="return confirm('Cancelar este agendamento?')" />
                         </div>
                     </div>
                 @endforeach
@@ -225,7 +225,7 @@
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.35rem;gap:0.5rem;">
                             <span class="os-mob-cost">R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                            <x-filament::icon-button color="danger" size="sm" wire:click="desvincularLancamento({{ $lancamento->id }})" icon="heroicon-o-x-mark" label="Remover vínculo" x-on:click="return confirm('Remover este vínculo?')" />
+                            <x-filament::icon-button type="button" color="danger" size="sm" wire:click="desvincularLancamento({{ $lancamento->id }})" icon="heroicon-o-x-mark" label="Remover vínculo" x-on:click="return confirm('Remover este vínculo?')" />
                         </div>
                     </div>
                 @endforeach
@@ -257,7 +257,7 @@
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.35rem;gap:0.5rem;">
                             <span class="os-mob-cost">R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                            <x-filament::icon-button color="primary" size="sm" wire:click="vincularLancamento({{ $lancamento->id }})" icon="heroicon-o-link" label="Vincular custo" />
+                            <x-filament::icon-button type="button" color="primary" size="sm" wire:click="vincularLancamento({{ $lancamento->id }})" icon="heroicon-o-link" label="Vincular custo" />
                         </div>
                     </div>
                 @endforeach
@@ -268,14 +268,14 @@
     <x-filament-actions::modals />
     <div class="os-mob-bottom-bar">
         <div class="os-mob-bottom-actions">
-            <x-filament::button color="success" wire:click="salvarForm" icon="heroicon-o-check" size="sm">
+            <x-filament::button type="button" color="success" wire:click="salvarForm" icon="heroicon-o-check" size="sm">
                 Salvar
             </x-filament::button>
             <a href="{{ $this->getPdfUrl() }}" target="_blank" class="fi-btn fi-btn-size-sm inline-flex items-center justify-center gap-1 rounded-xl bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-200">
                 <x-heroicon-o-document-text style="width:16px;height:16px"/>
                 PDF
             </a>
-            <x-filament::button color="warning" wire:click="encerrar" icon="heroicon-o-check-circle" size="sm" x-on:click="return confirm('Deseja encerrar esta OS?')">
+            <x-filament::button type="button" color="warning" wire:click="encerrar" icon="heroicon-o-check-circle" size="sm" x-on:click="return confirm('Deseja encerrar esta OS?')">
                 Encerrar
             </x-filament::button>
         </div>

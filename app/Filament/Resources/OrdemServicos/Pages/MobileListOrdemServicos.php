@@ -27,9 +27,9 @@ class MobileListOrdemServicos extends Page implements HasTable
 
     protected string $view = 'filament.resources.ordem-servicos.pages.mobile-list';
 
-    protected function makeTable(): Table
+    public function table(Table $table): Table
     {
-        return parent::makeTable()
+        return $table
             ->query(
                 OrdemServico::query()
                     ->with(['veiculo:id,placa', 'itens.servico:id,descricao'])

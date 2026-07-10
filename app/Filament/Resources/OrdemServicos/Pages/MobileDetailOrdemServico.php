@@ -85,8 +85,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public function formServico(Schema $schema): Schema
     {
-        return $schema
-            ->schema(ItemOrdemServicoForm::configure($schema, includeStatus: true))
+        return ItemOrdemServicoForm::configure($schema, includeStatus: true)
             ->statePath('formDataServico')
             ->model(ItemOrdemServico::class);
     }

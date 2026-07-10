@@ -11,6 +11,7 @@ use App\Models\OrdemServico;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Concerns\InteractsWithRecord;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -44,54 +45,23 @@ class FormTeste extends Component implements HasSchemas
                         ->tabs(
                             [
                                 Tabs\Tab::make('Informações Gerais')
-                                    ->columns([
-                                        'default' => 1,
-                                        'md' => 2,
-                                    ])
                                     ->schema([
-                                        OrdemServicoVeiculoInput::make()
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
+                                        Grid::make([
+                                            'default' => 1,
+                                            'md' => 2,
+                                        ])
+                                            ->schema([
+                                                OrdemServicoVeiculoInput::make(),
+                                                OrdemServicoForm::getQuilometragemFormField()
+                                                    ->label('Quilometragem'),
+                                                OrdemServicoTipoManutencaoInput::make(),
+                                                OrdemServicoForm::getStatusFormField(),
+                                                OrdemServicoForm::getStatusSankhyaFormField(),
+                                                OrdemServicoForm::getParceiroIdFormField()
+                                                    ->label('Parceiro Externo'),
+                                                OrdemServicoDataAberturaInput::make(),
+                                                OrdemServicoForm::getDataFimFormField(),
                                             ]),
-                                        OrdemServicoForm::getQuilometragemFormField()
-                                            ->label('Quilometragem')
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
-                                            ]),
-                                        OrdemServicoTipoManutencaoInput::make()
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
-                                            ]),
-                                        OrdemServicoForm::getStatusFormField()
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
-                                            ]),
-                                        OrdemServicoForm::getStatusSankhyaFormField()
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
-                                            ]),
-                                        OrdemServicoForm::getParceiroIdFormField()
-                                            ->label('Parceiro Externo')
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
-                                            ]),
-                                        OrdemServicoDataAberturaInput::make()
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
-                                            ]),
-                                        OrdemServicoForm::getDataFimFormField()
-                                            ->columnSpan([
-                                                'default' => 1,
-                                                'md' => 1,
-                                            ]),
-
                                     ]),
                                 Tabs\Tab::make('Sankhya')
                                     ->columns(4)

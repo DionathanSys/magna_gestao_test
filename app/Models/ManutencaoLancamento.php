@@ -15,6 +15,7 @@ class ManutencaoLancamento extends Model
         'quantidade' => 'decimal:4',
         'valor_total_centavos' => 'integer',
         'valor_unitario_centavos' => 'integer',
+        'dispensado_vinculo' => 'boolean',
     ];
 
     public function veiculo(): BelongsTo
@@ -35,5 +36,10 @@ class ManutencaoLancamento extends Model
     public function vinculadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'vinculado_por');
+    }
+
+    public function dispensadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dispensado_por');
     }
 }

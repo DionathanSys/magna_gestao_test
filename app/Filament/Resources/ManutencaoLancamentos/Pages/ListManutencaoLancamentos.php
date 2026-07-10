@@ -23,6 +23,7 @@ class ListManutencaoLancamentos extends ListRecords
                 ->action(function (ManutencaoLancamentoVinculoService $service): void {
                     ManutencaoLancamento::query()
                         ->whereNull('ordem_servico_id')
+                        ->where('dispensado_vinculo', false)
                         ->whereNotNull('nr_os_nf')
                         ->orderBy('id')
                         ->each(fn (ManutencaoLancamento $lancamento) => $service->conciliarAutomaticamente($lancamento));

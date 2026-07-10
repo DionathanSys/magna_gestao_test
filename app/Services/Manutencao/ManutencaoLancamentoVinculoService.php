@@ -12,6 +12,10 @@ class ManutencaoLancamentoVinculoService
 {
     public function conciliarAutomaticamente(ManutencaoLancamento $lancamento): ?OrdemServico
     {
+        if ($lancamento->dispensado_vinculo) {
+            return null;
+        }
+
         if ($lancamento->ordem_servico_id && $lancamento->tipo_vinculo === 'manual') {
             return $lancamento->ordemServico;
         }
@@ -57,6 +61,9 @@ class ManutencaoLancamentoVinculoService
             'tipo_vinculo' => $tipoVinculo,
             'vinculado_em' => now(),
             'vinculado_por' => Auth::id(),
+            'dispensado_vinculo' => false,
+            'dispensado_em' => null,
+            'dispensado_por' => null,
         ])->save();
     }
 
@@ -67,6 +74,28 @@ class ManutencaoLancamentoVinculoService
             'tipo_vinculo' => null,
             'vinculado_em' => null,
             'vinculado_por' => null,
+        ])->save();
+    }
+
+    public function dispensar(ManutencaoLancamento $lancamento): void
+    {
+        $lancamento->forceFill([
+            'ordem_servico_id' => null,
+            'tipo_vinculo' => null,
+            'vinculado_em' => null,
+            'vinculado_por' => null,
+            'dispensado_vinculo' => true,
+            'dispensado_em' => now(),
+            'dispensado_por' => Auth::id(),
+        ])->save();
+    }
+
+    public function reabrirPendencia(ManutencaoLancamento $lancamento): void
+    {
+        $lancamento->forceFill([
+            'dispensado_vinculo' => false,
+            'dispensado_em' => null,
+            'dispensado_por' => null,
         ])->save();
     }
 

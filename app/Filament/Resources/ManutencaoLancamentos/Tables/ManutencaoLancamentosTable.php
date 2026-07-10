@@ -46,14 +46,17 @@ class ManutencaoLancamentosTable
                 TextColumn::make('tipo_vinculo')
                     ->label('Vínculo')
                     ->badge()
+                    ->state(fn (ManutencaoLancamento $record): string => $record->dispensado_vinculo ? 'dispensado' : (string) $record->tipo_vinculo)
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'automatico' => 'Automático',
                         'manual' => 'Manual',
+                        'dispensado' => 'Dispensado',
                         default => 'Sem vínculo',
                     })
                     ->color(fn (?string $state): string => match ($state) {
                         'automatico' => 'success',
                         'manual' => 'info',
+                        'dispensado' => 'warning',
                         default => 'gray',
                     }),
                 TextColumn::make('produto')
@@ -111,11 +114,13 @@ class ManutencaoLancamentosTable
                     ->options([
                         'vinculados' => 'Vinculados',
                         'pendentes' => 'Pendentes',
+                        'dispensados' => 'Dispensados',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return match ($data['value'] ?? null) {
                             'vinculados' => $query->whereNotNull('ordem_servico_id'),
-                            'pendentes' => $query->whereNull('ordem_servico_id'),
+                            'pendentes' => $query->whereNull('ordem_servico_id')->where('dispensado_vinculo', false),
+                            'dispensados' => $query->where('dispensado_vinculo', true),
                             default => $query,
                         };
                     }),
@@ -135,7 +140,7 @@ class ManutencaoLancamentosTable
                 Action::make('conciliar_automaticamente')
                     ->label('Conciliar')
                     ->icon('heroicon-o-arrow-path')
-                    ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id === null)
+                    ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id === null && ! $record->dispensado_vinculo)
                     ->action(function (ManutencaoLancamento $record, ManutencaoLancamentoVinculoService $service): void {
                         $service->conciliarAutomaticamente($record);
                     }),
@@ -186,6 +191,22 @@ class ManutencaoLancamentosTable
                     ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id !== null)
                     ->action(function (ManutencaoLancamento $record, ManutencaoLancamentoVinculoService $service): void {
                         $service->desvincular($record);
+                    }),
+                Action::make('dispensar_vinculo')
+                    ->label('Dispensar vínculo')
+                    ->icon('heroicon-o-eye-slash')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id === null && ! $record->dispensado_vinculo)
+                    ->action(function (ManutencaoLancamento $record, ManutencaoLancamentoVinculoService $service): void {
+                        $service->dispensar($record);
+                    }),
+                Action::make('reabrir_pendencia')
+                    ->label('Reabrir pendência')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id === null && $record->dispensado_vinculo)
+                    ->action(function (ManutencaoLancamento $record, ManutencaoLancamentoVinculoService $service): void {
+                        $service->reabrirPendencia($record);
                     }),
             ])
             ->toolbarActions([]);

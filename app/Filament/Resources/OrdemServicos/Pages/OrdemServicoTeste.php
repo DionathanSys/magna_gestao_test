@@ -147,6 +147,7 @@ class OrdemServicoTeste extends Page
         return ManutencaoLancamento::query()
             ->where('veiculo_id', $this->record->veiculo_id)
             ->whereNull('ordem_servico_id')
+            ->where('dispensado_vinculo', false)
             ->orderByDesc('data_negociacao')
             ->orderByDesc('id')
             ->limit(15)

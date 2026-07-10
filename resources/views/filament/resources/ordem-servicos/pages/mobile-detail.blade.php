@@ -31,7 +31,7 @@
         .os-mob-kpi-label { display: block; font-size: 0.66rem; color: #64748b; }
         .os-mob-kpi-value { display: block; margin-top: 0.1rem; font-size: 0.77rem; font-weight: 700; color: #0f172a; }
         .os-mob-bottom-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 0.65rem 0.75rem calc(0.65rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.96); border-top: 1px solid #e2e8f0; backdrop-filter: blur(10px); }
-        .os-mob-bottom-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+        .os-mob-bottom-actions { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.5rem; }
     </style>
 
     <div class="os-mob-page">
@@ -85,14 +85,37 @@
     {{-- ═══ TAB: Serviços ═══ --}}
     @if ($activeTab === 'servicos')
         <div class="os-mob-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;gap:0.5rem;flex-wrap:wrap;">
                 <div class="os-mob-section" style="margin-bottom:0;">
                     Serviços ({{ $record->itens->count() }})
                 </div>
-                <x-filament::button type="button" size="sm" :color="$showFormServico ? 'danger' : 'primary'" wire:click="toggleFormServico" :icon="$showFormServico ? 'heroicon-o-x-mark' : 'heroicon-o-plus'">
-                    {{ $showFormServico ? 'Fechar' : 'Adicionar' }}
-                </x-filament::button>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                    <x-filament::button type="button" size="sm" color="gray" wire:click="toggleFormNovoServico" :icon="$showFormNovoServico ? 'heroicon-o-x-mark' : 'heroicon-o-sparkles'">
+                        {{ $showFormNovoServico ? 'Fechar Cadastro' : 'Novo Serviço' }}
+                    </x-filament::button>
+                    <x-filament::button type="button" size="sm" :color="$showFormServico ? 'danger' : 'primary'" wire:click="toggleFormServico" :icon="$showFormServico ? 'heroicon-o-x-mark' : 'heroicon-o-plus'">
+                        {{ $showFormServico ? 'Fechar' : 'Adicionar' }}
+                    </x-filament::button>
+                </div>
             </div>
+
+            @if ($showFormNovoServico)
+                <hr class="os-mob-divider">
+                <div style="margin-bottom:0.75rem;">
+                    <div style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:0.5rem;">
+                        Cadastrar novo serviço
+                    </div>
+                    <form wire:submit="salvarNovoServico">
+                        {{ $this->formNovoServico }}
+                    </form>
+                    <div style="margin-top:0.5rem;">
+                        <x-filament::button type="button" size="sm" color="success" wire:click="salvarNovoServico" style="width:100%" icon="heroicon-o-check">
+                            Salvar serviço
+                        </x-filament::button>
+                    </div>
+                </div>
+                <hr class="os-mob-divider">
+            @endif
 
             @if ($showFormServico)
                 <hr class="os-mob-divider">
@@ -277,6 +300,9 @@
             </a>
             <x-filament::button type="button" color="warning" wire:click="encerrar" icon="heroicon-o-check-circle" size="sm" x-on:click="return confirm('Deseja encerrar esta OS?')">
                 Encerrar
+            </x-filament::button>
+            <x-filament::button type="button" color="danger" wire:click="excluirOrdemServico" icon="heroicon-o-trash" size="sm" x-on:click="return confirm('Deseja excluir esta OS?')">
+                Excluir
             </x-filament::button>
         </div>
     </div>

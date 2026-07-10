@@ -9,10 +9,12 @@ use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManu
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
 use App\Filament\Resources\OrdemServicos\Schemas\ItemOrdemServicoForm;
 use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
+use App\Filament\Resources\Servicos\Schemas\ServicoForm;
 use App\Models\Agendamento;
 use App\Models\ItemOrdemServico;
 use App\Models\ManutencaoLancamento;
 use App\Models\OrdemServico;
+use App\Models\Servico;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
@@ -45,7 +47,11 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public bool $showFormServico = false;
 
+    public bool $showFormNovoServico = false;
+
     public ?array $formDataServico = [];
+
+    public ?array $formDataNovoServico = [];
 
     public ?int $editandoItemServicoId = null;
 
@@ -91,6 +97,13 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             ->model(ItemOrdemServico::class);
     }
 
+    public function formNovoServico(Schema $schema): Schema
+    {
+        return ServicoForm::configure($schema)
+            ->statePath('formDataNovoServico')
+            ->model(Servico::class);
+    }
+
     protected function getHeaderActions(): array
     {
         return [];
@@ -121,6 +134,15 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         $this->refreshRecord();
     }
 
+    public function excluirOrdemServico(): void
+    {
+        $this->record->delete();
+
+        notify::success(mensagem: 'Ordem de Serviço excluída com sucesso!');
+
+        $this->redirect(OrdemServicoResource::getUrl('mobile-list'));
+    }
+
     // ── Item Serviço Actions ──────────────────────────────
 
     public function toggleFormServico(): void
@@ -136,6 +158,23 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
                 'posicao' => null,
                 'observacao' => null,
                 'status' => StatusOrdemServicoEnum::PENDENTE->value,
+            ]);
+        }
+    }
+
+    public function toggleFormNovoServico(): void
+    {
+        $this->showFormNovoServico = ! $this->showFormNovoServico;
+        $this->formDataNovoServico = [];
+
+        if ($this->showFormNovoServico) {
+            $this->formNovoServico->fill([
+                'codigo' => null,
+                'descricao' => null,
+                'complemento' => null,
+                'tipo' => null,
+                'controla_posicao' => false,
+                'is_active' => true,
             ]);
         }
     }
@@ -173,6 +212,30 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         $this->editandoItemServicoId = null;
         $this->formDataServico = [];
         $this->refreshRecord();
+    }
+
+    public function salvarNovoServico(): void
+    {
+        $data = $this->formNovoServico->getState();
+
+        $servico = Servico::query()->create($data);
+
+        notify::success(mensagem: 'Serviço cadastrado com sucesso!');
+
+        $this->showFormNovoServico = false;
+        $this->formDataNovoServico = [];
+
+        if (! $this->showFormServico) {
+            $this->toggleFormServico();
+        }
+
+        $this->formServico->fill([
+            'servico_id' => $servico->id,
+            'controla_posicao' => (bool) $servico->controla_posicao,
+            'posicao' => null,
+            'observacao' => null,
+            'status' => StatusOrdemServicoEnum::PENDENTE->value,
+        ]);
     }
 
     public function editarServico(int $itemServicoId): void

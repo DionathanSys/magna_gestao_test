@@ -1,30 +1,40 @@
 <x-filament-panels::page>
     <style>
-        .os-mob-card { background: #fff; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-        .os-mob-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-        .os-mob-title { font-size: 1.125rem; font-weight: 700; color: #0f172a; }
-        .os-mob-subtitle { font-size: 0.8rem; color: #64748b; }
+        .os-mob-page { padding-bottom: 5.5rem; }
+        .os-mob-card { background: #fff; border-radius: 0.85rem; padding: 0.85rem; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .os-mob-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.6rem; gap: 0.75rem; }
+        .os-mob-title { font-size: 1rem; font-weight: 700; color: #0f172a; line-height: 1.2; }
+        .os-mob-subtitle { font-size: 0.76rem; color: #64748b; margin-top: 0.15rem; }
         .os-mob-badge { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 9999px; }
         .os-mob-badge-pendente { background: #fef3c7; color: #92400e; }
         .os-mob-badge-execucao, .os-mob-badge-execução { background: #dbeafe; color: #1e40af; }
         .os-mob-badge-concluido, .os-mob-badge-concluído { background: #d1fae5; color: #065f46; }
         .os-mob-badge-cancelado { background: #fee2e2; color: #991b1b; }
-        .os-mob-actions-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+        .os-mob-actions-bar { display: none; }
         .os-mob-section { font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.5rem; }
         .os-mob-divider { border: none; border-top: 1px solid #e2e8f0; margin: 0.75rem 0; }
-        .os-mob-item { padding: 0.65rem 0; border-bottom: 1px solid #f1f5f9; }
+        .os-mob-item { padding: 0.55rem 0; border-bottom: 1px solid #f1f5f9; }
         .os-mob-item:last-child { border-bottom: none; }
-        .os-mob-item-name { font-size: 0.85rem; font-weight: 600; color: #1e293b; }
-        .os-mob-item-meta { font-size: 0.75rem; color: #64748b; margin-top: 0.15rem; }
+        .os-mob-item-name { font-size: 0.8rem; font-weight: 600; color: #1e293b; }
+        .os-mob-item-meta { font-size: 0.73rem; color: #64748b; margin-top: 0.12rem; line-height: 1.35; }
         .os-mob-item-actions { display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap; }
+        .os-mob-icon-actions { display: flex; gap: 0.35rem; margin-top: 0.4rem; }
+        .os-mob-icon-btn { width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.65rem; border: 0; }
         .os-mob-empty { font-size: 0.8rem; color: #94a3b8; padding: 0.5rem 0; }
-        .os-mob-tab-bar { display: flex; gap: 0; background: #e2e8f0; border-radius: 0.5rem; padding: 0.15rem; margin-bottom: 0.75rem; }
-        .os-mob-tab { flex: 1; text-align: center; padding: 0.45rem 0.3rem; font-size: 0.72rem; font-weight: 500; border-radius: 0.375rem; cursor: pointer; color: #64748b; transition: all 0.15s; }
+        .os-mob-tab-bar { display: flex; gap: 0; background: #e2e8f0; border-radius: 0.65rem; padding: 0.15rem; margin-bottom: 0.75rem; position: sticky; top: 0.75rem; z-index: 5; }
+        .os-mob-tab { flex: 1; text-align: center; padding: 0.5rem 0.2rem; font-size: 0.72rem; font-weight: 600; border-radius: 0.5rem; cursor: pointer; color: #64748b; transition: all 0.15s; }
         .os-mob-tab-active { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
         .os-mob-cost { font-size: 0.9rem; font-weight: 600; color: #0f172a; }
         .os-mob-total { background: #f8fafc; border-radius: 0.5rem; padding: 0.75rem 1rem; margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .os-mob-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; margin-top: 0.65rem; }
+        .os-mob-kpi { border-radius: 0.7rem; background: #f8fafc; padding: 0.6rem 0.7rem; }
+        .os-mob-kpi-label { display: block; font-size: 0.66rem; color: #64748b; }
+        .os-mob-kpi-value { display: block; margin-top: 0.1rem; font-size: 0.77rem; font-weight: 700; color: #0f172a; }
+        .os-mob-bottom-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 0.65rem 0.75rem calc(0.65rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.96); border-top: 1px solid #e2e8f0; backdrop-filter: blur(10px); }
+        .os-mob-bottom-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
     </style>
 
+    <div class="os-mob-page">
     {{-- Header --}}
     <div class="os-mob-card">
         <div class="os-mob-header">
@@ -43,28 +53,26 @@
             </a>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.78rem;color:#475569;">
-            <div><strong>Tipo:</strong> {{ $record->tipo_manutencao?->value ?? '—' }}</div>
-            <div><strong>KM:</strong> {{ number_format($record->quilometragem ?? 0, 0, ',', '.') }}</div>
-            <div><strong>Abertura:</strong> {{ $record->data_inicio?->format('d/m/Y H:i') ?? '—' }}</div>
+        <div class="os-mob-kpis">
+            <div class="os-mob-kpi">
+                <span class="os-mob-kpi-label">Tipo</span>
+                <span class="os-mob-kpi-value">{{ $record->tipo_manutencao?->value ?? '—' }}</span>
+            </div>
+            <div class="os-mob-kpi">
+                <span class="os-mob-kpi-label">KM</span>
+                <span class="os-mob-kpi-value">{{ number_format($record->quilometragem ?? 0, 0, ',', '.') }}</span>
+            </div>
+            <div class="os-mob-kpi">
+                <span class="os-mob-kpi-label">Abertura</span>
+                <span class="os-mob-kpi-value">{{ $this->formatDateTime($record->data_inicio) }}</span>
+            </div>
             @if($record->data_fim)
-                <div><strong>Fim:</strong> {{ $record->data_fim?->format('d/m/Y H:i') ?? '—' }}</div>
+                <div class="os-mob-kpi">
+                    <span class="os-mob-kpi-label">Fim</span>
+                    <span class="os-mob-kpi-value">{{ $this->formatDateTime($record->data_fim) }}</span>
+                </div>
             @endif
         </div>
-    </div>
-
-    {{-- Action Bar --}}
-    <div class="os-mob-actions-bar">
-        <x-filament::button size="sm" color="success" wire:click="salvarForm" icon="heroicon-o-check">
-            Salvar
-        </x-filament::button>
-        <x-filament::button size="sm" color="warning" wire:click="encerrar" icon="heroicon-o-check-circle" x-on:click="return confirm('Deseja encerrar esta OS?')">
-            Encerrar
-        </x-filament::button>
-        <a href="{{ $this->getPdfUrl() }}" target="_blank" class="fi-btn fi-btn-size-sm inline-flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-200">
-            <x-heroicon-o-document-text style="width:16px;height:16px"/>
-            PDF
-        </a>
     </div>
 
     {{-- Tab Bar --}}
@@ -122,13 +130,9 @@
                         @if($item->observacao)
                             <div class="os-mob-item-meta" style="font-style:italic;">{{ $item->observacao }}</div>
                         @endif
-                        <div class="os-mob-item-actions">
-                            <x-filament::button size="sm" color="gray" wire:click="editarServico({{ $item->id }})" icon="heroicon-o-pencil">
-                                Editar
-                            </x-filament::button>
-                            <x-filament::button size="sm" color="danger" wire:click="excluirServico({{ $item->id }})" icon="heroicon-o-trash" x-on:click="return confirm('Remover este serviço?')">
-                                Excluir
-                            </x-filament::button>
+                        <div class="os-mob-icon-actions">
+                            <x-filament::icon-button color="gray" size="sm" wire:click="editarServico({{ $item->id }})" icon="heroicon-o-pencil" label="Editar serviço" />
+                            <x-filament::icon-button color="danger" size="sm" wire:click="excluirServico({{ $item->id }})" icon="heroicon-o-trash" label="Excluir serviço" x-on:click="return confirm('Remover este serviço?')" />
                         </div>
                     </div>
                 @endforeach
@@ -159,8 +163,8 @@
                     <div class="os-mob-item">
                         <div class="os-mob-item-name">{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</div>
                         <div class="os-mob-item-meta">
-                            Data: {{ $agendamento->data_agendamento?->format('d/m/Y') ?? 'Sem data' }}
-                            &middot; Limite: {{ $agendamento->data_limite?->format('d/m/Y') ?? '—' }}
+                            Data: {{ $this->formatDate($agendamento->data_agendamento, 'd/m/Y') }}
+                            &middot; Limite: {{ $this->formatDate($agendamento->data_limite, 'd/m/Y') }}
                         </div>
                         <div class="os-mob-item-meta">
                             Fornecedor: {{ $agendamento->parceiro?->nome ?? 'Serviço interno' }}
@@ -168,13 +172,9 @@
                         @if ($agendamento->observacao)
                             <div class="os-mob-item-meta" style="font-style:italic;">Obs.: {{ $agendamento->observacao }}</div>
                         @endif
-                        <div class="os-mob-item-actions">
-                            <x-filament::button size="sm" color="primary" wire:click="vincularAgendamento({{ $agendamento->id }})" icon="heroicon-o-link">
-                                Vincular
-                            </x-filament::button>
-                            <x-filament::button size="sm" color="danger" wire:click="cancelarAgendamento({{ $agendamento->id }})" icon="heroicon-o-x-mark" x-on:click="return confirm('Cancelar este agendamento?')">
-                                Cancelar
-                            </x-filament::button>
+                        <div class="os-mob-icon-actions">
+                            <x-filament::icon-button color="primary" size="sm" wire:click="vincularAgendamento({{ $agendamento->id }})" icon="heroicon-o-link" label="Vincular agendamento" />
+                            <x-filament::icon-button color="danger" size="sm" wire:click="cancelarAgendamento({{ $agendamento->id }})" icon="heroicon-o-x-mark" label="Cancelar agendamento" x-on:click="return confirm('Cancelar este agendamento?')" />
                         </div>
                     </div>
                 @endforeach
@@ -217,18 +217,16 @@
                     <div class="os-mob-item">
                         <div class="os-mob-item-name">{{ $lancamento->produto }}</div>
                         <div class="os-mob-item-meta">
-                            Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}
+                            Data: {{ $this->formatDate($lancamento->data_negociacao, 'd/m/Y') }}
                             &middot; Origem: {{ $lancamento->origem ?? '-' }}
                         </div>
                         <div class="os-mob-item-meta">
                             Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}
                             &middot; Vínculo: {{ $lancamento->tipo_vinculo === 'automatico' ? 'Automático' : 'Manual' }}
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.35rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.35rem;gap:0.5rem;">
                             <span class="os-mob-cost">R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                            <x-filament::button size="sm" color="danger" wire:click="desvincularLancamento({{ $lancamento->id }})" icon="heroicon-o-x-mark" x-on:click="return confirm('Remover este vínculo?')">
-                                Remover
-                            </x-filament::button>
+                            <x-filament::icon-button color="danger" size="sm" wire:click="desvincularLancamento({{ $lancamento->id }})" icon="heroicon-o-x-mark" label="Remover vínculo" x-on:click="return confirm('Remover este vínculo?')" />
                         </div>
                     </div>
                 @endforeach
@@ -252,17 +250,15 @@
                     <div class="os-mob-item">
                         <div class="os-mob-item-name">{{ $lancamento->produto }}</div>
                         <div class="os-mob-item-meta">
-                            Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}
+                            Data: {{ $this->formatDate($lancamento->data_negociacao, 'd/m/Y') }}
                             &middot; Origem: {{ $lancamento->origem ?? '-' }}
                         </div>
                         <div class="os-mob-item-meta">
                             Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.35rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.35rem;gap:0.5rem;">
                             <span class="os-mob-cost">R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                            <x-filament::button size="sm" color="primary" wire:click="vincularLancamento({{ $lancamento->id }})" icon="heroicon-o-link">
-                                Vincular
-                            </x-filament::button>
+                            <x-filament::icon-button color="primary" size="sm" wire:click="vincularLancamento({{ $lancamento->id }})" icon="heroicon-o-link" label="Vincular custo" />
                         </div>
                     </div>
                 @endforeach
@@ -271,4 +267,19 @@
     @endif
 
     <x-filament-actions::modals />
+    <div class="os-mob-bottom-bar">
+        <div class="os-mob-bottom-actions">
+            <x-filament::button color="success" wire:click="salvarForm" icon="heroicon-o-check" size="sm">
+                Salvar
+            </x-filament::button>
+            <a href="{{ $this->getPdfUrl() }}" target="_blank" class="fi-btn fi-btn-size-sm inline-flex items-center justify-center gap-1 rounded-xl bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-200">
+                <x-heroicon-o-document-text style="width:16px;height:16px"/>
+                PDF
+            </a>
+            <x-filament::button color="warning" wire:click="encerrar" icon="heroicon-o-check-circle" size="sm" x-on:click="return confirm('Deseja encerrar esta OS?')">
+                Encerrar
+            </x-filament::button>
+        </div>
+    </div>
+    </div>
 </x-filament-panels::page>

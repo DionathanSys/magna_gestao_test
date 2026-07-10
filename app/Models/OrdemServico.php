@@ -17,6 +17,8 @@ class OrdemServico extends Model
     protected $casts = [
         'tipo_manutencao' => TipoManutencaoEnum::class,
         'status' => StatusOrdemServicoEnum::class,
+        'data_inicio' => 'datetime',
+        'data_fim' => 'datetime',
     ];
 
     public function parceiro(): BelongsTo

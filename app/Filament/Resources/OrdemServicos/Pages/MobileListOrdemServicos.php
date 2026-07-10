@@ -5,18 +5,11 @@ namespace App\Filament\Resources\OrdemServicos\Pages;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\OrdemServico;
-use Filament\Actions\Action;
 use Filament\Resources\Pages\Page;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
 use UnitEnum;
 
-class MobileListOrdemServicos extends Page implements HasTable
+class MobileListOrdemServicos extends Page
 {
-    use InteractsWithTable;
-
     protected static string $resource = OrdemServicoResource::class;
 
     protected static ?string $title = 'Ordens de Serviço';
@@ -27,68 +20,70 @@ class MobileListOrdemServicos extends Page implements HasTable
 
     protected string $view = 'filament.resources.ordem-servicos.pages.mobile-list';
 
-    public function table(Table $table): Table
+    public string $activeTab = 'pendente';
+
+    public function getOrdensServicoProperty()
     {
-        return $table
-            ->query(
-                OrdemServico::query()
-                    ->with(['veiculo:id,placa', 'itens.servico:id,descricao'])
-                    ->where('status', '!=', StatusOrdemServicoEnum::CANCELADO)
-                    ->orderByDesc('id')
-            )
-            ->columns([
-                TextColumn::make('id')
-                    ->label('#')
-                    ->weight('bold')
-                    ->width('50px'),
-                TextColumn::make('veiculo.placa')
-                    ->label('Placa')
-                    ->weight('bold')
-                    ->searchable()
-                    ->width('80px'),
-                TextColumn::make('itensCount')
-                    ->label('Serviços')
-                    ->getStateUsing(fn (OrdemServico $record): string => $record->itens->count())
-                    ->badge()
-                    ->color('gray')
-                    ->width('60px'),
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->color(fn (StatusOrdemServicoEnum $state): string => match ($state) {
-                        StatusOrdemServicoEnum::PENDENTE => 'warning',
-                        StatusOrdemServicoEnum::EXECUCAO => 'info',
-                        StatusOrdemServicoEnum::CONCLUIDO => 'success',
-                        default => 'gray',
-                    })
-                    ->width('100px'),
-                TextColumn::make('data_inicio')
-                    ->label('Abertura')
-                    ->dateTime('d/m')
-                    ->width('50px'),
-                TextColumn::make('tipo_manutencao')
-                    ->label('Tipo')
-                    ->badge()
-                    ->color(fn ($state): string => match ($state) {
-                        'Corretiva' => 'danger',
-                        'Preventiva' => 'info',
-                        default => 'gray',
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->recordUrl(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('mobile-detail', ['record' => $record->id]))
-            ->recordClasses('cursor-pointer')
-            ->paginated([15, 30, 50])
-            ->defaultPaginationPageOption(15);
+        $query = OrdemServico::query()
+            ->with(['veiculo:id,placa', 'itens.servico:id,descricao'])
+            ->whereNotIn('status', [
+                StatusOrdemServicoEnum::CONCLUIDO,
+                StatusOrdemServicoEnum::CANCELADO,
+            ]);
+
+        return match ($this->activeTab) {
+            'hoje' => $query->whereDate('data_inicio', today())->orderByDesc('id')->get(),
+            'todas' => $query->orderByDesc('id')->get(),
+            default => $query->where('status', StatusOrdemServicoEnum::PENDENTE)->orderByDesc('id')->get(),
+        };
     }
 
-    protected function getTableHeaderActions(): array
+    public function getHojeCount(): int
     {
-        return [
-            Action::make('nova-os')
-                ->label('Nova OS')
-                ->icon('heroicon-o-plus')
-                ->url(OrdemServicoResource::getUrl('mobile-create')),
-        ];
+        return OrdemServico::query()
+            ->whereNotIn('status', [
+                StatusOrdemServicoEnum::CONCLUIDO,
+                StatusOrdemServicoEnum::CANCELADO,
+            ])
+            ->whereDate('data_inicio', today())
+            ->count();
+    }
+
+    public function getPendenteCount(): int
+    {
+        return OrdemServico::query()
+            ->where('status', StatusOrdemServicoEnum::PENDENTE)
+            ->count();
+    }
+
+    public function getTodasCount(): int
+    {
+        return OrdemServico::query()
+            ->whereNotIn('status', [
+                StatusOrdemServicoEnum::CONCLUIDO,
+                StatusOrdemServicoEnum::CANCELADO,
+            ])
+            ->count();
+    }
+
+    public function getCreateUrl(): string
+    {
+        return OrdemServicoResource::getUrl('mobile-create');
+    }
+
+    public function getDetailUrl(OrdemServico $ordemServico): string
+    {
+        return OrdemServicoResource::getUrl('mobile-detail', ['record' => $ordemServico->id]);
+    }
+
+    public function getStatusBadgeColor(OrdemServico $ordemServico): string
+    {
+        return match ($ordemServico->status) {
+            StatusOrdemServicoEnum::PENDENTE => 'warning',
+            StatusOrdemServicoEnum::EXECUCAO => 'info',
+            StatusOrdemServicoEnum::CONCLUIDO => 'success',
+            StatusOrdemServicoEnum::CANCELADO => 'danger',
+            default => 'gray',
+        };
     }
 }

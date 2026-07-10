@@ -23,6 +23,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Carbon;
 
 class MobileDetailOrdemServico extends Page implements HasSchemas
 {
@@ -301,6 +302,24 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             ->orderByDesc('id')
             ->limit(15)
             ->get();
+    }
+
+    public function formatDateTime(mixed $value, string $format = 'd/m/Y H:i'): string
+    {
+        if (blank($value)) {
+            return '—';
+        }
+
+        if ($value instanceof Carbon) {
+            return $value->format($format);
+        }
+
+        return Carbon::parse($value)->format($format);
+    }
+
+    public function formatDate(mixed $value, string $format = 'd/m/Y'): string
+    {
+        return $this->formatDateTime($value, $format);
     }
 
     protected function refreshRecord(): void

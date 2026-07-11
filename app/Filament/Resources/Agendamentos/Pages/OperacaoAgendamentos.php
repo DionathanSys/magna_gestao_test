@@ -203,6 +203,15 @@ class OperacaoAgendamentos extends Page implements HasSchemas
             ->get();
     }
 
+    public function getAmanhaProperty(): Collection
+    {
+        return $this->baseQuery()
+            ->pendentes()
+            ->agendadosPara(now()->addDay()->toDateString())
+            ->limit(25)
+            ->get();
+    }
+
     public function getSemDataProperty(): Collection
     {
         return $this->baseQuery()
@@ -247,6 +256,7 @@ class OperacaoAgendamentos extends Page implements HasSchemas
         return [
             'atrasados' => Agendamento::query()->pendentes()->atrasados()->count(),
             'hoje' => Agendamento::query()->abertos()->agendadosPara(now()->toDateString())->count(),
+            'amanha' => Agendamento::query()->pendentes()->agendadosPara(now()->addDay()->toDateString())->count(),
             'sem_data' => Agendamento::query()->pendentes()->semData()->count(),
             'checklist' => Agendamento::query()->checklist()->abertos()->count(),
         ];

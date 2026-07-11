@@ -6,7 +6,6 @@ use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
-use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
@@ -22,6 +21,7 @@ use App\Services\Agendamento\AgendamentoService;
 use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
+use App\Services\OrdemServico\OrdemServicoService;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
@@ -139,12 +139,19 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         $this->refreshRecord();
     }
 
-    public function encerrarAction(): Action
+    public function encerrar(): void
     {
-        return Actions\EncerrarOrdemServicoAction::make($this->record)
-            ->after(function () {
-                $this->refreshRecord();
-            });
+        $service = new OrdemServicoService;
+        $service->encerrarOrdemServico($this->record);
+
+        if ($service->hasError()) {
+            notify::error(mensagem: $service->getMessage());
+
+            return;
+        }
+
+        notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
+        $this->refreshRecord();
     }
 
     public function excluirOrdemServico(): void

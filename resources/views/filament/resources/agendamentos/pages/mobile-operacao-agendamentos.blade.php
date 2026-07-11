@@ -1,17 +1,12 @@
 <x-filament-panels::page>
     <style>
-        .ag-mobile-summary { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 0.75rem; margin-bottom: 1rem; }
-        .ag-mobile-hero { border-radius: 1rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 1rem; color: #fff; }
-        .ag-mobile-hero-title { font-size: 1rem; font-weight: 700; }
-        .ag-mobile-hero-subtitle { margin-top: 0.25rem; font-size: 0.78rem; color: rgba(255,255,255,0.78); }
-        .ag-mobile-hero-count { margin-top: 0.85rem; font-size: 1.5rem; font-weight: 800; line-height: 1; }
-        .ag-mobile-cta { display: flex; flex-direction: column; gap: 0.55rem; }
-        .ag-mobile-cta > a, .ag-mobile-cta > button { width: 100%; }
+        .ag-mobile-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+        .ag-mobile-cta > button { width: 100%; }
         .ag-mobile-mini-card { border-radius: 0.9rem; background: #fff; padding: 0.8rem 0.85rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); }
         .ag-mobile-mini-label { font-size: 0.68rem; color: #64748b; }
         .ag-mobile-mini-value { margin-top: 0.1rem; font-size: 1rem; font-weight: 800; color: #0f172a; }
         .ag-mobile-search { width: 100%; border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 0.9rem; background: #fff; padding: 0.85rem 1rem; font-size: 0.9rem; margin-bottom: 1rem; }
-        .ag-mobile-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.35rem; margin-bottom: 1rem; }
+        .ag-mobile-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.35rem; margin-bottom: 1rem; }
         .ag-mobile-tab { border: 0; border-radius: 0.75rem; padding: 0.7rem 0.35rem; background: #e2e8f0; color: #475569; font-size: 0.7rem; font-weight: 700; text-align: center; }
         .ag-mobile-tab.is-active { background: #111827; color: #fff; }
         .ag-mobile-list { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -42,19 +37,13 @@
     </style>
 
     <div class="ag-mobile-summary">
-        <div class="ag-mobile-hero">
-            <div class="ag-mobile-hero-title">Operação de Agendamentos</div>
-            <div class="ag-mobile-hero-subtitle">Fila diária da manutenção em formato mobile.</div>
-            <div class="ag-mobile-hero-count">{{ $this->getHojeCount() }}</div>
-        </div>
-
         <div class="ag-mobile-cta">
             <x-filament::button type="button" wire:click="openCreateAgendamentoModal" icon="heroicon-o-plus">Novo agendamento</x-filament::button>
-            <x-filament::button tag="a" :href="$this->getOperacaoUrl()" icon="heroicon-o-computer-desktop">Abrir desktop</x-filament::button>
-            <div class="ag-mobile-mini-card">
-                <div class="ag-mobile-mini-label">Atrasados</div>
-                <div class="ag-mobile-mini-value">{{ $this->getAtrasadosCount() }}</div>
-            </div>
+        </div>
+
+        <div class="ag-mobile-mini-card">
+            <div class="ag-mobile-mini-label">Em execução</div>
+            <div class="ag-mobile-mini-value">{{ $this->getExecucaoCount() }}</div>
         </div>
     </div>
 
@@ -63,6 +52,7 @@
     <div class="ag-mobile-tabs">
         <button type="button" wire:click="$set('activeTab', 'atrasados')" class="ag-mobile-tab {{ $activeTab === 'atrasados' ? 'is-active' : '' }}">Atras.<br>{{ $this->getAtrasadosCount() }}</button>
         <button type="button" wire:click="$set('activeTab', 'hoje')" class="ag-mobile-tab {{ $activeTab === 'hoje' ? 'is-active' : '' }}">Hoje<br>{{ $this->getHojeCount() }}</button>
+        <button type="button" wire:click="$set('activeTab', 'execucao')" class="ag-mobile-tab {{ $activeTab === 'execucao' ? 'is-active' : '' }}">Exec.<br>{{ $this->getExecucaoCount() }}</button>
         <button type="button" wire:click="$set('activeTab', 'amanha')" class="ag-mobile-tab {{ $activeTab === 'amanha' ? 'is-active' : '' }}">Amanhã<br>{{ $this->getAmanhaCount() }}</button>
         <button type="button" wire:click="$set('activeTab', 'sem-data')" class="ag-mobile-tab {{ $activeTab === 'sem-data' ? 'is-active' : '' }}">Sem data<br>{{ $this->getSemDataCount() }}</button>
         <button type="button" wire:click="$set('activeTab', 'checklist')" class="ag-mobile-tab {{ $activeTab === 'checklist' ? 'is-active' : '' }}">Checklist<br>{{ $this->getChecklistCount() }}</button>

@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Agendamentos\Pages;
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
+use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
 use App\Models\Agendamento;
+use App\Models\Servico;
 use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\NotificacaoService as notify;
@@ -41,6 +43,71 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
     public ?int $editingAgendamentoId = null;
 
     public ?array $reprogramarData = [];
+
+    public bool $showCreateAgendamentoModal = false;
+
+    public ?array $createAgendamentoData = [];
+
+    public bool $showEditAgendamentoModal = false;
+
+    public ?int $editingFullAgendamentoId = null;
+
+    public ?array $editAgendamentoData = [];
+
+    public function editAgendamentoForm(Schema $schema): Schema
+    {
+        return AgendamentoForm::configure($schema)
+            ->statePath('editAgendamentoData')
+            ->model(Agendamento::class);
+    }
+
+    public function createAgendamentoForm(Schema $schema): Schema
+    {
+        return AgendamentoForm::configure($schema)
+            ->statePath('createAgendamentoData')
+            ->model(Agendamento::class);
+    }
+
+    public function openCreateAgendamentoModal(): void
+    {
+        $this->createAgendamentoData = [
+            'veiculo_id' => null,
+            'data_agendamento' => null,
+            'data_limite' => null,
+            'servico_id' => null,
+            'controla_posicao' => false,
+            'posicao' => null,
+            'plano_preventivo_id' => null,
+            'observacao' => null,
+            'parceiro_id' => null,
+        ];
+
+        $this->createAgendamentoForm->fill($this->createAgendamentoData);
+        $this->showCreateAgendamentoModal = true;
+    }
+
+    public function closeCreateAgendamentoModal(): void
+    {
+        $this->showCreateAgendamentoModal = false;
+        $this->createAgendamentoData = [];
+    }
+
+    public function saveCreateAgendamento(): void
+    {
+        $data = $this->createAgendamentoForm->getState();
+
+        $service = new AgendamentoService;
+        $service->create($data);
+
+        if ($service->hasError()) {
+            notify::error(mensagem: $service->getMessage());
+
+            return;
+        }
+
+        notify::success(mensagem: 'Agendamento criado com sucesso!');
+        $this->closeCreateAgendamentoModal();
+    }
 
     public function reprogramarForm(Schema $schema): Schema
     {
@@ -131,6 +198,111 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
 
         notify::success(mensagem: 'Agendamento reprogramado com sucesso!');
         $this->closeReprogramarModal();
+    }
+
+    public function openEditAgendamentoModal(int $agendamentoId): void
+    {
+        $agendamento = Agendamento::query()
+            ->whereIn('status', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO])
+            ->find($agendamentoId);
+
+        if (! $agendamento) {
+            notify::error(mensagem: 'Agendamento não encontrado.');
+
+            return;
+        }
+
+        $servico = Servico::query()->find($agendamento->servico_id);
+
+        $this->editingFullAgendamentoId = $agendamento->id;
+        $this->editAgendamentoData = [
+            'veiculo_id' => $agendamento->veiculo_id,
+            'data_agendamento' => $agendamento->data_agendamento?->format('Y-m-d'),
+            'data_limite' => $agendamento->data_limite?->format('Y-m-d'),
+            'servico_id' => $agendamento->servico_id,
+            'controla_posicao' => (bool) $servico?->controla_posicao,
+            'posicao' => $agendamento->posicao,
+            'plano_preventivo_id' => $agendamento->plano_preventivo_id,
+            'observacao' => $agendamento->observacao,
+            'parceiro_id' => $agendamento->parceiro_id,
+        ];
+
+        $this->editAgendamentoForm->fill($this->editAgendamentoData);
+        $this->showEditAgendamentoModal = true;
+    }
+
+    public function closeEditAgendamentoModal(): void
+    {
+        $this->showEditAgendamentoModal = false;
+        $this->editingFullAgendamentoId = null;
+        $this->editAgendamentoData = [];
+    }
+
+    public function saveEditAgendamento(): void
+    {
+        $agendamento = Agendamento::query()->find($this->editingFullAgendamentoId);
+
+        if (! $agendamento) {
+            notify::error(mensagem: 'Agendamento não encontrado para edição.');
+            $this->closeEditAgendamentoModal();
+
+            return;
+        }
+
+        $data = $this->editAgendamentoForm->getState();
+        $servico = Servico::query()->find($data['servico_id']);
+        $controlaPosicao = (bool) $servico?->controla_posicao;
+        $posicao = $controlaPosicao ? ($data['posicao'] ?? $agendamento->posicao) : null;
+
+        if ($controlaPosicao && blank($posicao)) {
+            notify::error(mensagem: 'Selecione a posição para este serviço antes de salvar.');
+
+            return;
+        }
+
+        $antes = [
+            'veiculo_id' => $agendamento->veiculo_id,
+            'data_agendamento' => optional($agendamento->data_agendamento)->format('Y-m-d'),
+            'data_limite' => optional($agendamento->data_limite)->format('Y-m-d'),
+            'servico_id' => $agendamento->servico_id,
+            'posicao' => $agendamento->posicao,
+            'plano_preventivo_id' => $agendamento->plano_preventivo_id,
+            'observacao' => $agendamento->observacao,
+            'parceiro_id' => $agendamento->parceiro_id,
+        ];
+
+        $agendamento->update([
+            'veiculo_id' => $data['veiculo_id'],
+            'data_agendamento' => $data['data_agendamento'] ?? null,
+            'data_limite' => $data['data_limite'] ?? null,
+            'servico_id' => $data['servico_id'],
+            'posicao' => $posicao,
+            'plano_preventivo_id' => $data['plano_preventivo_id'] ?? null,
+            'observacao' => $data['observacao'] ?? null,
+            'parceiro_id' => $data['parceiro_id'] ?? null,
+            'updated_by' => Auth::id(),
+        ]);
+
+        app(AgendamentoHistoricoService::class)->registrarAlteracoes(
+            agendamento: $agendamento,
+            tipoEvento: 'EDITADO',
+            antes: $antes,
+            depois: [
+                'veiculo_id' => $agendamento->veiculo_id,
+                'data_agendamento' => optional($agendamento->data_agendamento)->format('Y-m-d'),
+                'data_limite' => optional($agendamento->data_limite)->format('Y-m-d'),
+                'servico_id' => $agendamento->servico_id,
+                'posicao' => $agendamento->posicao,
+                'plano_preventivo_id' => $agendamento->plano_preventivo_id,
+                'observacao' => $agendamento->observacao,
+                'parceiro_id' => $agendamento->parceiro_id,
+            ],
+            descricao: 'Agendamento editado pela tela mobile.',
+            userId: Auth::id(),
+        );
+
+        notify::success(mensagem: 'Agendamento atualizado com sucesso!');
+        $this->closeEditAgendamentoModal();
     }
 
     public function vincularAgendamento(int $agendamentoId): void
@@ -266,11 +438,6 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
     public function getOperacaoUrl(): string
     {
         return AgendamentoResource::getUrl('operacao');
-    }
-
-    public function getEditUrl(Agendamento $agendamento): string
-    {
-        return AgendamentoResource::getUrl('edit', ['record' => $agendamento->id]);
     }
 
     public function formatCategoria(CategoriaAgendamentoEnum|string|null $categoria): string

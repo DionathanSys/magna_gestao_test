@@ -66,6 +66,8 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public ?int $reagendandoItemServicoId = null;
 
+    public ?int $editingAgendamentoId = null;
+
     public function mount(int|string $record): void
     {
         $this->record = $this->loadRecordRelations($this->resolveRecord($record));
@@ -251,6 +253,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public function abrirNovoAgendamento(): void
     {
+        $this->editingAgendamentoId = null;
         $this->reagendandoItemServicoId = null;
         $this->showFormAgendamento = true;
         $this->activeTab = 'agendamentos';
@@ -285,6 +288,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             return;
         }
 
+        $this->editingAgendamentoId = null;
         $this->reagendandoItemServicoId = $item->id;
         $this->showFormAgendamento = true;
         $this->activeTab = 'agendamentos';
@@ -306,13 +310,89 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
     public function fecharFormAgendamento(): void
     {
         $this->showFormAgendamento = false;
+        $this->editingAgendamentoId = null;
         $this->reagendandoItemServicoId = null;
         $this->formDataAgendamento = [];
+    }
+
+    public function editarAgendamento(int $agendamentoId): void
+    {
+        $agendamento = Agendamento::query()
+            ->where('veiculo_id', $this->record->veiculo_id)
+            ->where('status', StatusOrdemServicoEnum::PENDENTE)
+            ->find($agendamentoId);
+
+        if (! $agendamento) {
+            notify::error(mensagem: 'Agendamento não encontrado para edição.');
+
+            return;
+        }
+
+        $servico = Servico::query()->find($agendamento->servico_id);
+
+        $this->editingAgendamentoId = $agendamento->id;
+        $this->reagendandoItemServicoId = null;
+        $this->showFormAgendamento = true;
+        $this->activeTab = 'agendamentos';
+        $this->formDataAgendamento = [
+            'veiculo_id' => $agendamento->veiculo_id,
+            'data_agendamento' => $agendamento->data_agendamento?->format('Y-m-d'),
+            'data_limite' => $agendamento->data_limite?->format('Y-m-d'),
+            'servico_id' => $agendamento->servico_id,
+            'controla_posicao' => (bool) $servico?->controla_posicao,
+            'posicao' => $agendamento->posicao,
+            'plano_preventivo_id' => $agendamento->plano_preventivo_id,
+            'observacao' => $agendamento->observacao,
+            'parceiro_id' => $agendamento->parceiro_id,
+        ];
+
+        $this->formAgendamento->fill($this->formDataAgendamento);
     }
 
     public function salvarAgendamento(): void
     {
         $data = $this->formAgendamento->getState();
+
+        if ($this->editingAgendamentoId) {
+            $agendamento = Agendamento::query()
+                ->where('veiculo_id', $this->record->veiculo_id)
+                ->where('status', StatusOrdemServicoEnum::PENDENTE)
+                ->find($this->editingAgendamentoId);
+
+            if (! $agendamento) {
+                notify::error(mensagem: 'Agendamento não encontrado para edição.');
+                $this->fecharFormAgendamento();
+
+                return;
+            }
+
+            $servico = Servico::query()->find($data['servico_id']);
+            $controlaPosicao = (bool) $servico?->controla_posicao;
+            $posicao = $controlaPosicao ? ($data['posicao'] ?? $agendamento->posicao) : null;
+
+            if ($controlaPosicao && blank($posicao)) {
+                notify::error(mensagem: 'Selecione a posição para este serviço antes de salvar.');
+
+                return;
+            }
+
+            $agendamento->update([
+                'veiculo_id' => $data['veiculo_id'],
+                'data_agendamento' => $data['data_agendamento'] ?? null,
+                'data_limite' => $data['data_limite'] ?? null,
+                'servico_id' => $data['servico_id'],
+                'posicao' => $posicao,
+                'plano_preventivo_id' => $data['plano_preventivo_id'] ?? null,
+                'observacao' => $data['observacao'] ?? null,
+                'parceiro_id' => $data['parceiro_id'] ?? null,
+            ]);
+
+            notify::success(mensagem: 'Agendamento atualizado com sucesso!');
+            $this->fecharFormAgendamento();
+            $this->refreshRecord();
+
+            return;
+        }
 
         if ($this->reagendandoItemServicoId) {
             $item = $this->record->itens()->find($this->reagendandoItemServicoId);

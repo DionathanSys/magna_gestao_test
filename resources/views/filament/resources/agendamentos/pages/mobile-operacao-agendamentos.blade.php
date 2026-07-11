@@ -49,6 +49,7 @@
         </div>
 
         <div class="ag-mobile-cta">
+            <x-filament::button type="button" wire:click="openCreateAgendamentoModal" icon="heroicon-o-plus">Novo agendamento</x-filament::button>
             <x-filament::button tag="a" :href="$this->getOperacaoUrl()" icon="heroicon-o-computer-desktop">Abrir desktop</x-filament::button>
             <div class="ag-mobile-mini-card">
                 <div class="ag-mobile-mini-label">Atrasados</div>
@@ -119,7 +120,7 @@
                     @if ($agendamento->status === \App\Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE && $agendamento->ordem_servico_id === null)
                         <x-filament::button size="sm" color="danger" wire:click="cancelarAgendamento({{ $agendamento->id }})">Cancelar</x-filament::button>
                     @endif
-                    <x-filament::button size="sm" color="gray" tag="a" :href="$this->getEditUrl($agendamento)">Abrir</x-filament::button>
+                    <x-filament::button size="sm" color="gray" wire:click="openEditAgendamentoModal({{ $agendamento->id }})">Editar</x-filament::button>
                     <x-filament::button size="sm" color="gray" tag="a" :href="$this->getListUrl()">Lista</x-filament::button>
                 </div>
             </div>
@@ -141,6 +142,46 @@
 
                     <div class="ag-mobile-modal-actions">
                         <x-filament::button type="button" color="gray" wire:click="closeReprogramarModal">Cancelar</x-filament::button>
+                        <x-filament::button type="submit" color="primary">Salvar</x-filament::button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    @if ($showCreateAgendamentoModal)
+        <div class="ag-mobile-modal-backdrop" wire:click.self="closeCreateAgendamentoModal">
+            <div class="ag-mobile-modal-panel">
+                <div class="ag-mobile-modal-header">
+                    <div class="ag-mobile-modal-title">Novo Agendamento</div>
+                    <x-filament::icon-button icon="heroicon-o-x-mark" color="gray" label="Fechar modal" wire:click="closeCreateAgendamentoModal" />
+                </div>
+
+                <form wire:submit="saveCreateAgendamento">
+                    {{ $this->createAgendamentoForm }}
+
+                    <div class="ag-mobile-modal-actions">
+                        <x-filament::button type="button" color="gray" wire:click="closeCreateAgendamentoModal">Cancelar</x-filament::button>
+                        <x-filament::button type="submit" color="primary">Salvar</x-filament::button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    @if ($showEditAgendamentoModal)
+        <div class="ag-mobile-modal-backdrop" wire:click.self="closeEditAgendamentoModal">
+            <div class="ag-mobile-modal-panel">
+                <div class="ag-mobile-modal-header">
+                    <div class="ag-mobile-modal-title">Editar Agendamento</div>
+                    <x-filament::icon-button icon="heroicon-o-x-mark" color="gray" label="Fechar modal" wire:click="closeEditAgendamentoModal" />
+                </div>
+
+                <form wire:submit="saveEditAgendamento">
+                    {{ $this->editAgendamentoForm }}
+
+                    <div class="ag-mobile-modal-actions">
+                        <x-filament::button type="button" color="gray" wire:click="closeEditAgendamentoModal">Cancelar</x-filament::button>
                         <x-filament::button type="submit" color="primary">Salvar</x-filament::button>
                     </div>
                 </form>

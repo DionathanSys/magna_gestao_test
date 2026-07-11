@@ -8,12 +8,14 @@
         .os-mob-badge { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 9999px; }
         .os-mob-badge-pendente { background: #fef3c7; color: #92400e; }
         .os-mob-badge-execucao, .os-mob-badge-execução { background: #dbeafe; color: #1e40af; }
+        .os-mob-badge-adiado { background: #ffedd5; color: #c2410c; }
         .os-mob-badge-concluido, .os-mob-badge-concluído { background: #d1fae5; color: #065f46; }
         .os-mob-badge-cancelado { background: #fee2e2; color: #991b1b; }
         .os-mob-actions-bar { display: none; }
         .os-mob-section { font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.5rem; }
         .os-mob-divider { border: none; border-top: 1px solid #e2e8f0; margin: 0.75rem 0; }
         .os-mob-item { padding: 0.55rem 0; border-bottom: 1px solid #f1f5f9; }
+        .os-mob-item.is-adiado { background: #fff7ed; border-radius: 0.75rem; padding: 0.7rem; border-bottom: 0; margin-bottom: 0.35rem; }
         .os-mob-item:last-child { border-bottom: none; }
         .os-mob-item-name { font-size: 0.8rem; font-weight: 600; color: #1e293b; }
         .os-mob-item-meta { font-size: 0.73rem; color: #64748b; margin-top: 0.12rem; line-height: 1.35; }
@@ -141,7 +143,7 @@
                 <div class="os-mob-empty">Nenhum serviço vinculado.</div>
             @else
                 @foreach ($record->itens as $item)
-                    <div class="os-mob-item">
+                    <div class="os-mob-item {{ ($item->status?->value ?? null) === 'ADIADO' ? 'is-adiado' : '' }}">
                         <div class="os-mob-item-name">{{ $item->servico?->descricao ?? 'Serviço #' . $item->servico_id }}</div>
                         <div class="os-mob-item-meta">
                             {{ $item->servico?->codigo }}
@@ -190,7 +192,7 @@
             @if ($showFormAgendamento)
                 <div style="margin-bottom:0.9rem;">
                     <div style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:0.5rem;">
-                        {{ $reagendandoItemServicoId ? 'Reagendar serviço' : 'Criar agendamento' }}
+                        {{ $editingAgendamentoId ? 'Editar agendamento' : ($reagendandoItemServicoId ? 'Reagendar serviço' : 'Criar agendamento') }}
                     </div>
                     <form wire:submit="salvarAgendamento">
                         {{ $this->formAgendamento }}
@@ -200,7 +202,7 @@
                             Cancelar
                         </x-filament::button>
                         <x-filament::button type="button" size="sm" color="success" wire:click="salvarAgendamento" style="flex:1;" icon="heroicon-o-check">
-                            {{ $reagendandoItemServicoId ? 'Reagendar' : 'Salvar' }}
+                            {{ $editingAgendamentoId ? 'Salvar edição' : ($reagendandoItemServicoId ? 'Reagendar' : 'Salvar') }}
                         </x-filament::button>
                     </div>
                 </div>
@@ -223,7 +225,7 @@
                             <div class="os-mob-item-meta" style="font-style:italic;">Obs.: {{ $agendamento->observacao }}</div>
                         @endif
                         <div class="os-mob-icon-actions">
-                            <x-filament::icon-button type="button" color="gray" size="sm" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)" icon="heroicon-o-pencil-square" label="Abrir agendamento" />
+                            <x-filament::icon-button type="button" color="gray" size="sm" wire:click="editarAgendamento({{ $agendamento->id }})" icon="heroicon-o-pencil-square" label="Editar agendamento" />
                         </div>
                     </div>
                 @endforeach
@@ -260,7 +262,7 @@
                         @endif
                         <div class="os-mob-icon-actions">
                             <x-filament::icon-button type="button" color="primary" size="sm" wire:click="vincularAgendamento({{ $agendamento->id }})" icon="heroicon-o-link" label="Vincular agendamento" />
-                            <x-filament::icon-button type="button" color="gray" size="sm" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)" icon="heroicon-o-pencil-square" label="Editar agendamento" />
+                            <x-filament::icon-button type="button" color="gray" size="sm" wire:click="editarAgendamento({{ $agendamento->id }})" icon="heroicon-o-pencil-square" label="Editar agendamento" />
                             <x-filament::icon-button type="button" color="danger" size="sm" wire:click="cancelarAgendamento({{ $agendamento->id }})" icon="heroicon-o-x-mark" label="Cancelar agendamento" x-on:click="return confirm('Cancelar este agendamento?')" />
                         </div>
                     </div>

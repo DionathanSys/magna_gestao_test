@@ -33,7 +33,7 @@ class OficinaManutencaoComparativoPeriodo extends StatsOverviewWidget
             ];
         }
 
-        $periodDays = $currentStart->diffInDays($currentEnd) + 1;
+        $periodDays = $currentStart->copy()->startOfDay()->diffInDays($currentEnd->copy()->startOfDay()) + 1;
         $previousEnd = $currentStart->copy()->subDay()->endOfDay();
         $previousStart = $previousEnd->copy()->subDays($periodDays - 1)->startOfDay();
 

@@ -7,6 +7,7 @@ use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Agendamento extends Model
 {
@@ -112,5 +113,10 @@ class Agendamento extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function historicos(): HasMany
+    {
+        return $this->hasMany(AgendamentoHistorico::class, 'agendamento_id');
     }
 }

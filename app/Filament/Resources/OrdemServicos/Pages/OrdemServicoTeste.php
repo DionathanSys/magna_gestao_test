@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
+use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
@@ -10,9 +11,11 @@ use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\Agendamento;
 use App\Models\ManutencaoLancamento;
 use App\Models\Servico;
+use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
@@ -23,6 +26,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class OrdemServicoTeste extends Page implements HasSchemas
 {
@@ -39,9 +44,15 @@ class OrdemServicoTeste extends Page implements HasSchemas
 
     public bool $showEditAgendamentoModal = false;
 
+    public bool $showCreateAgendamentoModal = false;
+
     public ?int $editingAgendamentoId = null;
 
+    public ?int $reagendandoItemServicoId = null;
+
     public ?array $editAgendamentoData = [];
+
+    public ?array $createAgendamentoData = [];
 
     public function mount(int|string $record): void
     {
@@ -54,6 +65,11 @@ class OrdemServicoTeste extends Page implements HasSchemas
             ActionGroup::make([
                 Actions\VincularServicoOrdemServicoAction::make($this->record)
                     ->size(Size::ExtraSmall),
+                Action::make('novo_agendamento')
+                    ->label('Novo Agendamento')
+                    ->icon('heroicon-o-calendar-days')
+                    ->size(Size::ExtraSmall)
+                    ->action(fn () => $this->openCreateAgendamentoModal()),
                 Actions\VincularPlanoPreventivoAction::make($this->record->id, $this->record->veiculo_id)
                     ->size(Size::ExtraSmall),
                 Actions\VincularOrdemSankhyaAction::make()
@@ -76,6 +92,109 @@ class OrdemServicoTeste extends Page implements HasSchemas
         return AgendamentoForm::configure($schema)
             ->statePath('editAgendamentoData')
             ->model(Agendamento::class);
+    }
+
+    public function createAgendamentoForm(Schema $schema): Schema
+    {
+        return AgendamentoForm::configure($schema)
+            ->statePath('createAgendamentoData')
+            ->model(Agendamento::class);
+    }
+
+    public function openCreateAgendamentoModal(): void
+    {
+        $this->reagendandoItemServicoId = null;
+        $this->createAgendamentoData = [
+            'veiculo_id' => $this->record->veiculo_id,
+            'data_agendamento' => null,
+            'data_limite' => null,
+            'servico_id' => null,
+            'controla_posicao' => false,
+            'posicao' => null,
+            'plano_preventivo_id' => null,
+            'observacao' => null,
+            'parceiro_id' => $this->record->parceiro_id,
+        ];
+
+        $this->createAgendamentoForm->fill($this->createAgendamentoData);
+        $this->showCreateAgendamentoModal = true;
+    }
+
+    #[On('open-reagendar-servico-modal')]
+    public function openReagendarServicoModal(int $itemId): void
+    {
+        $item = $this->record->itens()->with('servico')->find($itemId);
+
+        if (! $item) {
+            notify::error(mensagem: 'Serviço não encontrado para reagendamento.');
+
+            return;
+        }
+
+        if ($item->status !== StatusOrdemServicoEnum::PENDENTE) {
+            notify::error(mensagem: 'Apenas serviços pendentes podem ser reagendados.');
+
+            return;
+        }
+
+        $this->reagendandoItemServicoId = $item->id;
+        $this->createAgendamentoData = [
+            'veiculo_id' => $this->record->veiculo_id,
+            'data_agendamento' => null,
+            'data_limite' => null,
+            'servico_id' => $item->servico_id,
+            'controla_posicao' => (bool) $item->servico?->controla_posicao,
+            'posicao' => $item->posicao,
+            'plano_preventivo_id' => $item->plano_preventivo_id,
+            'observacao' => $item->observacao,
+            'parceiro_id' => $this->record->parceiro_id,
+        ];
+
+        $this->createAgendamentoForm->fill($this->createAgendamentoData);
+        $this->showCreateAgendamentoModal = true;
+    }
+
+    public function closeCreateAgendamentoModal(): void
+    {
+        $this->showCreateAgendamentoModal = false;
+        $this->reagendandoItemServicoId = null;
+        $this->createAgendamentoData = [];
+    }
+
+    public function saveCreateAgendamento(): void
+    {
+        $data = $this->createAgendamentoForm->getState();
+
+        if ($this->reagendandoItemServicoId) {
+            $item = $this->record->itens()->find($this->reagendandoItemServicoId);
+
+            if (! $item || $item->status !== StatusOrdemServicoEnum::PENDENTE) {
+                notify::error(mensagem: 'Serviço não disponível para reagendamento.');
+                $this->closeCreateAgendamentoModal();
+
+                return;
+            }
+
+            $data['categoria'] = CategoriaAgendamentoEnum::REAGENDAMENTO;
+        }
+
+        $service = new AgendamentoService;
+        $service->create($data);
+
+        if ($service->hasError()) {
+            notify::error(mensagem: $service->getMessage());
+
+            return;
+        }
+
+        if (isset($item)) {
+            $item->update(['status' => StatusOrdemServicoEnum::ADIADO]);
+        }
+
+        notify::success(mensagem: $this->reagendandoItemServicoId ? 'Serviço reagendado com sucesso!' : 'Agendamento criado com sucesso!');
+        $this->closeCreateAgendamentoModal();
+        $this->record = $this->loadRecordRelations($this->record->fresh());
+        $this->dispatch('ordem-servico-atualizada');
     }
 
     public function vincularAgendamento(int $agendamentoId): void
@@ -171,6 +290,17 @@ class OrdemServicoTeste extends Page implements HasSchemas
             return;
         }
 
+        $antes = [
+            'veiculo_id' => $agendamento->veiculo_id,
+            'data_agendamento' => optional($agendamento->data_agendamento)->format('Y-m-d'),
+            'data_limite' => optional($agendamento->data_limite)->format('Y-m-d'),
+            'servico_id' => $agendamento->servico_id,
+            'posicao' => $agendamento->posicao,
+            'plano_preventivo_id' => $agendamento->plano_preventivo_id,
+            'observacao' => $agendamento->observacao,
+            'parceiro_id' => $agendamento->parceiro_id,
+        ];
+
         $agendamento->update([
             'veiculo_id' => $data['veiculo_id'],
             'data_agendamento' => $data['data_agendamento'] ?? null,
@@ -181,6 +311,24 @@ class OrdemServicoTeste extends Page implements HasSchemas
             'observacao' => $data['observacao'] ?? null,
             'parceiro_id' => $data['parceiro_id'] ?? null,
         ]);
+
+        app(AgendamentoHistoricoService::class)->registrarAlteracoes(
+            agendamento: $agendamento,
+            tipoEvento: 'EDITADO',
+            antes: $antes,
+            depois: [
+                'veiculo_id' => $agendamento->veiculo_id,
+                'data_agendamento' => optional($agendamento->data_agendamento)->format('Y-m-d'),
+                'data_limite' => optional($agendamento->data_limite)->format('Y-m-d'),
+                'servico_id' => $agendamento->servico_id,
+                'posicao' => $agendamento->posicao,
+                'plano_preventivo_id' => $agendamento->plano_preventivo_id,
+                'observacao' => $agendamento->observacao,
+                'parceiro_id' => $agendamento->parceiro_id,
+            ],
+            descricao: 'Agendamento editado pela tela de OS.',
+            userId: Auth::id(),
+        );
 
         notify::success(mensagem: 'Agendamento atualizado com sucesso!');
         $this->closeEditAgendamentoModal();

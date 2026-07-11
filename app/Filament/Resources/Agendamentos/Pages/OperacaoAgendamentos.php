@@ -6,6 +6,7 @@ use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Models\Agendamento;
+use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
@@ -112,12 +113,31 @@ class OperacaoAgendamentos extends Page implements HasSchemas
 
         $data = $this->reprogramarForm->getState();
 
+        $antes = [
+            'data_agendamento' => optional($agendamento->data_agendamento)->format('Y-m-d'),
+            'data_limite' => optional($agendamento->data_limite)->format('Y-m-d'),
+            'observacao' => $agendamento->observacao,
+        ];
+
         $agendamento->update([
             'data_agendamento' => $data['data_agendamento'] ?? null,
             'data_limite' => $data['data_limite'] ?? null,
             'observacao' => $data['observacao'] ?? null,
             'updated_by' => Auth::id(),
         ]);
+
+        app(AgendamentoHistoricoService::class)->registrarAlteracoes(
+            agendamento: $agendamento,
+            tipoEvento: 'REPROGRAMADO',
+            antes: $antes,
+            depois: [
+                'data_agendamento' => optional($agendamento->data_agendamento)->format('Y-m-d'),
+                'data_limite' => optional($agendamento->data_limite)->format('Y-m-d'),
+                'observacao' => $agendamento->observacao,
+            ],
+            descricao: 'Agendamento reprogramado pela tela operacional.',
+            userId: Auth::id(),
+        );
 
         notify::success(mensagem: 'Agendamento reprogramado com sucesso!');
         $this->closeReprogramarModal();

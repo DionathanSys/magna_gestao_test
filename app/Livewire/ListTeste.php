@@ -2,19 +2,18 @@
 
 namespace App\Livewire;
 
-use App\Models;
 use App\Enum;
 use App\Filament\Resources\OrdemServicos\Actions;
-use App\Filament\Resources\Servicos\Schemas\ServicoForm;
+use App\Models;
 use App\Services;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Enums\FontWeight;
@@ -24,6 +23,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ListTeste extends Component implements HasActions, HasSchemas, HasTable
@@ -46,18 +46,19 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
             // ->query(Models\ItemOrdemServico::query()
             //     ->where('ordem_servico_id', $this->ordemServico->id)
             //     ->with(['servico', 'planoPreventivo']))
-            ->relationship(fn() => $this->ordemServico->itens())
+            ->relationship(fn () => $this->ordemServico->itens())
             ->inverseRelationship('ordemServico')
             ->columns([
                 TextColumn::make('servico.descricao')
                     ->label('Serviço')
                     ->weight(FontWeight::Medium)
-                    ->formatStateUsing(fn(Models\ItemOrdemServico $record): string => $record->servico->codigo . ' - ' . $record->servico->descricao)
+                    ->formatStateUsing(fn (Models\ItemOrdemServico $record): string => $record->servico->codigo.' - '.$record->servico->descricao)
                     ->description(function (Models\ItemOrdemServico $record) {
                         if ($record->observacao) {
-                            return $record->observacao . ($record->posicao ? ' - Pos: ' . $record->posicao : '');
+                            return $record->observacao.($record->posicao ? ' - Pos: '.$record->posicao : '');
                         }
-                        return $record->posicao ? 'Pos: ' . $record->posicao : '';
+
+                        return $record->posicao ? 'Pos: '.$record->posicao : '';
                     })
                     ->width('1%'),
                 TextColumn::make('planoPreventivo.descricao')
@@ -66,7 +67,7 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                     ->placeholder('N/A')
                     ->visibleFrom('2xl')
                     ->limit(10, end: ' ...')
-                    ->tooltip(fn(Models\ItemOrdemServico $record): string => $record->planoPreventivo->descricao)
+                    ->tooltip(fn (Models\ItemOrdemServico $record): string => $record->planoPreventivo->descricao)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('status')
@@ -104,15 +105,15 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                         ->slideOver()
                         ->modalSubmitAction(false)
                         ->schema([
-                            \Filament\Infolists\Components\RepeatableEntry::make('comentarios')
+                            RepeatableEntry::make('comentarios')
                                 ->schema([
-                                    \Filament\Infolists\Components\TextEntry::make('conteudo')
+                                    TextEntry::make('conteudo')
                                         ->label('Comentário')
                                         ->html(),
-                                    \Filament\Infolists\Components\TextEntry::make('created_at')
+                                    TextEntry::make('created_at')
                                         ->label('Criado em')
                                         ->dateTime('d/m/Y H:i'),
-                                ])
+                                ]),
                         ])->icon('heroicon-o-chat-bubble-left-ellipsis'),
                     Action::make('comentarios')
                         ->icon('heroicon-o-chat-bubble-left-ellipsis')
@@ -124,23 +125,28 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
                         ])
                         ->action(function (array $data, Models\ItemOrdemServico $item) {
                             $item->comentarios()->create([
-                                'veiculo_id'    => $item->ordemServico->veiculo_id,
-                                'conteudo'      => $data['conteudo'],
+                                'veiculo_id' => $item->ordemServico->veiculo_id,
+                                'conteudo' => $data['conteudo'],
                             ]);
                         }),
-                    Actions\EditarServicoOrdemServicoAction::make(fn(Models\ItemOrdemServico $record) => $record->id),
+                    Action::make('reagendar')
+                        ->label('Reagendar')
+                        ->icon('heroicon-o-calendar-days')
+                        ->visible(fn (Models\ItemOrdemServico $record): bool => $record->status === Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)
+                        ->action(fn (Models\ItemOrdemServico $record) => $this->dispatch('open-reagendar-servico-modal', itemId: $record->id)),
+                    Actions\EditarServicoOrdemServicoAction::make(fn (Models\ItemOrdemServico $record) => $record->id),
                     DeleteAction::make()
                         ->action(function (Models\ItemOrdemServico $itemOrdemServico) {
                             Services\OrdemServico\ItemOrdemServicoService::delete($itemOrdemServico);
                         })
                         ->successNotificationTitle(null)
                         ->requiresConfirmation(),
-                ])->icon('heroicon-o-bars-3-center-left')
+                ])->icon('heroicon-o-bars-3-center-left'),
             ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
-                Actions\VincularServicoOrdemServicoAction::make($this->ordemServico->id)
+                Actions\VincularServicoOrdemServicoAction::make($this->ordemServico->id),
             ])
-            ->recordClasses(fn(Models\ItemOrdemServico $record) => match ($record->status) {
+            ->recordClasses(fn (Models\ItemOrdemServico $record) => match ($record->status) {
                 Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE => 'bg-yellow-100',
                 Enum\OrdemServico\StatusOrdemServicoEnum::CANCELADO => 'bg-red-100',
                 Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO => 'bg-green-100',
@@ -153,5 +159,9 @@ class ListTeste extends Component implements HasActions, HasSchemas, HasTable
         return view('livewire.list-teste');
     }
 
-
+    #[On('ordem-servico-atualizada')]
+    public function refreshOrdemServico(): void
+    {
+        $this->ordemServico = $this->ordemServico->fresh();
+    }
 }

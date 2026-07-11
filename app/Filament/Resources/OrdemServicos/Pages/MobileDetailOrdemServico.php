@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
+use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
+use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
@@ -52,11 +54,17 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public bool $showFormNovoServico = false;
 
+    public bool $showFormAgendamento = false;
+
     public ?array $formDataServico = [];
 
     public ?array $formDataNovoServico = [];
 
+    public ?array $formDataAgendamento = [];
+
     public ?int $editandoItemServicoId = null;
+
+    public ?int $reagendandoItemServicoId = null;
 
     public function mount(int|string $record): void
     {
@@ -105,6 +113,13 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         return ServicoForm::configure($schema)
             ->statePath('formDataNovoServico')
             ->model(Servico::class);
+    }
+
+    public function formAgendamento(Schema $schema): Schema
+    {
+        return AgendamentoForm::configure($schema)
+            ->statePath('formDataAgendamento')
+            ->model(Agendamento::class);
     }
 
     protected function getHeaderActions(): array
@@ -232,6 +247,102 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             'observacao' => null,
             'status' => StatusOrdemServicoEnum::PENDENTE->value,
         ]);
+    }
+
+    public function abrirNovoAgendamento(): void
+    {
+        $this->reagendandoItemServicoId = null;
+        $this->showFormAgendamento = true;
+        $this->activeTab = 'agendamentos';
+        $this->formDataAgendamento = [
+            'veiculo_id' => $this->record->veiculo_id,
+            'data_agendamento' => null,
+            'data_limite' => null,
+            'servico_id' => null,
+            'controla_posicao' => false,
+            'posicao' => null,
+            'plano_preventivo_id' => null,
+            'observacao' => null,
+            'parceiro_id' => $this->record->parceiro_id,
+        ];
+
+        $this->formAgendamento->fill($this->formDataAgendamento);
+    }
+
+    public function reagendarServico(int $itemServicoId): void
+    {
+        $item = $this->record->itens()->with('servico')->find($itemServicoId);
+
+        if (! $item) {
+            notify::error(mensagem: 'Serviço não encontrado para reagendamento.');
+
+            return;
+        }
+
+        if ($item->status !== StatusOrdemServicoEnum::PENDENTE) {
+            notify::error(mensagem: 'Apenas serviços pendentes podem ser reagendados.');
+
+            return;
+        }
+
+        $this->reagendandoItemServicoId = $item->id;
+        $this->showFormAgendamento = true;
+        $this->activeTab = 'agendamentos';
+        $this->formDataAgendamento = [
+            'veiculo_id' => $this->record->veiculo_id,
+            'data_agendamento' => null,
+            'data_limite' => null,
+            'servico_id' => $item->servico_id,
+            'controla_posicao' => (bool) $item->servico?->controla_posicao,
+            'posicao' => $item->posicao,
+            'plano_preventivo_id' => $item->plano_preventivo_id,
+            'observacao' => $item->observacao,
+            'parceiro_id' => $this->record->parceiro_id,
+        ];
+
+        $this->formAgendamento->fill($this->formDataAgendamento);
+    }
+
+    public function fecharFormAgendamento(): void
+    {
+        $this->showFormAgendamento = false;
+        $this->reagendandoItemServicoId = null;
+        $this->formDataAgendamento = [];
+    }
+
+    public function salvarAgendamento(): void
+    {
+        $data = $this->formAgendamento->getState();
+
+        if ($this->reagendandoItemServicoId) {
+            $item = $this->record->itens()->find($this->reagendandoItemServicoId);
+
+            if (! $item || $item->status !== StatusOrdemServicoEnum::PENDENTE) {
+                notify::error(mensagem: 'Serviço não disponível para reagendamento.');
+                $this->fecharFormAgendamento();
+
+                return;
+            }
+
+            $data['categoria'] = CategoriaAgendamentoEnum::REAGENDAMENTO;
+        }
+
+        $service = new AgendamentoService;
+        $service->create($data);
+
+        if ($service->hasError()) {
+            notify::error(mensagem: $service->getMessage());
+
+            return;
+        }
+
+        if (isset($item)) {
+            $item->update(['status' => StatusOrdemServicoEnum::ADIADO]);
+        }
+
+        notify::success(mensagem: $this->reagendandoItemServicoId ? 'Serviço reagendado com sucesso!' : 'Agendamento criado com sucesso!');
+        $this->fecharFormAgendamento();
+        $this->refreshRecord();
     }
 
     public function editarServico(int $itemServicoId): void

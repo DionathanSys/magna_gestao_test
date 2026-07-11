@@ -76,6 +76,7 @@ class AgendamentoForm
                             ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 2])
                             ->inline(false)
                             ->disabled()
+                            ->dehydrated(false)
                             ->live(),
                         Select::make('posicao')
                             ->label('Posição')

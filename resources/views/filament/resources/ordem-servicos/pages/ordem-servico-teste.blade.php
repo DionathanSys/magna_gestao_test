@@ -400,4 +400,28 @@
             </div>
         </div>
     @endif
+
+    @if ($showCreateAgendamentoModal)
+        <div class="os-modal-backdrop" wire:click.self="closeCreateAgendamentoModal">
+            <div class="os-modal-panel">
+                <div class="os-modal-header">
+                    <div class="os-modal-title">{{ $reagendandoItemServicoId ? 'Reagendar Serviço' : 'Novo Agendamento' }}</div>
+                    <x-filament::icon-button icon="heroicon-o-x-mark" color="gray" label="Fechar modal" wire:click="closeCreateAgendamentoModal" />
+                </div>
+
+                <form wire:submit="saveCreateAgendamento">
+                    {{ $this->createAgendamentoForm }}
+
+                    <div class="os-modal-actions">
+                        <x-filament::button type="button" color="gray" wire:click="closeCreateAgendamentoModal">
+                            Cancelar
+                        </x-filament::button>
+                        <x-filament::button type="submit" color="primary">
+                            {{ $reagendandoItemServicoId ? 'Reagendar' : 'Criar agendamento' }}
+                        </x-filament::button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </x-filament-panels::page>

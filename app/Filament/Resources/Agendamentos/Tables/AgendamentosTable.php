@@ -7,6 +7,7 @@ use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Filament\Resources\Agendamentos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models;
+use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
@@ -244,12 +245,31 @@ class AgendamentosTable
                             ->maxLength(255),
                     ])
                     ->action(function (Models\Agendamento $record, array $data): void {
+                        $antes = [
+                            'data_agendamento' => optional($record->data_agendamento)->format('Y-m-d'),
+                            'data_limite' => optional($record->data_limite)->format('Y-m-d'),
+                            'observacao' => $record->observacao,
+                        ];
+
                         $record->update([
                             'data_agendamento' => $data['data_agendamento'] ?? null,
                             'data_limite' => $data['data_limite'] ?? null,
                             'observacao' => $data['observacao'] ?? null,
                             'updated_by' => Auth::id(),
                         ]);
+
+                        app(AgendamentoHistoricoService::class)->registrarAlteracoes(
+                            agendamento: $record,
+                            tipoEvento: 'REPROGRAMADO',
+                            antes: $antes,
+                            depois: [
+                                'data_agendamento' => optional($record->data_agendamento)->format('Y-m-d'),
+                                'data_limite' => optional($record->data_limite)->format('Y-m-d'),
+                                'observacao' => $record->observacao,
+                            ],
+                            descricao: 'Agendamento reprogramado pela listagem.',
+                            userId: Auth::id(),
+                        );
 
                         notify::success(mensagem: 'Agendamento reprogramado com sucesso!');
                     }),

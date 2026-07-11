@@ -4,6 +4,7 @@ namespace App\Services\Agendamento\Actions;
 
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Models;
+use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\OrdemServico\OrdemServicoService;
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,17 @@ class VincularOrdemServico
             'ordem_servico_id' => $this->agendamento->ordem_servico_id,
             'user_id' => $this->getUserIdChecked(),
         ]);
+
+        app(AgendamentoHistoricoService::class)->registrar(
+            agendamento: $this->agendamento,
+            tipoEvento: 'VINCULADO_OS',
+            descricao: 'Agendamento vinculado a uma ordem de serviço.',
+            dados: [
+                'ordem_servico_id' => $this->agendamento->ordem_servico_id,
+                'status' => $this->agendamento->status?->value,
+            ],
+            userId: $this->getUserIdChecked(),
+        );
 
     }
 

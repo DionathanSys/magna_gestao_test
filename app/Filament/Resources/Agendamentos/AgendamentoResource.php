@@ -8,6 +8,7 @@ use App\Filament\Resources\Agendamentos\Pages\ListAgendamentos;
 use App\Filament\Resources\Agendamentos\Pages\MobileOperacaoAgendamentos;
 use App\Filament\Resources\Agendamentos\Pages\OperacaoAgendamentos;
 use App\Filament\Resources\Agendamentos\Pages\ViewAgendamento;
+use App\Filament\Resources\Agendamentos\RelationManagers\HistoricosRelationManager;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoInfolist;
 use App\Filament\Resources\Agendamentos\Tables\AgendamentosTable;
@@ -51,7 +52,7 @@ class AgendamentoResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            HistoricosRelationManager::class,
         ];
     }
 

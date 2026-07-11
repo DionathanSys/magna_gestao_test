@@ -155,6 +155,7 @@
                             <div class="os-mob-item-meta" style="font-style:italic;">{{ $item->observacao }}</div>
                         @endif
                         <div class="os-mob-icon-actions">
+                            <x-filament::icon-button type="button" color="warning" size="sm" wire:click="reagendarServico({{ $item->id }})" icon="heroicon-o-calendar-days" label="Reagendar serviço" />
                             <x-filament::icon-button type="button" color="gray" size="sm" wire:click="editarServico({{ $item->id }})" icon="heroicon-o-pencil" label="Editar serviço" />
                             <x-filament::icon-button type="button" color="danger" size="sm" wire:click="excluirServico({{ $item->id }})" icon="heroicon-o-trash" label="Excluir serviço" x-on:click="return confirm('Remover este serviço?')" />
                         </div>
@@ -179,6 +180,31 @@
             <div class="os-mob-section">
                 Agendamentos Desta OS
             </div>
+
+            <div style="margin-bottom:0.75rem;">
+                <x-filament::button type="button" size="sm" color="primary" wire:click="abrirNovoAgendamento" icon="heroicon-o-plus">
+                    Novo agendamento
+                </x-filament::button>
+            </div>
+
+            @if ($showFormAgendamento)
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:0.5rem;">
+                        {{ $reagendandoItemServicoId ? 'Reagendar serviço' : 'Criar agendamento' }}
+                    </div>
+                    <form wire:submit="salvarAgendamento">
+                        {{ $this->formAgendamento }}
+                    </form>
+                    <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+                        <x-filament::button type="button" size="sm" color="gray" wire:click="fecharFormAgendamento" style="flex:1;">
+                            Cancelar
+                        </x-filament::button>
+                        <x-filament::button type="button" size="sm" color="success" wire:click="salvarAgendamento" style="flex:1;" icon="heroicon-o-check">
+                            {{ $reagendandoItemServicoId ? 'Reagendar' : 'Salvar' }}
+                        </x-filament::button>
+                    </div>
+                </div>
+            @endif
 
             @if ($this->agendamentosDestaOs->isEmpty())
                 <div class="os-mob-empty">Nenhum agendamento vinculado nesta OS.</div>

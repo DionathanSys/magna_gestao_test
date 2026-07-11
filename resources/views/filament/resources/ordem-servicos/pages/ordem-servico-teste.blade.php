@@ -32,7 +32,38 @@
         .os-list-title {
             font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: 0.75rem;
+        }
+        .os-collapsible {
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.7);
+            overflow: hidden;
+        }
+        .os-collapsible + .os-collapsible {
+            margin-top: 1rem;
+        }
+        .os-collapsible-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            cursor: pointer;
+            list-style: none;
+            padding: 1rem;
+        }
+        .os-collapsible-summary::-webkit-details-marker {
+            display: none;
+        }
+        .os-collapsible-icon {
+            color: rgb(100 116 139);
+            font-size: 0.85rem;
+            transition: transform 0.2s ease;
+        }
+        .os-collapsible[open] .os-collapsible-icon {
+            transform: rotate(180deg);
+        }
+        .os-collapsible-body {
+            padding: 0 1rem 1rem;
         }
         .os-tab-list {
             display: flex;
@@ -141,78 +172,90 @@
 
             <div class="os-secondary-lists">
                 <section class="os-list-panel">
-                    <div class="os-list-title">Agendamentos Já Vinculados Nesta OS</div>
+                    <details class="os-collapsible" open>
+                        <summary class="os-collapsible-summary">
+                            <span class="os-list-title">Agendamentos Já Vinculados Nesta OS</span>
+                            <span class="os-collapsible-icon">▼</span>
+                        </summary>
 
-                    @if ($this->agendamentosDestaOs->isEmpty())
-                        <div class="os-empty-list">Nenhum agendamento foi vinculado a esta ordem ainda.</div>
-                    @else
-                        <div class="os-simple-list">
-                            @foreach ($this->agendamentosDestaOs as $agendamento)
-                                <div class="os-simple-item">
-                                    <strong>{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</strong>
-                                    <span class="os-pill os-pill-{{ strtolower($agendamento->categoria?->value ?? 'manual') }}">
-                                        {{ $agendamento->categoria?->value ?? 'MANUAL' }}
-                                    </span>
-                                    <span>Status: {{ $agendamento->status?->value ?? 'N/A' }}</span>
-                                    <span>Agendado para: {{ $agendamento->data_agendamento?->format('d/m/Y') ?? 'Sem data' }}</span>
-                                    <span>Fornecedor: {{ $agendamento->parceiro?->nome ?? 'Serviço interno' }}</span>
-                                    @if ($agendamento->observacao)
-                                        <span>Obs.: {{ $agendamento->observacao }}</span>
-                                    @endif
-                                    <div class="os-item-actions">
-                                        <x-filament::button size="xs" color="gray" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)">
-                                            Abrir
-                                        </x-filament::button>
-                                    </div>
+                        <div class="os-collapsible-body">
+                            @if ($this->agendamentosDestaOs->isEmpty())
+                                <div class="os-empty-list">Nenhum agendamento foi vinculado a esta ordem ainda.</div>
+                            @else
+                                <div class="os-simple-list">
+                                    @foreach ($this->agendamentosDestaOs as $agendamento)
+                                        <div class="os-simple-item">
+                                            <strong>{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</strong>
+                                            <span class="os-pill os-pill-{{ strtolower($agendamento->categoria?->value ?? 'manual') }}">
+                                                {{ $agendamento->categoria?->value ?? 'MANUAL' }}
+                                            </span>
+                                            <span>Status: {{ $agendamento->status?->value ?? 'N/A' }}</span>
+                                            <span>Agendado para: {{ $agendamento->data_agendamento?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                            <span>Fornecedor: {{ $agendamento->parceiro?->nome ?? 'Serviço interno' }}</span>
+                                            @if ($agendamento->observacao)
+                                                <span>Obs.: {{ $agendamento->observacao }}</span>
+                                            @endif
+                                            <div class="os-item-actions">
+                                                <x-filament::button size="xs" color="gray" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)">
+                                                    Abrir
+                                                </x-filament::button>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endforeach
+                            @endif
                         </div>
-                    @endif
-                </section>
+                    </details>
 
-                <section class="os-list-panel">
-                    <div class="os-list-title">Outras Pendências Abertas do Veículo</div>
+                    <details class="os-collapsible" open>
+                        <summary class="os-collapsible-summary">
+                            <span class="os-list-title">Outras Pendências Abertas do Veículo</span>
+                            <span class="os-collapsible-icon">▼</span>
+                        </summary>
 
-                    <div class="os-filter-row">
-                        <input
-                            type="text"
-                            wire:model.live.debounce.300ms="agendamentoBusca"
-                            class="os-filter-input"
-                            placeholder="Buscar por serviço, fornecedor, observação..."
-                        >
-                    </div>
+                        <div class="os-collapsible-body">
+                            <div class="os-filter-row">
+                                <input
+                                    type="text"
+                                    wire:model.live.debounce.300ms="agendamentoBusca"
+                                    class="os-filter-input"
+                                    placeholder="Buscar por serviço, fornecedor, observação..."
+                                >
+                            </div>
 
-                    @if ($this->agendamentosVeiculo->isEmpty())
-                        <div class="os-empty-list">Nenhum agendamento pendente.</div>
-                    @else
-                        <div class="os-simple-list">
-                            @foreach ($this->agendamentosVeiculo as $agendamento)
-                                <div class="os-simple-item">
-                                    <strong>{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</strong>
-                                    <span class="os-pill os-pill-{{ strtolower($agendamento->categoria?->value ?? 'manual') }}">
-                                        {{ $agendamento->categoria?->value ?? 'MANUAL' }}
-                                    </span>
-                                    <span>Data: {{ $agendamento->data_agendamento?->format('d/m/Y') ?? 'Sem data' }}</span>
-                                    <span>Limite: {{ $agendamento->data_limite?->format('d/m/Y') ?? 'Sem data' }}</span>
-                                    <span>Fornecedor: {{ $agendamento->parceiro?->nome ?? 'Serviço interno' }}</span>
-                                    @if ($agendamento->observacao)
-                                        <span>Obs.: {{ $agendamento->observacao }}</span>
-                                    @endif
-                                    <div class="os-item-actions">
-                                        <x-filament::button size="xs" color="primary" wire:click="vincularAgendamento({{ $agendamento->id }})">
-                                            Vincular
-                                        </x-filament::button>
-                                        <x-filament::button size="xs" color="gray" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)">
-                                            Editar
-                                        </x-filament::button>
-                                        <x-filament::button size="xs" color="danger" wire:click="cancelarAgendamento({{ $agendamento->id }})">
-                                            Cancelar
-                                        </x-filament::button>
-                                    </div>
+                            @if ($this->agendamentosVeiculo->isEmpty())
+                                <div class="os-empty-list">Nenhum agendamento pendente.</div>
+                            @else
+                                <div class="os-simple-list">
+                                    @foreach ($this->agendamentosVeiculo as $agendamento)
+                                        <div class="os-simple-item">
+                                            <strong>{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</strong>
+                                            <span class="os-pill os-pill-{{ strtolower($agendamento->categoria?->value ?? 'manual') }}">
+                                                {{ $agendamento->categoria?->value ?? 'MANUAL' }}
+                                            </span>
+                                            <span>Data: {{ $agendamento->data_agendamento?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                            <span>Limite: {{ $agendamento->data_limite?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                            <span>Fornecedor: {{ $agendamento->parceiro?->nome ?? 'Serviço interno' }}</span>
+                                            @if ($agendamento->observacao)
+                                                <span>Obs.: {{ $agendamento->observacao }}</span>
+                                            @endif
+                                            <div class="os-item-actions">
+                                                <x-filament::button size="xs" color="primary" wire:click="vincularAgendamento({{ $agendamento->id }})">
+                                                    Vincular
+                                                </x-filament::button>
+                                                <x-filament::button size="xs" color="gray" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)">
+                                                    Editar
+                                                </x-filament::button>
+                                                <x-filament::button size="xs" color="danger" wire:click="cancelarAgendamento({{ $agendamento->id }})">
+                                                    Cancelar
+                                                </x-filament::button>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endforeach
+                            @endif
                         </div>
-                    @endif
+                    </details>
                 </section>
 
                 <section class="os-list-panel">

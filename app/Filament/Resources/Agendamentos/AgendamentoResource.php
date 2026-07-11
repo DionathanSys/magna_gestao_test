@@ -12,6 +12,7 @@ use App\Filament\Resources\Agendamentos\Schemas\AgendamentoInfolist;
 use App\Filament\Resources\Agendamentos\Tables\AgendamentosTable;
 use App\Models\Agendamento;
 use BackedEnum;
+use Filament\Navigation\NavigationItem;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -61,6 +62,19 @@ class AgendamentoResource extends Resource
             // 'create' => CreateAgendamento::route('/create'),
             // 'view' => ViewAgendamento::route('/{record}'),
             'edit' => EditAgendamento::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getNavigationItems(): array
+    {
+        return [
+            ...parent::getNavigationItems(),
+            NavigationItem::make('Operação Agendamentos')
+                ->group(static::getNavigationGroup())
+                ->icon('heroicon-o-queue-list')
+                ->sort((static::getNavigationSort() ?? 0) + 1)
+                ->url(static::getUrl('operacao'))
+                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.agendamentos.operacao')),
         ];
     }
 }

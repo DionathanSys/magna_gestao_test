@@ -8,6 +8,7 @@ use App\Filament\Widgets\AgendamentoStats;
 use App\Models;
 use App\Services;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -21,6 +22,10 @@ class ListAgendamentos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('operacao')
+                ->label('Operação')
+                ->icon('heroicon-o-queue-list')
+                ->url(AgendamentoResource::getUrl('operacao')),
             CreateAction::make()
                 ->label('Agendamento')
                 ->icon('heroicon-o-plus')

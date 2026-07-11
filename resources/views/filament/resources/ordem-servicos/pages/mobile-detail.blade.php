@@ -209,29 +209,8 @@
                 Outras Pendências do Veículo
             </div>
 
-            <div class="os-mob-kpis" style="margin-top:0;margin-bottom:0.75rem;">
-                <div class="os-mob-kpi">
-                    <span class="os-mob-kpi-label">Total</span>
-                    <span class="os-mob-kpi-value">{{ $this->agendamentoResumo['total'] }}</span>
-                </div>
-                <div class="os-mob-kpi">
-                    <span class="os-mob-kpi-label">Atrasados</span>
-                    <span class="os-mob-kpi-value">{{ $this->agendamentoResumo['atrasados'] }}</span>
-                </div>
-                <div class="os-mob-kpi">
-                    <span class="os-mob-kpi-label">Checklist</span>
-                    <span class="os-mob-kpi-value">{{ $this->agendamentoResumo['checklist'] }}</span>
-                </div>
-            </div>
-
             <div class="os-mob-filter-stack">
                 <input type="text" wire:model.live.debounce.300ms="agendamentoBusca" class="os-mob-input" placeholder="Buscar serviço, fornecedor ou observação">
-                <select wire:model.live="agendamentoFiltroCategoria" class="os-mob-select">
-                    <option value="todos">Todas categorias</option>
-                    <option value="MANUAL">Manual</option>
-                    <option value="CHECKLIST">Checklist</option>
-                    <option value="REAGENDAMENTO">Reagendamento</option>
-                </select>
             </div>
 
             @if ($this->agendamentosVeiculo->isEmpty())

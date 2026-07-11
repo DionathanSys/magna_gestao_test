@@ -6,6 +6,9 @@
             gap: 2rem;
             align-items: flex-start;
         }
+        [x-cloak] {
+            display: none !important;
+        }
         .os-flex-form {
             width: 100%;
             min-width: 0;
@@ -30,6 +33,28 @@
             font-size: 0.95rem;
             font-weight: 600;
             margin-bottom: 0.75rem;
+        }
+        .os-tab-list {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.9rem;
+        }
+        .os-tab-button {
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            background: rgb(248 250 252);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgb(51 65 85);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .os-tab-button.is-active {
+            background: rgb(37 99 235);
+            border-color: rgb(37 99 235);
+            color: #fff;
         }
         .os-simple-list {
             display: flex;
@@ -64,36 +89,11 @@
             flex-wrap: wrap;
             margin-top: 0.65rem;
         }
-        .os-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 0.9rem;
-        }
-        .os-summary-card {
-            border-radius: 0.75rem;
-            padding: 0.85rem 0.95rem;
-            background: rgb(248 250 252);
-        }
-        .os-summary-card strong {
-            display: block;
-            font-size: 1.2rem;
-            color: rgb(15 23 42);
-        }
-        .os-summary-card span {
-            display: block;
-            margin-top: 0.2rem;
-            font-size: 0.82rem;
-            color: rgb(71 85 105);
-        }
         .os-filter-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 0.75rem;
+            display: block;
             margin-bottom: 0.9rem;
         }
-        .os-filter-input,
-        .os-filter-select {
+        .os-filter-input {
             width: 100%;
             border: 1px solid rgba(148, 163, 184, 0.35);
             border-radius: 0.75rem;
@@ -173,25 +173,6 @@
                 <section class="os-list-panel">
                     <div class="os-list-title">Outras Pendências Abertas do Veículo</div>
 
-                    <div class="os-summary-grid">
-                        <div class="os-summary-card">
-                            <strong>{{ $this->agendamentoResumo['total'] }}</strong>
-                            <span>Total em aberto</span>
-                        </div>
-                        <div class="os-summary-card">
-                            <strong>{{ $this->agendamentoResumo['atrasados'] }}</strong>
-                            <span>Atrasados</span>
-                        </div>
-                        <div class="os-summary-card">
-                            <strong>{{ $this->agendamentoResumo['sem_data'] }}</strong>
-                            <span>Sem data</span>
-                        </div>
-                        <div class="os-summary-card">
-                            <strong>{{ $this->agendamentoResumo['checklist'] }}</strong>
-                            <span>Checklist</span>
-                        </div>
-                    </div>
-
                     <div class="os-filter-row">
                         <input
                             type="text"
@@ -199,12 +180,6 @@
                             class="os-filter-input"
                             placeholder="Buscar por serviço, fornecedor, observação..."
                         >
-                        <select wire:model.live="agendamentoFiltroCategoria" class="os-filter-select">
-                            <option value="todos">Todas categorias</option>
-                            <option value="MANUAL">Manual</option>
-                            <option value="CHECKLIST">Checklist</option>
-                            <option value="REAGENDAMENTO">Reagendamento</option>
-                        </select>
                     </div>
 
                     @if ($this->agendamentosVeiculo->isEmpty())
@@ -258,55 +233,64 @@
                     @endif
                 </section>
 
-                <section class="os-list-panel">
-                    <div class="os-list-title">Custos Vinculados</div>
+                <section class="os-list-panel" x-data="{ activeTab: 'vinculados' }">
+                    <div class="os-list-title">Custos</div>
 
-                    @if ($record->manutencaoLancamentos->isEmpty())
-                        <div class="os-empty-list">Nenhum custo vinculado.</div>
-                    @else
-                        <div class="os-simple-list">
-                            @foreach ($record->manutencaoLancamentos->sortByDesc('data_negociacao') as $lancamento)
-                                <div class="os-simple-item">
-                                    <strong>{{ $lancamento->produto }}</strong>
-                                    <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
-                                    <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
-                                    <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
-                                    <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                                    <span>Vínculo: {{ $lancamento->tipo_vinculo === 'automatico' ? 'Automático' : 'Manual' }}</span>
-                                    <div class="os-item-actions">
-                                        <x-filament::button size="xs" color="danger" wire:click="desvincularLancamento({{ $lancamento->id }})">
-                                            Desvincular
-                                        </x-filament::button>
+                    <div class="os-tab-list" role="tablist" aria-label="Abas de custos">
+                        <button type="button" class="os-tab-button" :class="{ 'is-active': activeTab === 'vinculados' }" x-on:click="activeTab = 'vinculados'">
+                            Vinculados ({{ $record->manutencaoLancamentos->count() }})
+                        </button>
+                        <button type="button" class="os-tab-button" :class="{ 'is-active': activeTab === 'pendentes' }" x-on:click="activeTab = 'pendentes'">
+                            Pendentes ({{ $this->lancamentosPendentes->count() }})
+                        </button>
+                    </div>
+
+                    <div x-show="activeTab === 'vinculados'" x-cloak>
+                        @if ($record->manutencaoLancamentos->isEmpty())
+                            <div class="os-empty-list">Nenhum custo vinculado.</div>
+                        @else
+                            <div class="os-simple-list">
+                                @foreach ($record->manutencaoLancamentos->sortByDesc('data_negociacao') as $lancamento)
+                                    <div class="os-simple-item">
+                                        <strong>{{ $lancamento->produto }}</strong>
+                                        <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                        <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
+                                        <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
+                                        <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
+                                        <span>Vínculo: {{ $lancamento->tipo_vinculo === 'automatico' ? 'Automático' : 'Manual' }}</span>
+                                        <div class="os-item-actions">
+                                            <x-filament::button size="xs" color="danger" wire:click="desvincularLancamento({{ $lancamento->id }})">
+                                                Desvincular
+                                            </x-filament::button>
+                                        </div>
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </section>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
 
-                <section class="os-list-panel">
-                    <div class="os-list-title">Custos Pendentes do Veículo</div>
-
-                    @if ($this->lancamentosPendentes->isEmpty())
-                        <div class="os-empty-list">Nenhum custo pendente para este veículo.</div>
-                    @else
-                        <div class="os-simple-list">
-                            @foreach ($this->lancamentosPendentes as $lancamento)
-                                <div class="os-simple-item">
-                                    <strong>{{ $lancamento->produto }}</strong>
-                                    <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
-                                    <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
-                                    <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
-                                    <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                                    <div class="os-item-actions">
-                                        <x-filament::button size="xs" color="primary" wire:click="vincularLancamento({{ $lancamento->id }})">
-                                            Vincular nesta OS
-                                        </x-filament::button>
+                    <div x-show="activeTab === 'pendentes'" x-cloak>
+                        @if ($this->lancamentosPendentes->isEmpty())
+                            <div class="os-empty-list">Nenhum custo pendente para este veículo.</div>
+                        @else
+                            <div class="os-simple-list">
+                                @foreach ($this->lancamentosPendentes as $lancamento)
+                                    <div class="os-simple-item">
+                                        <strong>{{ $lancamento->produto }}</strong>
+                                        <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                        <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
+                                        <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
+                                        <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
+                                        <div class="os-item-actions">
+                                            <x-filament::button size="xs" color="primary" wire:click="vincularLancamento({{ $lancamento->id }})">
+                                                Vincular nesta OS
+                                            </x-filament::button>
+                                        </div>
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
                 </section>
             </div>
         </div>

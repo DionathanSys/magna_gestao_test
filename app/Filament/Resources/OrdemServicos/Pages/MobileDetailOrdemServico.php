@@ -49,8 +49,6 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public string $agendamentoBusca = '';
 
-    public string $agendamentoFiltroCategoria = 'todos';
-
     public bool $showFormServico = false;
 
     public bool $showFormNovoServico = false;
@@ -390,13 +388,6 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
     {
         return $this->record->agendamentosPendentes
             ->filter(function (Agendamento $agendamento): bool {
-                $matchCategoria = $this->agendamentoFiltroCategoria === 'todos'
-                    || $agendamento->categoria?->value === $this->agendamentoFiltroCategoria;
-
-                if (! $matchCategoria) {
-                    return false;
-                }
-
                 if (blank($this->agendamentoBusca)) {
                     return true;
                 }
@@ -429,18 +420,6 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
                 $agendamento->id,
             ))
             ->values();
-    }
-
-    public function getAgendamentoResumoProperty(): array
-    {
-        $agendamentos = $this->record->agendamentosPendentes;
-
-        return [
-            'total' => $agendamentos->count(),
-            'atrasados' => $agendamentos->filter(fn (Agendamento $agendamento): bool => $agendamento->data_agendamento?->lt(today()) ?? false)->count(),
-            'sem_data' => $agendamentos->whereNull('data_agendamento')->count(),
-            'checklist' => $agendamentos->filter(fn (Agendamento $agendamento): bool => $agendamento->categoria?->value === 'CHECKLIST')->count(),
-        ];
     }
 
     public function getLancamentosPendentesProperty()

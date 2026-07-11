@@ -359,15 +359,18 @@
                                         <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
                                         <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
                                         <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                                        <div class="os-item-actions">
-                                            <x-filament::button size="xs" color="primary" wire:click="vincularLancamento({{ $lancamento->id }})">
-                                                Vincular nesta OS
-                                            </x-filament::button>
-                                        </div>
+                                    <div class="os-item-actions">
+                                        <x-filament::button size="xs" color="primary" wire:click="vincularLancamento({{ $lancamento->id }})">
+                                            Vincular nesta OS
+                                        </x-filament::button>
+                                        <x-filament::button size="xs" color="warning" wire:click="dispensarLancamento({{ $lancamento->id }})">
+                                            Dispensar
+                                        </x-filament::button>
                                     </div>
-                                @endforeach
-                            </div>
-                        @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                     </div>
                 </section>
             </div>

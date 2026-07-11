@@ -284,6 +284,26 @@ class OrdemServicoTeste extends Page implements HasSchemas
         $this->record = $this->loadRecordRelations($this->record->fresh());
     }
 
+    public function dispensarLancamento(int $lancamentoId): void
+    {
+        $lancamento = ManutencaoLancamento::query()
+            ->where('veiculo_id', $this->record->veiculo_id)
+            ->whereNull('ordem_servico_id')
+            ->where('dispensado_vinculo', false)
+            ->find($lancamentoId);
+
+        if (! $lancamento) {
+            notify::error(mensagem: 'Lançamento pendente não encontrado.');
+
+            return;
+        }
+
+        app(ManutencaoLancamentoVinculoService::class)->dispensar($lancamento);
+
+        notify::success(mensagem: 'Lançamento dispensado com sucesso!');
+        $this->record = $this->loadRecordRelations($this->record->fresh());
+    }
+
     public function getLancamentosPendentesProperty()
     {
         return ManutencaoLancamento::query()

@@ -119,13 +119,15 @@ class OrdemServicoTeste extends Page implements HasSchemas
             return;
         }
 
+        $servico = Servico::query()->find($agendamento->servico_id);
+
         $this->editingAgendamentoId = $agendamento->id;
         $this->editAgendamentoData = [
             'veiculo_id' => $agendamento->veiculo_id,
             'data_agendamento' => $agendamento->data_agendamento?->format('Y-m-d'),
             'data_limite' => $agendamento->data_limite?->format('Y-m-d'),
             'servico_id' => $agendamento->servico_id,
-            'controla_posicao' => filled($agendamento->posicao),
+            'controla_posicao' => (bool) $servico?->controla_posicao,
             'posicao' => $agendamento->posicao,
             'plano_preventivo_id' => $agendamento->plano_preventivo_id,
             'observacao' => $agendamento->observacao,
@@ -161,13 +163,20 @@ class OrdemServicoTeste extends Page implements HasSchemas
         $data = $this->editAgendamentoForm->getState();
         $servico = Servico::query()->find($data['servico_id']);
         $controlaPosicao = (bool) $servico?->controla_posicao;
+        $posicao = $controlaPosicao ? ($data['posicao'] ?? $agendamento->posicao) : null;
+
+        if ($controlaPosicao && blank($posicao)) {
+            notify::error(mensagem: 'Selecione a posição para este serviço antes de salvar.');
+
+            return;
+        }
 
         $agendamento->update([
             'veiculo_id' => $data['veiculo_id'],
             'data_agendamento' => $data['data_agendamento'] ?? null,
             'data_limite' => $data['data_limite'] ?? null,
             'servico_id' => $data['servico_id'],
-            'posicao' => $controlaPosicao ? ($data['posicao'] ?? null) : null,
+            'posicao' => $posicao,
             'plano_preventivo_id' => $data['plano_preventivo_id'] ?? null,
             'observacao' => $data['observacao'] ?? null,
             'parceiro_id' => $data['parceiro_id'] ?? null,

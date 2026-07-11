@@ -337,9 +337,7 @@
                 <x-heroicon-o-document-text style="width:16px;height:16px"/>
                 PDF
             </a>
-            <x-filament::button type="button" color="warning" wire:click="encerrar" icon="heroicon-o-check-circle" size="sm" x-on:click="return confirm('Deseja encerrar esta OS?')">
-                Encerrar
-            </x-filament::button>
+            {{ $this->encerrarAction }}
             <x-filament::button type="button" color="danger" wire:click="excluirOrdemServico" icon="heroicon-o-trash" size="sm" x-on:click="return confirm('Deseja excluir esta OS?')">
                 Excluir
             </x-filament::button>

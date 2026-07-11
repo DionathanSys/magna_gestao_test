@@ -20,7 +20,6 @@ use App\Services\Agendamento\AgendamentoService;
 use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
-use App\Services\OrdemServico\OrdemServicoService;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
@@ -123,19 +122,12 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         $this->refreshRecord();
     }
 
-    public function encerrar(): void
+    public function encerrarAction(): Action
     {
-        $service = new OrdemServicoService;
-        $service->encerrarOrdemServico($this->record);
-
-        if ($service->hasError()) {
-            notify::error(mensagem: $service->getMessage());
-
-            return;
-        }
-
-        notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
-        $this->refreshRecord();
+        return Actions\EncerrarOrdemServicoAction::make($this->record)
+            ->after(function () {
+                $this->refreshRecord();
+            });
     }
 
     public function excluirOrdemServico(): void

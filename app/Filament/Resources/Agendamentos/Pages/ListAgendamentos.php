@@ -26,6 +26,10 @@ class ListAgendamentos extends ListRecords
                 ->label('Operação')
                 ->icon('heroicon-o-queue-list')
                 ->url(AgendamentoResource::getUrl('operacao')),
+            Action::make('mobile')
+                ->label('Mobile')
+                ->icon('heroicon-o-device-phone-mobile')
+                ->url(AgendamentoResource::getUrl('mobile-operacao')),
             CreateAction::make()
                 ->label('Agendamento')
                 ->icon('heroicon-o-plus')

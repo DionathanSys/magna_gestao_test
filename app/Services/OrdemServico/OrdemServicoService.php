@@ -97,10 +97,10 @@ class OrdemServicoService
         }
     }
 
-    public function encerrarOrdemServico(OrdemServico $ordemServico): void
+    public function encerrarOrdemServico(OrdemServico $ordemServico, bool $encerrarSankhya = false): void
     {
         try {
-            $action = new Actions\EncerrarOrdemServico($ordemServico);
+            $action = new Actions\EncerrarOrdemServico($ordemServico, $encerrarSankhya);
             $action->handle();
 
             $this->setSuccess('Ordem de Serviço encerrada com sucesso!');

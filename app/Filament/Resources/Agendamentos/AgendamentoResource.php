@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Agendamentos;
 use App\Filament\Resources\Agendamentos\Pages\CreateAgendamento;
 use App\Filament\Resources\Agendamentos\Pages\EditAgendamento;
 use App\Filament\Resources\Agendamentos\Pages\ListAgendamentos;
+use App\Filament\Resources\Agendamentos\Pages\MobileOperacaoAgendamentos;
 use App\Filament\Resources\Agendamentos\Pages\OperacaoAgendamentos;
 use App\Filament\Resources\Agendamentos\Pages\ViewAgendamento;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
@@ -59,6 +60,7 @@ class AgendamentoResource extends Resource
         return [
             'index' => ListAgendamentos::route('/'),
             'operacao' => OperacaoAgendamentos::route('/operacao'),
+            'mobile-operacao' => MobileOperacaoAgendamentos::route('/mobile'),
             // 'create' => CreateAgendamento::route('/create'),
             // 'view' => ViewAgendamento::route('/{record}'),
             'edit' => EditAgendamento::route('/{record}/edit'),

@@ -2,36 +2,48 @@
 
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
-use App\Enum\Frete\TipoRelatorioDocumentoFreteEnum;
-use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
-use App\Imports\DocumentoFreteImport;
-use App\Jobs\ProcessarDocumentoFreteJob;
-use Filament\Actions\Action;
-use App\Services;
 use App\Models;
+use App\Services;
 use App\Services\NotificacaoService as notify;
-
-use Filament\Forms\Components\Select;
-use Filament\Support\Enums\Size;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 
 class EncerrarOrdemServicoAction
 {
-    public static function make(): Action
+    public static function make(?Models\OrdemServico $ordemServico = null): Action
     {
         return Action::make('encerrar')
             ->label('Encerrar')
             ->icon('heroicon-o-check-circle')
             ->color('success')
-            ->action(function (Models\OrdemServico $record, Action $action) {
-                $service = new Services\OrdemServico\OrdemServicoService();
-                $service->encerrarOrdemServico($record);
+            ->requiresConfirmation()
+            ->modalHeading('Encerrar ordem de serviço')
+            ->modalDescription('Confirme o encerramento da OS. Itens pendentes serão concluídos e os demais manterão o status atual.')
+            ->form([
+                Checkbox::make('encerrar_sankhya')
+                    ->label('OS Sankhya Encerrada?')
+                    ->default(false),
+            ])
+            ->action(function (array $data, Action $action, ?Models\OrdemServico $record = null) use ($ordemServico) {
+                $record ??= $ordemServico;
+
+                if (! $record) {
+                    notify::error(mensagem: 'Ordem de Serviço não encontrada para encerramento.');
+                    $action->cancel();
+
+                    return;
+                }
+
+                $service = new Services\OrdemServico\OrdemServicoService;
+                $service->encerrarOrdemServico($record, (bool) ($data['encerrar_sankhya'] ?? false));
+
                 if ($service->hasError()) {
                     notify::error(mensagem: $service->getMessage());
                     $action->cancel();
+
                     return;
                 }
+
                 notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
             });
     }

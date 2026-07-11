@@ -8,7 +8,6 @@ use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Models\Agendamento;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\NotificacaoService as notify;
-use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\Page;
@@ -20,15 +19,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class OperacaoAgendamentos extends Page implements HasSchemas
+class MobileOperacaoAgendamentos extends Page implements HasSchemas
 {
     use InteractsWithSchemas;
 
     protected static string $resource = AgendamentoResource::class;
 
-    protected static ?string $title = 'Operação de Agendamentos';
+    protected static ?string $title = 'Agendamentos Mobile';
 
-    protected string $view = 'filament.resources.agendamentos.pages.operacao-agendamentos';
+    protected string $view = 'filament.resources.agendamentos.pages.mobile-operacao-agendamentos';
+
+    protected static bool $shouldRegisterNavigation = false;
+
+    public string $activeTab = 'hoje';
 
     public string $busca = '';
 
@@ -37,19 +40,6 @@ class OperacaoAgendamentos extends Page implements HasSchemas
     public ?int $editingAgendamentoId = null;
 
     public ?array $reprogramarData = [];
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Action::make('lista')
-                ->label('Abrir Lista Completa')
-                ->url(AgendamentoResource::getUrl('index')),
-            Action::make('mobile')
-                ->label('Abrir Mobile')
-                ->icon('heroicon-o-device-phone-mobile')
-                ->url(AgendamentoResource::getUrl('mobile-operacao')),
-        ];
-    }
 
     public function reprogramarForm(Schema $schema): Schema
     {
@@ -189,49 +179,17 @@ class OperacaoAgendamentos extends Page implements HasSchemas
         notify::success(mensagem: $service->getMessage());
     }
 
-    public function getAtrasadosProperty(): Collection
+    public function getAgendamentosProperty(): Collection
     {
-        return $this->baseQuery()
-            ->pendentes()
-            ->atrasados()
-            ->limit(25)
-            ->get();
-    }
+        $query = $this->baseQuery();
 
-    public function getHojeProperty(): Collection
-    {
-        return $this->baseQuery()
-            ->abertos()
-            ->agendadosPara(now()->toDateString())
-            ->limit(25)
-            ->get();
-    }
-
-    public function getAmanhaProperty(): Collection
-    {
-        return $this->baseQuery()
-            ->pendentes()
-            ->agendadosPara(now()->addDay()->toDateString())
-            ->limit(25)
-            ->get();
-    }
-
-    public function getSemDataProperty(): Collection
-    {
-        return $this->baseQuery()
-            ->pendentes()
-            ->semData()
-            ->limit(25)
-            ->get();
-    }
-
-    public function getChecklistProperty(): Collection
-    {
-        return $this->baseQuery()
-            ->checklist()
-            ->abertos()
-            ->limit(25)
-            ->get();
+        return match ($this->activeTab) {
+            'atrasados' => $query->pendentes()->atrasados()->limit(40)->get(),
+            'amanha' => $query->pendentes()->agendadosPara(now()->addDay()->toDateString())->limit(40)->get(),
+            'sem-data' => $query->pendentes()->semData()->limit(40)->get(),
+            'checklist' => $query->checklist()->abertos()->limit(40)->get(),
+            default => $query->abertos()->agendadosPara(now()->toDateString())->limit(40)->get(),
+        };
     }
 
     protected function baseQuery(): Builder
@@ -255,20 +213,60 @@ class OperacaoAgendamentos extends Page implements HasSchemas
             ->orderBy('id');
     }
 
-    public function getResumoProperty(): array
+    public function getHojeCount(): int
     {
-        return [
-            'atrasados' => Agendamento::query()->pendentes()->atrasados()->count(),
-            'hoje' => Agendamento::query()->abertos()->agendadosPara(now()->toDateString())->count(),
-            'amanha' => Agendamento::query()->pendentes()->agendadosPara(now()->addDay()->toDateString())->count(),
-            'sem_data' => Agendamento::query()->pendentes()->semData()->count(),
-            'checklist' => Agendamento::query()->checklist()->abertos()->count(),
-        ];
+        return Agendamento::query()->abertos()->agendadosPara(now()->toDateString())->count();
+    }
+
+    public function getAtrasadosCount(): int
+    {
+        return Agendamento::query()->pendentes()->atrasados()->count();
+    }
+
+    public function getAmanhaCount(): int
+    {
+        return Agendamento::query()->pendentes()->agendadosPara(now()->addDay()->toDateString())->count();
+    }
+
+    public function getSemDataCount(): int
+    {
+        return Agendamento::query()->pendentes()->semData()->count();
+    }
+
+    public function getChecklistCount(): int
+    {
+        return Agendamento::query()->checklist()->abertos()->count();
+    }
+
+    public function getListUrl(): string
+    {
+        return AgendamentoResource::getUrl('index');
+    }
+
+    public function getOperacaoUrl(): string
+    {
+        return AgendamentoResource::getUrl('operacao');
+    }
+
+    public function getEditUrl(Agendamento $agendamento): string
+    {
+        return AgendamentoResource::getUrl('edit', ['record' => $agendamento->id]);
     }
 
     public function formatCategoria(CategoriaAgendamentoEnum|string|null $categoria): string
     {
         return $categoria instanceof CategoriaAgendamentoEnum ? $categoria->value : (string) $categoria;
+    }
+
+    public function getStatusBadgeColor(Agendamento $agendamento): string
+    {
+        return match ($agendamento->status) {
+            StatusOrdemServicoEnum::PENDENTE => 'warning',
+            StatusOrdemServicoEnum::EXECUCAO => 'info',
+            StatusOrdemServicoEnum::CONCLUIDO => 'success',
+            StatusOrdemServicoEnum::CANCELADO => 'danger',
+            default => 'gray',
+        };
     }
 
     public function canVincular(Agendamento $agendamento): bool

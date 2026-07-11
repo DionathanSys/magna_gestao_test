@@ -3,61 +3,63 @@
 namespace App\Services\OrdemServico\Actions;
 
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
-use App\Enum\OrdemServico\TipoManutencaoEnum;
 use App\Models;
-use App\Services\Agendamento\AgendamentoService;
-use App\Services\ItemOrdemServico\ItemOrdemServicoService;
-use App\Services\Veiculo\VeiculoService;
-use App\Traits\UserCheckTrait;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use App\Services\NotificacaoService as notify;
+use App\Services\Agendamento\Actions\EncerrarAgendamento;
+use Illuminate\Support\Facades\DB;
 
 class EncerrarOrdemServico
 {
-    use UserCheckTrait;
-
-    protected ItemOrdemServicoService $itemOrdemServicoService;
-    protected AgendamentoService $agendamentoService;
-
-    public function __construct(protected Models\OrdemServico $ordemServico)
-    {
-        $this->itemOrdemServicoService = new ItemOrdemServicoService();
-        $this->agendamentoService = new AgendamentoService();
-    }
+    public function __construct(
+        protected Models\OrdemServico $ordemServico,
+        protected bool $encerrarSankhya = false,
+    ) {}
 
     public function handle(): Models\OrdemServico
     {
         $this->validate();
 
-        // Atualiza o status dos itens da ordem de serviço
-        $this->ordemServico->itens->each(function (Models\ItemOrdemServico $item) {
-            if (in_array($item->status, [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO])) {
-                $this->itemOrdemServicoService->update($item->id, [
-                    'status' => StatusOrdemServicoEnum::CONCLUIDO,
-                ]);
+        return DB::transaction(function (): Models\OrdemServico {
+            $this->ordemServico->loadMissing(['itens', 'agendamentos']);
+
+            foreach ($this->ordemServico->itens as $item) {
+                if ($item->status !== StatusOrdemServicoEnum::PENDENTE) {
+                    continue;
+                }
+
+                if (! $item->update(['status' => StatusOrdemServicoEnum::CONCLUIDO])) {
+                    throw new \RuntimeException("Erro ao encerrar o item {$item->id} da ordem de serviço.");
+                }
             }
-        });
 
-        // Atualiza o status dos agendamentos relacionados
-        $this->ordemServico->agendamentos->each(function (Models\Agendamento $agendamento) {
-            if ($agendamento->status == StatusOrdemServicoEnum::EXECUCAO) {
-                $this->agendamentoService->encerrar($agendamento);
+            foreach ($this->ordemServico->agendamentos as $agendamento) {
+                if ($agendamento->status !== StatusOrdemServicoEnum::EXECUCAO) {
+                    continue;
+                }
+
+                (new EncerrarAgendamento($agendamento))->handle();
             }
+
+            $data = [
+                'status' => StatusOrdemServicoEnum::CONCLUIDO,
+                'data_fim' => now(),
+            ];
+
+            if ($this->encerrarSankhya) {
+                $data['status_sankhya'] = StatusOrdemServicoEnum::CONCLUIDO;
+            }
+
+            if (! $this->ordemServico->update($data)) {
+                throw new \RuntimeException("Erro ao encerrar a ordem de serviço {$this->ordemServico->id}.");
+            }
+
+            return $this->ordemServico->fresh(['itens', 'agendamentos']);
         });
-
-        $this->ordemServico->update([
-            'status'        => StatusOrdemServicoEnum::CONCLUIDO,
-            'data_fim'      => now(),
-        ]);
-
-        return $this->ordemServico;
     }
 
     public function validate(): void
     {
         if (! in_array($this->ordemServico->status, [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO])) {
-            throw new \InvalidArgumentException('A ordem de serviço não pode ser encerrada no status atual: ' . $this->ordemServico->status->value);
+            throw new \InvalidArgumentException('A ordem de serviço não pode ser encerrada no status atual: '.$this->ordemServico->status->value);
         }
 
         if ($this->ordemServico->itens->isEmpty()) {

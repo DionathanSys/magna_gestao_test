@@ -145,6 +145,43 @@
         .os-pill-checklist { background: #fef3c7; color: #92400e; }
         .os-pill-manual { background: #e2e8f0; color: #334155; }
         .os-pill-reagendamento { background: #dbeafe; color: #1d4ed8; }
+        .os-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .os-modal-panel {
+            width: min(100%, 980px);
+            max-height: calc(100vh - 2rem);
+            overflow: auto;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+            padding: 1rem;
+        }
+        .os-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .os-modal-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgb(15 23 42);
+        }
+        .os-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
         @media (min-width: 640px) { /* sm breakpoint */
             .os-flex-container {
                 flex-direction: row;
@@ -179,7 +216,7 @@
 
                     <div class="os-collapsible-body">
                         @if ($this->agendamentosDestaOs->isEmpty())
-                            {{-- <div class="os-empty-list">Nenhum agendamento foi vinculado a esta ordem ainda.</div> --}}
+                            <div class="os-empty-list">Nenhum agendamento foi vinculado a esta ordem ainda.</div>
                         @else
                             <div class="os-simple-list">
                                 @foreach ($this->agendamentosDestaOs as $agendamento)
@@ -242,7 +279,7 @@
                                             <x-filament::button size="xs" color="primary" wire:click="vincularAgendamento({{ $agendamento->id }})">
                                                 Vincular
                                             </x-filament::button>
-                                            <x-filament::button size="xs" color="gray" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)">
+                                            <x-filament::button size="xs" color="gray" wire:click="openEditAgendamentoModal({{ $agendamento->id }})">
                                                 Editar
                                             </x-filament::button>
                                             <x-filament::button size="xs" color="danger" wire:click="cancelarAgendamento({{ $agendamento->id }})">
@@ -336,4 +373,28 @@
             </div>
         </div>
     </div>
+
+    @if ($showEditAgendamentoModal)
+        <div class="os-modal-backdrop" wire:click.self="closeEditAgendamentoModal">
+            <div class="os-modal-panel">
+                <div class="os-modal-header">
+                    <div class="os-modal-title">Editar Pendência Aberta</div>
+                    <x-filament::icon-button icon="heroicon-o-x-mark" color="gray" label="Fechar modal" wire:click="closeEditAgendamentoModal" />
+                </div>
+
+                <form wire:submit="saveEditAgendamento">
+                    {{ $this->editAgendamentoForm }}
+
+                    <div class="os-modal-actions">
+                        <x-filament::button type="button" color="gray" wire:click="closeEditAgendamentoModal">
+                            Cancelar
+                        </x-filament::button>
+                        <x-filament::button type="submit" color="primary">
+                            Salvar
+                        </x-filament::button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </x-filament-panels::page>

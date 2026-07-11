@@ -158,13 +158,14 @@ class OrdemServicoTeste extends Page implements HasSchemas
         }
 
         $data = $this->editAgendamentoForm->getState();
+        $controlaPosicao = (bool) ($data['controla_posicao'] ?? false);
 
         $agendamento->update([
             'veiculo_id' => $data['veiculo_id'],
             'data_agendamento' => $data['data_agendamento'] ?? null,
             'data_limite' => $data['data_limite'] ?? null,
             'servico_id' => $data['servico_id'],
-            'posicao' => $data['controla_posicao'] ? ($data['posicao'] ?? null) : null,
+            'posicao' => $controlaPosicao ? ($data['posicao'] ?? null) : null,
             'plano_preventivo_id' => $data['plano_preventivo_id'] ?? null,
             'observacao' => $data['observacao'] ?? null,
             'parceiro_id' => $data['parceiro_id'] ?? null,

@@ -179,7 +179,7 @@
 
                     <div class="os-collapsible-body">
                         @if ($this->agendamentosDestaOs->isEmpty())
-                            <div class="os-empty-list">Nenhum agendamento foi vinculado a esta ordem ainda.</div>
+                            {{-- <div class="os-empty-list">Nenhum agendamento foi vinculado a esta ordem ainda.</div> --}}
                         @else
                             <div class="os-simple-list">
                                 @foreach ($this->agendamentosDestaOs as $agendamento)

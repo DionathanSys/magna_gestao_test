@@ -9,6 +9,7 @@ use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\Agendamento;
 use App\Models\ManutencaoLancamento;
+use App\Models\Servico;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
@@ -158,7 +159,8 @@ class OrdemServicoTeste extends Page implements HasSchemas
         }
 
         $data = $this->editAgendamentoForm->getState();
-        $controlaPosicao = (bool) ($data['controla_posicao'] ?? false);
+        $servico = Servico::query()->find($data['servico_id']);
+        $controlaPosicao = (bool) $servico?->controla_posicao;
 
         $agendamento->update([
             'veiculo_id' => $data['veiculo_id'],

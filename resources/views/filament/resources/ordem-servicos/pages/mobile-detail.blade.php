@@ -177,7 +177,36 @@
     @if ($activeTab === 'agendamentos')
         <div class="os-mob-card">
             <div class="os-mob-section">
-                Pendências do Veículo
+                Agendamentos Desta OS
+            </div>
+
+            @if ($this->agendamentosDestaOs->isEmpty())
+                <div class="os-mob-empty">Nenhum agendamento vinculado nesta OS.</div>
+            @else
+                @foreach ($this->agendamentosDestaOs as $agendamento)
+                    <div class="os-mob-item">
+                        <div class="os-mob-item-name">{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</div>
+                        <div class="os-mob-item-meta">
+                            {{ $agendamento->categoria?->value ?? 'MANUAL' }}
+                            &middot; {{ $agendamento->status?->value ?? 'N/A' }}
+                        </div>
+                        <div class="os-mob-item-meta">
+                            Agendado: {{ $this->formatDate($agendamento->data_agendamento, 'd/m/Y') }}
+                        </div>
+                        @if ($agendamento->observacao)
+                            <div class="os-mob-item-meta" style="font-style:italic;">Obs.: {{ $agendamento->observacao }}</div>
+                        @endif
+                        <div class="os-mob-icon-actions">
+                            <x-filament::icon-button type="button" color="gray" size="sm" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)" icon="heroicon-o-pencil-square" label="Abrir agendamento" />
+                        </div>
+                    </div>
+                @endforeach
+            @endif
+        </div>
+
+        <div class="os-mob-card">
+            <div class="os-mob-section">
+                Outras Pendências do Veículo
             </div>
 
             <div class="os-mob-kpis" style="margin-top:0;margin-bottom:0.75rem;">

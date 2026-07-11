@@ -141,7 +141,37 @@
 
             <div class="os-secondary-lists">
                 <section class="os-list-panel">
-                    <div class="os-list-title">Pendências do Veículo para Decidir na OS</div>
+                    <div class="os-list-title">Agendamentos Já Vinculados Nesta OS</div>
+
+                    @if ($this->agendamentosDestaOs->isEmpty())
+                        <div class="os-empty-list">Nenhum agendamento foi vinculado a esta ordem ainda.</div>
+                    @else
+                        <div class="os-simple-list">
+                            @foreach ($this->agendamentosDestaOs as $agendamento)
+                                <div class="os-simple-item">
+                                    <strong>{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</strong>
+                                    <span class="os-pill os-pill-{{ strtolower($agendamento->categoria?->value ?? 'manual') }}">
+                                        {{ $agendamento->categoria?->value ?? 'MANUAL' }}
+                                    </span>
+                                    <span>Status: {{ $agendamento->status?->value ?? 'N/A' }}</span>
+                                    <span>Agendado para: {{ $agendamento->data_agendamento?->format('d/m/Y') ?? 'Sem data' }}</span>
+                                    <span>Fornecedor: {{ $agendamento->parceiro?->nome ?? 'Serviço interno' }}</span>
+                                    @if ($agendamento->observacao)
+                                        <span>Obs.: {{ $agendamento->observacao }}</span>
+                                    @endif
+                                    <div class="os-item-actions">
+                                        <x-filament::button size="xs" color="gray" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)">
+                                            Abrir
+                                        </x-filament::button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </section>
+
+                <section class="os-list-panel">
+                    <div class="os-list-title">Outras Pendências Abertas do Veículo</div>
 
                     <div class="os-summary-grid">
                         <div class="os-summary-card">

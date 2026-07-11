@@ -420,6 +420,17 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             ->values();
     }
 
+    public function getAgendamentosDestaOsProperty(): Collection
+    {
+        return $this->record->agendamentos
+            ->sortByDesc(fn (Agendamento $agendamento) => sprintf(
+                '%s-%010d',
+                optional($agendamento->updated_at)->format('YmdHis') ?? '00000000000000',
+                $agendamento->id,
+            ))
+            ->values();
+    }
+
     public function getAgendamentoResumoProperty(): array
     {
         $agendamentos = $this->record->agendamentosPendentes;
@@ -472,6 +483,8 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             'veiculo:id,placa',
             'itens.servico:id,codigo,descricao',
             'itens.comentarios',
+            'agendamentos.servico:id,descricao',
+            'agendamentos.parceiro:id,nome',
             'agendamentosPendentes.servico:id,descricao',
             'agendamentosPendentes.parceiro:id,nome',
             'planoPreventivoVinculado.planoPreventivo:id,descricao,intervalo',

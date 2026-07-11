@@ -13,6 +13,8 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -220,6 +222,36 @@ class AgendamentosTable
                         }
 
                         notify::success(mensagem: $service->getMessage());
+                    }),
+                Action::make('reprogramar')
+                    ->label('Reprogramar')
+                    ->icon('heroicon-o-calendar-days')
+                    ->color('warning')
+                    ->visible(fn (Models\Agendamento $record): bool => $record->status === Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)
+                    ->fillForm(fn (Models\Agendamento $record): array => [
+                        'data_agendamento' => $record->data_agendamento,
+                        'data_limite' => $record->data_limite,
+                        'observacao' => $record->observacao,
+                    ])
+                    ->schema([
+                        DatePicker::make('data_agendamento')
+                            ->label('Agendado para'),
+                        DatePicker::make('data_limite')
+                            ->label('Data limite'),
+                        Textarea::make('observacao')
+                            ->label('Observação')
+                            ->rows(3)
+                            ->maxLength(255),
+                    ])
+                    ->action(function (Models\Agendamento $record, array $data): void {
+                        $record->update([
+                            'data_agendamento' => $data['data_agendamento'] ?? null,
+                            'data_limite' => $data['data_limite'] ?? null,
+                            'observacao' => $data['observacao'] ?? null,
+                            'updated_by' => Auth::id(),
+                        ]);
+
+                        notify::success(mensagem: 'Agendamento reprogramado com sucesso!');
                     }),
                 Action::make('cancelar')
                     ->label('Cancelar')

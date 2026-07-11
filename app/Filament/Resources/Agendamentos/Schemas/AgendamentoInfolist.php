@@ -13,6 +13,14 @@ class AgendamentoInfolist
             ->components([
                 TextEntry::make('veiculo.id'),
                 TextEntry::make('ordemServico.id'),
+                TextEntry::make('categoria')
+                    ->formatStateUsing(function ($state): ?string {
+                        if (blank($state)) {
+                            return null;
+                        }
+
+                        return $state?->value ?? (string) $state;
+                    }),
                 TextEntry::make('data_agendamento')
                     ->date(),
                 TextEntry::make('data_limite')

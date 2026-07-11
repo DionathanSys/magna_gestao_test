@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Agendamentos\Pages;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditAgendamento extends EditRecord
 {
@@ -15,5 +16,12 @@ class EditAgendamento extends EditRecord
         return [
             DeleteAction::make(),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['updated_by'] = Auth::id();
+
+        return $data;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
+use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
@@ -26,6 +27,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
 class MobileDetailOrdemServico extends Page implements HasSchemas
@@ -44,6 +46,10 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
     public ?array $data = [];
 
     public ?string $activeTab = 'servicos';
+
+    public string $agendamentoBusca = '';
+
+    public string $agendamentoFiltroCategoria = 'todos';
 
     public bool $showFormServico = false;
 
@@ -373,6 +379,57 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
     public function getListUrl(): string
     {
         return OrdemServicoResource::getUrl('mobile-list');
+    }
+
+    public function getAgendamentoEditUrl(int $agendamentoId): string
+    {
+        return AgendamentoResource::getUrl('edit', ['record' => $agendamentoId]);
+    }
+
+    public function getAgendamentosVeiculoProperty(): Collection
+    {
+        return $this->record->agendamentosPendentes
+            ->filter(function (Agendamento $agendamento): bool {
+                $matchCategoria = $this->agendamentoFiltroCategoria === 'todos'
+                    || $agendamento->categoria?->value === $this->agendamentoFiltroCategoria;
+
+                if (! $matchCategoria) {
+                    return false;
+                }
+
+                if (blank($this->agendamentoBusca)) {
+                    return true;
+                }
+
+                $needle = mb_strtolower(trim($this->agendamentoBusca));
+                $haystack = mb_strtolower(implode(' ', array_filter([
+                    $agendamento->servico?->descricao,
+                    $agendamento->parceiro?->nome,
+                    $agendamento->observacao,
+                    $agendamento->categoria?->value,
+                ])));
+
+                return str_contains($haystack, $needle);
+            })
+            ->sortBy(fn (Agendamento $agendamento) => sprintf(
+                '%s-%s-%010d',
+                optional($agendamento->data_agendamento)->format('Ymd') ?? '99999999',
+                optional($agendamento->data_limite)->format('Ymd') ?? '99999999',
+                $agendamento->id,
+            ))
+            ->values();
+    }
+
+    public function getAgendamentoResumoProperty(): array
+    {
+        $agendamentos = $this->record->agendamentosPendentes;
+
+        return [
+            'total' => $agendamentos->count(),
+            'atrasados' => $agendamentos->filter(fn (Agendamento $agendamento): bool => $agendamento->data_agendamento?->lt(today()) ?? false)->count(),
+            'sem_data' => $agendamentos->whereNull('data_agendamento')->count(),
+            'checklist' => $agendamentos->filter(fn (Agendamento $agendamento): bool => $agendamento->categoria?->value === 'CHECKLIST')->count(),
+        ];
     }
 
     public function getLancamentosPendentesProperty()

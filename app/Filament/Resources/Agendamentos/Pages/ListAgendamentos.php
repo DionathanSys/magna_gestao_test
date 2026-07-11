@@ -2,14 +2,17 @@
 
 namespace App\Filament\Resources\Agendamentos\Pages;
 
-use App\{Models, Services, Enum};
-use App\Services\NotificacaoService as notify;
-use Illuminate\Support\Arr;
+use App\Enum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
+use App\Filament\Widgets\AgendamentoStats;
+use App\Models;
+use App\Services;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 class ListAgendamentos extends ListRecords
 {
@@ -22,7 +25,7 @@ class ListAgendamentos extends ListRecords
                 ->label('Agendamento')
                 ->icon('heroicon-o-plus')
                 ->using(function (array $data, string $model): Models\Agendamento {
-                    $service = new Services\Agendamento\AgendamentoService();
+                    $service = new Services\Agendamento\AgendamentoService;
                     $agendamento = $service->create($data);
 
                     if ($service->hasError()) {
@@ -43,82 +46,105 @@ class ListAgendamentos extends ListRecords
     public function getTabs(): array
     {
         return [
-            'todos' => Tab::make(),
-            'Em Execução' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO))
-                ->badge(Models\Agendamento::query()->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO)->count())
+            'historico' => Tab::make('Histórico'),
+            'abertos' => Tab::make('Abertos')
+                ->modifyQueryUsing(fn (Builder $query) => $query->abertos())
+                ->badge(Models\Agendamento::query()->abertos()->count())
+                ->badgeColor('gray'),
+            'execucao' => Tab::make('Em Execução')
+                ->modifyQueryUsing(fn (Builder $query) => $query->emExecucao())
+                ->badge(Models\Agendamento::query()->emExecucao()->count())
                 ->badgeColor('info'),
-            'Sem Data' => Tab::make()
+            'sem-data' => Tab::make('Sem Data')
                 ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->where('data_agendamento', null)
-                        ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)
+                    fn (Builder $query) => $query
+                        ->pendentes()
+                        ->semData()
                 )
                 ->badge(Models\Agendamento::query()
-                    ->where('data_agendamento', null)
-                    ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)
+                    ->pendentes()
+                    ->semData()
                     ->count())
                 ->badgeColor('info'),
-            'Checklist' => Tab::make()
+            'checklist' => Tab::make('Checklist')
                 ->modifyQueryUsing(
-                    fn(Builder $query) => $query
-                        ->where('servico_id', 184) // ID do serviço de checklist
-                        ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE, Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO])
+                    fn (Builder $query) => $query
+                        ->checklist()
+                        ->abertos()
                 )
                 ->badge(Models\Agendamento::query()
-                    ->where('servico_id', 184)
-                    ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE, Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO])
+                    ->checklist()
+                    ->abertos()
                     ->count())
                 ->badgeColor('info'),
-            'Hoje' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query
-                    ->where('data_agendamento', now()->format('Y-m-d')))
+            'hoje' => Tab::make('Hoje')
+                ->modifyQueryUsing(fn (Builder $query) => $query->agendadosPara(now()->toDateString()))
                 ->badge(Models\Agendamento::query()
-                    ->where('data_agendamento', now()->format('Y-m-d'))->count())
-                ->badgeColor('info'),
-            'Amanhã' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('data_agendamento', now()->addDay()->format('Y-m-d'))
-                    ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])
-                )
-                ->badge(Models\Agendamento::query()
-                    ->where('data_agendamento', now()->addDay()->format('Y-m-d'))
-                    ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])
+                    ->agendadosPara(now()->toDateString())
                     ->count())
                 ->badgeColor('info'),
-            'Semana' => Tab::make()
-                ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->whereBetween('data_agendamento', [
-                        now()->startOfWeek()->format('Y-m-d'),
-                        now()->endOfWeek()->format('Y-m-d')
-                    ])->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])
+            'amanha' => Tab::make('Amanhã')
+                ->modifyQueryUsing(fn (Builder $query) => $query
+                    ->pendentes()
+                    ->agendadosPara(now()->addDay()->toDateString())
                 )
                 ->badge(Models\Agendamento::query()
-                    ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])
-                    ->whereBetween('data_agendamento', [
-                        now()->startOfWeek()->format('Y-m-d'),
-                        now()->endOfWeek()->format('Y-m-d')
-                    ])
+                    ->pendentes()
+                    ->agendadosPara(now()->addDay()->toDateString())
+                    ->count())
+                ->badgeColor('info'),
+            'semana' => Tab::make('Semana')
+                ->modifyQueryUsing(
+                    fn (Builder $query) => $query
+                        ->pendentes()
+                        ->entreDatas(now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString())
+                )
+                ->badge(Models\Agendamento::query()
+                    ->pendentes()
+                    ->entreDatas(now()->startOfWeek()->toDateString(), now()->endOfWeek()->toDateString())
                     ->count()),
-            'Atrasados' => Tab::make()
+            'atrasados' => Tab::make('Atrasados')
                 ->modifyQueryUsing(
-                    fn(Builder $query) =>
-                    $query->where('data_agendamento', '<', now()->format('Y-m-d'))
-                        ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])
+                    fn (Builder $query) => $query
+                        ->pendentes()
+                        ->atrasados()
                 )
-                ->badge(Models\Agendamento::query()->where('data_agendamento', '<', now()->format('Y-m-d'))
-                    ->whereIn('status', [Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE])->count())
+                ->badge(Models\Agendamento::query()
+                    ->pendentes()
+                    ->atrasados()
+                    ->count())
                 ->badgeColor('info'),
-            'Cancelados' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CANCELADO)),
-
-
+            'concluidos' => Tab::make('Concluídos')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO))
+                ->badge(Models\Agendamento::query()->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)->count())
+                ->badgeColor('success'),
+            'cancelados' => Tab::make('Cancelados')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CANCELADO))
+                ->badge(Models\Agendamento::query()->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CANCELADO)->count())
+                ->badgeColor('danger'),
         ];
     }
 
-    public function getDefaultActiveTab(): string | int | null
+    public function getDefaultActiveTab(): string|int|null
     {
+        $lastActiveTab = session('agendamentos_last_active_tab');
 
-        return 'Hoje';
+        if ($lastActiveTab && array_key_exists($lastActiveTab, $this->getTabs())) {
+            return $lastActiveTab;
+        }
+
+        return 'hoje';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            AgendamentoStats::class,
+        ];
+    }
+
+    public function updatedActiveTab(): void
+    {
+        session(['agendamentos_last_active_tab' => $this->activeTab]);
     }
 }

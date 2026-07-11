@@ -15,6 +15,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Support\Enums\Size;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class OrdemServicoTeste extends Page
@@ -26,6 +27,10 @@ class OrdemServicoTeste extends Page
     protected static ?string $title = 'Ordem de Serviço';
 
     protected string $view = 'filament.resources.ordem-servicos.pages.ordem-servico-teste';
+
+    public string $agendamentoBusca = '';
+
+    public string $agendamentoFiltroCategoria = 'todos';
 
     public function mount(int|string $record): void
     {
@@ -81,6 +86,52 @@ class OrdemServicoTeste extends Page
     public function getAgendamentoEditUrl(int $agendamentoId): string
     {
         return AgendamentoResource::getUrl('edit', ['record' => $agendamentoId]);
+    }
+
+    public function getAgendamentosVeiculoProperty(): Collection
+    {
+        return $this->record->agendamentosPendentes
+            ->filter(function (Agendamento $agendamento): bool {
+                $matchCategoria = $this->agendamentoFiltroCategoria === 'todos'
+                    || $agendamento->categoria?->value === $this->agendamentoFiltroCategoria;
+
+                if (! $matchCategoria) {
+                    return false;
+                }
+
+                if (blank($this->agendamentoBusca)) {
+                    return true;
+                }
+
+                $needle = mb_strtolower(trim($this->agendamentoBusca));
+                $haystack = mb_strtolower(implode(' ', array_filter([
+                    $agendamento->servico?->descricao,
+                    $agendamento->parceiro?->nome,
+                    $agendamento->observacao,
+                    $agendamento->categoria?->value,
+                ])));
+
+                return str_contains($haystack, $needle);
+            })
+            ->sortBy(fn (Agendamento $agendamento) => sprintf(
+                '%s-%s-%010d',
+                optional($agendamento->data_agendamento)->format('Ymd') ?? '99999999',
+                optional($agendamento->data_limite)->format('Ymd') ?? '99999999',
+                $agendamento->id,
+            ))
+            ->values();
+    }
+
+    public function getAgendamentoResumoProperty(): array
+    {
+        $agendamentos = $this->record->agendamentosPendentes;
+
+        return [
+            'total' => $agendamentos->count(),
+            'atrasados' => $agendamentos->filter(fn (Agendamento $agendamento): bool => $agendamento->data_agendamento?->lt(today()) ?? false)->count(),
+            'sem_data' => $agendamentos->whereNull('data_agendamento')->count(),
+            'checklist' => $agendamentos->filter(fn (Agendamento $agendamento): bool => $agendamento->categoria?->value === 'CHECKLIST')->count(),
+        ];
     }
 
     public function cancelarAgendamento(int $agendamentoId): void

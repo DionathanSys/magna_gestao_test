@@ -2,13 +2,17 @@
 
 namespace App\Filament\Resources\Agendamentos\Tables;
 
-use App\{Models, Enum};
-use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use App\Enum;
+use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Filament\Resources\Agendamentos\Actions;
+use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use App\Models;
+use App\Services\Agendamento\AgendamentoService;
+use App\Services\NotificacaoService as notify;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -33,7 +37,8 @@ class AgendamentosTable
                     ->label('Veículo')
                     ->width('1%')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('ordem_servico_id')
                     ->label('OS')
                     ->width('1%')
@@ -41,13 +46,14 @@ class AgendamentosTable
                     ->numeric()
                     ->sortable()
                     ->placeholder('Sem Vínculo')
-                    ->url(fn(Models\Agendamento $record): string => OrdemServicoResource::getUrl('edit', ['record' => $record->ordem_servico_id ?? 0]))
+                    ->url(fn (Models\Agendamento $record): string => OrdemServicoResource::getUrl('edit', ['record' => $record->ordem_servico_id ?? 0]))
                     ->openUrlInNewTab(),
                 TextColumn::make('data_agendamento')
                     ->label('Agendado Para')
                     ->width('1%')
                     ->date('d/m/Y')
                     ->sortable()
+                    ->color(fn (Models\Agendamento $record): ?string => $record->status === Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE && $record->data_agendamento?->isPast() ? 'danger' : null)
                     ->placeholder('Não definido'),
                 TextColumn::make('data_limite')
                     ->label('Dt. Limite')
@@ -61,9 +67,21 @@ class AgendamentosTable
                     ->date('d/m/Y')
                     ->placeholder('Não definido')
                     ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('categoria')
+                    ->label('Categoria')
+                    ->badge()
+                    ->formatStateUsing(fn (CategoriaAgendamentoEnum|string|null $state): ?string => $state instanceof CategoriaAgendamentoEnum ? $state->value : $state)
+                    ->color(fn (CategoriaAgendamentoEnum|string|null $state): string => match ($state instanceof CategoriaAgendamentoEnum ? $state : CategoriaAgendamentoEnum::tryFrom((string) $state)) {
+                        CategoriaAgendamentoEnum::CHECKLIST => 'warning',
+                        CategoriaAgendamentoEnum::REAGENDAMENTO => 'info',
+                        default => 'gray',
+                    })
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('servico.descricao')
                     ->label('Serviço')
                     ->width('1%')
+                    ->description(fn (Models\Agendamento $record): ?string => $record->observacao)
                     ->sortable(),
                 TextColumn::make('planoPreventivo.descricao')
                     ->label('Plano Preventivo')
@@ -72,6 +90,14 @@ class AgendamentosTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Status')
+                    ->badge()
+                    ->color(fn (Enum\OrdemServico\StatusOrdemServicoEnum|string|null $state): string => match ($state instanceof Enum\OrdemServico\StatusOrdemServicoEnum ? $state : Enum\OrdemServico\StatusOrdemServicoEnum::tryFrom((string) $state)) {
+                        Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE => 'warning',
+                        Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO => 'info',
+                        Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO => 'success',
+                        Enum\OrdemServico\StatusOrdemServicoEnum::CANCELADO => 'danger',
+                        default => 'gray',
+                    })
                     ->width('1%')
                     ->searchable(),
                 TextColumn::make('observacao')
@@ -124,8 +150,11 @@ class AgendamentosTable
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray())
-                    ->multiple()
-                    ->default([Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE->value, Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO->value]),
+                    ->multiple(),
+                SelectFilter::make('categoria')
+                    ->label('Categoria')
+                    ->options(CategoriaAgendamentoEnum::toSelectArray())
+                    ->multiple(),
                 SelectFilter::make('ordem_servico_id')
                     ->label('Ordem de Serviço')
                     ->relationship('ordemServico', 'id')
@@ -146,7 +175,7 @@ class AgendamentosTable
                     ->attribute('data_agendamento'),
                 Filter::make('nao-e-checklist')
                     ->label('Não é Checklist')
-                    ->query(fn (Builder $query): Builder => $query->where('servico_id', '!=', 184)),
+                    ->query(fn (Builder $query): Builder => $query->where('categoria', '!=', CategoriaAgendamentoEnum::CHECKLIST->value)),
 
             ])
             ->groups([
@@ -158,24 +187,77 @@ class AgendamentosTable
             ->defaultGroup('veiculo.placa')
             ->defaultSort('data_agendamento', 'asc')
             ->recordActions([
+                Action::make('vincular_os')
+                    ->label('Vincular OS')
+                    ->icon('heroicon-o-link')
+                    ->requiresConfirmation()
+                    ->visible(fn (Models\Agendamento $record): bool => $record->status === Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE && $record->ordem_servico_id === null)
+                    ->action(function (Models\Agendamento $record): void {
+                        $service = new AgendamentoService;
+                        $service->vincularEmOrdemServico($record);
+
+                        if ($service->hasError()) {
+                            notify::error(mensagem: $service->getMessage());
+
+                            return;
+                        }
+
+                        notify::success(mensagem: $service->getMessage());
+                    }),
+                Action::make('encerrar')
+                    ->label('Encerrar')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->requiresConfirmation()
+                    ->visible(fn (Models\Agendamento $record): bool => ! in_array($record->status, [Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO, Enum\OrdemServico\StatusOrdemServicoEnum::CANCELADO], true))
+                    ->action(function (Models\Agendamento $record): void {
+                        $service = new AgendamentoService;
+                        $service->encerrar($record);
+
+                        if ($service->hasError()) {
+                            notify::error(mensagem: $service->getMessage());
+
+                            return;
+                        }
+
+                        notify::success(mensagem: $service->getMessage());
+                    }),
+                Action::make('cancelar')
+                    ->label('Cancelar')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Models\Agendamento $record): bool => $record->status === Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE && $record->ordem_servico_id === null)
+                    ->action(function (Models\Agendamento $record): void {
+                        $service = new AgendamentoService;
+                        $service->cancelar($record);
+
+                        if ($service->hasError()) {
+                            notify::error(mensagem: $service->getMessage());
+
+                            return;
+                        }
+
+                        notify::success(mensagem: $service->getMessage());
+                    }),
                 EditAction::make()
                     ->iconButton()
                     ->mutateDataUsing(function (array $data): array {
                         $data['updated_by'] = Auth::user()->id;
+
                         return $data;
                     }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     Actions\CancelarAgendamentoAction::make()
-                        ->visible(fn(): bool => Auth::user()->is_admin),
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                     DeleteBulkAction::make()
-                        ->visible(fn(): bool => Auth::user()->is_admin),
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                 ]),
                 Actions\EncerrarAgendamentoAction::make(),
                 Actions\VincularOrdemServicoAction::make(),
 
             ])
-            ->poll('5s');
+            ->poll('15s');
     }
 }

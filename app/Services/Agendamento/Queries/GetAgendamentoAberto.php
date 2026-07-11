@@ -2,7 +2,7 @@
 
 namespace App\Services\Agendamento\Queries;
 
-use App\{Models, Services, Enum};
+use App\Models;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -10,14 +10,12 @@ class GetAgendamentoAberto
 {
     public function handle(array $veiculoIds): ?Collection
     {
-        $agendamentos =  Models\Agendamento::query()
-            ->whereIn('veiculo_id', $veiculoIds)
-            ->whereIn('status', [
-                Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
-                Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
-            ])
+        $agendamentos = Models\Agendamento::query()
+            ->doVeiculo($veiculoIds)
+            ->abertos()
             ->get();
-        Log::debug('Agendamentos encontrados: ' . $agendamentos->count(), ['agendamentos' => $agendamentos->toArray()]);
+        Log::debug('Agendamentos encontrados: '.$agendamentos->count(), ['agendamentos' => $agendamentos->toArray()]);
+
         return $agendamentos;
     }
 }

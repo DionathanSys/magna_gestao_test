@@ -2,7 +2,8 @@
 
 namespace App\Services\Checklist\Actions;
 
-use App\{Services, Models, Enum};
+use App\Enum\Agendamento\CategoriaAgendamentoEnum;
+use App\Services;
 use Illuminate\Support\Facades\Log;
 
 class AgendarPendenciasChecklist
@@ -11,36 +12,42 @@ class AgendarPendenciasChecklist
     {
         $this->validate($data);
 
-        $service = new Services\Agendamento\AgendamentoService();
+        $checklistServiceId = (int) config('agendamento.checklist_service_id');
+
+        if ($checklistServiceId <= 0) {
+            throw new \InvalidArgumentException('Serviço de checklist não configurado para agendamentos.');
+        }
+
+        $service = new Services\Agendamento\AgendamentoService;
 
         foreach ($data as $key => $pendencia) {
-            Log::debug(__METHOD__. ' - ' . __LINE__, [
+            Log::debug(__METHOD__.' - '.__LINE__, [
                 'pendencia' => $pendencia,
             ]);
             $service->create([
                 'veiculo_id' => $veiculoId,
-                'servico_id' => 184,
+                'servico_id' => $checklistServiceId,
+                'categoria' => CategoriaAgendamentoEnum::CHECKLIST,
                 'observacao' => "Pendência do checklist ID: {$checklistId}, Item: {$pendencia['item']}, Obs.: {$pendencia['observacoes']}",
             ]);
         }
 
-        return;
     }
 
     private function validate(array $data): void
     {
-        if(empty($data)) {
+        if (empty($data)) {
             throw new \InvalidArgumentException('Nenhuma pendência para agendar.');
         }
 
         $errors = [];
         foreach ($data as $pendencia) {
-            if($pendencia['status'] || $pendencia['corrigido']) {
-                $errors[] = "Item {$pendencia['item']} não pode ser agendado. Status: " . ($pendencia['status'] ? 'Sim' : 'Não') . ", Corrigido: " . ($pendencia['corrigido'] ? 'Sim' : 'Não');
+            if ($pendencia['status'] || $pendencia['corrigido']) {
+                $errors[] = "Item {$pendencia['item']} não pode ser agendado. Status: ".($pendencia['status'] ? 'Sim' : 'Não').', Corrigido: '.($pendencia['corrigido'] ? 'Sim' : 'Não');
             }
         }
 
-        if(!empty($errors)) {
+        if (! empty($errors)) {
             throw new \InvalidArgumentException(implode(', ', $errors));
         }
     }

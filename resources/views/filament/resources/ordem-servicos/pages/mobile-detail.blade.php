@@ -30,6 +30,8 @@
         .os-mob-kpi { border-radius: 0.7rem; background: #f8fafc; padding: 0.6rem 0.7rem; }
         .os-mob-kpi-label { display: block; font-size: 0.66rem; color: #64748b; }
         .os-mob-kpi-value { display: block; margin-top: 0.1rem; font-size: 0.77rem; font-weight: 700; color: #0f172a; }
+        .os-mob-filter-stack { display: grid; gap: 0.55rem; margin: 0.75rem 0; }
+        .os-mob-input, .os-mob-select { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.7rem; background: #fff; padding: 0.7rem 0.8rem; font-size: 0.78rem; color: #0f172a; }
         .os-mob-bottom-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 0.65rem 0.75rem calc(0.65rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.96); border-top: 1px solid #e2e8f0; backdrop-filter: blur(10px); }
         .os-mob-bottom-actions { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.5rem; }
     </style>
@@ -175,15 +177,43 @@
     @if ($activeTab === 'agendamentos')
         <div class="os-mob-card">
             <div class="os-mob-section">
-                Agendamentos Pendentes
+                Pendências do Veículo
             </div>
 
-            @if ($record->agendamentosPendentes->isEmpty())
+            <div class="os-mob-kpis" style="margin-top:0;margin-bottom:0.75rem;">
+                <div class="os-mob-kpi">
+                    <span class="os-mob-kpi-label">Total</span>
+                    <span class="os-mob-kpi-value">{{ $this->agendamentoResumo['total'] }}</span>
+                </div>
+                <div class="os-mob-kpi">
+                    <span class="os-mob-kpi-label">Atrasados</span>
+                    <span class="os-mob-kpi-value">{{ $this->agendamentoResumo['atrasados'] }}</span>
+                </div>
+                <div class="os-mob-kpi">
+                    <span class="os-mob-kpi-label">Checklist</span>
+                    <span class="os-mob-kpi-value">{{ $this->agendamentoResumo['checklist'] }}</span>
+                </div>
+            </div>
+
+            <div class="os-mob-filter-stack">
+                <input type="text" wire:model.live.debounce.300ms="agendamentoBusca" class="os-mob-input" placeholder="Buscar serviço, fornecedor ou observação">
+                <select wire:model.live="agendamentoFiltroCategoria" class="os-mob-select">
+                    <option value="todos">Todas categorias</option>
+                    <option value="MANUAL">Manual</option>
+                    <option value="CHECKLIST">Checklist</option>
+                    <option value="REAGENDAMENTO">Reagendamento</option>
+                </select>
+            </div>
+
+            @if ($this->agendamentosVeiculo->isEmpty())
                 <div class="os-mob-empty">Nenhum agendamento pendente.</div>
             @else
-                @foreach ($record->agendamentosPendentes->sortBy('data_agendamento') as $agendamento)
+                @foreach ($this->agendamentosVeiculo as $agendamento)
                     <div class="os-mob-item">
                         <div class="os-mob-item-name">{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</div>
+                        <div class="os-mob-item-meta">
+                            Categoria: {{ $agendamento->categoria?->value ?? 'MANUAL' }}
+                        </div>
                         <div class="os-mob-item-meta">
                             Data: {{ $this->formatDate($agendamento->data_agendamento, 'd/m/Y') }}
                             &middot; Limite: {{ $this->formatDate($agendamento->data_limite, 'd/m/Y') }}
@@ -196,6 +226,7 @@
                         @endif
                         <div class="os-mob-icon-actions">
                             <x-filament::icon-button type="button" color="primary" size="sm" wire:click="vincularAgendamento({{ $agendamento->id }})" icon="heroicon-o-link" label="Vincular agendamento" />
+                            <x-filament::icon-button type="button" color="gray" size="sm" tag="a" :href="$this->getAgendamentoEditUrl($agendamento->id)" icon="heroicon-o-pencil-square" label="Editar agendamento" />
                             <x-filament::icon-button type="button" color="danger" size="sm" wire:click="cancelarAgendamento({{ $agendamento->id }})" icon="heroicon-o-x-mark" label="Cancelar agendamento" x-on:click="return confirm('Cancelar este agendamento?')" />
                         </div>
                     </div>

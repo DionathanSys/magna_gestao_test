@@ -64,6 +64,56 @@
             flex-wrap: wrap;
             margin-top: 0.65rem;
         }
+        .os-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.9rem;
+        }
+        .os-summary-card {
+            border-radius: 0.75rem;
+            padding: 0.85rem 0.95rem;
+            background: rgb(248 250 252);
+        }
+        .os-summary-card strong {
+            display: block;
+            font-size: 1.2rem;
+            color: rgb(15 23 42);
+        }
+        .os-summary-card span {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.82rem;
+            color: rgb(71 85 105);
+        }
+        .os-filter-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.9rem;
+        }
+        .os-filter-input,
+        .os-filter-select {
+            width: 100%;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 0.75rem;
+            padding: 0.7rem 0.85rem;
+            background: #fff;
+            font-size: 0.85rem;
+        }
+        .os-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-top: 0.45rem;
+            width: fit-content;
+        }
+        .os-pill-checklist { background: #fef3c7; color: #92400e; }
+        .os-pill-manual { background: #e2e8f0; color: #334155; }
+        .os-pill-reagendamento { background: #dbeafe; color: #1d4ed8; }
         @media (min-width: 640px) { /* sm breakpoint */
             .os-flex-container {
                 flex-direction: row;
@@ -91,15 +141,52 @@
 
             <div class="os-secondary-lists">
                 <section class="os-list-panel">
-                    <div class="os-list-title">Agendamentos Pendentes</div>
+                    <div class="os-list-title">Pendências do Veículo para Decidir na OS</div>
 
-                    @if ($record->agendamentosPendentes->isEmpty())
+                    <div class="os-summary-grid">
+                        <div class="os-summary-card">
+                            <strong>{{ $this->agendamentoResumo['total'] }}</strong>
+                            <span>Total em aberto</span>
+                        </div>
+                        <div class="os-summary-card">
+                            <strong>{{ $this->agendamentoResumo['atrasados'] }}</strong>
+                            <span>Atrasados</span>
+                        </div>
+                        <div class="os-summary-card">
+                            <strong>{{ $this->agendamentoResumo['sem_data'] }}</strong>
+                            <span>Sem data</span>
+                        </div>
+                        <div class="os-summary-card">
+                            <strong>{{ $this->agendamentoResumo['checklist'] }}</strong>
+                            <span>Checklist</span>
+                        </div>
+                    </div>
+
+                    <div class="os-filter-row">
+                        <input
+                            type="text"
+                            wire:model.live.debounce.300ms="agendamentoBusca"
+                            class="os-filter-input"
+                            placeholder="Buscar por serviço, fornecedor, observação..."
+                        >
+                        <select wire:model.live="agendamentoFiltroCategoria" class="os-filter-select">
+                            <option value="todos">Todas categorias</option>
+                            <option value="MANUAL">Manual</option>
+                            <option value="CHECKLIST">Checklist</option>
+                            <option value="REAGENDAMENTO">Reagendamento</option>
+                        </select>
+                    </div>
+
+                    @if ($this->agendamentosVeiculo->isEmpty())
                         <div class="os-empty-list">Nenhum agendamento pendente.</div>
                     @else
                         <div class="os-simple-list">
-                            @foreach ($record->agendamentosPendentes->sortBy('data_agendamento') as $agendamento)
+                            @foreach ($this->agendamentosVeiculo as $agendamento)
                                 <div class="os-simple-item">
                                     <strong>{{ $agendamento->servico?->descricao ?? 'Serviço não informado' }}</strong>
+                                    <span class="os-pill os-pill-{{ strtolower($agendamento->categoria?->value ?? 'manual') }}">
+                                        {{ $agendamento->categoria?->value ?? 'MANUAL' }}
+                                    </span>
                                     <span>Data: {{ $agendamento->data_agendamento?->format('d/m/Y') ?? 'Sem data' }}</span>
                                     <span>Limite: {{ $agendamento->data_limite?->format('d/m/Y') ?? 'Sem data' }}</span>
                                     <span>Fornecedor: {{ $agendamento->parceiro?->nome ?? 'Serviço interno' }}</span>

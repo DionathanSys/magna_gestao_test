@@ -2,27 +2,23 @@
 
 namespace App\Services\Agendamento\Queries;
 
-use App\{Models, Services, Enum};
+use App\Models;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 
 class GetAgendamento
 {
-    public function emAberto(array|int $veiculoId, string|null $periodo, string|null $atePeriodo): ?Collection
+    public function emAberto(array|int $veiculoId, ?string $periodo, ?string $atePeriodo): ?Collection
     {
-        $query =  Models\Agendamento::query()
-            ->whereIn('status', [
-                Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
-                Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
-            ]);
+        $query = Models\Agendamento::query()
+            ->doVeiculo($veiculoId)
+            ->abertos();
 
         if ($atePeriodo) {
-            $query->whereBetween('data_agendamento', [$periodo, $atePeriodo]);
-        } else if ($periodo) {
-            $query->where('data_agendamento', '=', $periodo);
+            $query->entreDatas($periodo, $atePeriodo);
+        } elseif ($periodo) {
+            $query->agendadosPara($periodo);
         }
-    
-        return $query->get();
 
+        return $query->get();
     }
 }

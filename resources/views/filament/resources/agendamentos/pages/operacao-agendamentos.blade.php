@@ -180,4 +180,24 @@
             </div>
         </div>
     @endif
+
+    @if ($showCreateAgendamentoModal)
+        <div class="ag-op-modal-backdrop" wire:click.self="closeCreateAgendamentoModal">
+            <div class="ag-op-modal-panel">
+                <div class="ag-op-modal-header">
+                    <div class="ag-op-modal-title">Novo Agendamento</div>
+                    <x-filament::icon-button icon="heroicon-o-x-mark" color="gray" label="Fechar modal" wire:click="closeCreateAgendamentoModal" />
+                </div>
+
+                <form wire:submit="saveCreateAgendamento">
+                    {{ $this->createAgendamentoForm }}
+
+                    <div class="ag-op-modal-actions">
+                        <x-filament::button type="button" color="gray" wire:click="closeCreateAgendamentoModal">Cancelar</x-filament::button>
+                        <x-filament::button type="submit" color="primary">Salvar</x-filament::button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </x-filament-panels::page>

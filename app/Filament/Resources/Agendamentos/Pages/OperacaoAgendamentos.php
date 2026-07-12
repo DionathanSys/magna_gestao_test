@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Agendamentos\Pages;
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
+use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
 use App\Models\Agendamento;
 use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
@@ -39,13 +40,17 @@ class OperacaoAgendamentos extends Page implements HasSchemas
 
     public ?array $reprogramarData = [];
 
+    public bool $showCreateAgendamentoModal = false;
+
+    public ?array $createAgendamentoData = [];
+
     protected function getHeaderActions(): array
     {
         return [
             Action::make('novo')
                 ->label('Novo Agendamento')
                 ->icon('heroicon-o-plus')
-                ->url(AgendamentoResource::getUrl('index')),
+                ->action(fn () => $this->openCreateAgendamentoModal()),
             Action::make('lista')
                 ->label('Abrir Lista Completa')
                 ->url(AgendamentoResource::getUrl('index')),
@@ -54,6 +59,54 @@ class OperacaoAgendamentos extends Page implements HasSchemas
                 ->icon('heroicon-o-device-phone-mobile')
                 ->url(AgendamentoResource::getUrl('mobile-operacao')),
         ];
+    }
+
+    public function createAgendamentoForm(Schema $schema): Schema
+    {
+        return AgendamentoForm::configure($schema)
+            ->statePath('createAgendamentoData')
+            ->model(Agendamento::class);
+    }
+
+    public function openCreateAgendamentoModal(): void
+    {
+        $this->createAgendamentoData = [
+            'veiculo_id' => null,
+            'data_agendamento' => null,
+            'data_limite' => null,
+            'servico_id' => null,
+            'controla_posicao' => false,
+            'posicao' => null,
+            'plano_preventivo_id' => null,
+            'observacao' => null,
+            'parceiro_id' => null,
+        ];
+
+        $this->createAgendamentoForm->fill($this->createAgendamentoData);
+        $this->showCreateAgendamentoModal = true;
+    }
+
+    public function closeCreateAgendamentoModal(): void
+    {
+        $this->showCreateAgendamentoModal = false;
+        $this->createAgendamentoData = [];
+    }
+
+    public function saveCreateAgendamento(): void
+    {
+        $data = $this->createAgendamentoForm->getState();
+
+        $service = new AgendamentoService;
+        $service->create($data);
+
+        if ($service->hasError()) {
+            notify::error(mensagem: $service->getMessage());
+
+            return;
+        }
+
+        notify::success(mensagem: 'Agendamento criado com sucesso!');
+        $this->closeCreateAgendamentoModal();
     }
 
     public function reprogramarForm(Schema $schema): Schema

@@ -3,18 +3,23 @@
 namespace App\Filament\Resources\Agendamentos\Pages;
 
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
+use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
-use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
 use App\Models\Agendamento;
 use App\Models\Servico;
 use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\NotificacaoService as notify;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
@@ -56,23 +61,105 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
 
     public function editAgendamentoForm(Schema $schema): Schema
     {
-        return AgendamentoForm::configure($schema)
+        return $schema
+            ->schema($this->mobileAgendamentoFormSchema())
             ->statePath('editAgendamentoData')
             ->model(Agendamento::class);
     }
 
     public function createAgendamentoForm(Schema $schema): Schema
     {
-        return AgendamentoForm::configure($schema)
+        return $schema
+            ->schema($this->mobileAgendamentoFormSchema())
             ->statePath('createAgendamentoData')
             ->model(Agendamento::class);
     }
 
+    protected function mobileAgendamentoFormSchema(): array
+    {
+        return [
+            Grid::make(1)
+                ->schema([
+                    Select::make('veiculo_id')
+                        ->label('Veículo')
+                        ->relationship('veiculo', 'placa')
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function (Set $set): void {
+                            $set('plano_preventivo_id', null);
+                        }),
+                    Select::make('servico_id')
+                        ->label('Serviço')
+                        ->relationship('servico', 'descricao')
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function (Set $set, $state): void {
+                            $servico = $state ? Servico::find($state) : null;
+
+                            $set('controla_posicao', (bool) $servico?->controla_posicao);
+
+                            if (! $servico?->controla_posicao) {
+                                $set('posicao', null);
+                            }
+                        }),
+                    Toggle::make('controla_posicao')
+                        ->label('Controla posição')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->inline(false)
+                        ->live(),
+                    Select::make('posicao')
+                        ->label('Posição')
+                        ->options(PosicaoItemOrdemServicoEnum::toSelectArray())
+                        ->searchable()
+                        ->preload()
+                        ->visible(fn (Get $get): bool => (bool) $get('controla_posicao'))
+                        ->requiredIf('controla_posicao', true)
+                        ->dehydrated(fn (Get $get): bool => (bool) $get('controla_posicao')),
+                    DatePicker::make('data_agendamento')
+                        ->label('Agendado para'),
+                    DatePicker::make('data_limite')
+                        ->label('Data limite')
+                        ->minDate(fn (Get $get) => $get('data_agendamento')),
+                    Select::make('plano_preventivo_id')
+                        ->label('Plano preventivo')
+                        ->options(function (Get $get): array {
+                            if (! $get('veiculo_id')) {
+                                return [];
+                            }
+
+                            return (new AgendamentoService)->getPlanosPreventivosByVeiculo($get('veiculo_id'));
+                        })
+                        ->searchable()
+                        ->preload(),
+                    Select::make('parceiro_id')
+                        ->label('Parceiro')
+                        ->relationship('parceiro', 'nome')
+                        ->searchable()
+                        ->preload(),
+                    Textarea::make('observacao')
+                        ->label('Observação')
+                        ->rows(4)
+                        ->maxLength(255),
+                ]),
+        ];
+    }
+
     public function openCreateAgendamentoModal(): void
     {
+        $dataAgendamento = match ($this->activeTab) {
+            'hoje' => now()->toDateString(),
+            'amanha' => now()->addDay()->toDateString(),
+            default => null,
+        };
+
         $this->createAgendamentoData = [
             'veiculo_id' => null,
-            'data_agendamento' => null,
+            'data_agendamento' => $dataAgendamento,
             'data_limite' => null,
             'servico_id' => null,
             'controla_posicao' => false,

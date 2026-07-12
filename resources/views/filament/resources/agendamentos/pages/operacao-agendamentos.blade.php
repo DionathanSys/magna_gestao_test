@@ -47,7 +47,7 @@
         $bottomSections = [
             'Sem Data' => ['items' => $this->semData, 'count' => $this->resumo['sem_data'], 'pill' => 'gray'],
             'Checklist' => ['items' => $this->checklist, 'count' => $this->resumo['checklist'], 'pill' => 'warn'],
-            'Além de Amanhã' => ['items' => $this->alemDeAmanha, 'count' => $this->resumo['alem_de_amanha'], 'pill' => 'info'],
+            'Próximos Dias' => ['items' => $this->alemDeAmanha, 'count' => $this->resumo['alem_de_amanha'], 'pill' => 'info'],
         ];
     @endphp
 

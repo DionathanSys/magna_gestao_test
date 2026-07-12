@@ -6,7 +6,7 @@
         .ag-op-kpi strong { display: block; font-size: 1.4rem; color: #0f172a; }
         .ag-op-kpi span { display: block; margin-top: 0.2rem; font-size: 0.82rem; color: #64748b; }
         .ag-op-search { width: 100%; border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 0.9rem; background: #fff; padding: 0.85rem 1rem; font-size: 0.9rem; }
-        .ag-op-bottom { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+        .ag-op-bottom { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
         .ag-op-panel { border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 1rem; background: #fff; overflow: hidden; }
         .ag-op-header { padding: 1rem 1rem 0.85rem; border-bottom: 1px solid rgba(226, 232, 240, 0.9); display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
         .ag-op-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
@@ -47,16 +47,11 @@
         $bottomSections = [
             'Sem Data' => ['items' => $this->semData, 'count' => $this->resumo['sem_data'], 'pill' => 'gray'],
             'Checklist' => ['items' => $this->checklist, 'count' => $this->resumo['checklist'], 'pill' => 'warn'],
+            'Além de Amanhã' => ['items' => $this->alemDeAmanha, 'count' => $this->resumo['alem_de_amanha'], 'pill' => 'info'],
         ];
     @endphp
 
     <div class="ag-op-shell">
-        <div class="ag-op-top">
-            <div class="ag-op-kpi"><strong>{{ $this->resumo['atrasados'] }}</strong><span>Atrasados</span></div>
-            <div class="ag-op-kpi"><strong>{{ $this->resumo['hoje'] }}</strong><span>Programados para hoje</span></div>
-            <div class="ag-op-kpi"><strong>{{ $this->resumo['amanha'] }}</strong><span>Programados para amanhã</span></div>
-        </div>
-
         <input wire:model.live.debounce.300ms="busca" class="ag-op-search" placeholder="Buscar por placa, serviço, fornecedor ou observação">
 
         <div class="ag-op-top">

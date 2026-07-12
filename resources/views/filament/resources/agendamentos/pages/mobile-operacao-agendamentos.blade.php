@@ -55,7 +55,7 @@
         <button type="button" wire:click="$set('activeTab', 'execucao')" class="ag-mobile-tab {{ $activeTab === 'execucao' ? 'is-active' : '' }}">Exec.<br>{{ $this->getExecucaoCount() }}</button>
         <button type="button" wire:click="$set('activeTab', 'amanha')" class="ag-mobile-tab {{ $activeTab === 'amanha' ? 'is-active' : '' }}">Amanhã<br>{{ $this->getAmanhaCount() }}</button>
         <button type="button" wire:click="$set('activeTab', 'sem-data')" class="ag-mobile-tab {{ $activeTab === 'sem-data' ? 'is-active' : '' }}">Sem data<br>{{ $this->getSemDataCount() }}</button>
-        <button type="button" wire:click="$set('activeTab', 'checklist')" class="ag-mobile-tab {{ $activeTab === 'checklist' ? 'is-active' : '' }}">Checklist<br>{{ $this->getChecklistCount() }}</button>
+        <button type="button" wire:click="$set('activeTab', 'abertos')" class="ag-mobile-tab {{ $activeTab === 'abertos' ? 'is-active' : '' }}">Abertos<br>{{ $this->getAbertosCount() }}</button>
     </div>
 
     <div class="ag-mobile-list">

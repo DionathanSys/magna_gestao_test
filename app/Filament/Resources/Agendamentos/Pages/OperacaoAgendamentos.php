@@ -42,6 +42,10 @@ class OperacaoAgendamentos extends Page implements HasSchemas
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('novo')
+                ->label('Novo Agendamento')
+                ->icon('heroicon-o-plus')
+                ->url(AgendamentoResource::getUrl('index')),
             Action::make('lista')
                 ->label('Abrir Lista Completa')
                 ->url(AgendamentoResource::getUrl('index')),
@@ -254,6 +258,15 @@ class OperacaoAgendamentos extends Page implements HasSchemas
             ->get();
     }
 
+    public function getAlemDeAmanhaProperty(): Collection
+    {
+        return $this->baseQuery()
+            ->pendentes()
+            ->whereDate('data_agendamento', '>', now()->addDay()->toDateString())
+            ->limit(25)
+            ->get();
+    }
+
     protected function baseQuery(): Builder
     {
         return Agendamento::query()
@@ -283,6 +296,7 @@ class OperacaoAgendamentos extends Page implements HasSchemas
             'amanha' => Agendamento::query()->pendentes()->agendadosPara(now()->addDay()->toDateString())->count(),
             'sem_data' => Agendamento::query()->pendentes()->semData()->count(),
             'checklist' => Agendamento::query()->checklist()->abertos()->count(),
+            'alem_de_amanha' => Agendamento::query()->pendentes()->whereDate('data_agendamento', '>', now()->addDay()->toDateString())->count(),
         ];
     }
 

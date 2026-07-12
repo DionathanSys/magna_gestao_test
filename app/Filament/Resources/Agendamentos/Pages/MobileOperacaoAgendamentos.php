@@ -380,7 +380,7 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
             'execucao' => $query->emExecucao()->limit(40)->get(),
             'amanha' => $query->pendentes()->agendadosPara(now()->addDay()->toDateString())->limit(40)->get(),
             'sem-data' => $query->pendentes()->semData()->limit(40)->get(),
-            'checklist' => $query->checklist()->abertos()->limit(40)->get(),
+            'abertos' => $query->abertos()->limit(40)->get(),
             default => $query->abertos()->agendadosPara(now()->toDateString())->limit(40)->get(),
         };
     }
@@ -431,9 +431,9 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
         return Agendamento::query()->pendentes()->semData()->count();
     }
 
-    public function getChecklistCount(): int
+    public function getAbertosCount(): int
     {
-        return Agendamento::query()->checklist()->abertos()->count();
+        return Agendamento::query()->abertos()->count();
     }
 
     public function getListUrl(): string

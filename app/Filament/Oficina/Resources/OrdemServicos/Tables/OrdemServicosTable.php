@@ -89,7 +89,7 @@ class OrdemServicosTable
                     ->icon('heroicon-o-ellipsis-horizontal')
                     ->button(),
             ], RecordActionsPosition::BeforeColumns)
-            ->poll('10s')
+            ->poll('30s')
             ->striped();
     }
 

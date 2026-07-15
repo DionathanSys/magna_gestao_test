@@ -14,12 +14,18 @@ class OrdemServicoApontamentoService
 {
     public function iniciar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $iniciadoEm): OrdemServicoApontamento
     {
-        $this->validarOrdemServicoAberta($ordemServico);
-
         $colaborador = $this->resolveMecanico($codigoColaborador);
         $iniciadoEm = $this->validarHorario($iniciadoEm, $ordemServico->data_inicio);
 
         return DB::transaction(function () use ($ordemServico, $colaborador, $iniciadoEm): OrdemServicoApontamento {
+            $ordemServico = OrdemServico::query()
+                ->whereKey($ordemServico->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $this->validarOrdemServicoAberta($ordemServico);
+            $iniciadoEm = $this->validarHorario($iniciadoEm, $ordemServico->data_inicio);
+
             Colaborador::query()
                 ->whereKey($colaborador->id)
                 ->lockForUpdate()

@@ -16,10 +16,14 @@ class EncerrarOrdemServico
 
     public function handle(): Models\OrdemServico
     {
-        $this->validate();
-
         return DB::transaction(function (): Models\OrdemServico {
+            $this->ordemServico = Models\OrdemServico::query()
+                ->whereKey($this->ordemServico->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
             $this->ordemServico->loadMissing(['itens', 'agendamentos']);
+            $this->validate();
 
             foreach ($this->ordemServico->itens as $item) {
                 if ($item->status !== StatusOrdemServicoEnum::PENDENTE) {
@@ -64,6 +68,20 @@ class EncerrarOrdemServico
 
         if ($this->ordemServico->itens->isEmpty()) {
             throw new \InvalidArgumentException('A ordem de serviço não pode ser encerrada sem itens.');
+        }
+
+        $apontamentosAbertos = $this->ordemServico->apontamentosAbertosOficina()
+            ->with('colaborador')
+            ->lockForUpdate()
+            ->get();
+
+        if ($apontamentosAbertos->isNotEmpty()) {
+            $responsaveis = $apontamentosAbertos
+                ->map(fn (Models\OrdemServicoApontamento $apontamento): string => $apontamento->colaborador?->nome ?? 'Responsável não informado')
+                ->unique()
+                ->join(', ');
+
+            throw new \InvalidArgumentException('A ordem de serviço não pode ser encerrada com apontamentos em aberto. Responsável(is): '.$responsaveis.'.');
         }
     }
 }

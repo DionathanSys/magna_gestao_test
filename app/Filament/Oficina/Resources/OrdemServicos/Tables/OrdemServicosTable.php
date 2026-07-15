@@ -16,6 +16,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\Size;
+use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
@@ -37,24 +38,26 @@ class OrdemServicosTable
                         TextColumn::make('id')
                             ->label('OS')
                             ->formatStateUsing(fn ($state): string => 'OS #'.$state)
-                            ->weight('bold')
                             ->sortable()
                             ->searchable(),
                         TextColumn::make('status')
                             ->badge(),
                     ]),
-                    Split::make([
-                        TextColumn::make('veiculo.placa')
-                            ->label('Veículo')
-                            ->icon('heroicon-o-truck')
-                            ->sortable()
-                            ->searchable(),
-                        TextColumn::make('itens_count')
-                            ->counts('itens')
-                            ->label('Serviços')
-                            ->formatStateUsing(fn ($state): string => $state.' serviço(s)')
-                            ->icon('heroicon-o-list-bullet'),
-                    ]),
+                    TextColumn::make('veiculo.placa')
+                        ->label('Veículo')
+                        ->formatStateUsing(fn ($state): string => strtoupper((string) $state))
+                        ->icon('heroicon-o-truck')
+                        ->badge()
+                        ->color('primary')
+                        ->size(TextSize::Large)
+                        ->weight('bold')
+                        ->sortable()
+                        ->searchable(),
+                    TextColumn::make('itens_count')
+                        ->counts('itens')
+                        ->label('Serviços')
+                        ->formatStateUsing(fn ($state): string => $state.' serviço(s)')
+                        ->icon('heroicon-o-list-bullet'),
                     TextColumn::make('data_inicio')
                         ->label('Abertura')
                         ->icon('heroicon-o-calendar-days')
@@ -72,8 +75,7 @@ class OrdemServicosTable
                 ])->space(2),
             ])
             ->contentGrid([
-                'md' => 2,
-                'xl' => 3,
+                'xl' => 2,
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([

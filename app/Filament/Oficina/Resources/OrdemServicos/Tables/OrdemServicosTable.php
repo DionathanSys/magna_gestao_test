@@ -7,12 +7,15 @@ use App\Models\OrdemServico;
 use App\Services\NotificacaoService as notify;
 use App\Services\Oficina\OrdemServicoApontamentoService;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\Width;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
@@ -25,46 +28,66 @@ class OrdemServicosTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('OS')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('veiculo.placa')
-                    ->label('Veículo')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('data_inicio')
-                    ->label('Abertura')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
-                TextColumn::make('itens_count')
-                    ->counts('itens')
-                    ->label('Serviços'),
-                TextColumn::make('trabalhando')
-                    ->label('Trabalhando')
-                    ->state(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina
-                        ->pluck('colaborador.nome')
-                        ->filter()
-                        ->join(', '))
-                    ->placeholder('-')
-                    ->wrap(),
-                TextColumn::make('status')
-                    ->badge(),
+                Stack::make([
+                    Split::make([
+                        TextColumn::make('id')
+                            ->label('OS')
+                            ->formatStateUsing(fn ($state): string => 'OS #'.$state)
+                            ->weight('bold')
+                            ->sortable()
+                            ->searchable(),
+                        TextColumn::make('status')
+                            ->badge(),
+                    ]),
+                    Split::make([
+                        TextColumn::make('veiculo.placa')
+                            ->label('Veículo')
+                            ->icon('heroicon-o-truck')
+                            ->sortable()
+                            ->searchable(),
+                        TextColumn::make('itens_count')
+                            ->counts('itens')
+                            ->label('Serviços')
+                            ->formatStateUsing(fn ($state): string => $state.' serviço(s)')
+                            ->icon('heroicon-o-list-bullet'),
+                    ]),
+                    TextColumn::make('data_inicio')
+                        ->label('Abertura')
+                        ->icon('heroicon-o-calendar-days')
+                        ->dateTime('d/m/Y H:i')
+                        ->sortable(),
+                    TextColumn::make('trabalhando')
+                        ->label('Trabalhando')
+                        ->icon('heroicon-o-user-group')
+                        ->state(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina
+                            ->pluck('colaborador.nome')
+                            ->filter()
+                            ->join(', '))
+                        ->placeholder('Ninguém trabalhando agora')
+                        ->wrap(),
+                ])->space(2),
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
                 self::servicosAction(),
                 self::iniciarAction(),
                 self::encerrarAction(),
-                self::relatorioAction(),
-                ViewAction::make()
-                    ->label('Detalhes')
-                    ->button()
-                    ->url(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('view', ['record' => $record])),
-                EditAction::make()
-                    ->label('Editar')
-                    ->button()
-                    ->visible(fn (): bool => Auth::user()->is_admin),
+                ActionGroup::make([
+                    self::relatorioAction(),
+                    ViewAction::make()
+                        ->label('Detalhes')
+                        ->url(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('view', ['record' => $record])),
+                    EditAction::make()
+                        ->label('Editar')
+                        ->visible(fn (): bool => Auth::user()->is_admin),
+                ])
+                    ->label('Mais')
+                    ->icon('heroicon-o-ellipsis-horizontal')
+                    ->button(),
             ], RecordActionsPosition::BeforeColumns)
             ->poll('10s')
             ->striped();
@@ -89,7 +112,7 @@ class OrdemServicosTable
     private static function iniciarAction(): Action
     {
         return Action::make('iniciar')
-            ->label('Iniciar Trabalho')
+            ->label('Iniciar')
             ->icon('heroicon-o-play-circle')
             ->button()
             ->color('info')
@@ -123,7 +146,7 @@ class OrdemServicosTable
     private static function encerrarAction(): Action
     {
         return Action::make('encerrar_trabalho')
-            ->label('Encerrar Trabalho')
+            ->label('Encerrar')
             ->icon('heroicon-o-stop-circle')
             ->button()
             ->color('success')
@@ -165,9 +188,8 @@ class OrdemServicosTable
     private static function relatorioAction(): Action
     {
         return Action::make('relatorio_oficina')
-            ->label('Relatório Oficina')
+            ->label('Relatório')
             ->icon('heroicon-o-document-text')
-            ->button()
             ->url(fn (OrdemServico $record): string => route('oficina.ordem-servico.relatorio', $record))
             ->openUrlInNewTab();
     }

@@ -16,7 +16,10 @@
         .section-title { font-weight: bold; margin-bottom: 4px; }
         .right { text-align: right; }
         .center { text-align: center; }
-        .assinatura { height: 28px; border-bottom: 1px solid #111; }
+        .responsavel-header { width: 100%; margin-bottom: 6px; }
+        .responsavel-header td { border: none; padding: 2px 0; }
+        .assinatura { height: 18px; border-bottom: 1px solid #111; }
+        .assinatura-label { font-size: 8px; text-align: center; }
     </style>
 </head>
 
@@ -79,17 +82,24 @@
         @endphp
 
         <div class="box">
-            <div class="section-title">
-                Responsável: {{ $colaborador->nome ?? '-' }} | Código: {{ $colaborador->codigo ?? '-' }}
-            </div>
+            <table class="responsavel-header">
+                <tr>
+                    <td width="65%" class="section-title">
+                        Responsável: {{ $colaborador->nome ?? '-' }} | Código: {{ $colaborador->codigo ?? '-' }}
+                    </td>
+                    <td width="35%">
+                        <div class="assinatura"></div>
+                        <div class="assinatura-label">Assinatura do responsável</div>
+                    </td>
+                </tr>
+            </table>
             <table>
                 <thead>
                     <tr>
-                        <th width="34%">Serviços</th>
-                        <th width="18%">Início</th>
-                        <th width="18%">Fim</th>
+                        <th width="48%">Serviços</th>
+                        <th width="20%">Início</th>
+                        <th width="20%">Fim</th>
                         <th width="12%">Tempo</th>
-                        <th width="18%">Assinatura</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,13 +120,11 @@
                             <td>{{ $apontamento->iniciado_em?->format('d/m/Y H:i') ?? '-' }}</td>
                             <td>{{ $apontamento->encerrado_em?->format('d/m/Y H:i') ?? 'Aberto' }}</td>
                             <td class="center">{{ intdiv($minutos, 60) }}h {{ $minutos % 60 }}min</td>
-                            <td><div class="assinatura"></div></td>
                         </tr>
                     @endforeach
                     <tr>
                         <td colspan="3" class="right"><strong>Total do responsável</strong></td>
                         <td class="center"><strong>{{ intdiv($totalMinutos, 60) }}h {{ $totalMinutos % 60 }}min</strong></td>
-                        <td></td>
                     </tr>
                 </tbody>
             </table>

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Colaborador extends Model
 {
+    protected $table = 'colaboradores';
+
     protected $casts = [
         'ativo' => 'boolean',
     ];

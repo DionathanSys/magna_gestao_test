@@ -7,7 +7,6 @@ use App\Models\OrdemServico;
 use App\Services\NotificacaoService as notify;
 use App\Services\Oficina\OrdemServicoApontamentoService;
 use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
@@ -54,20 +53,18 @@ class OrdemServicosTable
             ])
             ->defaultSort('id', 'desc')
             ->recordActions([
-                ActionGroup::make([
-                    self::servicosAction(),
-                    self::iniciarAction(),
-                    self::encerrarAction(),
-                    self::relatorioAction(),
-                    ViewAction::make()
-                        ->label('Detalhes')
-                        ->url(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('view', ['record' => $record])),
-                    EditAction::make()
-                        ->label('Editar')
-                        ->visible(fn (): bool => Auth::user()->is_admin),
-                ])
-                    ->icon('heroicon-o-bars-3-center-left')
-                    ->dropdownPlacement('top-start'),
+                self::servicosAction(),
+                self::iniciarAction(),
+                self::encerrarAction(),
+                self::relatorioAction(),
+                ViewAction::make()
+                    ->label('Detalhes')
+                    ->button()
+                    ->url(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('view', ['record' => $record])),
+                EditAction::make()
+                    ->label('Editar')
+                    ->button()
+                    ->visible(fn (): bool => Auth::user()->is_admin),
             ], RecordActionsPosition::BeforeColumns)
             ->poll('10s')
             ->striped();
@@ -78,6 +75,7 @@ class OrdemServicosTable
         return Action::make('servicos')
             ->label('Serviços')
             ->icon('heroicon-o-list-bullet')
+            ->button()
             ->modalWidth(Width::FourExtraLarge)
             ->modalHeading(fn (OrdemServico $record): string => 'Serviços da OS #'.$record->id)
             ->modalContent(fn (OrdemServico $record) => view('filament.oficina.ordem-servicos.servicos-modal', [
@@ -93,6 +91,7 @@ class OrdemServicosTable
         return Action::make('iniciar')
             ->label('Iniciar Trabalho')
             ->icon('heroicon-o-play-circle')
+            ->button()
             ->color('info')
             ->form([
                 TextInput::make('codigo')
@@ -126,6 +125,7 @@ class OrdemServicosTable
         return Action::make('encerrar_trabalho')
             ->label('Encerrar Trabalho')
             ->icon('heroicon-o-stop-circle')
+            ->button()
             ->color('success')
             ->form(fn (OrdemServico $record): array => [
                 TextInput::make('codigo')
@@ -167,6 +167,7 @@ class OrdemServicosTable
         return Action::make('relatorio_oficina')
             ->label('Relatório Oficina')
             ->icon('heroicon-o-document-text')
+            ->button()
             ->url(fn (OrdemServico $record): string => route('oficina.ordem-servico.relatorio', $record))
             ->openUrlInNewTab();
     }

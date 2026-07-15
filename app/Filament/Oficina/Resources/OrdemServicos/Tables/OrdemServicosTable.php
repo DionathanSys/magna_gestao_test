@@ -116,7 +116,7 @@ class OrdemServicosTable
             ->icon('heroicon-o-play-circle')
             ->button()
             ->color('info')
-            ->form([
+            ->form(fn (OrdemServico $record): array => [
                 TextInput::make('codigo')
                     ->label('Código do responsável')
                     ->required(),
@@ -124,6 +124,7 @@ class OrdemServicosTable
                     ->label('Hora de início')
                     ->seconds(false)
                     ->default(now())
+                    ->minDate($record->data_inicio)
                     ->maxDate(now())
                     ->required(),
             ])
@@ -158,6 +159,7 @@ class OrdemServicosTable
                     ->label('Hora final')
                     ->seconds(false)
                     ->default(now())
+                    ->minDate($record->data_inicio)
                     ->maxDate(now())
                     ->required(),
                 CheckboxList::make('item_ids')

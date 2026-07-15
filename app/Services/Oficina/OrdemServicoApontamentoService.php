@@ -14,18 +14,33 @@ class OrdemServicoApontamentoService
 {
     public function iniciar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $iniciadoEm): OrdemServicoApontamento
     {
+        $this->validarOrdemServicoAberta($ordemServico);
+
         $colaborador = $this->resolveMecanico($codigoColaborador);
-        $iniciadoEm = $this->validarHorario($iniciadoEm);
+        $iniciadoEm = $this->validarHorario($iniciadoEm, $ordemServico->data_inicio);
 
         return DB::transaction(function () use ($ordemServico, $colaborador, $iniciadoEm): OrdemServicoApontamento {
-            $jaAberto = OrdemServicoApontamento::query()
-                ->where('ordem_servico_id', $ordemServico->id)
+            Colaborador::query()
+                ->whereKey($colaborador->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $apontamentoAberto = OrdemServicoApontamento::query()
                 ->where('colaborador_id', $colaborador->id)
                 ->whereNull('encerrado_em')
-                ->exists();
+                ->with('ordemServico.veiculo')
+                ->first();
 
-            if ($jaAberto) {
+            if ($apontamentoAberto?->ordem_servico_id === $ordemServico->id) {
                 throw new InvalidArgumentException('Este colaborador já possui trabalho iniciado nesta OS.');
+            }
+
+            if ($apontamentoAberto) {
+                $veiculo = $apontamentoAberto->ordemServico?->veiculo?->placa ?? 'não informado';
+
+                throw new InvalidArgumentException(
+                    "Este colaborador já está trabalhando na OS #{$apontamentoAberto->ordem_servico_id} do veículo {$veiculo}. Finalize esse trabalho antes de iniciar outro."
+                );
             }
 
             if ($ordemServico->status === StatusOrdemServicoEnum::PENDENTE) {
@@ -47,7 +62,7 @@ class OrdemServicoApontamentoService
         }
 
         $colaborador = $this->resolveMecanico($codigoColaborador);
-        $encerradoEm = $this->validarHorario($encerradoEm);
+        $encerradoEm = $this->validarHorario($encerradoEm, $ordemServico->data_inicio);
 
         return DB::transaction(function () use ($ordemServico, $colaborador, $encerradoEm, $itemIds): OrdemServicoApontamento {
             $apontamento = OrdemServicoApontamento::query()
@@ -99,10 +114,25 @@ class OrdemServicoApontamentoService
         return $colaborador;
     }
 
-    private function validarHorario(Carbon|string $horario): Carbon
+    private function validarOrdemServicoAberta(OrdemServico $ordemServico): void
+    {
+        if ($ordemServico->status === StatusOrdemServicoEnum::CONCLUIDO || $ordemServico->data_fim !== null) {
+            throw new InvalidArgumentException('Não é permitido iniciar trabalho em uma OS encerrada.');
+        }
+
+        if ($ordemServico->status === StatusOrdemServicoEnum::CANCELADO) {
+            throw new InvalidArgumentException('Não é permitido iniciar trabalho em uma OS cancelada.');
+        }
+    }
+
+    private function validarHorario(Carbon|string $horario, ?Carbon $minimo = null): Carbon
     {
         $horario = $horario instanceof Carbon ? $horario : Carbon::parse($horario);
         $agora = now();
+
+        if ($minimo && $horario->lessThan($minimo)) {
+            throw new InvalidArgumentException('O horário não pode ser menor que a data/hora de abertura da OS.');
+        }
 
         if ($horario->greaterThan($agora)) {
             throw new InvalidArgumentException('O horário não pode ser maior que a hora atual.');

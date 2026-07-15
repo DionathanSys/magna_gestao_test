@@ -6,6 +6,7 @@ use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -57,6 +58,16 @@ class ItemOrdemServico extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function apontamentosOficina(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            OrdemServicoApontamento::class,
+            'ordem_servico_apontamento_itens',
+            'item_ordem_servico_id',
+            'ordem_servico_apontamento_id'
+        )->withTimestamps();
+    }
+
     protected function servicoNome(): Attribute
     {
         return Attribute::make(
@@ -74,7 +85,4 @@ class ItemOrdemServico extends Model
                 : $this->servico()->value('codigo'),
         );
     }
-
-
-
 }

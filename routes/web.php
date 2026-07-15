@@ -7,6 +7,7 @@ use App\Models\OrdemServico;
 use App\Models\Veiculo;
 use App\Services\DocumentoFrete\DocumentoFreteService;
 use App\Services\Import\Importers\ViagemEspelhoFreteImporter;
+use App\Services\Oficina\RelatorioOrdemServicoPdfService;
 use App\Services\OrdemServico\OrdemServicoPdfService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +26,10 @@ Route::get('/ordem-servico/{ordemServico}/pdf', function (OrdemServico $ordemSer
 
     return $service->visualizarPdfOrdemServico($ordemServico);
 })->name('ordem-servico.pdf.visualizar');
+
+Route::get('/oficina/ordem-servico/{ordemServico}/relatorio', function (OrdemServico $ordemServico) {
+    return app(RelatorioOrdemServicoPdfService::class)->visualizar($ordemServico);
+})->middleware('auth')->name('oficina.ordem-servico.relatorio');
 
 Route::get('/import-pdf', function () {
     return view('importPdf');

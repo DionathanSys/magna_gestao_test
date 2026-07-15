@@ -90,4 +90,15 @@ class OrdemServico extends Model
     {
         return $this->hasMany(PlanoManutencaoOrdemServico::class, 'ordem_servico_id');
     }
+
+    public function apontamentosOficina(): HasMany
+    {
+        return $this->hasMany(OrdemServicoApontamento::class, 'ordem_servico_id');
+    }
+
+    public function apontamentosAbertosOficina(): HasMany
+    {
+        return $this->hasMany(OrdemServicoApontamento::class, 'ordem_servico_id')
+            ->whereNull('encerrado_em');
+    }
 }

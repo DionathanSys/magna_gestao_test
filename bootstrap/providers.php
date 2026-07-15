@@ -5,4 +5,5 @@ return [
     // App\Providers\ServiceServiceProvider::class,
     App\Providers\Filament\AdminPanelProvider::class,
     App\Providers\Filament\BugioPanelProvider::class,
+    App\Providers\Filament\OficinaPanelProvider::class,
 ];

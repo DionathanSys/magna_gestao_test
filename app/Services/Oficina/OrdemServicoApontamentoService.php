@@ -12,19 +12,19 @@ use InvalidArgumentException;
 
 class OrdemServicoApontamentoService
 {
-    public function iniciar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $iniciadoEm): OrdemServicoApontamento
+    public function iniciar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $iniciadoEm, bool $ignorarLimiteAjusteHorario = false): OrdemServicoApontamento
     {
         $colaborador = $this->resolveMecanico($codigoColaborador);
-        $iniciadoEm = $this->validarHorario($iniciadoEm, $ordemServico->data_inicio);
+        $iniciadoEm = $this->validarHorario($iniciadoEm, $ordemServico->data_inicio, $ignorarLimiteAjusteHorario);
 
-        return DB::transaction(function () use ($ordemServico, $colaborador, $iniciadoEm): OrdemServicoApontamento {
+        return DB::transaction(function () use ($ordemServico, $colaborador, $iniciadoEm, $ignorarLimiteAjusteHorario): OrdemServicoApontamento {
             $ordemServico = OrdemServico::query()
                 ->whereKey($ordemServico->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
             $this->validarOrdemServicoAberta($ordemServico);
-            $iniciadoEm = $this->validarHorario($iniciadoEm, $ordemServico->data_inicio);
+            $iniciadoEm = $this->validarHorario($iniciadoEm, $ordemServico->data_inicio, $ignorarLimiteAjusteHorario);
 
             Colaborador::query()
                 ->whereKey($colaborador->id)
@@ -61,14 +61,14 @@ class OrdemServicoApontamentoService
         });
     }
 
-    public function encerrar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $encerradoEm, array $itemIds): OrdemServicoApontamento
+    public function encerrar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $encerradoEm, array $itemIds, bool $ignorarLimiteAjusteHorario = false): OrdemServicoApontamento
     {
         if ($itemIds === []) {
             throw new InvalidArgumentException('Selecione ao menos um serviço executado.');
         }
 
         $colaborador = $this->resolveMecanico($codigoColaborador);
-        $encerradoEm = $this->validarHorario($encerradoEm, $ordemServico->data_inicio);
+        $encerradoEm = $this->validarHorario($encerradoEm, $ordemServico->data_inicio, $ignorarLimiteAjusteHorario);
 
         return DB::transaction(function () use ($ordemServico, $colaborador, $encerradoEm, $itemIds): OrdemServicoApontamento {
             $apontamento = OrdemServicoApontamento::query()
@@ -131,7 +131,7 @@ class OrdemServicoApontamentoService
         }
     }
 
-    private function validarHorario(Carbon|string $horario, ?Carbon $minimo = null): Carbon
+    private function validarHorario(Carbon|string $horario, ?Carbon $minimo = null, bool $ignorarLimiteAjusteHorario = false): Carbon
     {
         $horario = $horario instanceof Carbon ? $horario : Carbon::parse($horario);
         $agora = now();
@@ -140,11 +140,11 @@ class OrdemServicoApontamentoService
             throw new InvalidArgumentException('O horário não pode ser menor que a data/hora de abertura da OS.');
         }
 
-        if ($horario->greaterThan($agora)) {
+        if (! $ignorarLimiteAjusteHorario && $horario->greaterThan($agora)) {
             throw new InvalidArgumentException('O horário não pode ser maior que a hora atual.');
         }
 
-        if ($horario->lessThan($agora->copy()->subMinutes(5))) {
+        if (! $ignorarLimiteAjusteHorario && $horario->lessThan($agora->copy()->subMinutes(5))) {
             throw new InvalidArgumentException('O horário só pode ser ajustado até 5 minutos para trás.');
         }
 

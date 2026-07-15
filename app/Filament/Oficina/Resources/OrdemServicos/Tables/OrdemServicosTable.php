@@ -3,6 +3,7 @@
 namespace App\Filament\Oficina\Resources\OrdemServicos\Tables;
 
 use App\Filament\Oficina\Resources\OrdemServicos\OrdemServicoResource;
+use App\Filament\Resources\OrdemServicos\Actions\EncerrarOrdemServicoAction;
 use App\Models\OrdemServico;
 use App\Services\NotificacaoService as notify;
 use App\Services\Oficina\OrdemServicoApontamentoService;
@@ -37,22 +38,22 @@ class OrdemServicosTable
                     Split::make([
                         TextColumn::make('id')
                             ->label('OS')
-                            ->formatStateUsing(fn ($state): string => 'OS #'.$state)
+                            ->formatStateUsing(fn ($state, OrdemServico $record): string => 'OS #'.$state.' - '.strtoupper((string) ($record->veiculo?->placa ?? '-')))
+                            ->icon('heroicon-o-truck')
+                            ->size(TextSize::Large)
+                            ->weight('bold')
                             ->sortable()
                             ->searchable(),
                         TextColumn::make('status')
-                            ->badge(),
+                            ->badge()
+                            ->color(fn ($state): string => match ((string) ($state?->value ?? $state)) {
+                                'PENDENTE' => 'warning',
+                                'EXECUÇÃO' => 'info',
+                                'CONCLUÍDO' => 'success',
+                                'CANCELADO' => 'danger',
+                                default => 'primary',
+                            }),
                     ]),
-                    TextColumn::make('veiculo.placa')
-                        ->label('Veículo')
-                        ->formatStateUsing(fn ($state): string => strtoupper((string) $state))
-                        ->icon('heroicon-o-truck')
-                        ->badge()
-                        ->color('primary')
-                        ->size(TextSize::Large)
-                        ->weight('bold')
-                        ->sortable()
-                        ->searchable(),
                     TextColumn::make('itens_count')
                         ->counts('itens')
                         ->label('Serviços')
@@ -83,6 +84,8 @@ class OrdemServicosTable
                 self::iniciarAction(),
                 self::encerrarAction(),
                 ActionGroup::make([
+                    EncerrarOrdemServicoAction::make()
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                     self::ajustarHorariosAction(),
                     self::removerApontamentoAbertoAction(),
                     self::relatorioAction(),

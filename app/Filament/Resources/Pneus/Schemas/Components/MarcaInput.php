@@ -16,11 +16,13 @@ class MarcaInput
             ->label('Marca')
             ->relationship('marcaCatalogo', 'nome', fn ($query) => $query->where('ativo', true)->orderBy('nome'))
             ->createOptionForm(fn (Schema $schema) => PneuMarcaResource::form($schema))
-            ->searchable()
             ->preload()
             ->required()
             ->live()
-            ->afterStateUpdated(fn (Set $set) => $set('pneu_modelo_id', null))
+            ->afterStateUpdated(function (Set $set): void {
+                $set('pneu_modelo_id', null);
+                $set('desenho_pneu_id', null);
+            })
             ->options(PneuMarca::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray());
     }
 }

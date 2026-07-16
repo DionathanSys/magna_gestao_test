@@ -54,7 +54,6 @@ class ReceberRecapagemPneuAction
                     Select::make('desenho_pneu_id')
                         ->label('Desenho Borracha')
                         ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('ativo', true))
-                        ->searchable()
                         ->preload()
                         ->createOptionForm(fn (Schema $schema) => DesenhoPneuResource::form($schema))
                         ->required(fn (Get $get) => $get('resultado_retorno') === 'APROVADO')

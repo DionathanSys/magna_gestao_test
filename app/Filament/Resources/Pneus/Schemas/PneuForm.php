@@ -4,6 +4,8 @@ namespace App\Filament\Resources\Pneus\Schemas;
 
 use App\Enum;
 use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
+use App\Models\PneuLocal;
+use App\Models\PneuMedida;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -50,7 +52,7 @@ class PneuForm
                                 ->columnSpan(4),
                             Components\MedidaInput::make()
                                 ->columnSpan(4)
-                                ->default(fn () => \App\Models\PneuMedida::query()->orderBy('codigo')->value('id')),
+                                ->default(fn () => PneuMedida::query()->orderBy('codigo')->value('id')),
                             Components\DesenhoPneuInput::make()
                                 ->columnSpan(4),
                             TextInput::make('numero_serie')
@@ -75,9 +77,9 @@ class PneuForm
                                 ->label('Local')
                                 ->native(false)
                                 ->columnSpan(4)
-                                ->options(\App\Models\PneuLocal::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray())
+                                ->options(PneuLocal::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray())
                                 ->required()
-                                ->default(fn () => \App\Models\PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
+                                ->default(fn () => PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
                             TextInput::make('sulco_inicial')
                                 ->label('Sulco Inicial')
                                 ->columnStart(1)
@@ -135,7 +137,6 @@ class PneuForm
                             Select::make('recap.desenho_pneu_id_recapagem')
                                 ->label('Desenho Borracha')
                                 ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', Enum\Pneu\EstadoPneuEnum::RECAPADO)->where('ativo', true))
-                                ->searchable()
                                 ->preload()
                                 ->createOptionForm(fn (Schema $schema) => DesenhoPneuResource::form($schema))
                                 ->required(fn (Get $get): bool => (bool) $get('../../registrar_recap_inicial'))
@@ -159,7 +160,7 @@ class PneuForm
                                         ->columnSpan(6)
                                         ->required()
                                         ->relationship('veiculo', 'placa')
-                                        ->searchable(),
+                                        ->preload(),
                                     TextInput::make('historico.eixo')
                                         ->columnSpan(2)
                                         ->numeric()

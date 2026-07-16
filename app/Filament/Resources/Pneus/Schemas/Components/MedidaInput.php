@@ -11,7 +11,6 @@ class MedidaInput
     {
         return Select::make('pneu_medida_id')
             ->label('Medida')
-            ->searchable()
             ->preload()
             ->required()
             ->options(PneuMedida::query()->where('ativo', true)->orderBy('codigo')->pluck('codigo', 'id')->toArray());

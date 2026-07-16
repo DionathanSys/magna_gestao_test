@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\Pneus\Schemas\Components;
 
 use App\Filament\Resources\PneuModelos\PneuModeloResource;
+use App\Models\DesenhoPneu;
 use App\Models\PneuModelo;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class ModeloInput
@@ -23,8 +25,30 @@ class ModeloInput
                     ->orderBy('nome')
             )
             ->createOptionForm(fn (Schema $schema) => PneuModeloResource::form($schema))
-            ->searchable()
             ->preload()
+            ->live()
+            ->afterStateUpdated(function (int|string|null $state, Set $set): void {
+                $modelo = PneuModelo::query()->find($state);
+
+                if (! $modelo) {
+                    $set('desenho_pneu_id', null);
+
+                    return;
+                }
+
+                $desenhoPneuId = DesenhoPneu::query()
+                    ->where('ativo', true)
+                    ->where('estado_pneu', 'NOVO')
+                    ->where(function ($query) use ($modelo): void {
+                        $query->where('descricao', $modelo->nome)
+                            ->orWhere('modelo', $modelo->nome);
+                    })
+                    ->value('id');
+
+                if ($desenhoPneuId) {
+                    $set('desenho_pneu_id', $desenhoPneuId);
+                }
+            })
             ->options(fn (Get $get): array => PneuModelo::query()
                 ->where('ativo', true)
                 ->when(filled($get('pneu_marca_id')), fn ($query) => $query->where('pneu_marca_id', $get('pneu_marca_id')))

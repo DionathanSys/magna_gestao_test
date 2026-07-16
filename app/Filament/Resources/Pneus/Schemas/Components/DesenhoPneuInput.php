@@ -14,7 +14,6 @@ class DesenhoPneuInput
             ->label('Desenho Borracha')
             ->relationship('desenhoPneu', 'descricao', fn ($query) => $query->where('estado_pneu', 'NOVO')->where('ativo', true))
             ->createOptionForm(fn (Schema $schema) => DesenhoPneuResource::form($schema))
-            ->searchable()
             ->preload()
             ->required();
     }

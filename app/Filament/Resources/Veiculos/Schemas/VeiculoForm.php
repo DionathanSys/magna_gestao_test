@@ -101,12 +101,6 @@ class VeiculoForm
                                 'HOMOLOGADO' => 'Homologado',
                                 'RELE'       => 'Relé',
                             ]),
-                        DatePicker::make('informacoes_complementares.afericao_tacografo')
-                            ->label('Dt. Próx. Aferição Tacógrafo')
-                            ->columnSpan(2),
-                        DatePicker::make('informacoes_complementares.teste_fumaca')
-                            ->label('Dt. Teste de Fumaça')
-                            ->columnSpan(2),
                         DatePicker::make('informacoes_complementares.data_ultimo_checklist')
                             ->label('Dt. Último Checklist')
                             ->columnSpan(2),

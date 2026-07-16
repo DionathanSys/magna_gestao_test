@@ -6,6 +6,7 @@ use App\Filament\Resources\Veiculos\Pages\CreateVeiculo;
 use App\Filament\Resources\Veiculos\Pages\EditVeiculo;
 use App\Filament\Resources\Veiculos\Pages\ListVeiculos;
 use App\Filament\Resources\Veiculos\Pages\MapaPneusVeiculo;
+use App\Filament\Resources\Veiculos\RelationManagers\DocumentosRelationManager;
 use App\Filament\Resources\Veiculos\RelationManagers\ManutencaoLancamentosRelationManager;
 use App\Filament\Resources\Veiculos\RelationManagers\ManutencoesRelationManager;
 use App\Filament\Resources\Veiculos\RelationManagers\PlanoPreventivoRelationManager;
@@ -50,6 +51,7 @@ class VeiculoResource extends Resource
     public static function getRelations(): array
     {
         return [
+            DocumentosRelationManager::class,
             PneusRelationManager::class,
             ManutencoesRelationManager::class,
             ManutencaoLancamentosRelationManager::class,

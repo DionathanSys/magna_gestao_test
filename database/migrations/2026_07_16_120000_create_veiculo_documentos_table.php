@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('data_fim')->nullable();
             $table->unsignedSmallInteger('dias_alerta')->default(30);
             $table->json('anexos')->nullable();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['nome', 'data_fim']);

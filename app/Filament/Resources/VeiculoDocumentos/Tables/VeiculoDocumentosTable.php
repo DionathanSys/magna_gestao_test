@@ -6,10 +6,15 @@ use App\Models\VeiculoDocumento;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -106,13 +111,18 @@ class VeiculoDocumentosTable
                             ->when($data['data_inicio'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_fim', '>=', $date))
                             ->when($data['data_fim'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_fim', '<=', $date));
                     }),
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }

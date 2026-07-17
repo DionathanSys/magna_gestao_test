@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VeiculoDocumento extends Model
 {
+    use SoftDeletes;
+
     public const TIPO_TESTE_FUMACA = 'teste_fumaca';
 
     public const TIPO_AFERICAO_TACOGRAFO = 'afericao_tacografo';

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrdemServicos\Pages;
 
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
+use App\Filament\Oficina\Resources\OrdemServicos\Tables\OrdemServicosTable as OficinaOrdemServicosTable;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
 use App\Filament\Resources\OrdemServicos\Actions;
@@ -78,6 +79,18 @@ class OrdemServicoTeste extends Page implements HasSchemas
                     ->size(Size::ExtraSmall)
                     ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl()),
                 Actions\PdfOrdemServicoAction::make()
+                    ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::servicosAction()
+                    ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::iniciarAction()
+                    ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::encerrarAction()
+                    ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::ajustarHorariosAction()
+                    ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::removerApontamentoAbertoAction()
+                    ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::relatorioAction()
                     ->size(Size::ExtraSmall),
                 DeleteAction::make('delete')
                     ->size(Size::ExtraSmall)
@@ -473,6 +486,9 @@ class OrdemServicoTeste extends Page implements HasSchemas
             'agendamentosPendentes.parceiro:id,nome',
             'planoPreventivoVinculado.planoPreventivo:id,descricao,intervalo',
             'manutencaoLancamentos',
+            'apontamentosAbertosOficina.colaborador:id,codigo,nome',
+            'apontamentosOficina.colaborador:id,codigo,nome',
+            'apontamentosOficina.itens.servico:id,codigo,descricao',
         ]);
     }
 }

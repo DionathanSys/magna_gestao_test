@@ -82,6 +82,14 @@ class OrdemServicoTeste extends Page implements HasSchemas
                     ->size(Size::ExtraSmall),
                 OficinaOrdemServicosTable::servicosAction()
                     ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::relatorioAction()
+                    ->size(Size::ExtraSmall),
+                DeleteAction::make('delete')
+                    ->size(Size::ExtraSmall)
+                    ->requiresConfirmation()
+                    ->action(fn () => $this->record->delete()),
+            ])->label('Ordem de Serviço')->buttonGroup()->size(Size::ExtraSmall),
+            ActionGroup::make([
                 OficinaOrdemServicosTable::iniciarAction()
                     ->size(Size::ExtraSmall),
                 OficinaOrdemServicosTable::encerrarAction()
@@ -90,13 +98,7 @@ class OrdemServicoTeste extends Page implements HasSchemas
                     ->size(Size::ExtraSmall),
                 OficinaOrdemServicosTable::removerApontamentoAbertoAction()
                     ->size(Size::ExtraSmall),
-                OficinaOrdemServicosTable::relatorioAction()
-                    ->size(Size::ExtraSmall),
-                DeleteAction::make('delete')
-                    ->size(Size::ExtraSmall)
-                    ->requiresConfirmation()
-                    ->action(fn () => $this->record->delete()),
-            ])->buttonGroup()->size(Size::ExtraSmall),
+            ])->label('Apontamentos')->buttonGroup()->size(Size::ExtraSmall),
         ];
     }
 

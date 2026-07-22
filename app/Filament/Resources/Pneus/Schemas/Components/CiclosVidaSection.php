@@ -7,9 +7,12 @@ use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
 use App\Models\Pneu;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn as RepeaterTableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn as InfolistTableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -23,11 +26,71 @@ class CiclosVidaSection
             ->columns(12)
             ->columnSpanFull()
             ->components([
-                TextEntry::make('ciclos_historico')
-                    ->hiddenLabel()
+                RepeatableEntry::make('ciclos')
+                    ->label('Ciclos')
                     ->columnSpanFull()
-                    ->html()
-                    ->state(fn (Pneu $record): string => self::renderCards($record)),
+                    ->placeholder('Nenhum ciclo de vida registrado.')
+                    ->state(fn (Pneu $record): array => $record->ciclos()
+                        ->with('desenhoPneu')
+                        ->withCount(['recapagens', 'consertos', 'inspecoes'])
+                        ->orderByDesc('numero')
+                        ->get()
+                        ->map(fn ($ciclo): array => [
+                            'numero' => $ciclo->numero,
+                            'status' => $ciclo->status?->value,
+                            'desenho' => $ciclo->desenhoPneu?->descricao,
+                            'data_abertura' => $ciclo->data_abertura,
+                            'data_fechamento' => $ciclo->data_fechamento,
+                            'km_inicial' => $ciclo->km_inicial,
+                            'km_final' => $ciclo->km_final,
+                            'recapagens_count' => $ciclo->recapagens_count,
+                            'consertos_count' => $ciclo->consertos_count,
+                            'inspecoes_count' => $ciclo->inspecoes_count,
+                            'observacao' => $ciclo->observacao,
+                        ])
+                        ->all())
+                    ->table([
+                        InfolistTableColumn::make('Ciclo'),
+                        InfolistTableColumn::make('Status'),
+                        InfolistTableColumn::make('Desenho')->width('18%'),
+                        InfolistTableColumn::make('Abertura'),
+                        InfolistTableColumn::make('Fechamento'),
+                        InfolistTableColumn::make('KM Inicial'),
+                        InfolistTableColumn::make('KM Final'),
+                        InfolistTableColumn::make('Recap.'),
+                        InfolistTableColumn::make('Consertos'),
+                        InfolistTableColumn::make('Inspeções'),
+                        InfolistTableColumn::make('Observação')->width('20%'),
+                    ])
+                    ->schema([
+                        TextEntry::make('numero')
+                            ->formatStateUsing(fn ($state): string => 'Ciclo '.$state),
+                        TextEntry::make('status')
+                            ->badge()
+                            ->color(fn (?string $state): string => $state === StatusCicloPneuEnum::ABERTO->value ? 'success' : 'gray'),
+                        TextEntry::make('desenho')
+                            ->placeholder('Sem desenho'),
+                        TextEntry::make('data_abertura')
+                            ->date('d/m/Y')
+                            ->placeholder('Não informado'),
+                        TextEntry::make('data_fechamento')
+                            ->date('d/m/Y')
+                            ->placeholder('Em aberto'),
+                        TextEntry::make('km_inicial')
+                            ->numeric(0, ',', '.')
+                            ->placeholder('Não informado'),
+                        TextEntry::make('km_final')
+                            ->numeric(0, ',', '.')
+                            ->placeholder('Em aberto'),
+                        TextEntry::make('recapagens_count')
+                            ->numeric(0, ',', '.'),
+                        TextEntry::make('consertos_count')
+                            ->numeric(0, ',', '.'),
+                        TextEntry::make('inspecoes_count')
+                            ->numeric(0, ',', '.'),
+                        TextEntry::make('observacao')
+                            ->placeholder('Sem observação'),
+                    ]),
             ]);
     }
 
@@ -47,7 +110,17 @@ class CiclosVidaSection
                     ->addable(false)
                     ->deletable(false)
                     ->reorderable(false)
-                    ->collapsible()
+                    ->table([
+                        RepeaterTableColumn::make('Ciclo'),
+                        RepeaterTableColumn::make('Status'),
+                        RepeaterTableColumn::make('Desenho Borracha')->width('18%'),
+                        RepeaterTableColumn::make('Dt. Abertura'),
+                        RepeaterTableColumn::make('Dt. Fechamento'),
+                        RepeaterTableColumn::make('KM Inicial'),
+                        RepeaterTableColumn::make('KM Final'),
+                        RepeaterTableColumn::make('Observação')->width('22%'),
+                    ])
+                    ->compact()
                     ->itemLabel(fn (array $state): string => 'Ciclo '.($state['numero'] ?? '-'))
                     ->schema([
                         TextInput::make('numero')
@@ -92,60 +165,9 @@ class CiclosVidaSection
                             ->columnSpan(3),
                         Textarea::make('observacao')
                             ->label('Observação')
-                            ->rows(3)
+                            ->rows(2)
                             ->columnSpanFull(),
                     ]),
             ]);
-    }
-
-    private static function renderCards(Pneu $record): string
-    {
-        $ciclos = $record->ciclos()
-            ->with('desenhoPneu')
-            ->withCount(['recapagens', 'consertos', 'inspecoes'])
-            ->orderByDesc('numero')
-            ->get();
-
-        if ($ciclos->isEmpty()) {
-            return '<div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">Nenhum ciclo de vida registrado.</div>';
-        }
-
-        $html = '<div class="grid gap-4 lg:grid-cols-2">';
-
-        foreach ($ciclos as $ciclo) {
-            $status = $ciclo->status?->value ?? 'Não informado';
-            $isAtual = $status === StatusCicloPneuEnum::ABERTO->value;
-            $kmInicial = $ciclo->km_inicial !== null ? number_format((float) $ciclo->km_inicial, 0, ',', '.') : 'Não informado';
-            $kmFinal = $ciclo->km_final !== null ? number_format((float) $ciclo->km_final, 0, ',', '.') : 'Em aberto';
-
-            $html .= '<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm ring-1 ring-gray-950/5 dark:border-gray-700 dark:bg-gray-900">';
-            $html .= '<div class="flex items-start justify-between gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-950">';
-            $html .= '<div><div class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Ciclo de vida</div><div class="mt-1 text-lg font-semibold text-gray-950 dark:text-white">Ciclo '.e((string) $ciclo->numero).($isAtual ? ' atual' : '').'</div></div>';
-            $html .= '<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold '.($isAtual ? 'bg-success-100 text-success-700 dark:bg-success-500/20 dark:text-success-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300').'">'.e($status).'</span>';
-            $html .= '</div>';
-            $html .= '<div class="grid gap-3 p-4 sm:grid-cols-2">';
-            $html .= self::renderMetric('Desenho', $ciclo->desenhoPneu?->descricao ?? 'Sem desenho');
-            $html .= self::renderMetric('Abertura', $ciclo->data_abertura?->format('d/m/Y') ?? 'Não informado');
-            $html .= self::renderMetric('Fechamento', $ciclo->data_fechamento?->format('d/m/Y') ?? 'Em aberto');
-            $html .= self::renderMetric('KM Inicial', $kmInicial);
-            $html .= self::renderMetric('KM Final', $kmFinal);
-            $html .= self::renderMetric('Recapagens', (string) $ciclo->recapagens_count);
-            $html .= self::renderMetric('Consertos', (string) $ciclo->consertos_count);
-            $html .= self::renderMetric('Inspeções', (string) $ciclo->inspecoes_count);
-            $html .= '</div>';
-
-            if (filled($ciclo->observacao)) {
-                $html .= '<div class="border-t border-gray-100 px-4 py-3 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-300"><span class="font-medium text-gray-500 dark:text-gray-400">Observação:</span> '.e($ciclo->observacao).'</div>';
-            }
-
-            $html .= '</div>';
-        }
-
-        return $html.'</div>';
-    }
-
-    private static function renderMetric(string $label, string $value): string
-    {
-        return '<div class="rounded-xl bg-gray-50 p-3 dark:bg-gray-950"><div class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">'.e($label).'</div><div class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">'.e($value).'</div></div>';
     }
 }

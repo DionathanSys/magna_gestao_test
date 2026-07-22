@@ -11,7 +11,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Icon;
 use Filament\Support\Icons\Heroicon;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Wizard;
 
 class NumeroFogoInput
 {
@@ -22,13 +21,15 @@ class NumeroFogoInput
             ->reactive()
             ->required()
             ->disabledOn('edit')
+            ->unique(ignoreRecord: true)
             ->numeric()
             ->maxLength(255)
             ->live(onBlur: true)
-            ->afterStateUpdated(function (Set $set, Field $component, $state) {
+            ->afterStateUpdated(function (Set $set, Field $component, $state, ?Models\Pneu $record = null) {
                 if ($state) {
                     $pneu = Models\Pneu::query()
                         ->where('numero_fogo', $state)
+                        ->when($record, fn ($query) => $query->whereKeyNot($record->getKey()))
                         ->first();
                     if ($pneu) {
                         $set('recap.pneu_id', $pneu->id);

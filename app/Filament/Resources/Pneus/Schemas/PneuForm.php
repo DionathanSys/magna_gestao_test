@@ -12,6 +12,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
@@ -28,91 +29,11 @@ class PneuForm
                     Step::make('Carcaça')
                         ->description('Dados principais do pneu e identificação da carcaça.')
                         ->columns(12)
-                        ->schema([
-                            Components\NumeroFogoInput::make()
-                                ->columnSpan(6),
-                            Components\CicloVidaInput::make()
-                                ->columnSpan(2),
-                            TextInput::make('valor')
-                                ->label('Valor de Compra')
-                                ->columnSpan(4)
-                                ->numeric()
-                                ->default(0)
-                                ->minValue(0)
-                                ->prefix('R$'),
-                            DatePicker::make('data_aquisicao')
-                                ->label('Dt. Aquisição')
-                                ->columnSpan(4)
-                                ->default(now())
-                                ->maxDate(now())
-                                ->required(),
-                            Components\MarcaInput::make()
-                                ->columnSpan(4),
-                            Components\ModeloInput::make()
-                                ->columnSpan(4),
-                            Components\MedidaInput::make()
-                                ->columnSpan(4)
-                                ->default(fn () => PneuMedida::query()->orderBy('codigo')->value('id')),
-                            Components\DesenhoPneuInput::make()
-                                ->columnSpan(4),
-                            TextInput::make('numero_serie')
-                                ->label('Nº Série')
-                                ->columnStart(1)
-                                ->columnSpan(4),
-                            TextInput::make('dot')
-                                ->label('DOT')
-                                ->columnSpan(4),
-                        ]),
+                        ->schema(self::carcacaSchema()),
                     Step::make('Condição Inicial')
                         ->description('Defina como o pneu entra no controle da empresa.')
                         ->columns(12)
-                        ->schema([
-                            Select::make('status')
-                                ->native(false)
-                                ->columnSpan(4)
-                                ->options(Enum\Pneu\StatusPneuEnum::toSelectArray())
-                                ->required()
-                                ->default(Enum\Pneu\StatusPneuEnum::DISPONIVEL->value),
-                            Select::make('pneu_local_id')
-                                ->label('Local')
-                                ->native(false)
-                                ->columnSpan(4)
-                                ->options(PneuLocal::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray())
-                                ->required()
-                                ->default(fn () => PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
-                            TextInput::make('sulco_inicial')
-                                ->label('Sulco Inicial')
-                                ->columnStart(1)
-                                ->numeric()
-                                ->default(0)
-                                ->columnSpan(2),
-                            TextInput::make('limite_recapagens')
-                                ->label('Lim. Recap.')
-                                ->numeric()
-                                ->default(3)
-                                ->minValue(0)
-                                ->maxValue(9)
-                                ->columnSpan(2),
-                            Toggle::make('recapavel')
-                                ->label('Recapável')
-                                ->default(true)
-                                ->columnSpanFull(),
-                            Toggle::make('registrar_recap_inicial')
-                                ->label('Já entra recapado')
-                                ->visibleOn('create')
-                                ->helperText('Use quando o pneu chega recapado e ainda não possui histórico anterior no sistema.')
-                                ->default(false)
-                                ->live()
-                                ->columnSpanFull(),
-                            Toggle::make('registrar_historico_inicial')
-                                ->label('Registrar histórico inicial')
-                                ->visibleOn('create')
-                                ->helperText('Use apenas quando precisar lançar movimentações antigas manualmente.')
-                                ->default(false)
-                                ->live()
-                                ->inline(false)
-                                ->columnSpanFull(),
-                        ]),
+                        ->schema(self::condicaoSchema(includeInitialToggles: true)),
                     Step::make('Recapagem Inicial')
                         ->description('Preencha apenas quando o pneu já entrar recapado na frota.')
                         ->visible(fn (Get $get): bool => (bool) $get('registrar_recap_inicial'))
@@ -216,5 +137,117 @@ class PneuForm
                 ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    public static function configureForEdit(Schema $schema): Schema
+    {
+        return $schema
+            ->columns(12)
+            ->components([
+                Section::make('Carcaça')
+                    ->description('Dados principais do pneu e identificação da carcaça.')
+                    ->columns(12)
+                    ->columnSpanFull()
+                    ->schema(self::carcacaSchema()),
+                Section::make('Condição')
+                    ->description('Dados operacionais atuais do pneu.')
+                    ->columns(12)
+                    ->columnSpanFull()
+                    ->schema(self::condicaoSchema()),
+            ]);
+    }
+
+    private static function carcacaSchema(): array
+    {
+        return [
+            Components\NumeroFogoInput::make()
+                ->columnSpan(6),
+            Components\CicloVidaInput::make()
+                ->columnSpan(2),
+            TextInput::make('valor')
+                ->label('Valor de Compra')
+                ->columnSpan(4)
+                ->numeric()
+                ->default(0)
+                ->minValue(0)
+                ->prefix('R$'),
+            DatePicker::make('data_aquisicao')
+                ->label('Dt. Aquisição')
+                ->columnSpan(4)
+                ->default(now())
+                ->maxDate(now())
+                ->required(),
+            Components\MarcaInput::make()
+                ->columnSpan(4),
+            Components\ModeloInput::make()
+                ->columnSpan(4),
+            Components\MedidaInput::make()
+                ->columnSpan(4)
+                ->default(fn () => PneuMedida::query()->orderBy('codigo')->value('id')),
+            Components\DesenhoPneuInput::make()
+                ->columnSpan(4),
+            TextInput::make('numero_serie')
+                ->label('Nº Série')
+                ->columnStart(1)
+                ->columnSpan(4),
+            TextInput::make('dot')
+                ->label('DOT')
+                ->columnSpan(4),
+        ];
+    }
+
+    private static function condicaoSchema(bool $includeInitialToggles = false): array
+    {
+        $schema = [
+            Select::make('status')
+                ->native(false)
+                ->columnSpan(4)
+                ->options(Enum\Pneu\StatusPneuEnum::toSelectArray())
+                ->required()
+                ->default(Enum\Pneu\StatusPneuEnum::DISPONIVEL->value),
+            Select::make('pneu_local_id')
+                ->label('Local')
+                ->native(false)
+                ->columnSpan(4)
+                ->options(PneuLocal::query()->where('ativo', true)->orderBy('nome')->pluck('nome', 'id')->toArray())
+                ->required()
+                ->default(fn () => PneuLocal::query()->where('nome', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value)->value('id')),
+            TextInput::make('sulco_inicial')
+                ->label('Sulco Inicial')
+                ->columnStart(1)
+                ->numeric()
+                ->default(0)
+                ->columnSpan(2),
+            TextInput::make('limite_recapagens')
+                ->label('Lim. Recap.')
+                ->numeric()
+                ->default(3)
+                ->minValue(0)
+                ->maxValue(9)
+                ->columnSpan(2),
+            Toggle::make('recapavel')
+                ->label('Recapável')
+                ->default(true)
+                ->columnSpanFull(),
+        ];
+
+        if ($includeInitialToggles) {
+            $schema[] = Toggle::make('registrar_recap_inicial')
+                ->label('Já entra recapado')
+                ->helperText('Use quando o pneu chega recapado e ainda não possui histórico anterior no sistema.')
+                ->default(false)
+                ->live()
+                ->columnSpanFull();
+
+            $schema[] = Toggle::make('registrar_historico_inicial')
+                ->label('Registrar histórico inicial')
+                ->helperText('Use apenas quando precisar lançar movimentações antigas manualmente.')
+                ->default(false)
+                ->live()
+                ->inline(false)
+                ->columnSpanFull();
+        }
+
+        return $schema;
     }
 }

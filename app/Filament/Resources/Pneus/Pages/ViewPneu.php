@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Pneus\Pages;
 use App\Filament\Resources\Pneus\Actions\EnviarRecapagemPneuAction;
 use App\Filament\Resources\Pneus\Actions\ReceberRecapagemPneuAction;
 use App\Filament\Resources\Pneus\Actions\RetornarConsertoPneuAction;
+use App\Filament\Resources\Pneus\Actions\ReverterRecapagemPneuAction;
 use App\Filament\Resources\Pneus\PneuResource;
 use App\Livewire\PneuResource as LivewirePneuResource;
 use Filament\Actions\EditAction;
@@ -21,6 +22,7 @@ class ViewPneu extends ViewRecord
             RetornarConsertoPneuAction::make(),
             EnviarRecapagemPneuAction::make(),
             ReceberRecapagemPneuAction::make(),
+            ReverterRecapagemPneuAction::make(),
         ];
     }
 

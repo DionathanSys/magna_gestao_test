@@ -2,6 +2,9 @@
 
 namespace App\Services\Pneus;
 
+use App\Enum\Pneu\LocalPneuEnum;
+use App\Enum\Pneu\MotivoMovimentoPneuEnum;
+use App\Enum\Pneu\StatusPneuEnum;
 use App\Models;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\DB;
@@ -96,6 +99,89 @@ class PneuService
         }
     }
 
+    public function reverterRecapagem(Models\Pneu $pneu): bool
+    {
+        try {
+            return DB::transaction(function () use ($pneu) {
+                $pneu = Models\Pneu::query()->lockForUpdate()->findOrFail($pneu->id);
+
+                $recapagem = $pneu->recapagens()
+                    ->orderByDesc('ciclo_vida')
+                    ->orderByDesc('data_recapagem')
+                    ->orderByDesc('id')
+                    ->first();
+
+                if (! $recapagem) {
+                    $this->setError('Este pneu não possui recapagem para reverter.');
+
+                    return false;
+                }
+
+                if ((int) $recapagem->ciclo_vida !== (int) $pneu->ciclo_vida) {
+                    $this->setError('Só é possível reverter a recapagem da vida atual do pneu.');
+
+                    return false;
+                }
+
+                if ((int) $pneu->ciclo_vida <= 0) {
+                    $this->setError('Não é possível reverter recapagem de um pneu na vida 0.');
+
+                    return false;
+                }
+
+                $cicloService = new PneuCicloService;
+                $cicloAtual = $recapagem->ciclo ?: $cicloService->getCurrentCycle($pneu);
+                $vidaAnterior = (int) $pneu->ciclo_vida - 1;
+
+                $recapagem->delete();
+
+                $pneu->update(['ciclo_vida' => $vidaAnterior]);
+                $pneu->refresh();
+
+                $cicloAnterior = $cicloService->reopenCycle($pneu, $vidaAnterior)
+                    ?? $cicloService->ensureCurrentCycle($pneu);
+
+                if ($cicloAtual) {
+                    Models\PneuPosicaoVeiculo::query()
+                        ->where('pneu_id', $pneu->id)
+                        ->where('pneu_ciclo_id', $cicloAtual->id)
+                        ->update(['pneu_ciclo_id' => $cicloAnterior->id]);
+                }
+
+                if ($cicloAtual && ! $this->cicloHasReferences($cicloAtual)) {
+                    $cicloAtual->delete();
+                }
+
+                Log::info('Recapagem revertida com sucesso', [
+                    'pneu_id' => $pneu->id,
+                    'recapagem_id' => $recapagem->id,
+                    'ciclo_vida' => $vidaAnterior,
+                ]);
+
+                $this->setSuccess('Recapagem revertida com sucesso.');
+
+                return true;
+            });
+        } catch (\Throwable $e) {
+            Log::error('Erro ao reverter recapagem do pneu', [
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'error' => $e->getMessage(),
+                'pneu_id' => $pneu->id,
+            ]);
+            $this->setError('Erro ao reverter recapagem: '.$e->getMessage());
+
+            return false;
+        }
+    }
+
+    private function cicloHasReferences(Models\PneuCiclo $ciclo): bool
+    {
+        return $ciclo->recapagens()->exists()
+            || $ciclo->consertos()->exists()
+            || $ciclo->historicos()->exists()
+            || $ciclo->inspecoes()->exists();
+    }
+
     public static function atualizarCicloVida(int $pneuId): bool
     {
         try {
@@ -135,11 +221,11 @@ class PneuService
     public function enviarParaRecapagem(Models\Pneu $pneu): bool
     {
         try {
-            $localId = $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::AGUARDANDO_RETORNO_RECAP->value);
+            $localId = $this->resolveLocalId(LocalPneuEnum::AGUARDANDO_RETORNO_RECAP->value);
 
             $pneu->update([
-                'status' => \App\Enum\Pneu\StatusPneuEnum::INDISPONIVEL,
-                'local' => \App\Enum\Pneu\LocalPneuEnum::AGUARDANDO_RETORNO_RECAP,
+                'status' => StatusPneuEnum::INDISPONIVEL,
+                'local' => LocalPneuEnum::AGUARDANDO_RETORNO_RECAP,
                 'pneu_local_id' => $localId,
             ]);
 
@@ -159,9 +245,9 @@ class PneuService
             return DB::transaction(function () use ($pneu, $data) {
                 if (($data['resultado_retorno'] ?? null) === 'RECUSADO') {
                     $pneu->update([
-                        'status' => \App\Enum\Pneu\StatusPneuEnum::SUCATA,
-                        'local' => \App\Enum\Pneu\LocalPneuEnum::SUCATA,
-                        'pneu_local_id' => $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::SUCATA->value),
+                        'status' => StatusPneuEnum::SUCATA,
+                        'local' => LocalPneuEnum::SUCATA,
+                        'pneu_local_id' => $this->resolveLocalId(LocalPneuEnum::SUCATA->value),
                     ]);
 
                     (new PneuCicloService)->closeCurrentCycle($pneu, $data['data_recapagem'] ?? now()->toDateString());
@@ -172,9 +258,9 @@ class PneuService
 
                 if (($data['resultado_retorno'] ?? null) === 'RETORNAR_ESTOQUE') {
                     $pneu->update([
-                        'status' => \App\Enum\Pneu\StatusPneuEnum::DISPONIVEL,
-                        'local' => \App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO,
-                        'pneu_local_id' => $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value),
+                        'status' => StatusPneuEnum::DISPONIVEL,
+                        'local' => LocalPneuEnum::ESTOQUE_CCO,
+                        'pneu_local_id' => $this->resolveLocalId(LocalPneuEnum::ESTOQUE_CCO->value),
                     ]);
 
                     $this->setSuccess('Pneu retornou para estoque sem recapagem e permanece no ciclo atual.');
@@ -196,9 +282,9 @@ class PneuService
 
                 $pneu->refresh();
                 $pneu->update([
-                    'status' => \App\Enum\Pneu\StatusPneuEnum::DISPONIVEL,
-                    'local' => \App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO,
-                    'pneu_local_id' => $this->resolveLocalId(\App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO->value),
+                    'status' => StatusPneuEnum::DISPONIVEL,
+                    'local' => LocalPneuEnum::ESTOQUE_CCO,
+                    'pneu_local_id' => $this->resolveLocalId(LocalPneuEnum::ESTOQUE_CCO->value),
                 ]);
 
                 $this->setSuccess('Pneu recebido do recap e liberado para estoque.');
@@ -224,7 +310,7 @@ class PneuService
         try {
             return DB::transaction(function () use ($pneu, $data) {
                 $ultimaRemocao = $pneu->historicoMovimentacao()
-                    ->where('motivo', \App\Enum\Pneu\MotivoMovimentoPneuEnum::CONSERTO->value)
+                    ->where('motivo', MotivoMovimentoPneuEnum::CONSERTO->value)
                     ->latest('id')
                     ->first();
 
@@ -242,8 +328,8 @@ class PneuService
 
                 if (($data['destino'] ?? 'ESTOQUE_CCO') === 'ESTOQUE_CCO') {
                     $pneu->update([
-                        'status' => \App\Enum\Pneu\StatusPneuEnum::DISPONIVEL,
-                        'local' => \App\Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO,
+                        'status' => StatusPneuEnum::DISPONIVEL,
+                        'local' => LocalPneuEnum::ESTOQUE_CCO,
                     ]);
 
                     $this->setSuccess('Retorno do conserto concluído para estoque.');
@@ -273,7 +359,7 @@ class PneuService
                     'pneu_id' => $pneu->id,
                     'data_inicial' => $data['data_retorno'],
                     'km_inicial' => $data['km_inicial'],
-                    'motivo' => \App\Enum\Pneu\MotivoMovimentoPneuEnum::APLICACAO,
+                    'motivo' => MotivoMovimentoPneuEnum::APLICACAO,
                 ]);
 
                 $this->setSuccess('Retorno do conserto concluído para a posição anterior.');

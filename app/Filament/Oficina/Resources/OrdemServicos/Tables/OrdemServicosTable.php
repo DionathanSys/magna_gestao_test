@@ -105,7 +105,7 @@ class OrdemServicosTable
             ->striped();
     }
 
-    private static function servicosAction(): Action
+    public static function servicosAction(): Action
     {
         return Action::make('servicos')
             ->label('Serviços')
@@ -122,7 +122,7 @@ class OrdemServicosTable
             ->action(fn (): null => null);
     }
 
-    private static function iniciarAction(): Action
+    public static function iniciarAction(): Action
     {
         return Action::make('iniciar')
             ->label('Iniciar')
@@ -159,7 +159,7 @@ class OrdemServicosTable
             });
     }
 
-    private static function encerrarAction(): Action
+    public static function encerrarAction(): Action
     {
         return Action::make('encerrar_trabalho')
             ->label('Encerrar')
@@ -204,7 +204,7 @@ class OrdemServicosTable
             });
     }
 
-    private static function relatorioAction(): Action
+    public static function relatorioAction(): Action
     {
         return Action::make('relatorio_oficina')
             ->label('Relatório')
@@ -213,7 +213,7 @@ class OrdemServicosTable
             ->openUrlInNewTab();
     }
 
-    private static function ajustarHorariosAction(): Action
+    public static function ajustarHorariosAction(): Action
     {
         return Action::make('ajustar_horarios')
             ->label('Ajustar horários')
@@ -296,7 +296,7 @@ class OrdemServicosTable
             });
     }
 
-    private static function removerApontamentoAbertoAction(): Action
+    public static function removerApontamentoAbertoAction(): Action
     {
         return Action::make('remover_apontamento_aberto')
             ->label('Remover apontamento aberto')

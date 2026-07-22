@@ -56,6 +56,22 @@ class PneuCicloService
         ]);
     }
 
+    public function reopenCycle(Models\Pneu $pneu, int $numero): ?Models\PneuCiclo
+    {
+        $ciclo = Models\PneuCiclo::query()
+            ->where('pneu_id', $pneu->id)
+            ->where('numero', $numero)
+            ->first();
+
+        $ciclo?->update([
+            'status' => StatusCicloPneuEnum::ABERTO->value,
+            'data_fechamento' => null,
+            'km_final' => null,
+        ]);
+
+        return $ciclo;
+    }
+
     public function getCurrentCycle(?Models\Pneu $pneu): ?Models\PneuCiclo
     {
         if (! $pneu) {

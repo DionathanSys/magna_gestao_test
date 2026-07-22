@@ -4,7 +4,10 @@ namespace App\Filament\Resources\Pneus\RelationManagers;
 
 use App\Filament\Resources\DesenhoPneus\DesenhoPneuResource;
 use App\Models\Pneu;
+use App\Models\Recapagem;
+use App\Services\NotificacaoService as notify;
 use App\Services\Pneus\PneuService;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -16,7 +19,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
@@ -121,6 +123,26 @@ class RecapagensRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
+                Action::make('reverter-recapagem')
+                    ->label('Reverter')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('danger')
+                    ->iconButton()
+                    ->requiresConfirmation()
+                    ->modalHeading('Reverter recapagem')
+                    ->modalDescription('Remove esta recapagem, volta a vida do pneu em 1 e reabre o ciclo anterior.')
+                    ->visible(fn (Recapagem $record): bool => $this->isRecapagemAtual($record))
+                    ->action(function (Action $action): void {
+                        $service = new PneuService;
+                        $service->reverterRecapagem($this->getOwnerRecord());
+
+                        if ($service->hasError()) {
+                            notify::error(titulo: 'Falha ao reverter recapagem', mensagem: $service->getMessage());
+                            $action->halt();
+                        }
+
+                        notify::success('Recapagem revertida com sucesso.');
+                    }),
                 EditAction::make()
                     ->iconButton(),
                 DeleteAction::make()
@@ -131,5 +153,21 @@ class RecapagensRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private function isRecapagemAtual(Recapagem $recapagem): bool
+    {
+        /** @var Pneu $pneu */
+        $pneu = $this->getOwnerRecord();
+
+        $ultimaRecapagemId = $pneu->recapagens()
+            ->orderByDesc('ciclo_vida')
+            ->orderByDesc('data_recapagem')
+            ->orderByDesc('id')
+            ->value('id');
+
+        return (int) $recapagem->id === (int) $ultimaRecapagemId
+            && (int) $recapagem->ciclo_vida === (int) $pneu->ciclo_vida
+            && (int) $pneu->ciclo_vida > 0;
     }
 }

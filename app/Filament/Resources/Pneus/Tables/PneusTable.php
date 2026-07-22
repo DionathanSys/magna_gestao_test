@@ -6,6 +6,7 @@ use App\Enum\Pneu\StatusPneuEnum;
 use App\Filament\Resources\Pneus\Actions\EnviarRecapagemPneuAction;
 use App\Filament\Resources\Pneus\Actions\ReceberRecapagemPneuAction;
 use App\Filament\Resources\Pneus\Actions\RetornarConsertoPneuAction;
+use App\Filament\Resources\Pneus\Actions\ReverterRecapagemPneuAction;
 use App\Filament\Resources\Veiculos\VeiculoResource;
 use App\Models;
 use Filament\Actions\ActionGroup;
@@ -32,7 +33,7 @@ class PneusTable
                     ->width('1%')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false)
-                    ->url(fn(Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
+                    ->url(fn (Models\Pneu $record): string => VeiculoResource::getUrl('edit', ['record' => $record->veiculo->id]))
                     ->openUrlInNewTab(),
                 TextColumn::make('numero_fogo')
                     ->label('Nº de Fogo')
@@ -107,6 +108,7 @@ class PneusTable
                     ViewAction::make(),
                     EnviarRecapagemPneuAction::make(),
                     ReceberRecapagemPneuAction::make(),
+                    ReverterRecapagemPneuAction::make(),
                     RetornarConsertoPneuAction::make(),
                 ]),
             ])

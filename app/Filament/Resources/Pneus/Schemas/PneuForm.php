@@ -154,6 +154,7 @@ class PneuForm
                     ->columns(12)
                     ->columnSpanFull()
                     ->schema(self::condicaoSchema()),
+                Components\CiclosVidaSection::form(),
             ]);
     }
 

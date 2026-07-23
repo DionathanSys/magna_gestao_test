@@ -312,6 +312,40 @@
                 </section>
 
                 <section class="os-list-panel">
+                    @php
+                        $planosManutencao = $this->planosManutencao;
+                    @endphp
+
+                    <div class="os-list-title">Relatório de Manutenção</div>
+                    <div class="os-empty-list" style="margin-top: 0.35rem;">
+                        Planos preventivos do veículo com base de {{ number_format($this->kmBaseRelatorioManutencao, 0, ',', '.') }} km restantes.
+                    </div>
+
+                    @if ($planosManutencao->isEmpty())
+                        <div class="os-empty-list" style="margin-top: 0.75rem;">Nenhum plano preventivo dentro da base de km definida.</div>
+                    @else
+                        <div class="os-simple-list" style="margin-top: 0.75rem;">
+                            @foreach ($planosManutencao as $plano)
+                                <div class="os-simple-item">
+                                    <strong>{{ $plano['plano_descricao'] ?? 'Plano não informado' }}</strong>
+                                    <span>
+                                        KM restante:
+                                        <span class="os-pill {{ ($plano['km_restante'] ?? 0) <= 0 ? 'os-pill-manual' : 'os-pill-checklist' }}">
+                                            {{ number_format($plano['km_restante'] ?? 0, 0, ',', '.') }} km
+                                        </span>
+                                    </span>
+                                    <span>KM atual: {{ number_format($plano['km_atual'] ?? 0, 0, ',', '.') }} km</span>
+                                    <span>Última execução: {{ number_format($plano['km_ultima_execucao'] ?? 0, 0, ',', '.') }} km</span>
+                                    <span>Próxima execução: {{ number_format($plano['proxima_execucao'] ?? 0, 0, ',', '.') }} km</span>
+                                    <span>Periodicidade: {{ number_format($plano['periodicidade'] ?? 0, 0, ',', '.') }} km</span>
+                                    <span>Data prevista: {{ ($plano['data_prevista'] ?? null) === 'Atrasado' ? 'Atrasado' : ($plano['data_prevista'] ? \Illuminate\Support\Carbon::parse($plano['data_prevista'])->format('d/m/Y') : '-') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </section>
+
+                <section class="os-list-panel">
                     <div class="os-list-title">Apontamentos da Oficina</div>
 
                     <div class="os-simple-list" style="margin-top: 0.75rem;">

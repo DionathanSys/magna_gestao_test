@@ -4,6 +4,7 @@ namespace App\Filament\Oficina\Resources\OrdemServicos\Tables;
 
 use App\Filament\Oficina\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Actions\EncerrarOrdemServicoAction;
+use App\Models\Colaborador;
 use App\Models\OrdemServico;
 use App\Services\NotificacaoService as notify;
 use App\Services\Oficina\OrdemServicoApontamentoService;
@@ -13,9 +14,14 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Text;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
@@ -131,9 +137,7 @@ class OrdemServicosTable
             ->size(Size::Small)
             ->color('info')
             ->form(fn (OrdemServico $record): array => [
-                TextInput::make('codigo')
-                    ->label('Código do responsável')
-                    ->required(),
+                self::codigoColaboradorInput(),
                 DateTimePicker::make('iniciado_em')
                     ->label('Hora de início')
                     ->seconds(false)
@@ -168,9 +172,7 @@ class OrdemServicosTable
             ->size(Size::Small)
             ->color('success')
             ->form(fn (OrdemServico $record): array => [
-                TextInput::make('codigo')
-                    ->label('Código do responsável')
-                    ->required(),
+                self::codigoColaboradorInput(),
                 DateTimePicker::make('encerrado_em')
                     ->label('Hora final')
                     ->seconds(false)
@@ -202,6 +204,45 @@ class OrdemServicosTable
                     $action->halt();
                 }
             });
+    }
+
+    private static function codigoColaboradorInput(): TextInput
+    {
+        return TextInput::make('codigo')
+            ->label('Código do responsável')
+            ->inputMode('numeric')
+            ->extraInputAttributes(['pattern' => '[0-9]*'])
+            ->regex('/^\d+$/')
+            ->validationMessages([
+                'regex' => 'Informe apenas números no código do responsável.',
+            ])
+            ->live(onBlur: true)
+            ->afterStateUpdated(function (Set $set, Field $component, $state): void {
+                $codigo = preg_replace('/\D+/', '', (string) $state);
+                $set('codigo', $codigo);
+
+                if (blank($codigo)) {
+                    $component->belowContent(null);
+
+                    return;
+                }
+
+                $colaborador = Colaborador::query()
+                    ->where('codigo', $codigo)
+                    ->where('ativo', true)
+                    ->where('tipo', 'MECANICO')
+                    ->first();
+
+                $component->belowContent([
+                    Text::make($colaborador
+                        ? 'Colaborador: '.$colaborador->nome
+                        : 'Colaborador ativo/mecânico não encontrado para este código.'
+                    )
+                        ->weight(FontWeight::Bold)
+                        ->color($colaborador ? Color::Green : Color::Red),
+                ]);
+            })
+            ->required();
     }
 
     public static function relatorioAction(): Action

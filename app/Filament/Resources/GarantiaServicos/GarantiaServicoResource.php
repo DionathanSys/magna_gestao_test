@@ -19,6 +19,10 @@ class GarantiaServicoResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
+    protected static ?int $navigationSort = 4;
+
+    protected static ?string $navigationLabel = 'Garantias';
+
     protected static ?string $modelLabel = 'Garantia de Serviço';
 
     protected static ?string $pluralModelLabel = 'Garantias de Serviços';

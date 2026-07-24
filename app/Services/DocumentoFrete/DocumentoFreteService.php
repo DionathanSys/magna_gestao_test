@@ -8,6 +8,7 @@ use App\Jobs\VincularViagemDocumentoFrete;
 use App\Models;
 use App\Models\Viagem;
 use App\Services\DocumentoFrete\Actions\VincularViagemDocumento;
+use App\Services\Viagem\Actions\AtualizarResumoViagem;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -213,6 +214,11 @@ class DocumentoFreteService
 
                 return;
             }
+
+            Viagem::query()
+                ->where('documento_transporte', $documentoTransporte)
+                ->pluck('id')
+                ->each(fn (int $id) => app(AtualizarResumoViagem::class)->handle($id));
 
             $this->setSuccess("Documento de frete vinculado à viagem {$viagemId} com sucesso.");
 

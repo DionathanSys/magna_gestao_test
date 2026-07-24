@@ -2,12 +2,17 @@
 
 namespace App\Filament\Resources\Viagems\Actions;
 
+use App\Models\DocumentoFrete;
 use App\Models\Viagem;
+use Carbon\Carbon;
 use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border, Fill};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportarRelatorioViagensDocumentosBulkAction
@@ -20,21 +25,21 @@ class ExportarRelatorioViagensDocumentosBulkAction
             ->color('info')
             ->requiresConfirmation()
             ->modalHeading('Exportar Relatório de Viagens e Documentos')
-            ->modalDescription(fn (Collection $records) => 
-                'Você está prestes a exportar ' . $records->count() . ' viagen(s) com seus documentos para Excel. O relatório conterá 2 planilhas: uma com as viagens e outra com os documentos vinculados.'
+            ->modalDescription(fn (Collection $records) => 'Você está prestes a exportar '.$records->count().' viagen(s) com seus documentos para Excel. O relatório conterá 2 planilhas: uma com as viagens e outra com os documentos vinculados.'
             )
             ->modalSubmitActionLabel('Exportar')
             ->action(function (Collection $records) {
                 // Limitar exportação para evitar problemas de memória
                 if ($records->count() > 1000) {
-                    \Filament\Notifications\Notification::make()
+                    Notification::make()
                         ->danger()
                         ->title('Muitos registros')
                         ->body('Por favor, selecione no máximo 1000 registros para exportar.')
                         ->send();
+
                     return;
                 }
-                
+
                 return static::exportToExcel($records);
             })
             ->deselectRecordsAfterCompletion();
@@ -45,14 +50,14 @@ class ExportarRelatorioViagensDocumentosBulkAction
         // Aumentar limite de memória temporariamente
         $originalMemoryLimit = ini_get('memory_limit');
         ini_set('memory_limit', '512M');
-        
+
         try {
-            $spreadsheet = new Spreadsheet();
-            
+            $spreadsheet = new Spreadsheet;
+
             // Otimizações do PhpSpreadsheet
             $spreadsheet->getDefaultStyle()->getFont()->setName('Arial');
             $spreadsheet->getDefaultStyle()->getFont()->setSize(10);
-            
+
             // ====== PLANILHA 1: VIAGENS ======
             $viagensSheet = $spreadsheet->getActiveSheet();
             $viagensSheet->setTitle('Viagens');
@@ -71,7 +76,7 @@ class ExportarRelatorioViagensDocumentosBulkAction
             // Escrever cabeçalhos
             $row = 1;
             foreach ($viagensHeaders as $col => $header) {
-                $viagensSheet->setCellValue($col . $row, $header);
+                $viagensSheet->setCellValue($col.$row, $header);
             }
 
             // Estilizar cabeçalho
@@ -95,23 +100,23 @@ class ExportarRelatorioViagensDocumentosBulkAction
             // Escrever dados das viagens
             $row = 2;
             foreach ($viagens as $viagem) {
-                $viagensSheet->setCellValue('A' . $row, $viagem->id);
-                $viagensSheet->setCellValue('B' . $row, $viagem->numero_viagem ?? '');
-                $viagensSheet->setCellValue('C' . $row, $viagem->documento_transporte ?? '');
-                $viagensSheet->setCellValue('D' . $row, $viagem->veiculo?->placa ?? '');
-                $viagensSheet->setCellValue('E' . $row, $viagem->data_competencia ? \Carbon\Carbon::parse($viagem->data_competencia)->format('d/m/Y') : '');
-                $viagensSheet->setCellValue('F' . $row, $viagem->km_pago ?? '');
-                
+                $viagensSheet->setCellValue('A'.$row, $viagem->id);
+                $viagensSheet->setCellValue('B'.$row, $viagem->numero_viagem ?? '');
+                $viagensSheet->setCellValue('C'.$row, $viagem->documento_transporte ?? '');
+                $viagensSheet->setCellValue('D'.$row, $viagem->veiculo?->placa ?? '');
+                $viagensSheet->setCellValue('E'.$row, $viagem->data_competencia ? Carbon::parse($viagem->data_competencia)->format('d/m/Y') : '');
+                $viagensSheet->setCellValue('F'.$row, $viagem->km_pago ?? '');
+
                 // Adicionar fórmula SUMIF para somar valores líquidos dos documentos
-                $formula = '=SUMIF(Documentos!$B:$B,A' . $row . ',Documentos!$H:$H)';
-                $viagensSheet->setCellValue('G' . $row, $formula);
-                
+                $formula = '=SUMIF(Documentos!$B:$B,A'.$row.',Documentos!$H:$H)';
+                $viagensSheet->setCellValue('G'.$row, $formula);
+
                 $row++;
             }
 
             // Aplicar bordas
             if ($row > 2) {
-                static::applyBorders($viagensSheet, 'A1:G' . ($row - 1));
+                static::applyBorders($viagensSheet, 'A1:G'.($row - 1));
             }
 
             // ====== PLANILHA 2: DOCUMENTOS ======
@@ -136,7 +141,7 @@ class ExportarRelatorioViagensDocumentosBulkAction
             // Escrever cabeçalhos
             $row = 1;
             foreach ($documentosHeaders as $col => $header) {
-                $documentosSheet->setCellValue($col . $row, $header);
+                $documentosSheet->setCellValue($col.$row, $header);
             }
 
             // Estilizar cabeçalho
@@ -157,7 +162,20 @@ class ExportarRelatorioViagensDocumentosBulkAction
             $documentosSheet->getColumnDimension('K')->setWidth(20);
 
             // Carregar documentos das viagens selecionadas
-            $documentos = \App\Models\DocumentoFrete::whereIn('viagem_id', $viagens->pluck('id'))
+            $documentosTransporte = $viagens
+                ->pluck('documento_transporte')
+                ->filter()
+                ->unique()
+                ->values();
+
+            $documentos = DocumentoFrete::query()
+                ->where(function ($query) use ($viagens, $documentosTransporte): void {
+                    $query->whereIn('viagem_id', $viagens->pluck('id'));
+
+                    if ($documentosTransporte->isNotEmpty()) {
+                        $query->orWhereIn('documento_transporte', $documentosTransporte);
+                    }
+                })
                 ->orderBy('viagem_id')
                 ->orderBy('id')
                 ->get();
@@ -165,46 +183,46 @@ class ExportarRelatorioViagensDocumentosBulkAction
             // Escrever dados dos documentos
             $row = 2;
             foreach ($documentos as $documento) {
-                $documentosSheet->setCellValue('A' . $row, $documento->id);
-                $documentosSheet->setCellValue('B' . $row, $documento->viagem_id ?? '');
-                $documentosSheet->setCellValue('C' . $row, $documento->numero_documento ?? '');
-                $documentosSheet->setCellValue('D' . $row, $documento->documento_transporte ?? '');
-                $documentosSheet->setCellValue('E' . $row, $documento->data_emissao ? \Carbon\Carbon::parse($documento->data_emissao)->format('d/m/Y') : '');
-                
+                $documentosSheet->setCellValue('A'.$row, $documento->id);
+                $documentosSheet->setCellValue('B'.$row, $documento->viagem_id ?? '');
+                $documentosSheet->setCellValue('C'.$row, $documento->numero_documento ?? '');
+                $documentosSheet->setCellValue('D'.$row, $documento->documento_transporte ?? '');
+                $documentosSheet->setCellValue('E'.$row, $documento->data_emissao ? Carbon::parse($documento->data_emissao)->format('d/m/Y') : '');
+
                 // Inserir valores como números
                 $valorTotal = static::getNumericValue($documento->valor_total);
                 $valorIcms = static::getNumericValue($documento->valor_icms);
                 $valorLiquido = static::getNumericValue($documento->valor_liquido);
-                
-                $documentosSheet->setCellValue('F' . $row, $valorTotal);
-                $documentosSheet->setCellValue('G' . $row, $valorIcms);
-                $documentosSheet->setCellValue('H' . $row, $valorLiquido);
-                
+
+                $documentosSheet->setCellValue('F'.$row, $valorTotal);
+                $documentosSheet->setCellValue('G'.$row, $valorIcms);
+                $documentosSheet->setCellValue('H'.$row, $valorLiquido);
+
                 // Aplicar formatação de moeda nas células
-                $documentosSheet->getStyle('F' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
-                $documentosSheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
-                $documentosSheet->getStyle('H' . $row)->getNumberFormat()->setFormatCode('#,##0.00');
-                
-                $documentosSheet->setCellValue('I' . $row, $documento->parceiro_origem ?? '');
-                $documentosSheet->setCellValue('J' . $row, $documento->parceiro_destino ?? '');
-                $documentosSheet->setCellValue('K' . $row, $documento->tipo_documento?->value ?? '');
-                
+                $documentosSheet->getStyle('F'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
+                $documentosSheet->getStyle('G'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
+                $documentosSheet->getStyle('H'.$row)->getNumberFormat()->setFormatCode('#,##0.00');
+
+                $documentosSheet->setCellValue('I'.$row, $documento->parceiro_origem ?? '');
+                $documentosSheet->setCellValue('J'.$row, $documento->parceiro_destino ?? '');
+                $documentosSheet->setCellValue('K'.$row, $documento->tipo_documento?->value ?? '');
+
                 $row++;
             }
 
             // Aplicar bordas
             if ($row > 2) {
-                static::applyBorders($documentosSheet, 'A1:K' . ($row - 1));
+                static::applyBorders($documentosSheet, 'A1:K'.($row - 1));
             }
 
             // Definir a primeira planilha como ativa
             $spreadsheet->setActiveSheetIndex(0);
-            
+
             // Aplicar formatação de moeda na coluna G da planilha de viagens (Total Valor Líquido)
             if ($viagens->count() > 0) {
                 $lastRowViagens = $viagens->count() + 1;
                 for ($i = 2; $i <= $lastRowViagens; $i++) {
-                    $viagensSheet->getStyle('G' . $i)->getNumberFormat()->setFormatCode('#,##0.00');
+                    $viagensSheet->getStyle('G'.$i)->getNumberFormat()->setFormatCode('#,##0.00');
                 }
             }
 
@@ -215,20 +233,20 @@ class ExportarRelatorioViagensDocumentosBulkAction
             return response()->streamDownload(function () use ($spreadsheet) {
                 $writer = new Xlsx($spreadsheet);
                 $writer->save('php://output');
-            }, 'relatorio_viagens_documentos_' . date('Y-m-d_His') . '.xlsx', [
+            }, 'relatorio_viagens_documentos_'.date('Y-m-d_His').'.xlsx', [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ]);
 
         } catch (\Exception $e) {
             // Restaurar limite de memória em caso de erro
             ini_set('memory_limit', $originalMemoryLimit);
-            
-            \Filament\Notifications\Notification::make()
+
+            Notification::make()
                 ->danger()
                 ->title('Erro ao exportar')
-                ->body('Ocorreu um erro ao gerar o arquivo Excel: ' . $e->getMessage())
+                ->body('Ocorreu um erro ao gerar o arquivo Excel: '.$e->getMessage())
                 ->send();
-                
+
             throw $e;
         }
     }
@@ -269,17 +287,17 @@ class ExportarRelatorioViagensDocumentosBulkAction
         if (is_null($value)) {
             return 0.0;
         }
-        
+
         // Se for um objeto Brick\Money\Money
         if (is_object($value) && method_exists($value, 'getAmount')) {
             return $value->getAmount()->toFloat();
         }
-        
+
         // Se for numérico
         if (is_numeric($value)) {
             return (float) $value;
         }
-        
+
         return 0.0;
     }
 }

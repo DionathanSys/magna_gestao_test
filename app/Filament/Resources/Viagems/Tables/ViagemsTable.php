@@ -61,7 +61,15 @@ class ViagemsTable
                     ->selectSub(
                         CteEmailRequest::query()
                             ->select('status')
-                            ->whereColumn('viagem_id', 'viagens.id')
+                            ->where(function (Builder $cteQuery): void {
+                                $cteQuery
+                                    ->whereColumn('viagem_id', 'viagens.id')
+                                    ->orWhere(function (Builder $documentoTransporteQuery): void {
+                                        $documentoTransporteQuery
+                                            ->whereNotNull('documento_transporte')
+                                            ->whereColumn('documento_transporte', 'viagens.documento_transporte');
+                                    });
+                            })
                             ->latest('id')
                             ->limit(1),
                         'cte_email_request_status'
@@ -69,10 +77,27 @@ class ViagemsTable
                     ->selectSub(
                         CteEmailRequest::query()
                             ->select('requested_at')
-                            ->whereColumn('viagem_id', 'viagens.id')
+                            ->where(function (Builder $cteQuery): void {
+                                $cteQuery
+                                    ->whereColumn('viagem_id', 'viagens.id')
+                                    ->orWhere(function (Builder $documentoTransporteQuery): void {
+                                        $documentoTransporteQuery
+                                            ->whereNotNull('documento_transporte')
+                                            ->whereColumn('documento_transporte', 'viagens.documento_transporte');
+                                    });
+                            })
                             ->latest('id')
                             ->limit(1),
                         'cte_email_requested_at'
+                    )
+                    ->selectSub(
+                        Models\DocumentoFrete::query()
+                            ->selectRaw('count(*)')
+                            ->whereNotNull('documento_transporte')
+                            ->where(function (Builder $documentosQuery): void {
+                                $documentosQuery->whereColumn('documento_transporte', 'viagens.documento_transporte');
+                            }),
+                        'documentos_count'
                     )
                     ->with([
                         'cargas.integrado:id,codigo,nome,municipio',
@@ -82,7 +107,7 @@ class ViagemsTable
                         'updater:id,name',
                         'resultadoPeriodo:id,data_inicio',
                     ])
-                    ->withCount(['cargas', 'documentos', 'cteEmailRequests']);
+                    ->withCount(['cargas', 'cteEmailRequests']);
             })
             ->poll(null)
             ->columns([
@@ -435,8 +460,16 @@ class ViagemsTable
                     ->trueLabel('Com Doc. Frete')
                     ->falseLabel('Sem Doc. Frete')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereHas('documentos'),
-                        false: fn (Builder $query) => $query->whereDoesntHave('documentos'),
+                        true: fn (Builder $query) => $query->whereIn('documento_transporte', Models\DocumentoFrete::query()
+                            ->select('documento_transporte')
+                            ->whereNotNull('documento_transporte')),
+                        false: fn (Builder $query) => $query->where(function (Builder $subQuery): void {
+                            $subQuery
+                                ->whereNull('documento_transporte')
+                                ->orWhereNotIn('documento_transporte', Models\DocumentoFrete::query()
+                                    ->select('documento_transporte')
+                                    ->whereNotNull('documento_transporte'));
+                        }),
                         blank: fn (Builder $query) => $query,
                     ),
                 TernaryFilter::make('possui_solicitacao_cte')
@@ -446,8 +479,22 @@ class ViagemsTable
                     ->trueLabel('Com Solicitação')
                     ->falseLabel('Sem Solicitação')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereHas('cteEmailRequests'),
-                        false: fn (Builder $query) => $query->whereDoesntHave('cteEmailRequests'),
+                        true: fn (Builder $query) => $query->where(function (Builder $subQuery): void {
+                            $subQuery
+                                ->whereHas('cteEmailRequests')
+                                ->orWhereIn('documento_transporte', CteEmailRequest::query()
+                                    ->select('documento_transporte')
+                                    ->whereNotNull('documento_transporte'));
+                        }),
+                        false: fn (Builder $query) => $query
+                            ->whereDoesntHave('cteEmailRequests')
+                            ->where(function (Builder $subQuery): void {
+                                $subQuery
+                                    ->whereNull('documento_transporte')
+                                    ->orWhereNotIn('documento_transporte', CteEmailRequest::query()
+                                        ->select('documento_transporte')
+                                        ->whereNotNull('documento_transporte'));
+                            }),
                         blank: fn (Builder $query) => $query,
                     ),
                 TernaryFilter::make('conferido')
@@ -715,6 +762,7 @@ class ViagemsTable
                     DeleteBulkAction::make()
                         ->visible(fn (): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    Viagems\Actions\SolicitarCteBugioAgrupadoBulkAction::make(),
                     VincularViagemResultadoPeriodoBulkAction::make(),
                     Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                     Viagems\Actions\ExportarViagensExcelBulkAction::make(),

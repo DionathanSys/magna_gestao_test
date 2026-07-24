@@ -70,7 +70,13 @@ class AtualizarResumoViagem
 
         if (in_array('documentos_frete_resumo_cache', $this->availableColumns) || in_array('parceiro_frete_cache', $this->availableColumns)) {
             $documentos = DocumentoFrete::query()
-                ->where('viagem_id', $viagem->id)
+                ->where(function ($query) use ($viagem): void {
+                    $query->where('viagem_id', $viagem->id);
+
+                    if (filled($viagem->documento_transporte)) {
+                        $query->orWhere('documento_transporte', $viagem->documento_transporte);
+                    }
+                })
                 ->get(['numero_documento', 'valor_liquido', 'parceiro_destino']);
 
             if (in_array('documentos_frete_resumo_cache', $this->availableColumns)) {

@@ -6,6 +6,7 @@ use App\Filament\Resources\OrdemServicos\Schemas\ItemOrdemServicoForm;
 use App\Models;
 use App\Services;
 use App\Services\NotificacaoService as notify;
+use App\Services\Servico\ServicoCacheService;
 use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,7 @@ class EditarServicoOrdemServicoAction
             ->icon('heroicon-o-pencil')
             ->fillForm(fn (Models\ItemOrdemServico $record): array => [
                 ...$record->toArray(),
-                'controla_posicao' => (bool) $record->servico?->controla_posicao,
+                'controla_posicao' => ServicoCacheService::controlaPosicao($record->servico_id),
             ])
             ->schema(fn (Schema $schema) => ItemOrdemServicoForm::configure($schema, includeStatus: true))
             ->model(Models\ItemOrdemServico::class)

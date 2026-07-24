@@ -3,14 +3,13 @@
 namespace App\Filament\Resources\Agendamentos\Pages;
 
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
-use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Models\Agendamento;
-use App\Models\Servico;
 use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\NotificacaoService as notify;
+use App\Services\Servico\ServicoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -92,17 +91,17 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
                         }),
                     Select::make('servico_id')
                         ->label('Serviço')
-                        ->relationship('servico', 'descricao')
+                        ->options(fn (): array => ServicoCacheService::getServicosForSelect())
                         ->searchable()
                         ->preload()
                         ->required()
                         ->live()
                         ->afterStateUpdated(function (Set $set, $state): void {
-                            $servico = $state ? Servico::find($state) : null;
+                            $controlaPosicao = ServicoCacheService::controlaPosicao($state);
 
-                            $set('controla_posicao', (bool) $servico?->controla_posicao);
+                            $set('controla_posicao', $controlaPosicao);
 
-                            if (! $servico?->controla_posicao) {
+                            if (! $controlaPosicao) {
                                 $set('posicao', null);
                             }
                         }),
@@ -114,7 +113,7 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
                         ->live(),
                     Select::make('posicao')
                         ->label('Posição')
-                        ->options(PosicaoItemOrdemServicoEnum::toSelectArray())
+                        ->options(fn (Get $get): array => ServicoCacheService::getPosicoesForSelect($get('servico_id')))
                         ->searchable()
                         ->preload()
                         ->visible(fn (Get $get): bool => (bool) $get('controla_posicao'))
@@ -299,15 +298,13 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
             return;
         }
 
-        $servico = Servico::query()->find($agendamento->servico_id);
-
         $this->editingFullAgendamentoId = $agendamento->id;
         $this->editAgendamentoData = [
             'veiculo_id' => $agendamento->veiculo_id,
             'data_agendamento' => $agendamento->data_agendamento?->format('Y-m-d'),
             'data_limite' => $agendamento->data_limite?->format('Y-m-d'),
             'servico_id' => $agendamento->servico_id,
-            'controla_posicao' => (bool) $servico?->controla_posicao,
+            'controla_posicao' => ServicoCacheService::controlaPosicao($agendamento->servico_id),
             'posicao' => $agendamento->posicao,
             'plano_preventivo_id' => $agendamento->plano_preventivo_id,
             'observacao' => $agendamento->observacao,
@@ -337,8 +334,7 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
         }
 
         $data = $this->editAgendamentoForm->getState();
-        $servico = Servico::query()->find($data['servico_id']);
-        $controlaPosicao = (bool) $servico?->controla_posicao;
+        $controlaPosicao = ServicoCacheService::controlaPosicao($data['servico_id']);
         $posicao = $controlaPosicao ? ($data['posicao'] ?? $agendamento->posicao) : null;
 
         if ($controlaPosicao && blank($posicao)) {

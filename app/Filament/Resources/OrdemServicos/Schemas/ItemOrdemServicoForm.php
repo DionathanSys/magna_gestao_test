@@ -3,9 +3,8 @@
 namespace App\Filament\Resources\OrdemServicos\Schemas;
 
 use App\Enum;
-use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Filament\Resources\Servicos\Schemas\ServicoForm;
-use App\Models;
+use App\Services\Servico\ServicoCacheService;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
@@ -61,29 +60,16 @@ class ItemOrdemServicoForm
             ->label('Serviço')
             ->required()
             // ->relationship('servico', 'descricao') //TODO Não está funcionando por usar no OrdemTable talvez criar um relationship 'servico' de certo
-            ->getSearchResultsUsing(fn (string $search): array => Models\Servico::query()
-                ->where('descricao', 'like', '%'.str_replace(' ', '%', $search).'%')
-                ->limit(10)
-                ->get()
-                ->mapWithKeys(fn (Models\Servico $servico): array => [$servico->id => self::formatServicoLabel($servico)])
-                ->all())
-            ->getOptionLabelUsing(fn ($value): ?string => ($servico = Models\Servico::find($value))
-                ? self::formatServicoLabel($servico)
-                : null)
+            ->options(fn (): array => ServicoCacheService::getServicosForSelect())
+            ->getSearchResultsUsing(fn (string $search): array => ServicoCacheService::searchServicosForSelect($search))
+            ->getOptionLabelUsing(fn ($value): ?string => ServicoCacheService::getServicoLabel($value))
             // ->createOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))    //TODO Não está funcionando por não usar o relationship
             // ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
             ->searchable()
             ->live()
             ->preload()
             ->afterStateUpdated(function (Set $set, $state): void {
-                $servico = null;
-
-                if ($state) {
-                    $servico = Models\Servico::find($state);
-                    $set('controla_posicao', $servico?->controla_posicao ? true : false);
-                } else {
-                    $set('controla_posicao', false);
-                }
+                $set('controla_posicao', ServicoCacheService::controlaPosicao($state));
 
                 $set('posicao', null);
             });
@@ -106,13 +92,7 @@ class ItemOrdemServicoForm
             ->options(function (Get $get): array {
                 $servicoId = $get('servico_id');
 
-                if (! $servicoId) {
-                    return PosicaoItemOrdemServicoEnum::toSelectArray();
-                }
-
-                return Models\Servico::query()
-                    ->find($servicoId)
-                    ?->posicoesPermitidasSelectArray() ?? [];
+                return ServicoCacheService::getPosicoesForSelect($servicoId);
             })
             ->placeholder('Selecione a posição')
             ->searchable()
@@ -136,10 +116,5 @@ class ItemOrdemServicoForm
             ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray())
             ->default(Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE->value)
             ->required();
-    }
-
-    protected static function formatServicoLabel(Models\Servico $servico): string
-    {
-        return trim($servico->codigo.' - '.$servico->descricao, ' -');
     }
 }

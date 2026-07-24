@@ -22,6 +22,7 @@ use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
 use App\Services\OrdemServico\OrdemServicoService;
+use App\Services\Servico\ServicoCacheService;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid;
@@ -335,8 +336,6 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             return;
         }
 
-        $servico = Servico::query()->find($agendamento->servico_id);
-
         $this->editingAgendamentoId = $agendamento->id;
         $this->reagendandoItemServicoId = null;
         $this->showFormAgendamento = true;
@@ -346,7 +345,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
             'data_agendamento' => $agendamento->data_agendamento?->format('Y-m-d'),
             'data_limite' => $agendamento->data_limite?->format('Y-m-d'),
             'servico_id' => $agendamento->servico_id,
-            'controla_posicao' => (bool) $servico?->controla_posicao,
+            'controla_posicao' => ServicoCacheService::controlaPosicao($agendamento->servico_id),
             'posicao' => $agendamento->posicao,
             'plano_preventivo_id' => $agendamento->plano_preventivo_id,
             'observacao' => $agendamento->observacao,
@@ -373,8 +372,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
                 return;
             }
 
-            $servico = Servico::query()->find($data['servico_id']);
-            $controlaPosicao = (bool) $servico?->controla_posicao;
+            $controlaPosicao = ServicoCacheService::controlaPosicao($data['servico_id']);
             $posicao = $controlaPosicao ? ($data['posicao'] ?? $agendamento->posicao) : null;
 
             if ($controlaPosicao && blank($posicao)) {

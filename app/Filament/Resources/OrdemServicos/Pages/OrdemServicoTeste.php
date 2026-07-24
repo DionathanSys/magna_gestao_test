@@ -11,12 +11,12 @@ use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\Agendamento;
 use App\Models\ManutencaoLancamento;
-use App\Models\Servico;
 use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
 use App\Services\PlanoManutencao\RelatorioPlanoManutencaoService;
+use App\Services\Servico\ServicoCacheService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -256,15 +256,13 @@ class OrdemServicoTeste extends Page implements HasSchemas
             return;
         }
 
-        $servico = Servico::query()->find($agendamento->servico_id);
-
         $this->editingAgendamentoId = $agendamento->id;
         $this->editAgendamentoData = [
             'veiculo_id' => $agendamento->veiculo_id,
             'data_agendamento' => $agendamento->data_agendamento?->format('Y-m-d'),
             'data_limite' => $agendamento->data_limite?->format('Y-m-d'),
             'servico_id' => $agendamento->servico_id,
-            'controla_posicao' => (bool) $servico?->controla_posicao,
+            'controla_posicao' => ServicoCacheService::controlaPosicao($agendamento->servico_id),
             'posicao' => $agendamento->posicao,
             'plano_preventivo_id' => $agendamento->plano_preventivo_id,
             'observacao' => $agendamento->observacao,
@@ -298,8 +296,7 @@ class OrdemServicoTeste extends Page implements HasSchemas
         }
 
         $data = $this->editAgendamentoForm->getState();
-        $servico = Servico::query()->find($data['servico_id']);
-        $controlaPosicao = (bool) $servico?->controla_posicao;
+        $controlaPosicao = ServicoCacheService::controlaPosicao($data['servico_id']);
         $posicao = $controlaPosicao ? ($data['posicao'] ?? $agendamento->posicao) : null;
 
         if ($controlaPosicao && blank($posicao)) {

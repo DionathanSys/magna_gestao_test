@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Agendamentos\Schemas;
 
-use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Filament\Resources\Parceiros\ParceiroResource;
 use App\Filament\Resources\Servicos\ServicoResource;
 use App\Models\Servico;
 use App\Services;
+use App\Services\Servico\ServicoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -58,18 +58,26 @@ class AgendamentoForm
                             ->columnStart(1)
                             ->columnSpan(['sm' => 1, 'md' => 2, 'lg' => 2, 'xl' => 4])
                             ->required()
-                            ->relationship('servico', 'descricao')
+                            ->options(fn (): array => ServicoCacheService::getServicosForSelect())
                             ->createOptionForm(fn (Schema $schema) => ServicoResource::form($schema))
+                            ->createOptionUsing(function (array $data, Schema $schema): int {
+                                $servico = Servico::query()->create($data);
+                                $schema->model($servico)->saveRelationships();
+                                ServicoCacheService::forget($servico->id);
+
+                                return $servico->id;
+                            })
                             ->editOptionForm(fn (Schema $schema) => ServicoResource::form($schema))
+                            ->getSelectedRecordUsing(fn (Select $component): ?Servico => Servico::query()->find($component->getState()))
+                            ->updateOptionUsing(function (array $data, Schema $schema): void {
+                                $schema->getRecord()?->update($data);
+                                ServicoCacheService::forget($schema->getRecord()?->getKey());
+                            })
                             ->searchable()
+                            ->preload()
                             ->live()
                             ->afterStateUpdated(function (Set $set, $state) {
-                                if ($state) {
-                                    $servico = Servico::find($state);
-                                    $set('controla_posicao', $servico?->controla_posicao ? true : false);
-                                } else {
-                                    $set('controla_posicao', false);
-                                }
+                                $set('controla_posicao', ServicoCacheService::controlaPosicao($state));
 
                                 $set('posicao', null);
                             }),
@@ -85,13 +93,7 @@ class AgendamentoForm
                             ->options(function (Get $get): array {
                                 $servicoId = $get('servico_id');
 
-                                if (! $servicoId) {
-                                    return PosicaoItemOrdemServicoEnum::toSelectArray();
-                                }
-
-                                return Servico::query()
-                                    ->find($servicoId)
-                                    ?->posicoesPermitidasSelectArray() ?? [];
+                                return ServicoCacheService::getPosicoesForSelect($servicoId);
                             })
                             ->placeholder('Selecione a posição')
                             ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 2])

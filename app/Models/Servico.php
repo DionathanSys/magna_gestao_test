@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
+use App\Services\Servico\ServicoCacheService;
 use Illuminate\Database\Eloquent\Model;
 
 class Servico extends Model
@@ -25,6 +26,14 @@ class Servico extends Model
             if (blank($servico->posicoes_permitidas)) {
                 $servico->posicoes_permitidas = PosicaoItemOrdemServicoEnum::values();
             }
+        });
+
+        static::saved(function (self $servico): void {
+            ServicoCacheService::forget($servico->id);
+        });
+
+        static::deleted(function (self $servico): void {
+            ServicoCacheService::forget($servico->id);
         });
     }
 

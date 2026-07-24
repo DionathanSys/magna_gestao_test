@@ -9,6 +9,7 @@ use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CriarAgendamento
 {
@@ -22,7 +23,10 @@ class CriarAgendamento
             'data' => $data,
         ]);
 
-        $this->validate($data);
+        $servico = Models\Servico::query()->findOrFail($data['servico_id']);
+        $data['posicao'] = $servico->controla_posicao ? ($data['posicao'] ?? null) : null;
+
+        $this->validate($data, $servico);
 
         $data['categoria'] ??= CategoriaAgendamentoEnum::MANUAL;
         $data['created_by'] = $this->getUserIdChecked();
@@ -74,12 +78,18 @@ class CriarAgendamento
         ]));
     }
 
-    protected function validate(array $data): void
+    protected function validate(array $data, Models\Servico $servico): void
     {
         $validator = Validator::make($data, [
             'veiculo_id' => 'required|exists:veiculos,id',
             'servico_id' => 'required|exists:servicos,id',
             'categoria' => 'nullable|in:'.implode(',', array_column(CategoriaAgendamentoEnum::cases(), 'value')),
+            'posicao' => [
+                Rule::requiredIf($servico->controla_posicao),
+                'nullable',
+                'string',
+                Rule::in($servico->posicoesPermitidas()),
+            ],
         ]);
 
         if ($validator->fails()) {

@@ -2,7 +2,6 @@
 
 namespace App\Services\ItemOrdemServico\Actions;
 
-use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Models;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -18,7 +17,7 @@ class AtualizarItem
         $servico = Models\Servico::query()->findOrFail($data['servico_id']);
         $data['posicao'] = $servico->controla_posicao ? ($data['posicao'] ?? null) : null;
 
-        $this->validate($data, $servico->controla_posicao);
+        $this->validate($data, $servico);
 
         $this->itemOrdemServico->update($data);
 
@@ -46,16 +45,16 @@ class AtualizarItem
             ->exists();
     }
 
-    protected function validate(array $data, bool $controlaPosicao): void
+    protected function validate(array $data, Models\Servico $servico): void
     {
         Validator::make($data, [
             'servico_id' => 'required|exists:servicos,id',
             'plano_preventivo_id' => 'nullable|exists:planos_preventivo,id',
             'posicao' => [
-                Rule::requiredIf($controlaPosicao),
+                Rule::requiredIf($servico->controla_posicao),
                 'nullable',
                 'string',
-                Rule::in(PosicaoItemOrdemServicoEnum::values()),
+                Rule::in($servico->posicoesPermitidas()),
             ],
             'observacao' => 'nullable|string|max:255',
         ])->validate();

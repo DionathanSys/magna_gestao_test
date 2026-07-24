@@ -445,7 +445,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         $this->editandoItemServicoId = $itemServicoId;
         $this->formDataServico = [
             'servico_id' => $item->servico_id,
-            'controla_posicao' => (bool) $item->controla_posicao,
+            'controla_posicao' => (bool) $item->servico?->controla_posicao,
             'posicao' => $item->posicao,
             'observacao' => $item->observacao,
             'status' => $item->status?->value ?? $item->status,

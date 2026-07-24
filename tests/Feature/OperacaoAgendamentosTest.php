@@ -60,6 +60,7 @@ class OperacaoAgendamentosTest extends TestCase
                 $table->string('complemento')->nullable();
                 $table->string('tipo')->nullable();
                 $table->boolean('controla_posicao')->default(false);
+                $table->json('posicoes_permitidas')->nullable();
                 $table->boolean('is_active')->default(true);
                 $table->softDeletes();
                 $table->timestamps();

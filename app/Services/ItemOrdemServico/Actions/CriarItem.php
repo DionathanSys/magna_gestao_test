@@ -2,7 +2,6 @@
 
 namespace App\Services\ItemOrdemServico\Actions;
 
-use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Models;
 use App\Traits\UserCheckTrait;
@@ -28,7 +27,7 @@ class CriarItem
         $data['status'] = StatusOrdemServicoEnum::PENDENTE;
         $data['posicao'] = $servico->controla_posicao ? ($data['posicao'] ?? null) : null;
 
-        $this->validate($data, $servico->controla_posicao);
+        $this->validate($data, $servico);
 
         return Models\ItemOrdemServico::query()
             ->create($data);
@@ -54,17 +53,17 @@ class CriarItem
             ->exists();
     }
 
-    private function validate(array $data, bool $controlaPosicao): void
+    private function validate(array $data, Models\Servico $servico): void
     {
         $validator = Validator::make($data, [
             'ordem_servico_id' => 'required|exists:ordens_servico,id',
             'servico_id' => 'required|exists:servicos,id',
             'plano_preventivo_id' => 'nullable|exists:planos_preventivo,id',
             'posicao' => [
-                Rule::requiredIf($controlaPosicao),
+                Rule::requiredIf($servico->controla_posicao),
                 'nullable',
                 'string',
-                Rule::in(PosicaoItemOrdemServicoEnum::values()),
+                Rule::in($servico->posicoesPermitidas()),
             ],
             'observacao' => 'nullable|string|max:255',
         ])->validate();

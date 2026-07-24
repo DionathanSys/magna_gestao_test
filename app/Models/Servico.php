@@ -2,9 +2,47 @@
 
 namespace App\Models;
 
+use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use Illuminate\Database\Eloquent\Model;
 
 class Servico extends Model
 {
-    //
+    protected $casts = [
+        'controla_posicao' => 'boolean',
+        'posicoes_permitidas' => 'array',
+        'is_active' => 'boolean',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $servico): void {
+            if (! $servico->controla_posicao) {
+                $servico->posicoes_permitidas = null;
+
+                return;
+            }
+
+            if (blank($servico->posicoes_permitidas)) {
+                $servico->posicoes_permitidas = PosicaoItemOrdemServicoEnum::values();
+            }
+        });
+    }
+
+    public function posicoesPermitidas(): array
+    {
+        if (! $this->controla_posicao) {
+            return [];
+        }
+
+        return filled($this->posicoes_permitidas)
+            ? array_values(array_intersect($this->posicoes_permitidas, PosicaoItemOrdemServicoEnum::values()))
+            : PosicaoItemOrdemServicoEnum::values();
+    }
+
+    public function posicoesPermitidasSelectArray(): array
+    {
+        return collect($this->posicoesPermitidas())
+            ->mapWithKeys(fn (string $posicao): array => [$posicao => $posicao])
+            ->all();
+    }
 }

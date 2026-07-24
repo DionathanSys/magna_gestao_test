@@ -75,7 +75,7 @@ class ItemOrdemServicoForm
             ->searchable()
             ->live()
             ->preload()
-            ->afterStateUpdated(function (Set $set, $state) {
+            ->afterStateUpdated(function (Set $set, $state): void {
                 $servico = null;
 
                 if ($state) {
@@ -85,9 +85,7 @@ class ItemOrdemServicoForm
                     $set('controla_posicao', false);
                 }
 
-                if (! $servico?->controla_posicao) {
-                    $set('posicao', null);
-                }
+                $set('posicao', null);
             });
     }
 
@@ -105,7 +103,17 @@ class ItemOrdemServicoForm
     {
         return Select::make('posicao')
             ->label('Posição')
-            ->options(PosicaoItemOrdemServicoEnum::toSelectArray())
+            ->options(function (Get $get): array {
+                $servicoId = $get('servico_id');
+
+                if (! $servicoId) {
+                    return PosicaoItemOrdemServicoEnum::toSelectArray();
+                }
+
+                return Models\Servico::query()
+                    ->find($servicoId)
+                    ?->posicoesPermitidasSelectArray() ?? [];
+            })
             ->placeholder('Selecione a posição')
             ->searchable()
             ->preload()

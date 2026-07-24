@@ -18,6 +18,9 @@ class ServicoInfolist
                 TextEntry::make('tipo'),
                 IconEntry::make('controla_posicao')
                     ->boolean(),
+                TextEntry::make('posicoes_permitidas')
+                    ->label('Posições permitidas')
+                    ->formatStateUsing(fn ($state): ?string => filled($state) ? implode(', ', (array) $state) : null),
                 IconEntry::make('is_active')
                     ->boolean(),
                 TextEntry::make('created_at')

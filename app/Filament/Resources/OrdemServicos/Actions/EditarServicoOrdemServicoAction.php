@@ -17,7 +17,10 @@ class EditarServicoOrdemServicoAction
         return Action::make('editar_servico')
             ->label('Editar')
             ->icon('heroicon-o-pencil')
-            ->fillForm(fn (Models\ItemOrdemServico $record): array => $record->toArray())
+            ->fillForm(fn (Models\ItemOrdemServico $record): array => [
+                ...$record->toArray(),
+                'controla_posicao' => (bool) $record->servico?->controla_posicao,
+            ])
             ->schema(fn (Schema $schema) => ItemOrdemServicoForm::configure($schema, includeStatus: true))
             ->model(Models\ItemOrdemServico::class)
             ->action(function (Models\ItemOrdemServico $record, array $data, string $model, Action $action): ?Model {

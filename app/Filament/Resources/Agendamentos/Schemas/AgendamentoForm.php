@@ -70,6 +70,8 @@ class AgendamentoForm
                                 } else {
                                     $set('controla_posicao', false);
                                 }
+
+                                $set('posicao', null);
                             }),
                         Toggle::make('controla_posicao')
                             ->label('Controla Posição')
@@ -80,7 +82,17 @@ class AgendamentoForm
                             ->live(),
                         Select::make('posicao')
                             ->label('Posição')
-                            ->options(PosicaoItemOrdemServicoEnum::toSelectArray())
+                            ->options(function (Get $get): array {
+                                $servicoId = $get('servico_id');
+
+                                if (! $servicoId) {
+                                    return PosicaoItemOrdemServicoEnum::toSelectArray();
+                                }
+
+                                return Servico::query()
+                                    ->find($servicoId)
+                                    ?->posicoesPermitidasSelectArray() ?? [];
+                            })
                             ->placeholder('Selecione a posição')
                             ->columnSpan(['sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 2])
                             ->searchable()

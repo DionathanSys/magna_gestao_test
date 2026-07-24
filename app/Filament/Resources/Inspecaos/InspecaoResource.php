@@ -11,10 +11,8 @@ use App\Filament\Resources\Inspecaos\Schemas\InspecaoForm;
 use App\Filament\Resources\Inspecaos\Schemas\InspecaoInfolist;
 use App\Filament\Resources\Inspecaos\Tables\InspecaosTable;
 use App\Models\Inspecao;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 

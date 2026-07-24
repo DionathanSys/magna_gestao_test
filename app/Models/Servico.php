@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Services\Servico\ServicoCacheService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Servico extends Model
 {
@@ -12,6 +13,8 @@ class Servico extends Model
         'controla_posicao' => 'boolean',
         'posicoes_permitidas' => 'array',
         'is_active' => 'boolean',
+        'garantia_km' => 'integer',
+        'garantia_dias' => 'integer',
     ];
 
     protected static function booted(): void
@@ -35,6 +38,11 @@ class Servico extends Model
         static::deleted(function (self $servico): void {
             ServicoCacheService::forget($servico->id);
         });
+    }
+
+    public function garantias(): HasMany
+    {
+        return $this->hasMany(GarantiaServico::class, 'servico_id');
     }
 
     public function posicoesPermitidas(): array

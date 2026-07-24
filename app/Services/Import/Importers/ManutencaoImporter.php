@@ -8,7 +8,6 @@ use App\Models\Veiculo;
 use App\Services\Manutencao\ManutencaoImportSyncService;
 use App\Traits\ServiceResponseTrait;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 

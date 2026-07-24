@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Veiculos\RelationManagers;
 
 use App\Filament\Resources\ManutencaoLancamentos\Actions\ImportarManutencaoAction;
 use App\Filament\Resources\ManutencaoLancamentos\ManutencaoLancamentoResource;
+use Filament\Forms\Components\DatePicker;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -88,8 +89,8 @@ class ManutencaoLancamentosRelationManager extends RelationManager
                     ]),
                 Filter::make('data_negociacao')
                     ->form([
-                        \Filament\Forms\Components\DatePicker::make('data_inicio')->label('Data inicial'),
-                        \Filament\Forms\Components\DatePicker::make('data_fim')->label('Data final'),
+                        DatePicker::make('data_inicio')->label('Data inicial'),
+                        DatePicker::make('data_fim')->label('Data final'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

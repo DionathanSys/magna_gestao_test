@@ -4,8 +4,8 @@ namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\Abastecimento\TipoCombustivelEnum;
 use App\Filament\Resources\Abastecimentos\Tables\AbastecimentosTable;
-use Carbon\Carbon;
 use App\Models;
+use Carbon\Carbon;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -144,7 +144,7 @@ class AbastecimentosRelationManager extends RelationManager
                     Group::make('data_abastecimento')
                         ->label('Data Competência')
                         ->titlePrefixedWithLabel(false)
-                        ->getTitleFromRecordUsing(fn(Models\Abastecimento $record): string => Carbon::parse($record->data_abastecimento)->format('d/m/Y'))
+                        ->getTitleFromRecordUsing(fn (Models\Abastecimento $record): string => Carbon::parse($record->data_abastecimento)->format('d/m/Y'))
                         ->collapsible(),
                 ]
             )
@@ -156,18 +156,17 @@ class AbastecimentosRelationManager extends RelationManager
                 AssociateAction::make()
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(
-                        fn($query) => $query
+                        fn ($query) => $query
                             ->whereNull('resultado_periodo_id')
                             ->where('veiculo_id', $this->ownerRecord->veiculo_id)
                             ->orderBy('data_abastecimento', 'desc')
                     )
                     ->recordTitle(
-                        fn($record) =>
-                        "#{$record->id} | " .
-                            Carbon::parse($record->data_abastecimento)->format('d/m/Y H:i') . " | ID: " .
-                            number_format($record->id_abastecimento, 0, ',', '.') . " | " .
-                            number_format($record->quantidade, 2, ',', '.') . "L | " .
-                            "R$ " . number_format($record->preco_total, 2, ',', '.')
+                        fn ($record) => "#{$record->id} | ".
+                            Carbon::parse($record->data_abastecimento)->format('d/m/Y H:i').' | ID: '.
+                            number_format($record->id_abastecimento, 0, ',', '.').' | '.
+                            number_format($record->quantidade, 2, ',', '.').'L | '.
+                            'R$ '.number_format($record->preco_total, 2, ',', '.')
                     )
                     ->multiple()
                     ->recordSelectSearchColumns(['id', 'id_abastecimento'])
@@ -187,8 +186,6 @@ class AbastecimentosRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
-   
-            
-   
+
     }
 }

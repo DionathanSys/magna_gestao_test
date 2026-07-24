@@ -94,11 +94,13 @@ class MapaPneusLayout
 
             if ($side === 'left') {
                 $left->push($posicao);
+
                 continue;
             }
 
             if ($side === 'right') {
                 $right->push($posicao);
+
                 continue;
             }
 

@@ -2,10 +2,16 @@
 
 namespace App\Filament\Resources\DesenhoPneus;
 
-use App\{Models, Enum};
+use App\Enum;
 use App\Filament\Resources\DesenhoPneus\Pages\ManageDesenhoPneus;
-use Filament\Actions\{BulkActionGroup, DeleteAction, DeleteBulkAction, EditAction};
-use Filament\Forms\Components\{Select, TextInput, Toggle};
+use App\Models;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;

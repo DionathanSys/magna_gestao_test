@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Checklists\Pages;
 
+use App\Filament\Resources\Checklists\ChecklistResource;
 use App\Services;
 use App\Services\NotificacaoService as notify;
-use App\Filament\Resources\Checklists\ChecklistResource;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +16,13 @@ class CreateChecklist extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        Log::debug(__METHOD__. ' - ' . __LINE__, [
+        Log::debug(__METHOD__.' - '.__LINE__, [
             'data' => $data,
         ]);
-        
-        $service = new Services\Checklist\ChecklistService();
+
+        $service = new Services\Checklist\ChecklistService;
         $checklist = $service->registrarChecklist($data);
-        if($service->hasError()) {
+        if ($service->hasError()) {
             notify::error('Erro ao registrar checklist.');
             Log::error('Erro ao registrar checklist', [
                 'error' => $service->getData(),
@@ -33,7 +33,7 @@ class CreateChecklist extends CreateRecord
         }
 
         notify::success('Checklist registrado com sucesso.');
+
         return $checklist;
     }
-
 }

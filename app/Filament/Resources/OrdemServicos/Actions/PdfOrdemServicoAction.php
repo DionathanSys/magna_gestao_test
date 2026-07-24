@@ -2,17 +2,7 @@
 
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
-use App\Enum\Frete\TipoRelatorioDocumentoFreteEnum;
-use App\Imports\DocumentoFreteImport;
-use App\Jobs\ProcessarDocumentoFreteJob;
 use Filament\Actions\Action;
-use App\Services;
-use App\Models;
-use App\Services\NotificacaoService as notify;
-
-use Filament\Forms\Components\Select;
-use Filament\Support\Enums\Size;
-use Illuminate\Support\Facades\Log;
 
 class PdfOrdemServicoAction
 {

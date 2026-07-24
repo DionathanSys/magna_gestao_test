@@ -4,9 +4,7 @@ namespace App\Filament\Resources\ResultadoPeriodos\Pages;
 
 use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Support\Facades\Auth;
 
 class EditResultadoPeriodo extends EditRecord
@@ -21,7 +19,7 @@ class EditResultadoPeriodo extends EditRecord
         ];
     }
 
-      public function hasCombinedRelationManagerTabsWithContent(): bool
+    public function hasCombinedRelationManagerTabsWithContent(): bool
     {
         return true;
     }

@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Agendamentos\Actions;
 
-use App\{Models, Services, Enum};
-use Filament\Actions\BulkAction;
+use App\Models;
+use App\Services;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\BulkAction;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -18,13 +19,14 @@ class EncerrarAgendamentoAction
             ->requiresConfirmation()
             ->action(function (Collection $records) {
                 $records->each(function (Models\Agendamento $record) {
-                    $service = new Services\Agendamento\AgendamentoService();
+                    $service = new Services\Agendamento\AgendamentoService;
                     $service->encerrar($record);
                     if ($service->hasError()) {
-                        notify::error(mensagem: 'Agendamento: ' . $record->id . '<br>' . $service->getMessage());
+                        notify::error(mensagem: 'Agendamento: '.$record->id.'<br>'.$service->getMessage());
+
                         return;
                     }
-                    notify::success(mensagem: 'Agendamento: ' . $record->id . '<br>' . $service->getMessage());
+                    notify::success(mensagem: 'Agendamento: '.$record->id.'<br>'.$service->getMessage());
                     Log::info("Agendamento ID {$record->id} encerrado com sucesso.");
                 });
             })

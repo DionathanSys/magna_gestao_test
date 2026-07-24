@@ -2,13 +2,11 @@
 
 namespace App\Filament\Resources\OrdemServicos\Schemas\Components;
 
-use App\{Models, Enum, Services};
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
-use App\Services\NotificacaoService as notify;
+use App\Models;
+use App\Services;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +21,7 @@ class PlanosPreventivosVinculadoRepeater
             ->disabled()
             ->relationship()
             ->columns(12)
-            ->deletable(fn(): bool => Auth::user()->is_admin)
+            ->deletable(fn (): bool => Auth::user()->is_admin)
             ->addable(false)
             ->collapsible()
             ->schema([
@@ -65,7 +63,7 @@ class PlanosPreventivosVinculadoRepeater
                         $planoOrdem = Models\PlanoManutencaoOrdemServico::find($state[$arguments['item']]['id']);
                         Services\OrdemServico\ManutencaoPreventivaService::desassociarPlanoPreventivo($planoOrdem);
                     })
-                    ->successRedirectUrl(fn(Model $record): string => OrdemServicoResource::getUrl('custom', [
+                    ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl('custom', [
                         'record' => $record,
                     ])),
             ]);

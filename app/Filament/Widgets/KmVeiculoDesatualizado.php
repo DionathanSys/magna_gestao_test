@@ -2,19 +2,20 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Veiculo;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class KmVeiculoDesatualizado extends StatsOverviewWidget
 {
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected static ?int $sort = 1;
 
     protected function getStats(): array
     {
-        $veiculosDesatualizados = \App\Models\Veiculo::query()
+        $veiculosDesatualizados = Veiculo::query()
             ->where('is_active', true)
             ->where(function ($query) {
                 $query
@@ -27,9 +28,9 @@ class KmVeiculoDesatualizado extends StatsOverviewWidget
             })
             ->count();
 
-            if(!$veiculosDesatualizados){
-                return [];
-            }
+        if (! $veiculosDesatualizados) {
+            return [];
+        }
 
         return [
             Stat::make('KM desatualizado', $veiculosDesatualizados)

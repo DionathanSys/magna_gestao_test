@@ -3,17 +3,14 @@
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
-use Filament\Actions\Action;
 use App\Models;
 use App\Services\NotificacaoService as notify;
-use Filament\Forms\Components\Select;
+use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\Width;
-use Illuminate\Support\Facades\Log;
 
 class VincularOrdemSankhyaAction
 {
@@ -28,11 +25,11 @@ class VincularOrdemSankhyaAction
             ->modalIcon('heroicon-o-document-plus')
             ->modalWidth(Width::Large)
             ->modalAlignment(Alignment::Center)
-            ->extraModalFooterActions(fn(Action $action): array => [
+            ->extraModalFooterActions(fn (Action $action): array => [
                 $action->makeModalSubmitAction('vincularOutro', arguments: ['another' => true]),
             ])
             ->modalSubmitActionLabel('Vincular')
-            ->schema(fn(Schema $form) => $form
+            ->schema(fn (Schema $form) => $form
                 ->columns(8)
                 ->schema([
                     TextInput::make('ordem_sankhya_id')
@@ -70,7 +67,6 @@ class VincularOrdemSankhyaAction
                     $action->halt();
                 }
 
-                return;
             });
     }
 }

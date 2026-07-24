@@ -22,13 +22,13 @@ class VincularRegistroResultadoJob implements ShouldQueue
     public function handle(): void
     {
         Log::debug("Iniciando vinculação do registro resultado para {$this->modelClass} ID: {$this->modelId}", [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
             'model' => $this->model,
         ]);
 
         if (! $this->model) {
             Log::error('Registro não encontrado para vinculação do resultado.', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'model_class' => $this->modelClass,
                 'model_id' => $this->modelId,
             ]);
@@ -43,7 +43,7 @@ class VincularRegistroResultadoJob implements ShouldQueue
 
         if (! $resultadoPeriodo) {
             Log::info('Nenhum Resultado Período pendente encontrado para vincular.', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'veiculo_id' => $this->model->veiculo_id,
             ]);
 

@@ -30,5 +30,4 @@ class CargaViagem extends Model
     {
         return $this->belongsTo(Integrado::class, 'integrado_id');
     }
-
 }

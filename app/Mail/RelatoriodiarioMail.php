@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -27,7 +27,7 @@ class RelatoriodiarioMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Relatório Diário - ' . now()->format('d/m/Y'),
+            subject: 'Relatório Diário - '.now()->format('d/m/Y'),
         );
     }
 
@@ -44,7 +44,7 @@ class RelatoriodiarioMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

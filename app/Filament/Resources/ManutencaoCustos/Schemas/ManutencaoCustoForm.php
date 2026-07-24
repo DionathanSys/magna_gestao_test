@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\ManutencaoCustos\Schemas;
 
-use App\Models;
 use App\Enum\StatusDiversosEnum;
+use App\Models;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -29,6 +29,7 @@ class ManutencaoCustoForm
                                 ->where('status', StatusDiversosEnum::PENDENTE->value)
                                 ->first();
                             $set('resultado_periodo_id', $resultadoPeriodo?->id);
+
                             return;
                         }
                         $set('resultado_periodo_id', null);
@@ -46,7 +47,7 @@ class ManutencaoCustoForm
                     ->required(),
                 TextInput::make('resultado_periodo_id')
                     ->label('Resultado Período ID')
-                    ->required()
+                    ->required(),
             ]);
     }
 }

@@ -2,21 +2,12 @@
 
 namespace App\Filament\Resources\Viagems\Actions;
 
-use App\{Models, Services};
 use Filament\Actions\Action;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use PhpOffice\PhpSpreadsheet\RichText\RichText;
 
 class VisualizarComentarioAction
-
 {
     public static function make(): Action
     {
@@ -28,7 +19,7 @@ class VisualizarComentarioAction
                 RepeatableEntry::make('comentarios')
                     ->table([
                         TableColumn::make('Conteúdo')
-                         ->wrapHeader(),
+                            ->wrapHeader(),
                         TableColumn::make('Criado Em'),
                         TableColumn::make('Criado Por'),
                     ])
@@ -45,7 +36,7 @@ class VisualizarComentarioAction
                 RepeatableEntry::make('cargas.integrado.comentarios')
                     ->table([
                         TableColumn::make('Conteúdo')
-                         ->wrapHeader(),
+                            ->wrapHeader(),
                         TableColumn::make('Criado Em'),
                         TableColumn::make('Criado Por'),
                     ])

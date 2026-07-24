@@ -3,17 +3,14 @@
 namespace App\Filament\Resources\Veiculos\Tables;
 
 use App\Enum\ClienteEnum;
-use App\Models\TipoVeiculo;
+use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -61,8 +58,8 @@ class VeiculosTable
                     ->badge()
                     ->color('info')
                     ->formatStateUsing(
-                        fn($state) => $state
-                            ? \Carbon\Carbon::parse($state)->format('d/m/Y') . ' (' . number_format(\Carbon\Carbon::parse($state)->diffInDays(now()), 0) . ' dias atrás)'
+                        fn ($state) => $state
+                            ? Carbon::parse($state)->format('d/m/Y').' ('.number_format(Carbon::parse($state)->diffInDays(now()), 0).' dias atrás)'
                             : 'Sem data'
                     )
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -98,16 +95,16 @@ class VeiculosTable
                 SelectFilter::make('filial')
                     ->options([
                         'CATANDUVAS' => 'Catanduvas',
-                        'CHAPECO'    => 'Chapecó',
-                        'CONCORDIA'  => 'Concórdia',
+                        'CHAPECO' => 'Chapecó',
+                        'CONCORDIA' => 'Concórdia',
                     ])
-                    ->default(fn() => Auth::user()->name == 'Carol' ? 'CATANDUVAS' : 'CHAPECO')
+                    ->default(fn () => Auth::user()->name == 'Carol' ? 'CATANDUVAS' : 'CHAPECO')
                     ->selectablePlaceholder(false),
                 Filter::make('is_active')
                     ->label('Ativo')
                     ->toggle()
                     ->default(true)
-                    ->query(fn($query) => $query->where('is_active', true)),
+                    ->query(fn ($query) => $query->where('is_active', true)),
                 TrashedFilter::make(),
                 Filter::make('checklist')
                     ->label('Sem Checklist no Mês')

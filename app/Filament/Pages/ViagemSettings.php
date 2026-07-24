@@ -7,10 +7,9 @@ use BackedEnum;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Inerba\DbConfig\AbstractPageSettings;
-use Filament\Schemas\Components;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Inerba\DbConfig\AbstractPageSettings;
 
 class ViagemSettings extends AbstractPageSettings
 {
@@ -81,8 +80,8 @@ class ViagemSettings extends AbstractPageSettings
                                         ->label('E-mail')
                                         ->columnSpanFull()
                                         ->email()
-                                        ->required())
-                            ])
+                                        ->required()),
+                            ]),
                     ]),
             ])
             ->statePath('data');

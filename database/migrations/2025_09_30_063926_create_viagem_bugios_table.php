@@ -18,9 +18,9 @@ return new class extends Migration
             $table->decimal('km_rodado', 10, 2)->nullable()->default(0);
             $table->decimal('km_pago', 10, 2)->nullable()->default(0);
             $table->decimal('km_dispersao', 10, 2)
-                ->virtualAs("COALESCE(km_rodado, 0) - COALESCE(km_pago, 0)");
+                ->virtualAs('COALESCE(km_rodado, 0) - COALESCE(km_pago, 0)');
             $table->decimal('dispersao_percentual', 10, 2)
-                ->virtualAs("(COALESCE(km_dispersao, 0) / NULLIF(COALESCE(km_rodado, 0), 0)) * 100");
+                ->virtualAs('(COALESCE(km_dispersao, 0) / NULLIF(COALESCE(km_rodado, 0), 0)) * 100');
             $table->date('data_competencia')->nullable();
             $table->decimal('frete', 10, 2)->nullable()->default(0);
             $table->string('condutor')->nullable();

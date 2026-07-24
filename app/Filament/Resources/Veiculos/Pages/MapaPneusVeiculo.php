@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Veiculos\Pages;
 
+use App\Enum\Pneu\MotivoMovimentoPneuEnum;
 use App\Enum\Pneu\TipoInspecaoPneuEnum;
 use App\Filament\Resources\PneuInspecoes\Schemas\PneuInspecaoForm;
 use App\Filament\Resources\Veiculos\VeiculoResource;
@@ -344,7 +345,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 ->schema([
                     TextInput::make('motivo')
                         ->columnSpan(5)
-                        ->default(\App\Enum\Pneu\MotivoMovimentoPneuEnum::INVERSAO->value)
+                        ->default(MotivoMovimentoPneuEnum::INVERSAO->value)
                         ->disabled()
                         ->required(),
                     TextInput::make('sulco')
@@ -404,7 +405,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 ->schema([
                     TextInput::make('motivo')
                         ->columnSpan(5)
-                        ->default(\App\Enum\Pneu\MotivoMovimentoPneuEnum::RODIZIO->value)
+                        ->default(MotivoMovimentoPneuEnum::RODIZIO->value)
                         ->disabled()
                         ->required(),
                     TextInput::make('sulco')
@@ -466,7 +467,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 ->schema([
                     TextInput::make('motivo')
                         ->columnSpan(5)
-                        ->default(\App\Enum\Pneu\MotivoMovimentoPneuEnum::REAPLICACAO->value)
+                        ->default(MotivoMovimentoPneuEnum::REAPLICACAO->value)
                         ->disabled()
                         ->required(),
                     TextInput::make('sulco')
@@ -527,7 +528,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                 ->schema([
                     Select::make('motivo')
                         ->columnSpan(5)
-                        ->options(\App\Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray())
+                        ->options(MotivoMovimentoPneuEnum::toSelectArray())
                         ->required(),
                     TextInput::make('sulco')
                         ->label('Sulco Removido (mm)')
@@ -596,7 +597,7 @@ class MapaPneusVeiculo extends Page implements HasActions
                     Select::make('motivo')
                         ->columnSpanFull()
                         ->native(false)
-                        ->options(\App\Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray())
+                        ->options(MotivoMovimentoPneuEnum::toSelectArray())
                         ->required(),
                     TextInput::make('sulco')
                         ->label('Sulco Removido (mm)')

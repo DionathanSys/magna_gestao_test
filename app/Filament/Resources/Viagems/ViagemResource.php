@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Viagems;
 
-use App\Filament\Resources\Viagems\Pages\CreateViagem;
-use App\Filament\Resources\Viagems\Pages\EditViagem;
 use App\Filament\Resources\Viagems\Pages\ListViagems;
 use App\Filament\Resources\Viagems\Pages\ViewViagem;
 use App\Filament\Resources\Viagems\Schemas\ViagemForm;
@@ -13,7 +11,6 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
@@ -24,7 +21,7 @@ class ViagemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-map';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-map';
 
     protected static ?string $modelLabel = 'Viagem';
 
@@ -61,7 +58,7 @@ class ViagemResource extends Resource
     {
         return [
             'Placa' => $record->veiculo->placa,
-            'Dispersão' => $record->km_dispersao . ' km - ' . ($record->dispersao_percentual ?? 0) . '%'
+            'Dispersão' => $record->km_dispersao.' km - '.($record->dispersao_percentual ?? 0).'%',
         ];
     }
 
@@ -72,5 +69,4 @@ class ViagemResource extends Resource
                 ->url(static::getUrl('view', ['record' => $record]), shouldOpenInNewTab: true),
         ];
     }
-
 }

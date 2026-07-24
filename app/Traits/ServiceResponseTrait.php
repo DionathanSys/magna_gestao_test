@@ -28,7 +28,7 @@ trait ServiceResponseTrait
      * Dados adicionais para retornar
      */
     protected array $data = [];
-    
+
     /**
      * Erros adicionais (validação, etc.)
      */
@@ -39,11 +39,11 @@ trait ServiceResponseTrait
      */
     public function setError(string $message, array $data = []): self
     {
-        $this->hasError     = true;
-        $this->message      = $message;
-        $this->messageType  = 'error';
-        $this->data         = $data;
-        $this->errors       = $data;
+        $this->hasError = true;
+        $this->message = $message;
+        $this->messageType = 'error';
+        $this->data = $data;
+        $this->errors = $data;
 
         return $this;
     }
@@ -107,15 +107,15 @@ trait ServiceResponseTrait
     public function getMessageUser(): string
     {
         $message = ucfirst(strtolower($this->message));
-        
-        if (!empty($this->errors)) {
-            $errorsText = is_array($this->errors) 
-                ? implode('; ', array_map(fn($error) => is_array($error) ? implode(', ', $error) : $error, $this->errors))
+
+        if (! empty($this->errors)) {
+            $errorsText = is_array($this->errors)
+                ? implode('; ', array_map(fn ($error) => is_array($error) ? implode(', ', $error) : $error, $this->errors))
                 : $this->errors;
-            
-            $message .= ' - ' . $errorsText;
+
+            $message .= ' - '.$errorsText;
         }
-        
+
         return $message;
     }
 
@@ -134,6 +134,7 @@ trait ServiceResponseTrait
     {
         return $this->data;
     }
+
     /**
     /**
      * Retorna os erros adicionais
@@ -149,7 +150,7 @@ trait ServiceResponseTrait
     public function getResponse(): array
     {
         return [
-            'success' => !$this->hasError,
+            'success' => ! $this->hasError,
             'message' => $this->message,
             'type' => $this->messageType,
             'data' => $this->data,

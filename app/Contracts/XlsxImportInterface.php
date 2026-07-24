@@ -28,7 +28,4 @@ interface XlsxImportInterface
      * Mapeia os dados de uma linha para o formato esperado pelo modelo.
      */
     public function mapRowData(array $row): array;
-
-
-
 }

@@ -2,23 +2,18 @@
 
 namespace App\Filament\Resources\Viagems\Schemas;
 
-use Filament\Forms\Components\{
-    DatePicker,
-    DateTimePicker,
-    Repeater,
-    Select,
-    TextInput,
-    Toggle
-};
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
 use App\Filament\Components\SelectFilterVeiculo;
 use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\EmptyState;
-use Filament\Support\Icons\Heroicon;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class ViagemForm
 {
@@ -47,9 +42,9 @@ class ViagemForm
                         Select::make('unidade_negocio')
                             ->label('Unidade de Negócio')
                             ->options([
-                                'CHAPECO'       => 'Chapecó',
-                                'CATANDUVAS'    => 'Catanduvas',
-                                'CONCORDIA'     => 'Concórdia',
+                                'CHAPECO' => 'Chapecó',
+                                'CATANDUVAS' => 'Catanduvas',
+                                'CONCORDIA' => 'Concórdia',
                             ])
                             ->default('Chapecó')
                             ->native(false)
@@ -134,7 +129,7 @@ class ViagemForm
                                     ->money('BRL'),
                                 TextEntry::make('valor_icms')
                                     ->money('BRL'),
-                            ])
+                            ]),
                     ]),
                 Section::make('Integrados')
                     ->columnStart(1)
@@ -150,7 +145,6 @@ class ViagemForm
                                 TableColumn::make('Cidade'),
                                 TableColumn::make('Estado'),
 
-
                             ])
                             ->schema([
                                 TextEntry::make('id'),
@@ -159,13 +153,13 @@ class ViagemForm
                                 TextEntry::make('cidade'),
                                 TextEntry::make('estado'),
 
-                            ])
+                            ]),
                     ]),
                 Section::make('Comentarios')
                     ->columnStart(1)
                     ->columnSpan(12)
                     ->headerActions([
-                        AdicionarComentarioAction::make()
+                        AdicionarComentarioAction::make(),
                     ])
                     ->schema([
                         RepeatableEntry::make('comentarios')
@@ -185,9 +179,8 @@ class ViagemForm
                                     ->dateTime('d/m/Y H:i'),
                                 TextEntry::make('creator.name')
                                     ->label('Criado por'),
-                            ])
-                    ])
-
+                            ]),
+                    ]),
 
             ]);
     }

@@ -6,8 +6,8 @@ namespace App\Filament\Resources\Checklists\Schemas;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Schema;
 
 class ChecklistInfolist
 {
@@ -58,22 +58,22 @@ class ChecklistInfolist
                                 TextEntry::make('item'),
                                 TextEntry::make('status')
 
-                                    ->formatStateUsing(fn($state) => $state ? 'OK' : 'NOK')
+                                    ->formatStateUsing(fn ($state) => $state ? 'OK' : 'NOK')
                                     ->badge()
-                                    ->color(fn(string $state): string => match ($state) {
+                                    ->color(fn (string $state): string => match ($state) {
                                         true => 'info',
                                         false => 'danger',
                                         default => 'gray',
                                     }),
                                 TextEntry::make('corrigido')
 
-                                    ->formatStateUsing(fn($state) => $state ? 'Sim' : ''),
+                                    ->formatStateUsing(fn ($state) => $state ? 'Sim' : ''),
                                 TextEntry::make('observacoes')
 
                                     ->placeholder('Sem observações'),
                             ])
-                            // ->columnSpanFull()
-                            ,
+                        // ->columnSpanFull()
+                        ,
                         RepeatableEntry::make('itens_corrigidos')
                             ->label('Itens Corrigidos')
                             // ->columns(7)
@@ -92,22 +92,21 @@ class ChecklistInfolist
                                     ->columnSpan(3),
                                 TextEntry::make('status')
                                     ->columnSpan(2)
-                                    ->formatStateUsing(fn($state) => $state ? 'OK' : 'NOK')
+                                    ->formatStateUsing(fn ($state) => $state ? 'OK' : 'NOK')
                                     ->badge()
-                                    ->color(fn(string $state): string => match ($state) {
+                                    ->color(fn (string $state): string => match ($state) {
                                         'OK' => 'info',
                                         'NOK' => 'danger',
                                         default => 'gray',
                                     }),
                                 TextEntry::make('corrigido')
                                     ->columnSpan(2)
-                                    ->formatStateUsing(fn($state) => $state ? 'Sim' : '-'),
+                                    ->formatStateUsing(fn ($state) => $state ? 'Sim' : '-'),
                                 TextEntry::make('observacoes')
                                     ->columnSpan(6)
                                     ->placeholder('Sem observações'),
                             ])
-                            ->placeholder('Nenhum item foi corrigido neste checklist')
-                            ,
+                            ->placeholder('Nenhum item foi corrigido neste checklist'),
                         RepeatableEntry::make('pendencias')
                             ->label('Pendências')
                             ->placeholder('Nenhuma pendência encontrada! ✅')
@@ -127,21 +126,20 @@ class ChecklistInfolist
                                     ->columnSpan(3),
                                 TextEntry::make('status')
                                     ->columnSpan(2)
-                                    ->formatStateUsing(fn($state) => $state ? 'OK' : 'NOK')
+                                    ->formatStateUsing(fn ($state) => $state ? 'OK' : 'NOK')
                                     ->badge()
-                                    ->color(fn(string $state): string => match ($state) {
+                                    ->color(fn (string $state): string => match ($state) {
                                         true => 'success',
                                         false => 'danger',
                                         default => 'gray',
                                     }),
                                 TextEntry::make('corrigido')
                                     ->columnSpan(2)
-                                    ->formatStateUsing(fn($state) => $state ? 'Sim' : ''),
+                                    ->formatStateUsing(fn ($state) => $state ? 'Sim' : ''),
                                 TextEntry::make('observacoes')
                                     ->columnSpan(6)
                                     ->placeholder('Sem observações'),
-                            ])
-                            ,
+                            ]),
                     ]),
 
             ]);

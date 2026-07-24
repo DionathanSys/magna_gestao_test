@@ -2,10 +2,12 @@
 
 namespace App\Filament\Bugio\Resources\ViagemBugios\Actions;
 
+use App\Models\Veiculo;
 use App\Models\ViagemBugio;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 
 class ExportarRelatorioDocumentosFreteAction
@@ -22,14 +24,15 @@ class ExportarRelatorioDocumentosFreteAction
                     ->default(true)
                     ->helperText('Desmarque para ocultar as colunas de Documento Frete ID e Viagem ID no relatório.'),
             ])
-            ->modalDescription(fn(Collection $records) => 'Será gerado um relatório PDF com ' . $records->count() . ' registro(s) selecionado(s), agrupados por veículo.')
+            ->modalDescription(fn (Collection $records) => 'Será gerado um relatório PDF com '.$records->count().' registro(s) selecionado(s), agrupados por veículo.')
             ->action(function (Collection $records, array $data) {
                 if ($records->count() > 500) {
-                    \Filament\Notifications\Notification::make()
+                    Notification::make()
                         ->danger()
                         ->title('Muitos registros selecionados')
                         ->body('Selecione no máximo 500 registros por geração de relatório PDF.')
                         ->send();
+
                     return;
                 }
 
@@ -54,7 +57,7 @@ class ExportarRelatorioDocumentosFreteAction
                 ->toArray();
 
             // Pré-carregar placas para evitar N+1
-            $placas = \App\Models\Veiculo::whereIn('id', $veiculoIds)
+            $placas = Veiculo::whereIn('id', $veiculoIds)
                 ->pluck('placa', 'id')
                 ->toArray();
 
@@ -105,7 +108,7 @@ class ExportarRelatorioDocumentosFreteAction
 
             unset($veiculos); // libera dados após renderização da view
 
-            $fileName = 'relatorio_documentos_frete_' . now()->format('Y-m-d_His') . '.pdf';
+            $fileName = 'relatorio_documentos_frete_'.now()->format('Y-m-d_His').'.pdf';
 
             return response()->streamDownload(function () use ($pdf) {
                 echo $pdf->output();
@@ -134,13 +137,13 @@ class ExportarRelatorioDocumentosFreteAction
             if (isset($destinos['integrado_nome'])) {
                 $nome = $destinos['integrado_nome'] ?? '';
                 $municipio = $destinos['municipio'] ?? '';
-                $destinoFormatado = trim($nome . ' - ' . $municipio, ' - ');
+                $destinoFormatado = trim($nome.' - '.$municipio, ' - ');
             } else {
                 $partes = [];
                 foreach ($destinos as $d) {
                     $nome = $d['integrado_nome'] ?? '';
                     $municipio = $d['municipio'] ?? '';
-                    $texto = trim($nome . ' - ' . $municipio, ' - ');
+                    $texto = trim($nome.' - '.$municipio, ' - ');
                     if ($texto) {
                         $partes[] = $texto;
                     }
@@ -153,22 +156,22 @@ class ExportarRelatorioDocumentosFreteAction
         $peso = '-';
         $tipoDocumento = '-';
         $tipoDocumentoFormatado = '-';
-        
+
         $infoAdicionais = $registro->info_adicionais;
         if (is_array($infoAdicionais) && count($infoAdicionais) > 0) {
             // Extrair peso
-            if (isset($infoAdicionais['peso']) && !empty($infoAdicionais['peso'])) {
+            if (isset($infoAdicionais['peso']) && ! empty($infoAdicionais['peso'])) {
                 $peso = number_format((float) $infoAdicionais['peso'], 0, ',', '.');
             }
-            
+
             // Extrair tipo_documento e cte_referencia
             if (isset($infoAdicionais['tipo_documento'])) {
                 $tipoDocumento = $infoAdicionais['tipo_documento'];
                 $tipoDocumentoFormatado = $tipoDocumento;
-                
+
                 // Se cte_referencia tiver valor, concatenar
-                if (!empty($infoAdicionais['cte_referencia'])) {
-                    $tipoDocumentoFormatado = $tipoDocumento . ' ' . $infoAdicionais['cte_referencia'];
+                if (! empty($infoAdicionais['cte_referencia'])) {
+                    $tipoDocumentoFormatado = $tipoDocumento.' '.$infoAdicionais['cte_referencia'];
                 }
             }
         }

@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Integrados\Schemas;
 
+use App\Enum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Schema;
-use App\Enum;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Schema;
 
 class IntegradoForm
 {
@@ -66,7 +66,7 @@ class IntegradoForm
                     ->native(false)
                     ->columnStart(1)
                     ->columnSpan(4)
-                    ->options(Enum\ClienteEnum::toSelectArray())
+                    ->options(Enum\ClienteEnum::toSelectArray()),
             ]);
     }
 }

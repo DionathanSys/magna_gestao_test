@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Integrados\Pages;
 
 use App\Filament\Resources\Integrados\IntegradoResource;
-use App\Models\Integrado;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -27,6 +26,4 @@ class EditIntegrado extends EditRecord
     {
         return 'Geral';
     }
-
-
 }

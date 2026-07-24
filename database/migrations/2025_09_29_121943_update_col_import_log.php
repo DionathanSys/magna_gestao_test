@@ -16,20 +16,20 @@ return new class extends Migration
                 $table->dropColumn('progress_percentage');
             }
 
-             // Remover processed_rows se existir (para recriar como virtual)
+            // Remover processed_rows se existir (para recriar como virtual)
             if (Schema::hasColumn('import_logs', 'processed_rows')) {
                 $table->dropColumn('processed_rows');
             }
 
             // Adicionar processed_rows como coluna virtual
             $table->integer('processed_rows')
-                  ->virtualAs('(success_rows + error_rows + warning_rows + skipped_rows)')
-                  ->after('total_rows');
+                ->virtualAs('(success_rows + error_rows + warning_rows + skipped_rows)')
+                ->after('total_rows');
 
             // Adicionar coluna virtual
             $table->decimal('progress_percentage', 5, 2)
-                  ->virtualAs('CASE WHEN total_batches > 0 THEN ROUND((processed_batches / total_batches) * 100, 2) ELSE 0 END')
-                  ->after('processed_batches');
+                ->virtualAs('CASE WHEN total_batches > 0 THEN ROUND((processed_batches / total_batches) * 100, 2) ELSE 0 END')
+                ->after('processed_batches');
         });
     }
 

@@ -13,6 +13,5 @@ class RecalcularRateioKmDispersaoRequested
     public function __construct(
         public int $viagemId,
         public ?string $reason = null,
-    ) {
-    }
+    ) {}
 }

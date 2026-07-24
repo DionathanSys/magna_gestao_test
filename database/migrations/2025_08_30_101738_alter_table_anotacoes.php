@@ -19,7 +19,7 @@ return new class extends Migration
                 'item_ordem_servico_id',
             ]);
             $table->dropForeign([
-                'tecnico_manutencao_id'
+                'tecnico_manutencao_id',
             ]);
             $table->dropColumn([
                 'servico_id',

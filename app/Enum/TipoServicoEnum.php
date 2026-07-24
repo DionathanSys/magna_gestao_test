@@ -4,11 +4,10 @@ namespace App\Enum;
 
 enum TipoServicoEnum: string
 {
-    case PREVENTIVA      = 'PREVENTIVA';
-    case CORRETIVA       = 'CORRETIVA';
-    case LIMPEZA         = 'LIMPEZA';
-    case INSPECAO        = 'INSPEÇÃO';
-    
+    case PREVENTIVA = 'PREVENTIVA';
+    case CORRETIVA = 'CORRETIVA';
+    case LIMPEZA = 'LIMPEZA';
+    case INSPECAO = 'INSPEÇÃO';
 
     public static function toSelectArray(): array
     {

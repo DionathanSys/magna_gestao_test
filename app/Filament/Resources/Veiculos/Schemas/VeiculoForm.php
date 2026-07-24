@@ -8,7 +8,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 
 class VeiculoForm
@@ -31,8 +30,8 @@ class VeiculoForm
                             ->columnSpan(2)
                             ->options([
                                 'CATANDUVAS' => 'Catanduvas',
-                                'CHAPECO'    => 'Chapecó',
-                                'CONCORDIA'  => 'Concórdia',
+                                'CHAPECO' => 'Chapecó',
+                                'CONCORDIA' => 'Concórdia',
                             ])
                             ->required(),
                         TextInput::make('marca')
@@ -97,30 +96,26 @@ class VeiculoForm
                             ->native(false)
                             ->columnSpan(2)
                             ->options([
-                                'NENHUM'     => 'Nenhum',
+                                'NENHUM' => 'Nenhum',
                                 'HOMOLOGADO' => 'Homologado',
-                                'RELE'       => 'Relé',
+                                'RELE' => 'Relé',
                             ]),
                         DatePicker::make('informacoes_complementares.data_ultimo_checklist')
                             ->label('Dt. Último Checklist')
                             ->columnSpan(2),
-                            TextInput::make('informacoes_complementares.ano_modelo')
-                                ->label('Ano Modelo')
-                                ->columnSpan(2),
-                            TextInput::make('informacoes_complementares.ano_fabricacao')
-                                ->label('Ano Fabricação')
-                                ->columnSpan(2),
-                            TextInput::make('informacoes_complementares.ano_silo')
-                                ->label('Ano Fab. Silo')
-                                ->columnSpan(2),
-                            TextInput::make('informacoes_complementares.marca_silo')
-                                ->label('Marca Silo')
-                                ->columnSpan(2),
-                    ])
-
-
-
-
+                        TextInput::make('informacoes_complementares.ano_modelo')
+                            ->label('Ano Modelo')
+                            ->columnSpan(2),
+                        TextInput::make('informacoes_complementares.ano_fabricacao')
+                            ->label('Ano Fabricação')
+                            ->columnSpan(2),
+                        TextInput::make('informacoes_complementares.ano_silo')
+                            ->label('Ano Fab. Silo')
+                            ->columnSpan(2),
+                        TextInput::make('informacoes_complementares.marca_silo')
+                            ->label('Marca Silo')
+                            ->columnSpan(2),
+                    ]),
 
             ]);
     }

@@ -2,21 +2,14 @@
 
 namespace App\Filament\Resources\OrdemServicos\Schemas;
 
-use Filament\Forms\Components\Repeater;
+use App\Enum;
+use App\Filament\Resources\Parceiros\ParceiroResource;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Schema;
-use App\Enum;
-use App\Filament\Components\SelectFilterVeiculo;
-use App\Filament\Resources\Parceiros\ParceiroResource;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
 class OrdemServicoForm
 {
@@ -25,10 +18,10 @@ class OrdemServicoForm
         return $schema
             ->columns(12)
             ->components([
-                Grid::make(['default' => 1,'sm' => 2,'md' => 3])
+                Grid::make(['default' => 1, 'sm' => 2, 'md' => 3])
                     ->schema([
                         Flex::make([
-                            Grid::make(['default' => 1,'sm' => 2, 'md' => 4])
+                            Grid::make(['default' => 1, 'sm' => 2, 'md' => 4])
                                 ->schema([
                                     Components\OrdemServicoVeiculoInput::make()
                                         ->columnSpan(1),
@@ -53,12 +46,11 @@ class OrdemServicoForm
                             Components\ItensRepeater::make()
                                 ->visibleOn('edit'),
                         ])->columnSpanFull(),
-                        ])
+                    ])
                     ->columnSpanFull(),
 
             ]);
     }
-
 
     public static function getQuilometragemFormField(): TextInput
     {
@@ -106,8 +98,8 @@ class OrdemServicoForm
             ->label('Parceiro')
             ->columnSpanFull()
             ->relationship('parceiro', 'nome')
-            ->createOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
-            ->editOptionForm(fn(Schema $schema) => ParceiroResource::form($schema))
+            ->createOptionForm(fn (Schema $schema) => ParceiroResource::form($schema))
+            ->editOptionForm(fn (Schema $schema) => ParceiroResource::form($schema))
             ->searchable()
             ->preload()
             ->searchPrompt('Buscar Parceiro')

@@ -23,7 +23,7 @@ class VincularViagemResultadoPeriodoBulkAction
                     ->native(false)
                     ->displayFormat('d/m/Y')
                     ->helperText('Selecione a data de início do período'),
-                
+
                 DatePicker::make('data_fim')
                     ->label('Data de Fim')
                     ->required()
@@ -44,7 +44,7 @@ class VincularViagemResultadoPeriodoBulkAction
                     );
                 });
             })
-            ->after(fn(Component $livewire) => $livewire->js(<<<'JS'
+            ->after(fn (Component $livewire) => $livewire->js(<<<'JS'
                 let segundosRestantes = 15;
                 
                 // Cria e exibe o alerta

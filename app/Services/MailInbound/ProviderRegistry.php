@@ -8,9 +8,7 @@ use InvalidArgumentException;
 
 class ProviderRegistry
 {
-    public function __construct(protected ImapInboundProvider $imapInboundProvider)
-    {
-    }
+    public function __construct(protected ImapInboundProvider $imapInboundProvider) {}
 
     public function resolve(?string $provider = null): MailInboundProvider
     {

@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Tables;
 
-use App\{Models, Services};
 use App\Enum\StatusDiversosEnum;
-use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use App\Filament\Resources\ResultadoPeriodos\Actions;
+use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
+use App\Models;
+use App\Services;
+use App\Services\NotificacaoService as notify;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -14,24 +16,17 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ReplicateAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
-use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
-use App\Services\NotificacaoService as notify;
-use Carbon\Carbon;
-use Filament\Actions\Action;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Text;
-use Filament\Tables\Columns\ColumnGroup;
-use Filament\Tables\Columns\Summarizers\Average;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Number;
+use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ResultadoPeriodosTable
@@ -44,7 +39,7 @@ class ResultadoPeriodosTable
                     'veiculo:id,placa,tipo_veiculo_id',
                     'tipoVeiculo:id,descricao',
                     'abastecimentoInicial',
-                    'abastecimentoFinal'
+                    'abastecimentoFinal',
                 ]);
 
                 return $query
@@ -98,20 +93,20 @@ class ResultadoPeriodosTable
                         ->width('1%')
                         ->wrapHeader()
                         ->numeric(0, ',', '.')
-                        ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
-                        ->tooltip(fn(): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.')
+                        ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
+                        ->tooltip(fn (): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.')
                         ->toggleable(isToggledHiddenByDefault: false),
                     TextColumn::make('media_km_pago_viagem')
                         ->label('Viagens')
                         ->width('1%')
-                        ->description(fn(Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
+                        ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
                 ]),
                 ColumnGroup::make('Faturamento', [
                     TextColumn::make('documentos_sum_valor_liquido')
                         ->label('Faturamento')
                         ->width('1%')
                         ->money('BRL', 100)
-                        ->description(fn(Models\ResultadoPeriodo $record): ?string => $record->variacao_faturamento_mes_anterior)
+                        ->description(fn (Models\ResultadoPeriodo $record): ?string => $record->variacao_faturamento_mes_anterior)
                         ->sum('documentos', 'valor_liquido'),
                     TextColumn::make('faturamento_por_km_rodado')
                         ->label('Fat/Km Rodado')
@@ -135,8 +130,8 @@ class ResultadoPeriodosTable
                     TextColumn::make('percentual_manutencao_faturamento')
                         ->label('% Manut/Fat')
                         ->width('1%')
-                        ->formatStateUsing(fn(float $state): string => number_format($state, 2, ',', '.') . '%')
-                        ->color(fn(float $state): string => match (true) {
+                        ->formatStateUsing(fn (float $state): string => number_format($state, 2, ',', '.').'%')
+                        ->color(fn (float $state): string => match (true) {
                             $state > 10 => 'danger',
                             $state > 8 => 'warning',
                             default => 'success'
@@ -159,7 +154,7 @@ class ResultadoPeriodosTable
                         ->label('Consumo Médio Combustível')
                         ->wrapHeader()
                         ->suffix(' Km/L')
-                        ->description(fn(Models\ResultadoPeriodo $record): ?string => $record->diferenca_meta_consumo)
+                        ->description(fn (Models\ResultadoPeriodo $record): ?string => $record->diferenca_meta_consumo)
                         ->numeric(4, ',', '.')
                         ->toggleable(isToggledHiddenByDefault: false),
                 ]),
@@ -212,7 +207,7 @@ class ResultadoPeriodosTable
                     ReplicateAction::make()
                         ->label('Duplicar')
                         ->icon(Heroicon::DocumentDuplicate)
-                        ->schema(fn(Schema $schema) => ResultadoPeriodoResource::form($schema))
+                        ->schema(fn (Schema $schema) => ResultadoPeriodoResource::form($schema))
                         ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'abastecimentos_sum_quantidade', 'manutencao_sum_custo_total', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
                         ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
 
@@ -236,8 +231,8 @@ class ResultadoPeriodosTable
                         })
                         ->action(function (Collection $records, array $data) {
                             $records->each(function (Models\ResultadoPeriodo $record) use ($data) {
-                                Log::debug('Iniciando importação de registros para Resultado Período ID: ' . $record->id);
-                                $service = new Services\ResultadoPeriodo\ResultadoPeriodoService();
+                                Log::debug('Iniciando importação de registros para Resultado Período ID: '.$record->id);
+                                $service = new Services\ResultadoPeriodo\ResultadoPeriodoService;
                                 $service->importarRegistros($record->id, $data['considerar_periodo']);
                             });
                             notify::success(mensagem: 'Importação concluída com sucesso!');

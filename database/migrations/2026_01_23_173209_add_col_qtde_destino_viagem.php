@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('viagens', function (Blueprint $table) {
-            $table->integer('qtde_destino_viagem')->nullable()->after('data_fim');    
+            $table->integer('qtde_destino_viagem')->nullable()->after('data_fim');
         });
     }
 

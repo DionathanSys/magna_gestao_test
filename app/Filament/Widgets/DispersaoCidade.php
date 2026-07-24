@@ -2,21 +2,21 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\CargaViagem;
 use App\Models\Viagem;
+use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DispersaoCidade extends TableWidget
 {
     use InteractsWithPageFilters;
 
     protected static ?int $sort = 3;
+
     protected static ?string $heading = 'Top 20 Cidades por Km Dispersão';
 
     protected static bool $isDiscovered = false;
@@ -27,7 +27,7 @@ class DispersaoCidade extends TableWidget
         $dataCompetencia = $this->pageFilters['data_competencia'] ?? null;
 
         return $table
-            ->description($dataCompetencia ? 'Período: ' . $dataCompetencia : 'Período não definido')
+            ->description($dataCompetencia ? 'Período: '.$dataCompetencia : 'Período não definido')
             ->records(function () use ($veiculoId, $dataCompetencia): array {
                 // parse intervalo de data (aceita string "dd/mm/YYYY - dd/mm/YYYY" ou array)
                 $start = null;
@@ -95,7 +95,7 @@ class DispersaoCidade extends TableWidget
                         : 0.0;
 
                     return [
-                        'cidade_' . md5($cidade) => [
+                        'cidade_'.md5($cidade) => [
                             'cidade' => $cidade,
                             'total_km_dispersao' => (float) $row->total_km_dispersao,
                             'total_cargas' => (int) $row->total_cargas,

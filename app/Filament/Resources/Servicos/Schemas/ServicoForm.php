@@ -78,6 +78,28 @@ class ServicoForm
                     ->visible(fn (Get $get): bool => (bool) $get('controla_posicao'))
                     ->required(fn (Get $get): bool => (bool) $get('controla_posicao'))
                     ->columnSpanFull(),
+                TextInput::make('garantia_km')
+                    ->label('Garantia em km')
+                    ->numeric()
+                    ->minValue(1)
+                    ->nullable()
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 2,
+                        'lg' => 3,
+                    ])
+                    ->helperText('Se vazio, usa o padrão de garantia.'),
+                TextInput::make('garantia_dias')
+                    ->label('Garantia em dias')
+                    ->numeric()
+                    ->minValue(1)
+                    ->nullable()
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 2,
+                        'lg' => 3,
+                    ])
+                    ->helperText('Se vazio, usa o padrão de garantia.'),
                 Toggle::make('is_active')
                     ->label('Ativo')
                     ->columnSpan([

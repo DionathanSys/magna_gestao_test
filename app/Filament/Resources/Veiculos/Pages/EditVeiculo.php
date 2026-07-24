@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Veiculos\Pages;
 
 use App\Filament\Resources\Veiculos\VeiculoResource;
-use App\Models\Veiculo;
 use App\Services\Pneus\SincronizarPosicoesMapaVeiculoService;
 use DomainException;
 use Filament\Actions\Action;
@@ -12,8 +11,8 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class EditVeiculo extends EditRecord

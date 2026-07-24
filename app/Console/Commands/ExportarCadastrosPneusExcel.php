@@ -24,7 +24,7 @@ class ExportarCadastrosPneusExcel extends Command
     {
         $outputPath = $this->resolveOutputPath();
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $spreadsheet->removeSheetByIndex(0);
 
         $pneusCount = $this->buildPneusSheet($spreadsheet);

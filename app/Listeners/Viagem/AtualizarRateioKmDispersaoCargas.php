@@ -9,6 +9,6 @@ class AtualizarRateioKmDispersaoCargas
 {
     public function handle(RecalcularRateioKmDispersaoRequested $event): void
     {
-        (new CargaService())->atualizarKmDispersao($event->viagemId);
+        (new CargaService)->atualizarKmDispersao($event->viagemId);
     }
 }

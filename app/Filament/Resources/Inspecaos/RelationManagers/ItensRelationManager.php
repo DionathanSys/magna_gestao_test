@@ -7,7 +7,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
-use ItemInspecaosTable;
 
 class ItensRelationManager extends RelationManager
 {

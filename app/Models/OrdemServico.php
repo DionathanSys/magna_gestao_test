@@ -101,4 +101,9 @@ class OrdemServico extends Model
         return $this->hasMany(OrdemServicoApontamento::class, 'ordem_servico_id')
             ->whereNull('encerrado_em');
     }
+
+    public function garantias(): HasMany
+    {
+        return $this->hasMany(GarantiaServico::class, 'ordem_servico_id');
+    }
 }

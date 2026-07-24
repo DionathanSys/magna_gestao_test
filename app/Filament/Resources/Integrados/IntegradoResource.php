@@ -14,7 +14,6 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
@@ -25,7 +24,7 @@ class IntegradoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $modelLabel = 'Integrado';
 
@@ -63,8 +62,8 @@ class IntegradoResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            'Localização' => $record->municipio . ' - ' . $record->estado,
-            'KM Rota' => $record->km_rota . ' km'
+            'Localização' => $record->municipio.' - '.$record->estado,
+            'KM Rota' => $record->km_rota.' km',
         ];
     }
 
@@ -87,5 +86,4 @@ class IntegradoResource extends Resource
                 ->url("https://www.google.com/maps/dir/?api=1&origin={$origin}&waypoints={$firstStop}&destination={$finalDestination}&travelmode=driving", shouldOpenInNewTab: true),
         ];
     }
-
 }

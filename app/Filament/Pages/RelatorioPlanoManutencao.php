@@ -111,7 +111,7 @@ class RelatorioPlanoManutencao extends Page
     public function gerarRelatorio()
     {
         try {
-            $service = new RelatorioPlanoManutencaoService();
+            $service = new RelatorioPlanoManutencaoService;
 
             $filtros = [
                 'veiculo_id' => $this->data['veiculo_id'] ?? null,
@@ -124,7 +124,7 @@ class RelatorioPlanoManutencao extends Page
 
             return $service->gerarRelatorio($filtros);
         } catch (\Exception $e) {
-            Log::error('Erro ao gerar relatório de plano de manutenção: ' . $e->getMessage());
+            Log::error('Erro ao gerar relatório de plano de manutenção: '.$e->getMessage());
 
             Notification::make()
                 ->title('Erro ao gerar relatório')
@@ -139,7 +139,7 @@ class RelatorioPlanoManutencao extends Page
     public function visualizarRelatorio()
     {
         try {
-            $service = new RelatorioPlanoManutencaoService();
+            $service = new RelatorioPlanoManutencaoService;
 
             $filtros = [
                 'veiculo_id' => $this->data['veiculo_id'] ?? null,
@@ -149,7 +149,7 @@ class RelatorioPlanoManutencao extends Page
 
             return $service->visualizarRelatorio($filtros);
         } catch (\Exception $e) {
-            Log::error('Erro ao visualizar relatório de plano de manutenção: ' . $e->getMessage());
+            Log::error('Erro ao visualizar relatório de plano de manutenção: '.$e->getMessage());
 
             Notification::make()
                 ->title('Erro ao visualizar relatório')
@@ -164,7 +164,7 @@ class RelatorioPlanoManutencao extends Page
     public function carregarDados()
     {
         try {
-            $service = new RelatorioPlanoManutencaoService();
+            $service = new RelatorioPlanoManutencaoService;
 
             $filtros = [
                 'veiculo_id' => $this->data['veiculo_id'] ?? null,
@@ -177,10 +177,10 @@ class RelatorioPlanoManutencao extends Page
             Notification::make()
                 ->title('Dados carregados com sucesso')
                 ->success()
-                ->body(count($this->dadosRelatorio) . ' registro(s) encontrado(s)')
+                ->body(count($this->dadosRelatorio).' registro(s) encontrado(s)')
                 ->send();
         } catch (\Exception $e) {
-            Log::error('Erro ao carregar dados do relatório: ' . $e->getMessage());
+            Log::error('Erro ao carregar dados do relatório: '.$e->getMessage());
 
             Notification::make()
                 ->title('Erro ao carregar dados')
@@ -204,7 +204,7 @@ class RelatorioPlanoManutencao extends Page
         }
 
         // Reordena os dados
-        if (!empty($this->dadosRelatorio)) {
+        if (! empty($this->dadosRelatorio)) {
             usort($this->dadosRelatorio, function ($a, $b) {
                 $valorA = $a[$this->ordenarPor] ?? 0;
                 $valorB = $b[$this->ordenarPor] ?? 0;

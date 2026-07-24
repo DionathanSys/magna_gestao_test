@@ -2,21 +2,11 @@
 
 namespace App\Filament\Resources\OrdemServicos\Schemas;
 
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Schema;
-use App\Enum;
 use App\Models;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
-
-use Filament\Schemas\Components\Utilities\Set;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Schema;
 
 class OrdemServicoInfolist
 {
@@ -70,7 +60,7 @@ class OrdemServicoInfolist
                             ->columnSpan(1),
                         TextEntry::make('servico.descricao')
                             ->columnSpan(4)
-                            ->formatStateUsing(fn(Models\ItemOrdemServico $item) => $item->servico->descricao),
+                            ->formatStateUsing(fn (Models\ItemOrdemServico $item) => $item->servico->descricao),
                         TextEntry::make('posicao')
                             ->columnSpan(1)
                             ->placeholder(''),
@@ -98,5 +88,4 @@ class OrdemServicoInfolist
                     ]),
             ]);
     }
-
 }

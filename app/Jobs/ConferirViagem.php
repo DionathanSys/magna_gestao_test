@@ -2,7 +2,8 @@
 
 namespace App\Jobs;
 
-use App\{Models, Services};
+use App\Models;
+use App\Services;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -16,8 +17,7 @@ class ConferirViagem implements ShouldQueue
      */
     public function __construct(
         public Models\Viagem $viagem
-    )
-    {
+    ) {
         //
     }
 
@@ -26,29 +26,31 @@ class ConferirViagem implements ShouldQueue
      */
     public function handle(): void
     {
-        if(! $this->viagem->conferido) {
-            $service = new Services\Viagem\ViagemService();
-                $service->marcarViagemComoConferida($this->viagem);
-                if ($service->hasError()) {
-                    Log::error('Erro ao marcar viagem como conferida', [
-                        'metodo' => __METHOD__ . '@' . __LINE__,
-                        'viagem_id' => $this->viagem->id,
-                        'error' => $service->getMessage()
-                    ]);
-                    return;
-                }
+        if (! $this->viagem->conferido) {
+            $service = new Services\Viagem\ViagemService;
+            $service->marcarViagemComoConferida($this->viagem);
+            if ($service->hasError()) {
+                Log::error('Erro ao marcar viagem como conferida', [
+                    'metodo' => __METHOD__.'@'.__LINE__,
+                    'viagem_id' => $this->viagem->id,
+                    'error' => $service->getMessage(),
+                ]);
+
+                return;
+            }
 
         } else {
-             $service = new Services\Viagem\ViagemService();
-                $service->marcarViagemComoNãoConferida($this->viagem);
-                if ($service->hasError()) {
-                    Log::error('Erro ao marcar viagem como não conferida', [
-                        'metodo' => __METHOD__ . '@' . __LINE__,
-                        'viagem_id' => $this->viagem->id,
-                        'error' => $service->getMessage()
-                    ]);
-                    return;
-                }
+            $service = new Services\Viagem\ViagemService;
+            $service->marcarViagemComoNãoConferida($this->viagem);
+            if ($service->hasError()) {
+                Log::error('Erro ao marcar viagem como não conferida', [
+                    'metodo' => __METHOD__.'@'.__LINE__,
+                    'viagem_id' => $this->viagem->id,
+                    'error' => $service->getMessage(),
+                ]);
+
+                return;
+            }
         }
     }
 }

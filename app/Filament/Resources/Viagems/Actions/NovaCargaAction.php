@@ -9,8 +9,8 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Grid;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
 
 class NovaCargaAction
 {
@@ -19,7 +19,7 @@ class NovaCargaAction
         return Action::make('nova-carga')
             ->label('Carga')
             ->icon('heroicon-o-plus')
-            ->modalSubmitAction(fn(Action $action) => $action->label('Adicionar Carga'))
+            ->modalSubmitAction(fn (Action $action) => $action->label('Adicionar Carga'))
             ->schema([
                 Select::make('integrado_id')
                     ->label('Integrado')
@@ -100,7 +100,7 @@ class NovaCargaAction
             ])
             ->action(function (Models\Viagem $record, array $data) {
                 $integrado = Models\Integrado::findOrFail($data['integrado_id']);
-                $carga = (new CargaService())->gerarOuComplementar($integrado, $record, true);
+                $carga = (new CargaService)->gerarOuComplementar($integrado, $record, true);
 
                 if (! $carga) {
                     Notification::make()

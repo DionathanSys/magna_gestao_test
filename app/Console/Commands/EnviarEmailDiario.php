@@ -48,7 +48,7 @@ class EnviarEmailDiario extends Command
             }
 
             Log::info('Email diário de agendamentos enviado com sucesso', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'destinatarios' => $emails,
                 'total_agendamentos' => array_sum([
                     count($dados['pendentes']),
@@ -60,10 +60,10 @@ class EnviarEmailDiario extends Command
 
             $this->info('Email diário enviado com sucesso!');
         } catch (\Exception $e) {
-            $this->error('Erro ao enviar email: ' . $e->getMessage());
+            $this->error('Erro ao enviar email: '.$e->getMessage());
 
             Log::error('Erro ao enviar email diário', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'erro' => $e->getMessage(),
             ]);
         }
@@ -83,31 +83,31 @@ class EnviarEmailDiario extends Command
             // Agendamentos pendentes (hoje)
             'pendentes' => $this->buscarAgendamentos([
                 ['data_agendamento', '=', $hoje->toDateString()],
-                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]],
             ]),
 
             // Agendamentos para amanhã
             'amanha' => $this->buscarAgendamentos([
                 ['data_agendamento', '=', $amanha->toDateString()],
-                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]],
             ]),
 
             // Agendamentos desta semana (exceto hoje e amanhã)
             'esta_semana' => $this->buscarAgendamentos([
                 ['data_agendamento', '>', $amanha->toDateString()],
                 ['data_agendamento', '<=', $fimSemana->toDateString()],
-                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]],
             ]),
 
             // Agendamentos atrasados
             'atrasados' => $this->buscarAgendamentos([
                 ['data_agendamento', '<', $hoje->toDateString()],
-                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]],
             ]),
 
             'pendentes_sem_data' => $this->buscarAgendamentos([
                 ['data_agendamento', '=', null],
-                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]]
+                ['status', 'in', [StatusOrdemServicoEnum::PENDENTE, StatusOrdemServicoEnum::EXECUCAO]],
             ]),
 
             // Resumo estatístico
@@ -122,7 +122,6 @@ class EnviarEmailDiario extends Command
             $query = Agendamento::query()
                 ->with(['veiculo:id,placa', 'servico:id,descricao', 'planoPreventivo:id,descricao', 'parceiro:id,nome']);
 
-            
             foreach ($filtros as $filtro) {
                 if (isset($filtro[2]) && $filtro[1] === 'in') {
                     $query->whereIn($filtro[0], $filtro[2]);
@@ -152,11 +151,11 @@ class EnviarEmailDiario extends Command
                 ->toArray();
         } catch (\Exception $e) {
             Log::error('Erro ao buscar agendamentos', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'filtros' => $filtros,
                 'erro' => $e->getMessage(),
             ]);
-            $this->error('Erro ao buscar agendamentos: ' . $e->getMessage());
+            $this->error('Erro ao buscar agendamentos: '.$e->getMessage());
 
             return [];
         }
@@ -179,15 +178,15 @@ class EnviarEmailDiario extends Command
                     ->where('status', StatusOrdemServicoEnum::CONCLUIDO)
                     ->count(),
                 'veiculos_com_agendamento' => Agendamento::whereIn('status', [
-                        StatusOrdemServicoEnum::PENDENTE,
-                        StatusOrdemServicoEnum::EXECUCAO,
-                    ]   )
+                    StatusOrdemServicoEnum::PENDENTE,
+                    StatusOrdemServicoEnum::EXECUCAO,
+                ])
                     ->distinct('veiculo_id')
                     ->count('veiculo_id'),
             ];
         } catch (\Exception $e) {
             Log::warning('Erro ao gerar resumo', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'erro' => $e->getMessage(),
             ]);
 

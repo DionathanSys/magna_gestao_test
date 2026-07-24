@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Veiculos\RelationManagers;
 
 use App\Filament\Resources\Pneus\PneuResource;
 use App\Filament\Resources\Veiculos\Actions;
+use App\Models\HistoricoMovimentoPneu;
 use App\Models\PneuPosicaoVeiculo;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -130,7 +131,7 @@ class PneusRelationManager extends RelationManager
                             return 0;
                         }
 
-                        $kmHistorico = \App\Models\HistoricoMovimentoPneu::where('pneu_id', $record->pneu->id)
+                        $kmHistorico = HistoricoMovimentoPneu::where('pneu_id', $record->pneu->id)
                             ->where('ciclo_vida', $record->pneu->ciclo_vida)
                             ->sum('km_percorrido');
 

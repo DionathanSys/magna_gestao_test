@@ -19,7 +19,6 @@ class ViagemNumberService
      * Ex: escopo null -> "VI-0001"
      * Ex: escopo "BUGIO" -> "BUGIO-0001"
      *
-     * @param string|null $scope
      * @return array ['numero_viagem' => string, 'numero_sequencial' => int]
      */
     public function next(?string $scope = null): array

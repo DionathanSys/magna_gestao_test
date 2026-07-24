@@ -12,7 +12,6 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Log;
 
 class OrdemServicoVeiculoInput
 {
@@ -30,18 +29,19 @@ class OrdemServicoVeiculoInput
             ->afterStateUpdated(function (Set $set, Field $component, $state) {
                 if ($state) {
                     $set('quilometragem', VeiculoService::getQuilometragemAtualByVeiculoId($state));
-                    $possuiAgendamento = (new VeiculoService())->hasAgendamentoAberto($state);
+                    $possuiAgendamento = (new VeiculoService)->hasAgendamentoAberto($state);
                     if ($possuiAgendamento) {
                         $component->belowContent([
                             Icon::make(Heroicon::InformationCircle)->color(Color::Indigo),
                             Text::make('Possui agendamento em aberto.')->weight(FontWeight::Bold)->color(Color::Amber),
                         ]);
                     }
+
                     return;
-                } 
+                }
                 $set('quilometragem', null);
                 $component->belowContent(null);
-                
+
             })
             ->columnSpan([
                 'sm' => 1,

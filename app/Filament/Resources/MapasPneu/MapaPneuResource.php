@@ -86,7 +86,7 @@ class MapaPneuResource extends Resource
                             ->columnSpanFull()
                             ->collapsible()
                             ->cloneable()
-                            ->itemLabel(fn(array $state): ?string => $state['codigo'] ?? $state['nome'] ?? null)
+                            ->itemLabel(fn (array $state): ?string => $state['codigo'] ?? $state['nome'] ?? null)
                             ->schema([
                                 TextInput::make('codigo')
                                     ->label('Codigo')

@@ -17,7 +17,7 @@ class AtualizarKmDispersao
         }
 
         $kmDispersao = (float) ($viagem->km_dispersao ?? 0);
-             
+
         $totalCargas = Models\CargaViagem::query()
             ->where('viagem_id', $viagemId)
             ->count();

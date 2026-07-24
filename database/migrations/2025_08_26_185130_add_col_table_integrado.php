@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('integrados', function (Blueprint $table) {
-            //crie uma coluna  para latitude e longitude
+            // crie uma coluna  para latitude e longitude
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
         });

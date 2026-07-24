@@ -5,7 +5,6 @@ namespace App\Filament\Resources\TipoVeiculos;
 use App\Enum\Pneu\ConfiguracaoMapaPneusEnum;
 use App\Filament\Resources\TipoVeiculos\Pages\ManageTipoVeiculos;
 use App\Models\TipoVeiculo;
-use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;

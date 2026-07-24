@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\DocumentoFretes;
 
-use App\Filament\Resources\DocumentoFretes\Pages\CreateDocumentoFrete;
-use App\Filament\Resources\DocumentoFretes\Pages\EditDocumentoFrete;
 use App\Filament\Resources\DocumentoFretes\Pages\ListDocumentoFretes;
 use App\Filament\Resources\DocumentoFretes\Pages\ViewDocumentoFrete;
 use App\Filament\Resources\DocumentoFretes\Schemas\DocumentoFreteForm;
@@ -14,7 +12,6 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
@@ -27,7 +24,7 @@ class DocumentoFreteResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-newspaper';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-newspaper';
 
     protected static ?string $modelLabel = 'Documento Frete';
 

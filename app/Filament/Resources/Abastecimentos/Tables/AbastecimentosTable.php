@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Abastecimentos\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
+use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\Abastecimentos;
-use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
 use App\Models\Abastecimento;
 use App\Services\Veiculo\VeiculoCacheService;
@@ -13,14 +13,9 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Schemas\Components\Text;
 use Filament\Support\Colors\Color;
-use Filament\Support\Enums\FontWeight;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -29,7 +24,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Date;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
@@ -133,6 +127,7 @@ class AbastecimentosTable
 
                         if ($meta) {
                             $percentual = round(($state / $meta) * 100);
+
                             return "{$formatted} Km/L ({$percentual}%)";
                         }
 
@@ -219,7 +214,7 @@ class AbastecimentosTable
                 Filter::make('considera_no_calculo_media')
                     ->label('Abastecidas p/ cálculo médio')
                     ->toggle()
-                    ->query(fn(Builder $query): Builder => $query->where('considerar_calculo_medio', true)),
+                    ->query(fn (Builder $query): Builder => $query->where('considerar_calculo_medio', true)),
                 RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->recordActions([
@@ -235,7 +230,7 @@ class AbastecimentosTable
                 ActionGroup::make([
                     Abastecimentos\Actions\ImportAbastecimentoAction::make(),
                     CreateAction::make(),
-                ])->button()
+                ])->button(),
             ])
             ->paginated([25, 50, 100, 250, 500])
             ->extremePaginationLinks();

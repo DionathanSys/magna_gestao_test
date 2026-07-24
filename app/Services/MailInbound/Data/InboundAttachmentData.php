@@ -9,6 +9,5 @@ readonly class InboundAttachmentData
         public string $content,
         public ?string $mimeType = null,
         public ?int $size = null,
-    ) {
-    }
+    ) {}
 }

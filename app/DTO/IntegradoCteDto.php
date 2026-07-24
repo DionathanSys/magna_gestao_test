@@ -15,7 +15,7 @@ class IntegradoCteDto
 
     public function getIntegrado(): ?Integrado
     {
-        //TODO: Implementar cache se necessário
+        // TODO: Implementar cache se necessário
         if ($this->integrado === null) {
             $this->integrado = Integrado::find($this->integradoId);
         }

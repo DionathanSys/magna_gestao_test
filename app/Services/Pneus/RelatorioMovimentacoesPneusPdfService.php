@@ -150,7 +150,7 @@ class RelatorioMovimentacoesPneusPdfService
 
         $pdf->setPaper('a4', 'landscape');
 
-        $fileName = 'relatorio_movimentacoes_pneus_' . now()->format('Y-m-d_His') . '.pdf';
+        $fileName = 'relatorio_movimentacoes_pneus_'.now()->format('Y-m-d_His').'.pdf';
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();

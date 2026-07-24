@@ -9,8 +9,8 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Icon;
-use Filament\Support\Icons\Heroicon;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Support\Icons\Heroicon;
 
 class NumeroFogoInput
 {
@@ -45,9 +45,10 @@ class NumeroFogoInput
                             titulo: 'Atenção',
                             mensagem: "Já existe um pneu cadastrado com o Nº de Fogo: {$state}",
                         );
+
                         return;
                     }
-                    $component->afterLabel([Icon::make(Heroicon::CheckCircle),'Pneu sem cadastrado']);
+                    $component->afterLabel([Icon::make(Heroicon::CheckCircle), 'Pneu sem cadastrado']);
                     $set('recap.pneu_id', null);
                 }
             });

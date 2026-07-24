@@ -7,11 +7,10 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Inerba\DbConfig\AbstractPageSettings;
-use Filament\Schemas\Components;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
+use Inerba\DbConfig\AbstractPageSettings;
 
 class ChecklistSettings extends AbstractPageSettings
 {
@@ -83,7 +82,7 @@ class ChecklistSettings extends AbstractPageSettings
                                     ->addActionAlignment(Alignment::Start)
                                     ->columnSpanFull(),
                             ]),
-                    ])
+                    ]),
             ])
             ->statePath('data');
     }

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\ImportLogs\Schemas;
 
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -31,31 +30,31 @@ class ImportLogInfolist
                     ->numeric(),
                 TextEntry::make('warning_rows')
                     ->numeric(),
-                    // TextEntry::make('errors')
-                    // ->label('Erros de Importação')
-                    // ->formatStateUsing(function ($state) {
-                    //     if (empty($state)) {
-                    //         return 'Nenhum erro encontrado';
-                    //     }
+                // TextEntry::make('errors')
+                // ->label('Erros de Importação')
+                // ->formatStateUsing(function ($state) {
+                //     if (empty($state)) {
+                //         return 'Nenhum erro encontrado';
+                //     }
 
-                    //     // Verificar se já é um array ou se precisa decodificar
-                    //     if (is_array($state)) {
-                    //         $errors = $state;
-                    //     } elseif (is_string($state)) {
-                    //         $errors = json_decode($state, true) ?? [];
-                    //     } else {
-                    //         $errors = [];
-                    //     }
+                //     // Verificar se já é um array ou se precisa decodificar
+                //     if (is_array($state)) {
+                //         $errors = $state;
+                //     } elseif (is_string($state)) {
+                //         $errors = json_decode($state, true) ?? [];
+                //     } else {
+                //         $errors = [];
+                //     }
 
-                    //     if (empty($errors)) {
-                    //         return 'Nenhum erro encontrado';
-                    //     }
+                //     if (empty($errors)) {
+                //         return 'Nenhum erro encontrado';
+                //     }
 
-                    //     return implode("\n", array_map(function ($error, $index) {
-                    //         return ($index + 1) . ". " . $error;
-                    //     }, $errors, array_keys($errors)));
-                    // })
-                    // ->columnSpanFull(),
+                //     return implode("\n", array_map(function ($error, $index) {
+                //         return ($index + 1) . ". " . $error;
+                //     }, $errors, array_keys($errors)));
+                // })
+                // ->columnSpanFull(),
                 TextEntry::make('skipped_rows')
                     ->numeric(),
                 TextEntry::make('total_batches')
@@ -82,7 +81,7 @@ class ImportLogInfolist
                 //     ])
                 //     ->state(function ($record) {
                 //         $errorRows = $record->errors;
-                        
+
                 //         if (is_string($errorRows)) {
                 //             $decoded = json_decode($errorRows, true);
                 //             ds($errorRows)->label('Error Rows Raw');
@@ -160,9 +159,9 @@ class ImportLogInfolist
                             $html .= '<div class="flex items-start gap-2">';
                             $html .= '<span class="text-red-500 mt-0.5">•</span>';
                             $html .= '<div class="flex-1">';
-                            $html .= '<span class="text-sm">' . htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8') . '</span>';
+                            $html .= '<span class="text-sm">'.htmlspecialchars((string) $error, ENT_QUOTES, 'UTF-8').'</span>';
                             if ($count > 1) {
-                                $html .= ' <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-red-700 bg-red-100 rounded-full ml-2">' . $count . 'x</span>';
+                                $html .= ' <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-red-700 bg-red-100 rounded-full ml-2">'.$count.'x</span>';
                             }
                             $html .= '</div>';
                             $html .= '</div>';

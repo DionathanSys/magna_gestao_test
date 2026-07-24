@@ -2,11 +2,8 @@
 
 namespace App\Filament\Resources\Checklists\Schemas;
 
-use Filament\Actions\Action;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
@@ -14,18 +11,13 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Text;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
 
 class ChecklistForm
 {
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -63,11 +55,11 @@ class ChecklistForm
                                     ->columnSpan(12)
                                     ->defaultItems(self::getCountItens())
                                     ->collapsible()
-                                    ->itemLabel(fn(array $state): ?string => $state['item'])
+                                    ->itemLabel(fn (array $state): ?string => $state['item'])
                                     ->table([
                                         TableColumn::make('Item')
                                             ->alignment(Alignment::Left)
-                                            
+
                                             ->width('40%'),
                                         TableColumn::make('Status')
                                             ->alignment(Alignment::Center)
@@ -99,16 +91,15 @@ class ChecklistForm
                                             ->rows(1),
                                         IconEntry::make('obrigatorio')
                                             ->label('Obrigatório')
-                                            ->icon(fn(string $state): Heroicon => match ($state) {
-                                                "1" => Heroicon::CheckCircle,
-                                                "0" => Heroicon::XCircle,
+                                            ->icon(fn (string $state): Heroicon => match ($state) {
+                                                '1' => Heroicon::CheckCircle,
+                                                '0' => Heroicon::XCircle,
                                             })
                                             ->color('info')
                                             ->columnSpan(1),
-                                        
 
                                     ])
-                                    ->default(fn() => self::getItens())
+                                    ->default(fn () => self::getItens())
                                     ->deletable(false)
                                     ->addable(false),
                             ]),
@@ -121,8 +112,8 @@ class ChecklistForm
                                     ->disk('public')
                                     ->directory('checklists')
                                     ->columnSpanFull(),
-                            ])
-                    ])
+                            ]),
+                    ]),
             ]);
     }
 
@@ -134,7 +125,7 @@ class ChecklistForm
     public static function getItens(): array
     {
         $itens = collect(db_config('config-checklist.itens', []))
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'item' => $item['item'] ?? 'Erro ao carregar item',
                 'status' => false,
                 'obrigatorio' => $item['obrigatorio'] ?? true,

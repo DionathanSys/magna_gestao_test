@@ -4,21 +4,16 @@ namespace App\Filament\Resources\DocumentoFretes\Actions;
 
 use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
-use App\Enum\Frete\TipoRelatorioDocumentoFreteEnum;
-use App\Imports\DocumentoFreteImport;
-use App\Jobs\ProcessarDocumentoFreteJob;
-use Filament\Actions\Action;
-use App\Services;
-use App\Models;
 use App\Services\DocumentoFrete\DocumentoFreteService;
+use App\Services\Import\Importers\ViagemEspelhoFreteImporter;
 use App\Services\NotificacaoService as notify;
 use App\Services\Veiculo\VeiculoService;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ImportarDocumentoFretePdfAction
 {
@@ -61,8 +56,8 @@ class ImportarDocumentoFretePdfAction
 
                         $fullPath = Storage::disk(self::DISK)->path($relativePath);
 
-                        if (!file_exists($fullPath)) {
-                            throw new \Exception('Arquivo não encontrado: ' . $fullPath);
+                        if (! file_exists($fullPath)) {
+                            throw new \Exception('Arquivo não encontrado: '.$fullPath);
                         }
 
                         Log::info('Arquivo localizado', [
@@ -71,19 +66,20 @@ class ImportarDocumentoFretePdfAction
                             'file_size' => filesize($fullPath),
                         ]);
 
-                        if (!self::validate($data)) {
+                        if (! self::validate($data)) {
                             Log::warning('Validação falhou para importação de Documento Frete', [
                                 'data' => $data,
                             ]);
                             notify::error('Validação dos dados para importação de Documento Frete falhou.');
                             $action->halt();
+
                             return;
                         }
 
                         self::processar($fullPath, $data['cliente']);
 
                         notify::success('Importação de Documento Frete iniciada com sucesso.');
-                        
+
                         return true;
                     } catch (\Exception $e) {
                         if ($relativePath) {
@@ -98,7 +94,7 @@ class ImportarDocumentoFretePdfAction
                             'cliente' => $data['cliente'] ?? null,
                         ]);
 
-                        notify::error('Erro ao processar PDF: ' . $e->getMessage());
+                        notify::error('Erro ao processar PDF: '.$e->getMessage());
                         $action->halt();
                     }
                 }
@@ -107,7 +103,7 @@ class ImportarDocumentoFretePdfAction
 
     private static function processar(string $filePath, string $cliente): void
     {
-        $importer = new \App\Services\Import\Importers\ViagemEspelhoFreteImporter();
+        $importer = new ViagemEspelhoFreteImporter;
 
         $data = $importer->handle($filePath);
 
@@ -115,35 +111,36 @@ class ImportarDocumentoFretePdfAction
 
         $data->each(function ($frete) use ($cliente) {
 
-            if (!($veiculo_id = (new VeiculoService())->getVeiculoIdByPlaca($frete['placa']))) {
+            if (! ($veiculo_id = (new VeiculoService)->getVeiculoIdByPlaca($frete['placa']))) {
                 Log::warning('Veículo não encontrado para a placa informada.', [
-                    'placa' => $frete['placa']
+                    'placa' => $frete['placa'],
                 ]);
+
                 return;
             }
 
             $docFrete = [
-                'veiculo_id'           => $veiculo_id,
-                'parceiro_origem'      => $cliente,
-                'parceiro_destino'     => trim(preg_replace('/^\d+\s*-\s*/', '', $frete['destino'])),
+                'veiculo_id' => $veiculo_id,
+                'parceiro_origem' => $cliente,
+                'parceiro_destino' => trim(preg_replace('/^\d+\s*-\s*/', '', $frete['destino'])),
                 'documento_transporte' => $frete['doc_transporte'],
-                'numero_documento'     => $frete['nfe'],
-                'data_emissao'         => $frete['data_emissao'],
-                'valor_total'          => $frete['valor'],
-                'valor_icms'           => 0,
-                'tipo_documento'       => TipoDocumentoEnum::NFS,
+                'numero_documento' => $frete['nfe'],
+                'data_emissao' => $frete['data_emissao'],
+                'valor_total' => $frete['valor'],
+                'valor_icms' => 0,
+                'tipo_documento' => TipoDocumentoEnum::NFS,
             ];
 
             try {
-                $documentoFreteService = new DocumentoFreteService();
+                $documentoFreteService = new DocumentoFreteService;
                 $documentoFreteService->criarDocumentoFrete($docFrete);
                 Log::info('Documento de frete criado com sucesso.', [
-                    'data' => $docFrete
+                    'data' => $docFrete,
                 ]);
             } catch (\Exception $e) {
                 Log::error('Erro ao criar documento de frete', [
                     'error' => $e->getMessage(),
-                    'data' => $docFrete
+                    'data' => $docFrete,
                 ]);
             }
         });
@@ -158,7 +155,7 @@ class ImportarDocumentoFretePdfAction
 
         $validate = Validator::make($data, [
             'documento_frete' => 'required',
-            'cliente' => 'required|in:' . implode(',', ClienteEnum::toSelectArray()),
+            'cliente' => 'required|in:'.implode(',', ClienteEnum::toSelectArray()),
         ], [
             'documento_frete.required' => 'O campo Documento Frete é obrigatório.',
             'cliente.required' => 'O campo Cliente é obrigatório.',
@@ -170,6 +167,7 @@ class ImportarDocumentoFretePdfAction
             foreach ($errors as $error) {
                 notify::error($error);
             }
+
             return false;
         }
 

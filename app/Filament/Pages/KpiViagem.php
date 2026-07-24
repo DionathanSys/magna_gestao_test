@@ -5,19 +5,13 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\DispersaoCidade;
 use App\Filament\Widgets\DispersaoIntegrado;
 use App\Filament\Widgets\DispersaoMedia;
-use App\Livewire\PneuResource;
+use App\Models\Veiculo;
 use BackedEnum;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Dashboard\Actions\FilterAction;
 use Filament\Pages\Dashboard\Concerns\HasFiltersAction;
-use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Schema;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
-use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use UnitEnum;
 
 class KpiViagem extends Page
@@ -41,7 +35,7 @@ class KpiViagem extends Page
                 ->schema([
                     Select::make('veiculo_id')
                         ->label('Placa')
-                        ->options(fn() => \App\Models\Veiculo::query()
+                        ->options(fn () => Veiculo::query()
                             ->where('is_active', true)
                             ->pluck('placa', 'id'))
                         ->searchable()
@@ -55,7 +49,7 @@ class KpiViagem extends Page
         ];
     }
 
-    public function getHeaderWidgetsColumns(): int | array
+    public function getHeaderWidgetsColumns(): int|array
     {
         return 1;
     }
@@ -68,6 +62,4 @@ class KpiViagem extends Page
             DispersaoCidade::class,
         ];
     }
-
-
 }

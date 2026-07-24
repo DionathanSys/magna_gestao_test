@@ -2,8 +2,7 @@
 
 namespace App\Services\PlanoManutencao;
 
-use \App\Models;
-use App\Services\Pdf\MakePdf;
+use App\Models;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PlanoManutencaoService
@@ -46,7 +45,7 @@ class PlanoManutencaoService
             'planos' => $planos,
             'kmTolerancia' => $kmTolerancia,
             'totalPlanos' => count($planos),
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         $pdf = Pdf::loadView('pdf.planos-vencimento', $data);
@@ -54,8 +53,7 @@ class PlanoManutencaoService
         return response()->streamDownload(
             function () use ($pdf) {
                 echo $pdf->stream();
-            }, 'relatorio-planos-vencimento-' . date('Y-m-d-H-i') . '.pdf');
-
+            }, 'relatorio-planos-vencimento-'.date('Y-m-d-H-i').'.pdf');
 
     }
 
@@ -70,11 +68,11 @@ class PlanoManutencaoService
             'planos' => $planos,
             'kmTolerancia' => $kmTolerancia,
             'totalPlanos' => count($planos),
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         // Para visualizar no navegador, usamos diretamente o DomPDF
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.planos-vencimento', $data)
+        return Pdf::loadView('pdf.planos-vencimento', $data)
             ->setPaper('A4', 'landscape')
             ->setOptions([
                 'defaultFont' => 'DejaVu Sans',
@@ -84,7 +82,7 @@ class PlanoManutencaoService
                 'isRemoteEnabled' => true,
                 'chroot' => base_path(),
             ])
-            ->stream('relatorio-planos-vencimento-' . date('Y-m-d-H-i') . '.pdf');
+            ->stream('relatorio-planos-vencimento-'.date('Y-m-d-H-i').'.pdf');
     }
 
     /**
@@ -97,7 +95,7 @@ class PlanoManutencaoService
                 return $this->sanitizeUtf8Data($item);
             } elseif (is_string($item)) {
                 // Garantir codificação UTF-8 correta
-                if (!mb_check_encoding($item, 'UTF-8')) {
+                if (! mb_check_encoding($item, 'UTF-8')) {
                     $item = mb_convert_encoding($item, 'UTF-8', 'auto');
                 }
 
@@ -109,8 +107,8 @@ class PlanoManutencaoService
 
                 return trim($item);
             }
+
             return $item;
         }, $data);
     }
-
 }

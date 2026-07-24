@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('import_logs', function (Blueprint $table) {
             $table->id();
 
-             // Informações do arquivo
+            // Informações do arquivo
             $table->string('file_name');
             $table->string('file_path');
             $table->string('file_size')->nullable(); // Tamanho do arquivo em bytes
@@ -62,7 +62,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-             // Índices
+            // Índices
             $table->index(['user_id', 'status']);
             $table->index(['import_type', 'status']);
             $table->index('created_at');

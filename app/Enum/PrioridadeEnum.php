@@ -4,10 +4,10 @@ namespace App\Enum;
 
 enum PrioridadeEnum: string
 {
-    case BAIXA      = 'BAIXA';
-    case MEDIA      = 'MEDIA';
-    case ALTA       = 'ALTA';
-    case URGENTE    = 'URGENTE';
+    case BAIXA = 'BAIXA';
+    case MEDIA = 'MEDIA';
+    case ALTA = 'ALTA';
+    case URGENTE = 'URGENTE';
 
     public static function toSelectArray(): array
     {

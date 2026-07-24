@@ -2,14 +2,9 @@
 
 namespace App\Filament\Resources\Viagems\Actions;
 
-use App\Jobs\VincularViagemDocumentoFrete;
 use App\Jobs\VincularViagensBatch;
-use App\Models;
-use App\Services;
-use App\Services\NotificacaoService as notify;
 use Filament\Actions\BulkAction;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class VincularViagemDocumentoBulkAction
@@ -24,7 +19,7 @@ class VincularViagemDocumentoBulkAction
                     VincularViagensBatch::dispatch($chunk);
                 });
             })
-            ->after(fn(Component $livewire) => $livewire->js(<<<'JS'
+            ->after(fn (Component $livewire) => $livewire->js(<<<'JS'
                             let segundosRestantes = 20;
                             
                             // Cria e exibe o alerta

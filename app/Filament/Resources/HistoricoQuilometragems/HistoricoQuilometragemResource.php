@@ -3,23 +3,21 @@
 namespace App\Filament\Resources\HistoricoQuilometragems;
 
 use App\Filament\Resources\HistoricoQuilometragems\Pages\ManageHistoricoQuilometragems;
+use App\Models\HistoricoQuilometragem;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use App\Models\HistoricoQuilometragem;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Malzariey\FilamentDaterangepickerFilter\Enums\DropDirection;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
@@ -31,7 +29,7 @@ class HistoricoQuilometragemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Veículos';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $modelLabel = 'Hit. Quilometragem';
 
@@ -98,7 +96,7 @@ class HistoricoQuilometragemResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(): bool => Auth::user()->is_admin),
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                 ]),
             ]);
     }

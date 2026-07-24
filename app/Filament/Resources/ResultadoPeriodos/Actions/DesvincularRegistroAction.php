@@ -2,16 +2,9 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Actions;
 
-use App\Filament\Resources\OrdemServicos\Schemas\ItemOrdemServicoForm;
-use Filament\Actions\Action;
-use App\Models;
-use App\Services;
 use App\Services\NotificacaoService as notify;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Schema;
+use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Database\Eloquent\Model;
-
 
 class DesvincularRegistroAction
 {

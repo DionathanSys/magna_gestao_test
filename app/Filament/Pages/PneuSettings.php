@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use BackedEnum;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;

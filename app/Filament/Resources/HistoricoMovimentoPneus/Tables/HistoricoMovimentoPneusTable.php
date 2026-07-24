@@ -5,14 +5,11 @@ namespace App\Filament\Resources\HistoricoMovimentoPneus\Tables;
 use App\Filament\Resources\Pneus\PneuResource;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
@@ -29,7 +26,7 @@ class HistoricoMovimentoPneusTable
                     ->label('Nº de Fogo')
                     ->width('1%')
                     ->sortable()
-                    ->url(fn($record) => PneuResource::getUrl('view', ['record' => $record->pneu_id]))
+                    ->url(fn ($record) => PneuResource::getUrl('view', ['record' => $record->pneu_id]))
                     ->openUrlInNewTab(),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
@@ -64,7 +61,8 @@ class HistoricoMovimentoPneusTable
                             ->label('Total KM Percorrido')
                             ->using(function ($query) {
                                 // Busca todos os registros filtrados
-                                $total = $query->get()->sum(fn($item) => $item->km_final - $item->km_inicial);
+                                $total = $query->get()->sum(fn ($item) => $item->km_final - $item->km_inicial);
+
                                 return number_format($total, 2, ',', '.');
                             })
                     ),
@@ -133,7 +131,7 @@ class HistoricoMovimentoPneusTable
                     ->label('Dt. Registro')
                     ->autoApply()
                     ->firstDayOfWeek(0)
-                    ->alwaysShowCalendar()
+                    ->alwaysShowCalendar(),
             ])
             ->defaultSort('id', 'desc')
             ->defaultGroup('pneu.numero_fogo')
@@ -160,7 +158,7 @@ class HistoricoMovimentoPneusTable
                 ViewAction::make()
                     ->iconButton(),
                 DeleteAction::make()
-                    ->disabled(fn(): bool => !Auth::user()->is_admin)
+                    ->disabled(fn (): bool => ! Auth::user()->is_admin)
                     ->iconButton(),
             ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([

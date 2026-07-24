@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Log;
 
 class PlanoManutencaoVeiculo extends Model
 {
@@ -33,7 +32,7 @@ class PlanoManutencaoVeiculo extends Model
 
     public function getUltimaExecucaoAttribute()
     {
-        if (!isset($this->veiculo_id) || !isset($this->plano_preventivo_id)) {
+        if (! isset($this->veiculo_id) || ! isset($this->plano_preventivo_id)) {
             return null;
         }
 
@@ -51,6 +50,7 @@ class PlanoManutencaoVeiculo extends Model
             get: function (): float {
                 $ultimaExecucao = $this->ultimaExecucao;
                 $kmUltimaExecucao = $ultimaExecucao?->km_execucao ?? 0;
+
                 return $kmUltimaExecucao + $this->planoPreventivo->intervalo;
             }
         );
@@ -59,7 +59,7 @@ class PlanoManutencaoVeiculo extends Model
     public function quilometragemRestante(): Attribute
     {
         return Attribute::make(
-            get: fn(): float => $this->proxima_execucao - $this->veiculo->quilometragem_atual
+            get: fn (): float => $this->proxima_execucao - $this->veiculo->quilometragem_atual
         );
     }
 }

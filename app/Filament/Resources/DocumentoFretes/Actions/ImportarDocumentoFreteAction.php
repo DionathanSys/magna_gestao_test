@@ -3,16 +3,12 @@
 namespace App\Filament\Resources\DocumentoFretes\Actions;
 
 use App\Enum\Frete\TipoRelatorioDocumentoFreteEnum;
-use App\Imports\DocumentoFreteImport;
 use App\Jobs\ProcessarDocumentoFreteJob;
-use Filament\Actions\Action;
-use App\Services;
-use App\Models;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Log;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ImportarDocumentoFreteAction
 {
@@ -32,7 +28,7 @@ class ImportarDocumentoFreteAction
                     ->options(TipoRelatorioDocumentoFreteEnum::toSelectArray())
                     ->required(),
             ])
-            ->action(function(array $data) {
+            ->action(function (array $data) {
                 Log::debug('Iniciando importação de Documento Frete', [
                     'data' => $data,
                 ]);
@@ -44,7 +40,7 @@ class ImportarDocumentoFreteAction
                 $job = ProcessarDocumentoFreteJob::dispatch($importerClass, $fileName);
 
                 notify::success('Importação de Documento Frete iniciada com sucesso.');
-                
+
                 return true;
             });
     }

@@ -5,9 +5,9 @@ namespace App\Filament\Resources\Veiculos\Pages;
 use App\Filament\Resources\Veiculos\VeiculoResource;
 use App\Models\Veiculo;
 use App\Services\Pneus\SincronizarPosicoesMapaVeiculoService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class CreateVeiculo extends CreateRecord
 {

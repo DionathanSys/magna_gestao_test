@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\ResultadoPeriodos\Schemas;
 
 use App\Enum\StatusDiversosEnum;
+use App\Models\Veiculo;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -26,9 +26,10 @@ class ResultadoPeriodoForm
                     ->required()
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Set $set, Get $get) {
-                        $veiculo = \App\Models\Veiculo::find($get('veiculo_id'));
+                        $veiculo = Veiculo::find($get('veiculo_id'));
                         if ($veiculo) {
                             $set('tipo_veiculo_id', $veiculo->tipo_veiculo_id);
+
                             return;
                         }
                         $set('tipo_veiculo_id', null);

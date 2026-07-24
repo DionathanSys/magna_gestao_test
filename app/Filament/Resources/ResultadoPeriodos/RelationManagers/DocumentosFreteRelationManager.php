@@ -161,7 +161,7 @@ class DocumentosFreteRelationManager extends RelationManager
                     Group::make('data_emissao')
                         ->label('Data Competência')
                         ->titlePrefixedWithLabel(false)
-                        ->getTitleFromRecordUsing(fn(Models\DocumentoFrete $record): string => Carbon::parse($record->data_emissao)->format('d/m/Y'))
+                        ->getTitleFromRecordUsing(fn (Models\DocumentoFrete $record): string => Carbon::parse($record->data_emissao)->format('d/m/Y'))
                         ->collapsible(),
                     Group::make('parceiro_origem')
                         ->label('Parceiro Origem')
@@ -189,7 +189,7 @@ class DocumentosFreteRelationManager extends RelationManager
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')
                     ->toggle()
-                    ->query(fn(Builder $query): Builder => $query->whereNull('viagem_id')),
+                    ->query(fn (Builder $query): Builder => $query->whereNull('viagem_id')),
                 RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->headerActions([
@@ -197,18 +197,17 @@ class DocumentosFreteRelationManager extends RelationManager
                 AssociateAction::make()
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(
-                        fn($query) => $query
+                        fn ($query) => $query
                             ->whereNull('resultado_periodo_id')
                             ->where('veiculo_id', $this->ownerRecord->veiculo_id)
                             ->orderBy('data_emissao', 'desc')
                     )
                     ->recordTitle(
-                        fn($record) =>
-                        "#{$record->id} | " .
-                            Carbon::parse($record->data_emissao)->format('d/m/Y') . " | Nº " .
-                            number_format($record->numero_documento, 0, ',', '.') . " | " .
-                            $record->tipo_documento->value . " | " .
-                            "R$ " . number_format($record->valor_liquido, 2, ',', '.')
+                        fn ($record) => "#{$record->id} | ".
+                            Carbon::parse($record->data_emissao)->format('d/m/Y').' | Nº '.
+                            number_format($record->numero_documento, 0, ',', '.').' | '.
+                            $record->tipo_documento->value.' | '.
+                            'R$ '.number_format($record->valor_liquido, 2, ',', '.')
                     )
                     ->multiple()
                     ->recordSelectSearchColumns(['id', 'numero_documento', 'documento_transporte', 'parceiro_origem', 'parceiro_destino'])

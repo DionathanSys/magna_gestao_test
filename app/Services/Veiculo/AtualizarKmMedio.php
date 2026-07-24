@@ -18,13 +18,13 @@ class AtualizarKmMedio
     {
         try {
             $this->veiculo->update([
-                'km_medio'      => $kmMedio,
+                'km_medio' => $kmMedio,
                 'data_km_medio' => now(),
             ]);
         } catch (\Exception $e) {
             Log::error('Erro ao atualizar quilometragem média do veículo.', [
-                'veiculo_id'    => $this->veiculoId,
-                'error'         => $e->getMessage()
+                'veiculo_id' => $this->veiculoId,
+                'error' => $e->getMessage(),
             ]);
         }
     }

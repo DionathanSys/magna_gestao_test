@@ -13,11 +13,11 @@ abstract class BaseXlsxImport implements XlsxImportInterface
 
         Log::debug(__METHOD__, [
             'required_columns' => $required,
-            'first_row' => $firstRow
+            'first_row' => $firstRow,
         ]);
 
         foreach ($required as $col) {
-            if (!in_array($col, $firstRow)) {
+            if (! in_array($col, $firstRow)) {
                 throw new \Exception("Coluna obrigatória '$col' não encontrada no relatório.");
             }
         }
@@ -30,11 +30,11 @@ abstract class BaseXlsxImport implements XlsxImportInterface
 
         Log::debug(__METHOD__, [
             'map' => $map,
-            'row' => $row
+            'row' => $row,
         ]);
 
         foreach ($row as $colunaRelatorio => $valor) {
-            if (!isset($map[$colunaRelatorio])) {
+            if (! isset($map[$colunaRelatorio])) {
                 continue; // Ignora colunas não mapeadas
             }
 
@@ -71,7 +71,7 @@ abstract class BaseXlsxImport implements XlsxImportInterface
                         break;
                 }
             } catch (\Exception $e) {
-                throw new \Exception("Erro na coluna '{$colunaRelatorio}': " . $e->getMessage());
+                throw new \Exception("Erro na coluna '{$colunaRelatorio}': ".$e->getMessage());
             }
         }
 
@@ -85,7 +85,7 @@ abstract class BaseXlsxImport implements XlsxImportInterface
         }
 
         if (empty($valor) && ($config['required'] ?? true)) {
-            throw new \Exception("Valor obrigatório não pode estar vazio");
+            throw new \Exception('Valor obrigatório não pode estar vazio');
         }
 
         $model = $config['model'];
@@ -93,7 +93,7 @@ abstract class BaseXlsxImport implements XlsxImportInterface
 
         $record = $model::where($searchColumn, $valor)->first();
 
-        if (!$record) {
+        if (! $record) {
             throw new \Exception("Registro não encontrado para {$searchColumn}: '{$valor}'");
         }
 
@@ -110,6 +110,7 @@ abstract class BaseXlsxImport implements XlsxImportInterface
         // Converte string para boolean
         if (is_string($valor)) {
             $valor = strtolower(trim($valor));
+
             return in_array($valor, ['1', 'true', 'sim', 's', 'yes', 'y']);
         }
 
@@ -125,7 +126,7 @@ abstract class BaseXlsxImport implements XlsxImportInterface
         $enumClass = $config['enum_class'];
 
         // Verifica se o valor é válido no enum
-        if (!in_array($valor, array_column($enumClass::cases(), 'value'))) {
+        if (! in_array($valor, array_column($enumClass::cases(), 'value'))) {
             throw new \Exception("Valor '{$valor}' não é válido para o enum");
         }
 
@@ -148,23 +149,25 @@ abstract class BaseXlsxImport implements XlsxImportInterface
             $format = $config['format'] ?? 'Y-m-d';
             $date = \DateTime::createFromFormat($format, $valor);
 
-            if (!$date) {
+            if (! $date) {
                 // Se falhou, tenta outros formatos comuns
                 $commonFormats = ['d/m/Y', 'm/d/Y', 'Y-m-d', 'd-m-Y'];
                 foreach ($commonFormats as $tryFormat) {
                     $date = \DateTime::createFromFormat($tryFormat, $valor);
-                    if ($date) break;
+                    if ($date) {
+                        break;
+                    }
                 }
             }
 
-            if (!$date) {
+            if (! $date) {
                 throw new \Exception("Data inválida. Formato esperado: {$format}");
             }
 
             return $date->format($format);
             // return $date->format('Y-m-d');
         } catch (\Exception $e) {
-            throw new \Exception("Erro ao processar data: " . $e->getMessage());
+            throw new \Exception('Erro ao processar data: '.$e->getMessage());
         }
     }
 
@@ -239,7 +242,7 @@ abstract class BaseXlsxImport implements XlsxImportInterface
 
         // Data base: 30 de dezembro de 1899 (para compensar o dia 1 = 1/1/1900)
         $baseDate = new \DateTime('1899-12-31');
-        $baseDate->add(new \DateInterval('P' . intval($serialNumber) . 'D'));
+        $baseDate->add(new \DateInterval('P'.intval($serialNumber).'D'));
 
         return $baseDate->format('Y-m-d');
     }

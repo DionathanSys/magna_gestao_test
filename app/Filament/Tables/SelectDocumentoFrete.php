@@ -60,7 +60,7 @@ class SelectDocumentoFrete
                     ->label('Vlr. ICMS')
                     ->money('BRL')
                     ->sortable(),
-                TextColumn::make('valor_liquido')   
+                TextColumn::make('valor_liquido')
                     ->label('Frete Líquido')
                     ->money('BRL')
                     ->sortable(),

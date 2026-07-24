@@ -2,7 +2,8 @@
 
 namespace App\Services\Import;
 
-use App\{Models, Enum};
+use App\Enum;
+use App\Models;
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -21,17 +22,17 @@ class ImportLogService
 
     public static function createImportLog(string $filePath, array $options): Models\ImportLog
     {
-        Log::debug("Criando log de importação para o arquivo: " . $filePath);
+        Log::debug('Criando log de importação para o arquivo: '.$filePath);
 
         return Models\ImportLog::create([
             'import_description' => $options['descricao'] ?? 'Importação de dados',
-            'file_name'     => basename($filePath),
-            'file_path'     => Storage::disk('public')->path($filePath),
-            'import_type'   => $options['import_type'] ?? static::class,
-            'user_id'       => Auth::id() ?? null,
-            'status'        => Enum\Import\StatusImportacaoEnum::PENDENTE,
-            'options'       => json_encode($options),
-            'started_at'    => now(),
+            'file_name' => basename($filePath),
+            'file_path' => Storage::disk('public')->path($filePath),
+            'import_type' => $options['import_type'] ?? static::class,
+            'user_id' => Auth::id() ?? null,
+            'status' => Enum\Import\StatusImportacaoEnum::PENDENTE,
+            'options' => json_encode($options),
+            'started_at' => now(),
         ]);
 
     }
@@ -55,7 +56,7 @@ class ImportLogService
         $allErrors = array_merge($existingErrors, $errors);
 
         $this->importLog->update([
-            'errors' => json_encode($allErrors)
+            'errors' => json_encode($allErrors),
         ]);
     }
 
@@ -66,8 +67,8 @@ class ImportLogService
 
     public function failed(): void
     {
-        Log::debug("Marcando log de importação como falhado: " . $this->importLog->id);
+        Log::debug('Marcando log de importação como falhado: '.$this->importLog->id);
 
-        $this->importLog->markAsFailed("Erro na importação");
+        $this->importLog->markAsFailed('Erro na importação');
     }
 }

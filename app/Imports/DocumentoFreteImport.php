@@ -2,10 +2,9 @@
 
 namespace App\Imports;
 
+use App\Enum\Frete\TipoDocumentoEnum;
 use App\Models;
 use App\Services;
-use App\Contracts\XlsxImportInterface;
-use App\Enum\Frete\TipoDocumentoEnum;
 use Illuminate\Support\Facades\Log;
 
 class DocumentoFreteImport extends BaseXlsxImport
@@ -92,7 +91,7 @@ class DocumentoFreteImport extends BaseXlsxImport
         $dadosConvertidos['tipo_documento'] = TipoDocumentoEnum::CTE;
 
         // Salva no banco de dados
-        $service = new Services\DocumentoFrete\DocumentoFreteService();
+        $service = new Services\DocumentoFrete\DocumentoFreteService;
         $service->criarDocumentoFrete($dadosConvertidos);
     }
 
@@ -125,5 +124,4 @@ class DocumentoFreteImport extends BaseXlsxImport
 
         return ltrim((string) $matches[1], '0') ?: '0';
     }
-
 }

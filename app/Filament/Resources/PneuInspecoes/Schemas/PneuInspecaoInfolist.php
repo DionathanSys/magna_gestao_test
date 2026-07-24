@@ -25,7 +25,7 @@ class PneuInspecaoInfolist
                             ->columnSpan(2),
                         TextEntry::make('ciclo.numero')
                             ->label('Ciclo')
-                            ->formatStateUsing(fn ($state) => filled($state) ? 'Ciclo ' . $state : 'N/A')
+                            ->formatStateUsing(fn ($state) => filled($state) ? 'Ciclo '.$state : 'N/A')
                             ->columnSpan(2),
                         TextEntry::make('tipo')
                             ->formatStateUsing(fn ($state) => $state?->value ?? $state)

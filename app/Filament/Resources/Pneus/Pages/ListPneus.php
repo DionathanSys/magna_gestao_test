@@ -11,6 +11,7 @@ use App\Services\NotificacaoService as notify;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -112,19 +113,19 @@ class ListPneus extends ListRecords
         return [
             'Todos' => Tab::make(),
             'Estoque' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO)),
             'Frota' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::FROTA)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::FROTA)),
             'Conserto' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::MANUTENCAO)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::MANUTENCAO)),
             'Aguard. Recap' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::AGUARDANDO_RECAPAGEM)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::AGUARDANDO_RECAPAGEM)),
             'Aguard. Ret. Recap' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::AGUARDANDO_RETORNO_RECAP)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('local', Enum\Pneu\LocalPneuEnum::AGUARDANDO_RETORNO_RECAP)),
             'Outros' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereNotIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNotIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
             'Est./Frota' => Tab::make()
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('local', [Enum\Pneu\LocalPneuEnum::ESTOQUE_CCO, Enum\Pneu\LocalPneuEnum::FROTA])),
         ];
     }
 

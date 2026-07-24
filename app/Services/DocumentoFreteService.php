@@ -7,7 +7,6 @@ use App\Models\DocumentoFrete;
 
 class DocumentoFreteService
 {
-
     // public DocumentoFrete $documentoFrete;
 
     // public function __construct()

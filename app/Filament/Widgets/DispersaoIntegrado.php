@@ -3,18 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Viagems\ViagemResource;
-use App\Models\CargaViagem;
 use App\Models\Viagem;
+use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DispersaoIntegrado extends BaseWidget
 {
@@ -32,7 +28,7 @@ class DispersaoIntegrado extends BaseWidget
         $dataCompetencia = $this->pageFilters['data_competencia'] ?? null;
 
         return $table
-            ->description($dataCompetencia ? 'Período: ' . $dataCompetencia : 'Período não definido')
+            ->description($dataCompetencia ? 'Período: '.$dataCompetencia : 'Período não definido')
             ->records(function () use ($veiculoId, $dataCompetencia): array {
 
                 $kmRodadoTotal = Viagem::query()
@@ -46,7 +42,7 @@ class DispersaoIntegrado extends BaseWidget
                             if (is_array($dataCompetencia) && count($dataCompetencia) === 2) {
                                 return $query->whereBetween('data_competencia', [
                                     $dataCompetencia[0],
-                                    $dataCompetencia[1]
+                                    $dataCompetencia[1],
                                 ]);
                             }
 
@@ -94,7 +90,7 @@ class DispersaoIntegrado extends BaseWidget
                             if (is_array($dataCompetencia) && count($dataCompetencia) === 2) {
                                 return $query->whereBetween('viagens.data_competencia', [
                                     $dataCompetencia[0],
-                                    $dataCompetencia[1]
+                                    $dataCompetencia[1],
                                 ]);
                             }
 
@@ -118,8 +114,8 @@ class DispersaoIntegrado extends BaseWidget
                     ->limit(20)
                     ->get();
 
-                return $results->mapWithKeys(fn($row) => [
-                    'integrado_' . $row->integrado_id => [
+                return $results->mapWithKeys(fn ($row) => [
+                    'integrado_'.$row->integrado_id => [
                         'integrado_id' => $row->integrado_id,
                         'integrado_nome' => $row->integrado_nome,
                         'integrado_municipio' => $row->integrado_municipio,
@@ -130,14 +126,14 @@ class DispersaoIntegrado extends BaseWidget
                         'avg_km_dispersao' => (float) ($row->avg_km_dispersao ?? 0),
                         'km_dispersao_per_carga' => (float) $row->km_dispersao_per_carga,
                         'dispersao_percentage' => (float) $row->dispersao_percentage,
-                    ]
+                    ],
                 ])->toArray();
             })
             ->columns([
                 TextColumn::make('integrado_nome')
                     ->label('Integrado')
                     ->wrap()
-                    ->url(fn(array $record) => ViagemResource::getUrl('index', [
+                    ->url(fn (array $record) => ViagemResource::getUrl('index', [
                         'filters' => array_filter([
                             'integrado_id' => [
                                 'values' => [
@@ -173,7 +169,7 @@ class DispersaoIntegrado extends BaseWidget
                     ->numeric(2),
                 TextColumn::make('dispersao_percentage')
                     ->label('% Dispersão/Km Rodado')
-                    ->formatStateUsing(fn($state) => number_format($state, 2))
+                    ->formatStateUsing(fn ($state) => number_format($state, 2))
                     ->numeric(2)
                     ->suffix('%'),
             ])
@@ -193,5 +189,4 @@ class DispersaoIntegrado extends BaseWidget
                 ]),
             ]);
     }
-
 }

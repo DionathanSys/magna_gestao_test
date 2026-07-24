@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class ShipmentDocumentGroup extends Model
 {
@@ -63,7 +63,7 @@ class ShipmentDocumentGroup extends Model
 
                     return $missing === []
                         ? 'Pendente de dados complementares'
-                        : 'Falta: ' . implode(', ', $missing);
+                        : 'Falta: '.implode(', ', $missing);
                 }
 
                 return 'Pareado e aguardando criacao da viagem';

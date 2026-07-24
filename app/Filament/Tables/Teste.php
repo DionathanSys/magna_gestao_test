@@ -2,8 +2,7 @@
 
 namespace App\Filament\Tables;
 
-
-use App\{Models, Enum, Services};
+use App\Models;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -14,12 +13,13 @@ class Teste
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => Models\OrdemServico::query())
-            ->modifyQueryUsing(function(Builder $query) use ($table): Builder {
+            ->query(fn (): Builder => Models\OrdemServico::query())
+            ->modifyQueryUsing(function (Builder $query) use ($table): Builder {
                 $arguments = $table->getArguments();
-                if (isset($arguments['veiculo_id'])){
+                if (isset($arguments['veiculo_id'])) {
                     $query->where('veiculo_id', $arguments['veiculo_id']);
                 }
+
                 return $query;
             })
             ->columns([

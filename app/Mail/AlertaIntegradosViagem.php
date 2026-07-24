@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -15,6 +15,7 @@ class AlertaIntegradosViagem extends Mailable
     use Queueable, SerializesModels;
 
     public Collection $cargas;
+
     public string $dataProcessamento;
 
     /**
@@ -33,7 +34,7 @@ class AlertaIntegradosViagem extends Mailable
     {
         $totalCargas = $this->cargas->count();
         $totalIntegrados = $this->cargas->pluck('integrado_id')->unique()->count();
-        
+
         return new Envelope(
             subject: "⚠️ Alerta: {$totalCargas} Viagens para {$totalIntegrados} Integrados com Alerta",
         );
@@ -55,7 +56,7 @@ class AlertaIntegradosViagem extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
@@ -71,7 +72,7 @@ class AlertaIntegradosViagem extends Mailable
             ->groupBy('integrado_id')
             ->map(function ($cargas, $integradoId) {
                 $integrado = $cargas->first()->integrado;
-                
+
                 return [
                     'integrado' => [
                         'id' => $integrado->id,

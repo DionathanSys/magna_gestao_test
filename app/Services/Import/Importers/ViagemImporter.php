@@ -2,23 +2,22 @@
 
 namespace App\Services\Import\Importers;
 
-use App\Models;
 use App\Contracts\ExcelImportInterface;
+use App\Models;
 use App\Services;
 use App\Traits\ServiceResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class ViagemImporter implements ExcelImportInterface
 {
     use ServiceResponseTrait;
 
     public function __construct(
-        private Services\Viagem\ViagemService       $viagemService,
+        private Services\Viagem\ViagemService $viagemService,
         private Services\Integrado\IntegradoService $integradoService,
-        private Services\Veiculo\VeiculoService     $veiculoService
+        private Services\Veiculo\VeiculoService $veiculoService
 
     ) {}
 
@@ -49,30 +48,30 @@ class ViagemImporter implements ExcelImportInterface
 
         // Validação básica
         $validator = Validator::make($row, [
-            'Viagem'            => 'required|string',
-            'CargaCliente'      => 'nullable|string',
-            'Destino'           => 'nullable|string',
-            'Quantidade'        => 'integer',
-            'Placa'             => 'required|string',
-            'CondutorViagem'    => 'nullable|string',
-            'Inicio'            => 'required|date_format:d/m/Y H:i',
-            'Fim'               => 'required|date_format:d/m/Y H:i',
+            'Viagem' => 'required|string',
+            'CargaCliente' => 'nullable|string',
+            'Destino' => 'nullable|string',
+            'Quantidade' => 'integer',
+            'Placa' => 'required|string',
+            'CondutorViagem' => 'nullable|string',
+            'Inicio' => 'required|date_format:d/m/Y H:i',
+            'Fim' => 'required|date_format:d/m/Y H:i',
         ], [
-            'Viagem.required'           => 'O campo Viagem é obrigatório ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Viagem.string'             => 'O campo Viagem deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Placa.required'            => 'A Placa é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Placa.string'              => 'A Placa deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'CondutorViagem.string'     => 'O Condutor da Viagem deve ser um texto válido ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Inicio.required'           => 'A Data de Início é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Inicio.date_format'        => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Fim.required'              => 'A Data de Fim é obrigatória ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Fim.date_format'           => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
-            'Quantidade.integer'           => 'O Destino deve ser um número inteiro ' . ($row['numero_viagem'] ?? 'linha ' . $rowNumber),
+            'Viagem.required' => 'O campo Viagem é obrigatório '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Viagem.string' => 'O campo Viagem deve ser um texto válido '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Placa.required' => 'A Placa é obrigatória '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Placa.string' => 'A Placa deve ser um texto válido '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'CondutorViagem.string' => 'O Condutor da Viagem deve ser um texto válido '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Inicio.required' => 'A Data de Início é obrigatória '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Inicio.date_format' => 'A Data de Início deve estar no formato dd/mm/aaaa hh:mm '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Fim.required' => 'A Data de Fim é obrigatória '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Fim.date_format' => 'A Data de Fim deve estar no formato dd/mm/aaaa hh:mm '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
+            'Quantidade.integer' => 'O Destino deve ser um número inteiro '.($row['numero_viagem'] ?? 'linha '.$rowNumber),
         ]);
 
         if ($validator->fails()) {
-            Log::error('Validação falhou para a linha ' . $rowNumber, [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+            Log::error('Validação falhou para a linha '.$rowNumber, [
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'row' => $row,
                 'errors' => $validator->errors()->all(),
             ]);
@@ -80,9 +79,9 @@ class ViagemImporter implements ExcelImportInterface
         }
 
         // Validações específicas de negócio
-        if (!empty($row['Placa'])) {
+        if (! empty($row['Placa'])) {
             $veiculo = Models\Veiculo::where('placa', $row['Placa'])->first();
-            if (!$veiculo) {
+            if (! $veiculo) {
                 $errors[] = "Veículo com placa '{$row['Placa']}' não encontrado.";
             }
         }
@@ -93,7 +92,7 @@ class ViagemImporter implements ExcelImportInterface
     public function transform(array $row): array
     {
         Log::info('Dados recebidos pelo ViagemImporter', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
             'numero_viagem' => $row['Viagem'] ?? null,
             'headers' => array_keys($row),
             'row' => $row,
@@ -110,7 +109,7 @@ class ViagemImporter implements ExcelImportInterface
         $kmPago = $this->parseDecimal($rawKmPago);
 
         Log::info('Valores brutos do relatorio de viagem para quilometragem', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
             'numero_viagem' => $row['Viagem'] ?? null,
             'placa' => $row['Placa'] ?? null,
             'raw_km_rodado' => $rawKmRodado,
@@ -139,25 +138,25 @@ class ViagemImporter implements ExcelImportInterface
         }
 
         return [
-            'veiculo_id'            => $veiculo?->id,
-            'unidade_negocio'       => $veiculo?->filial,
-            'cliente'               => $veiculo?->informacoes_complementares['cliente'] ?? null,
-            'numero_viagem'         => $row['Viagem'],
-            'numero_interno'        => null,
-            'documento_transporte'  => $row['CargaCliente'] ?? null,
-            'data_competencia'      => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d'),
-            'data_inicio'           => Carbon::createFromFormat('d/m/Y H:i', $row['Inicio'])->format('Y-m-d H:i'),
-            'data_fim'              => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d H:i'),
-            'total_destinos'        => is_numeric($row['Quantidade'] ?? null) ? (int) $row['Quantidade'] : 0,
-            'destino'               => $integrado ?? null,
-            'km_rodado'             => $kmRodado,
-            'km_pago'               => $kmPago,
-            'conferido'             => false,
-            'ignorar'               => false,
-            'possui_pendencia'      => ! empty($pendencias),
-            'pendencias'            => $pendencias,
-            'motorista1'            => null,
-            'motorista2'            => null,
+            'veiculo_id' => $veiculo?->id,
+            'unidade_negocio' => $veiculo?->filial,
+            'cliente' => $veiculo?->informacoes_complementares['cliente'] ?? null,
+            'numero_viagem' => $row['Viagem'],
+            'numero_interno' => null,
+            'documento_transporte' => $row['CargaCliente'] ?? null,
+            'data_competencia' => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d'),
+            'data_inicio' => Carbon::createFromFormat('d/m/Y H:i', $row['Inicio'])->format('Y-m-d H:i'),
+            'data_fim' => Carbon::createFromFormat('d/m/Y H:i', $row['Fim'])->format('Y-m-d H:i'),
+            'total_destinos' => is_numeric($row['Quantidade'] ?? null) ? (int) $row['Quantidade'] : 0,
+            'destino' => $integrado ?? null,
+            'km_rodado' => $kmRodado,
+            'km_pago' => $kmPago,
+            'conferido' => false,
+            'ignorar' => false,
+            'possui_pendencia' => ! empty($pendencias),
+            'pendencias' => $pendencias,
+            'motorista1' => null,
+            'motorista2' => null,
         ];
     }
 
@@ -183,14 +182,15 @@ class ViagemImporter implements ExcelImportInterface
     {
         $errors = $this->validate($data, $rowNumber);
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             Log::error('Erros de validação na importação de viagem', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'row' => $rowNumber,
                 'data' => $data,
-                'errors' => $errors
+                'errors' => $errors,
             ]);
             $this->setError("Erros de validação na linha {$rowNumber}.", $errors);
+
             return null;
         }
 
@@ -199,16 +199,17 @@ class ViagemImporter implements ExcelImportInterface
         $viagem = $this->viagemService->create($transformedData);
 
         if ($viagem && ($transformedData['destino'] ?? null) instanceof Models\Integrado) {
-            (new Services\Carga\CargaService())->create($transformedData['destino'], $viagem);
+            (new Services\Carga\CargaService)->create($transformedData['destino'], $viagem);
         }
 
         if ($this->viagemService->hasError()) {
             Log::error('Erro ao importar viagem', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'data' => $transformedData,
-                'errors' => $this->viagemService->getErrors()
+                'errors' => $this->viagemService->getErrors(),
             ]);
             $this->setError("Erro na linha {$rowNumber}.", $this->viagemService->getErrors());
+
             return null;
         }
 

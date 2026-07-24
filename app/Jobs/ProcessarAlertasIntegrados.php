@@ -18,7 +18,9 @@ class ProcessarAlertasIntegrados implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private const CACHE_KEY = 'alertas_integrados_pendentes';
+
     private const CACHE_LOCK_KEY = 'alertas_integrados_lock';
+
     private const DELAY_SECONDS = 180; // 3 minutos
 
     /**
@@ -32,13 +34,13 @@ class ProcessarAlertasIntegrados implements ShouldQueue
     public function handle(): void
     {
         Log::debug('Job ProcessarAlertasIntegrados iniciado', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
         ]);
 
         $cacheAntesPull = Cache::get(self::CACHE_KEY, []);
 
         Log::info('Estado do cache ANTES do pull', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
             'cache_conteudo' => $cacheAntesPull,
             'cache_vazio' => empty($cacheAntesPull),
             'total_itens' => count($cacheAntesPull),
@@ -48,14 +50,15 @@ class ProcessarAlertasIntegrados implements ShouldQueue
         $cargaIds = Cache::pull(self::CACHE_KEY, []);
 
         Log::debug('Iniciando processamento de alertas de integrados', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
             'carga_ids' => $cargaIds,
         ]);
 
         if (empty($cargaIds)) {
             Log::info('Nenhuma carga pendente de alerta', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
             ]);
+
             return;
         }
 
@@ -66,23 +69,24 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                 'integrado:id,codigo,nome,municipio,cliente,alerta_viagem',
             ])
                 ->whereIn('id', $cargaIds)
-                ->whereHas('integrado', fn($q) => $q->where('alerta_viagem', true))
+                ->whereHas('integrado', fn ($q) => $q->where('alerta_viagem', true))
                 ->get();
 
             Log::debug('Cargas com integrados de alerta carregadas', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'cargas_encontradas' => $cargas,
             ]);
 
             if ($cargas->isEmpty()) {
                 Log::info('Nenhuma carga com integrado de alerta encontrada', [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'metodo' => __METHOD__.'@'.__LINE__,
                     'carga_ids' => $cargaIds,
                 ]);
+
                 return;
             }
 
-            //TODO utilizar o cliente de uma das cargas para definir destinatários dinamicamente
+            // TODO utilizar o cliente de uma das cargas para definir destinatários dinamicamente
 
             // Envia email
             $destinatarios = ['dionathan.silva@transmagnabosco.com.br', 'angelica.perdessetti@transmagnabosco.com.br'];
@@ -90,14 +94,14 @@ class ProcessarAlertasIntegrados implements ShouldQueue
             Mail::to($destinatarios)->send(new AlertaIntegradosViagem($cargas));
 
             Log::info('Email de alerta de integrados enviado', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'total_cargas' => $cargas->count(),
                 'total_integrados' => $cargas->pluck('integrado_id')->unique()->count(),
                 'destinatarios' => $destinatarios,
             ]);
         } catch (\Exception $e) {
             Log::error('Erro ao processar alertas de integrados', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -116,10 +120,11 @@ class ProcessarAlertasIntegrados implements ShouldQueue
             // Evitar race condition
             $lock = Cache::lock(self::CACHE_LOCK_KEY, 10);
 
-            if (!$lock->get()) {
+            if (! $lock->get()) {
                 Log::warning('Não conseguiu adquirir lock para adicionar carga', [
                     'carga_id' => $cargaId,
                 ]);
+
                 return;
             }
 
@@ -138,7 +143,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                 $verificacao = Cache::get(self::CACHE_KEY, []);
 
                 Log::info('Carga adicionada ao cache', [
-                    'metodo' => __METHOD__ . '@' . __LINE__,
+                    'metodo' => __METHOD__.'@'.__LINE__,
                     'carga_id' => $cargaId,
                     'total_no_cache' => count($cargaIds),
                     'cache_verificado' => $verificacao,
@@ -153,7 +158,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
                     self::dispatch()->delay($dataProcessamento);
 
                     Log::info('Job de alertas despachado', [
-                        'metodo' => __METHOD__ . '@' . __LINE__,
+                        'metodo' => __METHOD__.'@'.__LINE__,
                         'delay_segundos' => self::DELAY_SECONDS,
                         'processara_em' => $dataProcessamento->format('Y-m-d H:i:s'),
                         'processara_em_timestamp' => $dataProcessamento->timestamp,
@@ -167,7 +172,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
             }
         } catch (\Exception $e) {
             Log::error('Erro ao adicionar carga para alerta', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'carga_id' => $cargaId,
                 'error' => $e->getMessage(),
             ]);
@@ -180,7 +185,7 @@ class ProcessarAlertasIntegrados implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::error('Job ProcessarAlertasIntegrados falhou', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
             'error' => $exception->getMessage(),
         ]);
     }

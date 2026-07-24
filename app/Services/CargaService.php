@@ -14,7 +14,7 @@ class CargaService
 
     public function __construct()
     {
-        $this->cargaViagem = new CargaViagem();
+        $this->cargaViagem = new CargaViagem;
     }
 
     public function create(?Integrado $integrado, Viagem $viagem): ?CargaViagem
@@ -28,11 +28,12 @@ class CargaService
                 ->first();
 
             if ($cargaViagem) {
-                Log::info("Carga de viagem já existe para a viagem ID {$viagem->id}, atualizando integrado ID " . $integrado->id ?? 'null');
+                Log::info("Carga de viagem já existe para a viagem ID {$viagem->id}, atualizando integrado ID ".$integrado->id ?? 'null');
                 $cargaViagem->update([
                     'integrado_id' => $integrado->id ?? null,
-                    'updated_by'   => Auth::user()->id,
+                    'updated_by' => Auth::user()->id,
                 ]);
+
                 return $cargaViagem;
 
             } else {
@@ -41,23 +42,24 @@ class CargaService
 
             return $this->cargaViagem->query()->updateOrCreate(
                 [
-                    'viagem_id'    => $viagem->id,
+                    'viagem_id' => $viagem->id,
                     'integrado_id' => $integrado->id ?? 0,
                 ],
                 [
-                    'viagem_id'     => $viagem->id,
-                    'integrado_id'  => $integrado->id ?? null,
-                    'created_by'    => Auth::user()->id,
-                    'updated_by'    => Auth::user()->id,
+                    'viagem_id' => $viagem->id,
+                    'integrado_id' => $integrado->id ?? null,
+                    'created_by' => Auth::user()->id,
+                    'updated_by' => Auth::user()->id,
                 ]
             );
 
         } catch (\Exception $e) {
-            Log::error('Erro ao criar carga de viagem: ' . $e->getMessage(), [
-                'metodo'       => __METHOD__. ' - ' . __LINE__,
-                'viagem_id'    => $viagem->id,
+            Log::error('Erro ao criar carga de viagem: '.$e->getMessage(), [
+                'metodo' => __METHOD__.' - '.__LINE__,
+                'viagem_id' => $viagem->id,
                 'integrado_id' => $integrado->id ?? null,
             ]);
+
             return null;
         }
     }
@@ -65,21 +67,20 @@ class CargaService
     public static function incluirCargaViagem(int $integrado_id, Viagem $viagem): ?CargaViagem
     {
         try {
-            $cargaViagem = new self();
+            $cargaViagem = new self;
             $itegrado = Integrado::find($integrado_id);
 
             return $cargaViagem->create($itegrado, $viagem);
 
         } catch (\Exception $e) {
-            Log::error('Erro ao incluir carga de viagem: ' . $e->getMessage(), [
-                'metodo'       => __METHOD__. ' - ' . __LINE__,
-                'viagem_id'    => $viagem->id,
+            Log::error('Erro ao incluir carga de viagem: '.$e->getMessage(), [
+                'metodo' => __METHOD__.' - '.__LINE__,
+                'viagem_id' => $viagem->id,
                 'integrado_id' => $integrado_id,
             ]);
+
             return null;
         }
-        
-    }
 
-    
+    }
 }

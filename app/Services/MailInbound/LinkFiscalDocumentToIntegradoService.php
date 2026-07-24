@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class LinkFiscalDocumentToIntegradoService
 {
-    public function __construct(protected ShipmentTripService $shipmentTripService)
-    {
-    }
+    public function __construct(protected ShipmentTripService $shipmentTripService) {}
 
     public function handle(ReceivedFiscalDocument $document, Integrado $integrado): void
     {

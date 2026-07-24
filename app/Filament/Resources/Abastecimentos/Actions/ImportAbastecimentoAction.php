@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Abastecimentos\Actions;
 
 use App\Services\Import\AbastecimentoImportService;
+use App\Services\NotificacaoService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Log;
@@ -31,14 +32,14 @@ class ImportAbastecimentoAction
                 $result = $importService->importarAbastecimentos($filePath, $options);
 
                 if ($importService->hasError()) {
-                    Log::error('Erro na importação de abastecimentos: ' . $importService->getMessage(), [
+                    Log::error('Erro na importação de abastecimentos: '.$importService->getMessage(), [
                         'metodo' => __METHOD__,
                         'arquivo' => $filePath,
                     ]);
-                    \App\Services\NotificacaoService::error($importService->getMessage());
+                    NotificacaoService::error($importService->getMessage());
                 } else {
-                    \App\Services\NotificacaoService::success(
-                        "Importação iniciada!"
+                    NotificacaoService::success(
+                        'Importação iniciada!'
                     );
                 }
             });

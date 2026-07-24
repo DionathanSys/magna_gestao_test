@@ -59,6 +59,7 @@ class SincronizarPosicoesMapaVeiculoService
             if (! $posicaoVeiculo) {
                 PneuPosicaoVeiculo::query()->create($payload);
                 $stats['created']++;
+
                 continue;
             }
 
@@ -67,6 +68,7 @@ class SincronizarPosicoesMapaVeiculoService
             if ($this->needsUpdate($posicaoVeiculo, $payload)) {
                 $posicaoVeiculo->update($payload);
                 $stats['updated']++;
+
                 continue;
             }
 

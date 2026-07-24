@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasManyThrough, HasOne};
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Veiculo extends Model
 {
-
     use SoftDeletes;
 
     protected $casts = [
@@ -44,6 +48,11 @@ class Veiculo extends Model
         return $this->hasMany(ManutencaoLancamento::class, 'veiculo_id');
     }
 
+    public function garantiasServico(): HasMany
+    {
+        return $this->hasMany(GarantiaServico::class, 'veiculo_id');
+    }
+
     public function documentos(): HasMany
     {
         return $this->hasMany(VeiculoDocumento::class, 'veiculo_id');
@@ -71,7 +80,6 @@ class Veiculo extends Model
         return $this->belongsTo(MapaPneu::class, 'mapa_pneu_id');
     }
 
-
     /**
      * Accessor: retorna a quilometragem atual (numero) via relação kmAtual().
      * Acesso: $veiculo->quilometragem_atual
@@ -83,6 +91,7 @@ class Veiculo extends Model
                 if ($this->relationLoaded('kmAtual')) {
                     return $this->getRelation('kmAtual')?->quilometragem ?? 0;
                 }
+
                 return (float) ($this->kmAtual()->value('quilometragem') ?? 0);
             }
         );
@@ -91,14 +100,14 @@ class Veiculo extends Model
     /**
      * Calcula a quilometragem média diária do veículo
      * com base no histórico de quilometragem
-     * 
-     * @param int $dias Número de dias a considerar (padrão: 30)
+     *
+     * @param  int  $dias  Número de dias a considerar (padrão: 30)
      * @return float Quilometragem média por dia
      */
     public function calcularKmMedioDiario(int $dias = 30): float
     {
         $dataInicio = now()->subDays($dias);
-        
+
         $registros = HistoricoQuilometragem::query()
             ->where('veiculo_id', $this->id)
             ->where('data_referencia', '>=', $dataInicio)
@@ -132,11 +141,11 @@ class Veiculo extends Model
 
     /**
      * Calcula a data prevista baseada em km restante e km médio diário
-     * 
-     * @param float $kmRestante Quilometragem restante até a próxima manutenção
-     * @return \Carbon\Carbon|null Data prevista ou null se não for possível calcular
+     *
+     * @param  float  $kmRestante  Quilometragem restante até a próxima manutenção
+     * @return Carbon|null Data prevista ou null se não for possível calcular
      */
-    public function calcularDataPrevista(float $kmRestante): ?\Carbon\Carbon
+    public function calcularDataPrevista(float $kmRestante): ?Carbon
     {
         $kmMedio = $this->calcularKmMedioDiario();
 
@@ -148,6 +157,4 @@ class Veiculo extends Model
 
         return now()->addDays($diasRestantes);
     }
-
-
 }

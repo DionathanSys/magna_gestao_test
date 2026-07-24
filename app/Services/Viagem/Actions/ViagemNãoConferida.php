@@ -2,14 +2,12 @@
 
 namespace App\Services\Viagem\Actions;
 
-use App\Enum;
 use App\Models;
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\Auth;
 
 class ViagemNãoConferida
 {
-
     use UserCheckTrait;
 
     public function handle(Models\Viagem $viagem): Models\Viagem

@@ -6,10 +6,7 @@ use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\ExportarRelatorioDocumentosFreteAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\ExportarViagemBugioExcelBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\InserirNumeroDocumentoAction;
-use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteAction;
-use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularDocumentoFreteBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
-use App\Jobs\SolicitarCteBugio;
 use App\Models\ViagemBugio;
 use App\Services\ViagemBugio\ViagemBugioService;
 use Carbon\Carbon;
@@ -20,8 +17,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SelectColumn;
@@ -34,8 +29,6 @@ use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ViagemBugiosTable
@@ -119,21 +112,22 @@ class ViagemBugiosTable
                     ->wrap()
                     ->state(function ($record) {
                         if ($record->info_adicionais) {
-                            $info = is_string($record->info_adicionais) 
-                                ? json_decode($record->info_adicionais, true) 
+                            $info = is_string($record->info_adicionais)
+                                ? json_decode($record->info_adicionais, true)
                                 : $record->info_adicionais;
-                            
+
                             if (is_array($info) && isset($info['tipo_documento'])) {
                                 $tipoDocumento = $info['tipo_documento'];
-                                
+
                                 // Se for CTe Complemento, retorna o valor de cte_referencia
                                 if ($tipoDocumento === 'CTe Complemento' && isset($info['cte_referencia'])) {
-                                    return 'Complemento ao CTe ' . $info['cte_referencia'];
+                                    return 'Complemento ao CTe '.$info['cte_referencia'];
                                 }
-                                
+
                                 return $tipoDocumento;
                             }
                         }
+
                         return '-';
                     })
                     ->toggleable(isToggledHiddenByDefault: false),
@@ -148,14 +142,15 @@ class ViagemBugiosTable
                     ->width('1%')
                     ->state(function ($record) {
                         if ($record->info_adicionais) {
-                            $info = is_string($record->info_adicionais) 
-                                ? json_decode($record->info_adicionais, true) 
+                            $info = is_string($record->info_adicionais)
+                                ? json_decode($record->info_adicionais, true)
                                 : $record->info_adicionais;
-                            
+
                             if (is_array($info) && isset($info['peso'])) {
                                 return number_format($info['peso'], 0, ',', '.');
                             }
                         }
+
                         return '-';
                     })
                     ->sortable()
@@ -250,11 +245,11 @@ class ViagemBugiosTable
                         return $query
                             ->when(
                                 $data['status_viagem'] === 'com',
-                                fn(Builder $query) => $query->whereHas('viagem'),
+                                fn (Builder $query) => $query->whereHas('viagem'),
                             )
                             ->when(
                                 $data['status_viagem'] === 'sem',
-                                fn(Builder $query) => $query->whereDoesntHave('viagem'),
+                                fn (Builder $query) => $query->whereDoesntHave('viagem'),
                             );
                     })
                     ->indicateUsing(function (array $data): ?string {
@@ -269,7 +264,7 @@ class ViagemBugiosTable
                             'sem' => 'Sem viagem',
                             default => null,
                         };
-                    })
+                    }),
 
             ])
             ->reorderableColumns()
@@ -291,9 +286,9 @@ class ViagemBugiosTable
                     Group::make('data_competencia')
                         ->label('Data Competência')
                         ->titlePrefixedWithLabel(false)
-                        ->getTitleFromRecordUsing(fn(ViagemBugio $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
+                        ->getTitleFromRecordUsing(fn (ViagemBugio $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
                         ->collapsible()
-                        ->orderQueryUsing(fn(Builder $query, string $direction) => $query->orderBy('data_competencia', 'desc')),
+                        ->orderQueryUsing(fn (Builder $query, string $direction) => $query->orderBy('data_competencia', 'desc')),
                     Group::make('veiculo.placa')
                         ->label('Veículo')
                         ->titlePrefixedWithLabel(false)
@@ -305,7 +300,7 @@ class ViagemBugiosTable
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make()
-                        ->visible(fn() => Auth::user()->is_admin)
+                        ->visible(fn () => Auth::user()->is_admin)
                         ->modalWidth(Width::FiveExtraLarge),
                     VincularViagemAction::make()
                         ->icon(Heroicon::Link),
@@ -317,7 +312,7 @@ class ViagemBugiosTable
                     ->color('info')
                     ->iconButton()
                     ->action(function (ViagemBugio $record) {
-                        $bugioService = new ViagemBugioService();
+                        $bugioService = new ViagemBugioService;
                         $bugioService->solicitarCte($record);
                     })
                     ->requiresConfirmation(),
@@ -326,7 +321,7 @@ class ViagemBugiosTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => Auth::user()->is_admin),
+                        ->visible(fn () => Auth::user()->is_admin),
                     ExportarViagemBugioExcelBulkAction::make(),
                     ExportarRelatorioDocumentosFreteAction::make(),
                 ]),

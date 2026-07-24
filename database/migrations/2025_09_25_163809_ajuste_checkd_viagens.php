@@ -17,10 +17,10 @@ return new class extends Migration
 
             // Adicionar a foreign key correta
             $table->foreign('checked_by')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null')
-                  ->name('viagens_checked_by_foreign');
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null')
+                ->name('viagens_checked_by_foreign');
         });
     }
 

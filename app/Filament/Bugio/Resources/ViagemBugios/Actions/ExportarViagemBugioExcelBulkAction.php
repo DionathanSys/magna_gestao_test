@@ -3,13 +3,16 @@
 namespace App\Filament\Bugio\Resources\ViagemBugios\Actions;
 
 use App\Models\Integrado;
-use App\Models\ViagemBugio;
+use Carbon\Carbon;
 use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\{Alignment, Border, Fill};
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportarViagemBugioExcelBulkAction
@@ -21,20 +24,20 @@ class ExportarViagemBugioExcelBulkAction
             ->icon('heroicon-o-arrow-down-tray')
             ->color('success')
             ->requiresConfirmation()
-            ->modalDescription(fn (Collection $records) => 
-                'Você está prestes a exportar ' . $records->count() . ' viagem(ns) Bugio para Excel.'
+            ->modalDescription(fn (Collection $records) => 'Você está prestes a exportar '.$records->count().' viagem(ns) Bugio para Excel.'
             )
             ->action(function (Collection $records) {
                 // Limitar exportação para evitar problemas de memória
                 if ($records->count() > 5000) {
-                    \Filament\Notifications\Notification::make()
+                    Notification::make()
                         ->danger()
                         ->title('Muitos registros')
                         ->body('Por favor, selecione no máximo 5000 registros para exportar.')
                         ->send();
+
                     return;
                 }
-                
+
                 return static::exportToExcel($records);
             })
             ->deselectRecordsAfterCompletion();
@@ -45,14 +48,14 @@ class ExportarViagemBugioExcelBulkAction
         // Aumentar limite de memória temporariamente
         $originalMemoryLimit = ini_get('memory_limit');
         ini_set('memory_limit', '512M');
-        
+
         try {
-            $spreadsheet = new Spreadsheet();
-            
+            $spreadsheet = new Spreadsheet;
+
             // Otimizações do PhpSpreadsheet
             $spreadsheet->getDefaultStyle()->getFont()->setName('Arial');
             $spreadsheet->getDefaultStyle()->getFont()->setSize(10);
-            
+
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('Viagens Bugio');
 
@@ -83,7 +86,7 @@ class ExportarViagemBugioExcelBulkAction
             // Escrever cabeçalhos
             $row = 1;
             foreach ($headers as $col => $header) {
-                $sheet->setCellValue($col . $row, $header);
+                $sheet->setCellValue($col.$row, $header);
             }
 
             // Estilizar cabeçalho
@@ -120,12 +123,12 @@ class ExportarViagemBugioExcelBulkAction
                 $info = null;
                 $tipoDocumento = null;
                 $peso = null;
-                
+
                 if ($record->info_adicionais) {
-                    $info = is_string($record->info_adicionais) 
-                        ? json_decode($record->info_adicionais, true) 
+                    $info = is_string($record->info_adicionais)
+                        ? json_decode($record->info_adicionais, true)
                         : $record->info_adicionais;
-                    
+
                     if (is_array($info)) {
                         $tipoDocumento = $info['tipo_documento'] ?? null;
                         $peso = $info['peso'] ?? null;
@@ -136,10 +139,10 @@ class ExportarViagemBugioExcelBulkAction
                 $destinos = $record->destinos;
                 $integradoNome = '';
                 $integradoMunicipio = '';
-                
-                if (!empty($destinos)) {
+
+                if (! empty($destinos)) {
                     $integradoId = null;
-                    
+
                     // Verificar se é um array associativo único ou array de arrays
                     if (isset($destinos['integrado_id'])) {
                         $integradoId = $destinos['integrado_id'];
@@ -152,7 +155,7 @@ class ExportarViagemBugioExcelBulkAction
                             $integradoNome = $primeiroDestino['integrado_nome'] ?? '';
                         }
                     }
-                    
+
                     // Buscar município do integrado
                     if ($integradoId) {
                         $integrado = Integrado::find($integradoId);
@@ -168,43 +171,43 @@ class ExportarViagemBugioExcelBulkAction
                 // Calcular Valor CTRC e Vl. Recibo
                 $valorCtrc = 0;
                 $valorRecibo = 0;
-                
+
                 if ($tipoDocumento === 'NFSe') {
                     $valorRecibo = $record->frete ?? 0;
                 } else {
                     $valorCtrc = $record->frete ?? 0;
                 }
 
-                Log::debug('Exportando ViagemBugio ID: ' . $record->id . ', Nº de viag: ' . $numeroSequencial, [
+                Log::debug('Exportando ViagemBugio ID: '.$record->id.', Nº de viag: '.$numeroSequencial, [
                     'Valor CTRC' => $valorCtrc,
                     'Vl. Recibo' => $valorRecibo,
                     'tipo_documento' => $tipoDocumento,
                 ]);
 
                 // Preencher as colunas
-                $sheet->setCellValue('A' . $row, 150); // Tipo de Fr - valor padrão
-                $sheet->setCellValue('B' . $row, 384033); // Transporta - valor padrão
-                $sheet->setCellValue('C' . $row, 'MAGNABOSCO COM E TRANSPORTES LTDA'); // Nome Transportador - valor padrão
-                $sheet->setCellValue('D' . $row, $record->veiculo->placa ?? ''); // Placa
-                $sheet->setCellValue('E' . $row, $record->nro_documento ?? ''); // Nota F
-                $sheet->setCellValue('F' . $row, $numeroSequencial); // Nº de viag
-                $sheet->setCellValue('G' . $row, $integradoNome); // Destino
-                $sheet->setCellValue('H' . $row, $integradoMunicipio); // Local
-                $sheet->setCellValue('I' . $row, 'v'); // N. Ext. - valor padrão
-                $sheet->setCellValue('J' . $row, ''); // Status - em branco
-                $sheet->setCellValue('K' . $row, $record->data_competencia ? \Carbon\Carbon::parse($record->data_competencia)->format('d/m/Y') : ''); // Dta.criação
-                $sheet->setCellValue('L' . $row, $valorCtrc); // Valor CTRC
-                $sheet->setCellValue('M' . $row, $valorRecibo); // Vl. Recibo
-                $sheet->setCellValue('N' . $row, $record->km_pago ?? 0); // KM
-                $sheet->setCellValue('O' . $row, 1); // Entregas - valor padrão
-                $sheet->setCellValue('P' . $row, 1); // Ad. Entreg - valor padrão
-                $sheet->setCellValue('Q' . $row, $peso ?? 0); // Peso
-                $sheet->setCellValue('R' . $row, 0); // Valor Brut - valor padrão
-                $sheet->setCellValue('S' . $row, $record->frete ?? 0); // Frete Líqu
-                $sheet->setCellValue('T' . $row, $record->frete ?? 0); // Valor do F
+                $sheet->setCellValue('A'.$row, 150); // Tipo de Fr - valor padrão
+                $sheet->setCellValue('B'.$row, 384033); // Transporta - valor padrão
+                $sheet->setCellValue('C'.$row, 'MAGNABOSCO COM E TRANSPORTES LTDA'); // Nome Transportador - valor padrão
+                $sheet->setCellValue('D'.$row, $record->veiculo->placa ?? ''); // Placa
+                $sheet->setCellValue('E'.$row, $record->nro_documento ?? ''); // Nota F
+                $sheet->setCellValue('F'.$row, $numeroSequencial); // Nº de viag
+                $sheet->setCellValue('G'.$row, $integradoNome); // Destino
+                $sheet->setCellValue('H'.$row, $integradoMunicipio); // Local
+                $sheet->setCellValue('I'.$row, 'v'); // N. Ext. - valor padrão
+                $sheet->setCellValue('J'.$row, ''); // Status - em branco
+                $sheet->setCellValue('K'.$row, $record->data_competencia ? Carbon::parse($record->data_competencia)->format('d/m/Y') : ''); // Dta.criação
+                $sheet->setCellValue('L'.$row, $valorCtrc); // Valor CTRC
+                $sheet->setCellValue('M'.$row, $valorRecibo); // Vl. Recibo
+                $sheet->setCellValue('N'.$row, $record->km_pago ?? 0); // KM
+                $sheet->setCellValue('O'.$row, 1); // Entregas - valor padrão
+                $sheet->setCellValue('P'.$row, 1); // Ad. Entreg - valor padrão
+                $sheet->setCellValue('Q'.$row, $peso ?? 0); // Peso
+                $sheet->setCellValue('R'.$row, 0); // Valor Brut - valor padrão
+                $sheet->setCellValue('S'.$row, $record->frete ?? 0); // Frete Líqu
+                $sheet->setCellValue('T'.$row, $record->frete ?? 0); // Valor do F
 
                 $row++;
-                
+
                 // Liberar memória a cada 100 registros
                 if ($row % 100 === 0) {
                     $spreadsheet->garbageCollect();
@@ -212,16 +215,16 @@ class ExportarViagemBugioExcelBulkAction
             }
 
             // Aplicar formatação de número nas colunas de valores
-            $sheet->getStyle('L2:L' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle('M2:M' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle('N2:N' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('Q2:Q' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('R2:R' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle('S2:S' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
-            $sheet->getStyle('T2:T' . ($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('L2:L'.($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('M2:M'.($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('N2:N'.($row - 1))->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('Q2:Q'.($row - 1))->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('R2:R'.($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('S2:S'.($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('T2:T'.($row - 1))->getNumberFormat()->setFormatCode('#,##0.00');
 
             // Aplicar bordas em todas as células com dados
-            $dataRange = 'A1:T' . ($row - 1);
+            $dataRange = 'A1:T'.($row - 1);
             $sheet->getStyle($dataRange)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
@@ -240,7 +243,7 @@ class ExportarViagemBugioExcelBulkAction
             $sheet->freezePane('A2');
 
             // Criar response de download
-            $fileName = 'viagens_bugio_export_' . date('Y-m-d_His') . '.xlsx';
+            $fileName = 'viagens_bugio_export_'.date('Y-m-d_His').'.xlsx';
 
             return new StreamedResponse(
                 function () use ($spreadsheet) {
@@ -250,7 +253,7 @@ class ExportarViagemBugioExcelBulkAction
                 200,
                 [
                     'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                    'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
                     'Cache-Control' => 'max-age=0',
                 ]
             );

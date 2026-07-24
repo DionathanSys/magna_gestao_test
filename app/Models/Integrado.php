@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\ClienteEnum;
 use App\Services;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 class Integrado extends Model
 {
     protected $casts = [
-        'cliente' => \App\Enum\ClienteEnum::class,
+        'cliente' => ClienteEnum::class,
         'alerta_viagem' => 'boolean',
     ];
 
@@ -39,7 +40,7 @@ class Integrado extends Model
         static::updated(function (self $model) {
             if ($model->isDirty('alerta_viagem')) {
                 Services\Integrado\IntegradoService::invalidarCacheIntegradosAlerta();
-                
+
                 Log::info('Cache de alertas invalidado por atualização', [
                     'integrado_id' => $model->id,
                     'alerta_viagem' => $model->alerta_viagem,
@@ -50,7 +51,7 @@ class Integrado extends Model
         static::created(function (self $model) {
             if ($model->alerta_viagem) {
                 Services\Integrado\IntegradoService::invalidarCacheIntegradosAlerta();
-                
+
                 Log::info('Cache de alertas invalidado por criação', [
                     'integrado_id' => $model->id,
                 ]);
@@ -60,13 +61,12 @@ class Integrado extends Model
         static::deleted(function (self $model) {
             if ($model->alerta_viagem) {
                 Services\Integrado\IntegradoService::invalidarCacheIntegradosAlerta();
-                
+
                 Log::info('Cache de alertas invalidado por exclusão', [
-                    'integrado_id'  => $model->id,
-                    'integrado'     => $model->nome,
+                    'integrado_id' => $model->id,
+                    'integrado' => $model->nome,
                 ]);
             }
         });
     }
-
 }

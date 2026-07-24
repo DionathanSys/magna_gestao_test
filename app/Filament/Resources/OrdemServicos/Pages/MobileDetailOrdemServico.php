@@ -18,6 +18,7 @@ use App\Models\ManutencaoLancamento;
 use App\Models\OrdemServico;
 use App\Models\Servico;
 use App\Services\Agendamento\AgendamentoService;
+use App\Services\Garantia\GarantiaServicoService;
 use App\Services\ItemOrdemServico\ItemOrdemServicoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
@@ -152,6 +153,16 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         }
 
         notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
+
+        $alertas = app(GarantiaServicoService::class)->alertasDaOrdem($this->record);
+
+        if ($alertas->isNotEmpty()) {
+            notify::alert(
+                titulo: 'Serviço em garantia',
+                mensagem: $alertas->count().' serviço(s) retornaram dentro do prazo/km de garantia.'
+            );
+        }
+
         $this->refreshRecord();
     }
 

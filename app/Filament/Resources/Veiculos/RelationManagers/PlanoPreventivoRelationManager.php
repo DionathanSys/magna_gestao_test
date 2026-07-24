@@ -11,7 +11,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use planos_preventivo;
 
 class PlanoPreventivoRelationManager extends RelationManager
 {
@@ -76,6 +75,7 @@ class PlanoPreventivoRelationManager extends RelationManager
                     ->label('Itens')
                     ->getStateUsing(function ($record) {
                         $itens = $record->itens ?? [];
+
                         return $itens;
                     })
                     ->listWithLineBreaks()
@@ -94,5 +94,4 @@ class PlanoPreventivoRelationManager extends RelationManager
             ->headerActions([
             ]);
     }
-
 }

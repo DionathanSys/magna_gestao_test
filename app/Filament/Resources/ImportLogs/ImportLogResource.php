@@ -21,7 +21,7 @@ class ImportLogResource extends Resource
     protected static ?string $model = ImportLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    
+
     protected static ?string $modelLabel = 'Log Importação';
 
     protected static ?string $pluralModelLabel = 'Log Importações';

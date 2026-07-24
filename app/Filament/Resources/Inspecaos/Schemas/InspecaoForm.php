@@ -5,8 +5,8 @@ namespace App\Filament\Resources\Inspecaos\Schemas;
 use App\Filament\Resources\OrdemServicos;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class InspecaoForm

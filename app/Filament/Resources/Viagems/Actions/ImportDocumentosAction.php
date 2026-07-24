@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Viagems\Actions;
 
 use App\Services\Import\ViagemImportService;
+use App\Services\NotificacaoService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Log;
@@ -32,14 +33,14 @@ class ImportDocumentosAction
                 $result = $importService->importarViagens($filePath, $options);
 
                 if ($importService->hasError()) {
-                    Log::error('Erro na importação de viagens: ' . $importService->getMessage(), [
+                    Log::error('Erro na importação de viagens: '.$importService->getMessage(), [
                         'metodo' => __METHOD__,
                         'arquivo' => $filePath,
                     ]);
-                    \App\Services\NotificacaoService::error($importService->getMessage());
+                    NotificacaoService::error($importService->getMessage());
                 } else {
-                    \App\Services\NotificacaoService::success(
-                        "Importação iniciada!"
+                    NotificacaoService::success(
+                        'Importação iniciada!'
                     );
                 }
             });

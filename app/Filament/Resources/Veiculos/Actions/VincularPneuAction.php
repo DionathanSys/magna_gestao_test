@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Veiculos\Actions;
 
+use App\Models\Pneu;
 use App\Models\PneuPosicaoVeiculo;
 use App\Services;
 use App\Services\NotificacaoService as notify;
@@ -41,7 +42,7 @@ class VincularPneuAction
                         ->columnSpan(3)
                         ->native(false)
                         ->getSearchResultsUsing(fn (string $search): array => (new Services\Pneus\PneuService)->getPneusDisponiveis($search))
-                        ->getOptionLabelUsing(fn ($value): ?string => \App\Models\Pneu::find($value)?->numero_fogo)
+                        ->getOptionLabelUsing(fn ($value): ?string => Pneu::find($value)?->numero_fogo)
                         ->searchable()
                         ->searchDebounce(700)
                         ->required(),

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\DocumentoFretes\Actions;
 
-use App\Jobs\VincularViagemDocumentoFrete;
 use App\Models;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\BulkAction;
@@ -31,22 +30,22 @@ class VincularResultadoPeriodoBulkAction
 
                         $resultadoPeriodoId = self::resultadoCorrespondente($record);
 
-                        if (!$resultadoPeriodoId) {
+                        if (! $resultadoPeriodoId) {
                             Log::warning('Documento de frete sem resultado de período correspondente', [
-                                'documento_frete_id'    => $record->id,
-                                'veiculo_id'            => $record->veiculo_id,
-                                'data_emissao'          => $record->data_emissao,
+                                'documento_frete_id' => $record->id,
+                                'veiculo_id' => $record->veiculo_id,
+                                'data_emissao' => $record->data_emissao,
                             ]);
                             $semResultadoPeriodo++;
+
                             return;
                         }
 
                         $record->update([
-                            'resultado_periodo_id' => $resultadoPeriodoId
+                            'resultado_periodo_id' => $resultadoPeriodoId,
                         ]);
 
                         $vinculados++;
-                        return;
 
                     });
 
@@ -58,11 +57,12 @@ class VincularResultadoPeriodoBulkAction
                         'error' => $e->getMessage(),
                     ]);
                     notify::error('Ocorreu um erro ao vincular os documentos de frete ao resultado de período.');
+
                     return;
                 }
 
                 notify::success("Vinculação concluída: {$vinculados} registros vinculados com sucesso, {$semResultadoPeriodo} registros sem correspondência.");
-                
+
                 return true;
             })
             ->deselectRecordsAfterCompletion();

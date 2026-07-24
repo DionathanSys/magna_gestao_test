@@ -17,17 +17,18 @@ class VincularViagemDocumentoBulkAction
             ->icon('heroicon-o-paper-clip')
             ->action(function (Collection $records) {
 
-                $records->each(function (Models\DocumentoFrete $record){
-                    if(!$record->documento_transporte){
+                $records->each(function (Models\DocumentoFrete $record) {
+                    if (! $record->documento_transporte) {
                         Log::warning('Documento de frete sem viagem vinculada', [
                             'documento_frete_id' => $record->id,
                         ]);
+
                         return;
                     }
                     VincularViagemDocumentoFrete::dispatch($record->documento_transporte);
-                    return;
+
                 });
-                
+
                 return true;
             })
             ->deselectRecordsAfterCompletion();

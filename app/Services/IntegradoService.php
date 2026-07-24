@@ -11,7 +11,7 @@ class IntegradoService
         $codigoIntegrado = $this->extrairCodigoIntegrado($nome);
 
         return Integrado::query()->where('codigo', $codigoIntegrado)
-                                ->first();
+            ->first();
     }
 
     public function extrairCodigoIntegrado($nome): ?string
@@ -19,6 +19,7 @@ class IntegradoService
         if (preg_match('/\((\d+)/', $nome, $matches)) {
             return $matches[1];
         }
+
         return null;
     }
 
@@ -26,5 +27,4 @@ class IntegradoService
     {
         $integrado->update(['km_rota' => $kmRota]);
     }
-
 }

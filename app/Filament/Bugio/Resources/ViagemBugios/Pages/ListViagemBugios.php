@@ -24,31 +24,32 @@ class ListViagemBugios extends ListRecords
     {
         return [
             'todos' => Tab::make('Todos'),
-            
+
             'emitidos' => Tab::make('Emitidos')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'concluido')),
-            
+
             'em_andamento' => Tab::make('Em Andamento')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'em_andamento'))
                 ->badge(ViagemBugio::where('status', 'em_andamento')->count()),
-            
+
             'criados_ontem' => Tab::make('Criados Ontem')
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereDate('created_at', now()->subDay()->toDateString()))
                 ->badge(ViagemBugio::whereDate('created_at', now()->subDay()->toDateString())->count()),
-            
+
             'criados_hoje' => Tab::make('Criados Hoje')
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereDate('created_at', now()->toDateString()))
                 ->badge(ViagemBugio::whereDate('created_at', now()->toDateString())->count()),
         ];
     }
 
-    public function getDefaultActiveTab(): string | int | null
+    public function getDefaultActiveTab(): string|int|null
     {
         $lastActiveTab = session('viagem_bugio_last_active_tab');
-        
+
         if ($lastActiveTab && array_key_exists($lastActiveTab, $this->getTabs())) {
             return $lastActiveTab;
-        } 
+        }
+
         return 'criados_hoje';
     }
 

@@ -21,7 +21,7 @@ class ExportarMapaPneusExcel extends Command
     {
         $outputPath = $this->resolveOutputPath();
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Mapa de Pneus');
 

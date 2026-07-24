@@ -3,6 +3,7 @@
 namespace App\Services\Veiculo;
 
 use App\Models\HistoricoQuilometragem;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class CalcularKmMedio
@@ -11,7 +12,7 @@ class CalcularKmMedio
 
     public function __construct(protected $veiculoId)
     {
-        $this->historicoQuilometragem = new HistoricoQuilometragem();
+        $this->historicoQuilometragem = new HistoricoQuilometragem;
     }
 
     public function exec(): ?float
@@ -28,7 +29,7 @@ class CalcularKmMedio
             ->where('veiculo_id', $this->veiculoId)
             ->whereBetween('data_referencia', [
                 now()->subDays(14),
-                now()
+                now(),
             ])
             ->orderBy('data_referencia', 'asc')
             ->get()
@@ -40,16 +41,17 @@ class CalcularKmMedio
         if (empty($historico) || count($historico) < 2) {
             Log::alert('Não foi possível calcular a média de quilometragem, pois não há registros suficientes.', [
                 'veiculo_id' => $this->veiculoId,
-                'historico' => $historico
+                'historico' => $historico,
             ]);
+
             return null;
         }
 
         $kmPercorrido = end($historico)['quilometragem'] - reset($historico)['quilometragem'];
 
-        //Converter strings para objetos Carbon para calcular a diferença de dias
-        $dataFinal = \Carbon\Carbon::parse(end($historico)['data_referencia']);
-        $dataInicial = \Carbon\Carbon::parse(reset($historico)['data_referencia']);
+        // Converter strings para objetos Carbon para calcular a diferença de dias
+        $dataFinal = Carbon::parse(end($historico)['data_referencia']);
+        $dataInicial = Carbon::parse(reset($historico)['data_referencia']);
 
         $diffData = $dataInicial->diffInDays($dataFinal);
 
@@ -58,6 +60,7 @@ class CalcularKmMedio
                 'veiculo_id' => $this->veiculoId,
                 'historico' => $historico,
             ]);
+
             return null;
         }
 

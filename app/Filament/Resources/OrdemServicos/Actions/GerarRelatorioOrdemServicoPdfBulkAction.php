@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
 use App\Models\OrdemServico;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Collection;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class GerarRelatorioOrdemServicoPdfBulkAction
 {
@@ -29,8 +29,7 @@ class GerarRelatorioOrdemServicoPdfBulkAction
                     ->native(false)
                     ->helperText('Escolha o formato de impressão do relatório'),
             ])
-            ->modalDescription(fn (Collection $records) => 
-                'Você está prestes a gerar um relatório PDF com ' . $records->count() . ' ordem(ns) de serviço.'
+            ->modalDescription(fn (Collection $records) => 'Você está prestes a gerar um relatório PDF com '.$records->count().' ordem(ns) de serviço.'
             )
             ->action(function (Collection $records, array $data) {
                 return static::gerarPdf($records, $data['modelo']);
@@ -47,14 +46,14 @@ class GerarRelatorioOrdemServicoPdfBulkAction
                 'itens.servico:id,descricao',
                 'itens.comentarios.creator:id,name',
                 'sankhyaId:id,ordem_servico_id,ordem_sankhya_id',
-                'parceiro:id,nome'
+                'parceiro:id,nome',
             ])
             ->orderBy('id', 'asc')
             ->get();
 
         // Selecionar a view baseada no modelo
-        $view = $modelo === 'matricial' 
-            ? 'pdf.relatorio-ordens-servico-matricial' 
+        $view = $modelo === 'matricial'
+            ? 'pdf.relatorio-ordens-servico-matricial'
             : 'pdf.relatorio-ordens-servico';
 
         // Gerar PDF
@@ -71,7 +70,7 @@ class GerarRelatorioOrdemServicoPdfBulkAction
         }
 
         $sufixo = $modelo === 'matricial' ? '_matricial' : '';
-        $fileName = 'relatorio_ordens_servico' . $sufixo . '_' . now()->format('Y-m-d_His') . '.pdf';
+        $fileName = 'relatorio_ordens_servico'.$sufixo.'_'.now()->format('Y-m-d_His').'.pdf';
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();

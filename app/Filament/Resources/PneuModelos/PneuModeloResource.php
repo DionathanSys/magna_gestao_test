@@ -4,11 +4,11 @@ namespace App\Filament\Resources\PneuModelos;
 
 use App\Filament\Resources\PneuModelos\Pages\ManagePneuModelos;
 use App\Models\PneuModelo;
-use Filament\Forms\Components\Select;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;

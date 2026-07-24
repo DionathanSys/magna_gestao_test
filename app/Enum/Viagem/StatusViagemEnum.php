@@ -4,8 +4,8 @@ namespace App\Enum\Viagem;
 
 enum StatusViagemEnum: string
 {
-    case PENDENTE   = 'PENDENTE';
-    case CANCELADO  = 'CANCELADO';
+    case PENDENTE = 'PENDENTE';
+    case CANCELADO = 'CANCELADO';
 
     public static function toSelectArray(): array
     {

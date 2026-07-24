@@ -4,7 +4,6 @@ namespace App\Services\Carga;
 
 use App\Models;
 use App\Traits\UserCheckTrait;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CargaService
@@ -15,7 +14,7 @@ class CargaService
 
     public function __construct()
     {
-        $this->cargaViagem = new Models\CargaViagem();
+        $this->cargaViagem = new Models\CargaViagem;
     }
 
     public function create(?Models\Integrado $integrado, Models\Viagem $viagem): ?Models\CargaViagem
@@ -35,7 +34,6 @@ class CargaService
          *
          * 01 viagem pode ter 1 ou mais integrados (cargas)
          */
-
         try {
             $viagem->loadMissing('cargas');
 
@@ -77,28 +75,31 @@ class CargaService
                     ]);
 
                     Log::info("Carga de viagem já existente para a viagem ID {$viagem->id} com o integrado ID {$integrado->id}, retornando existente");
+
                     return $cargaViagemComIntegrado;
                 }
             }
 
             if (! $permitirCriacaoManual && $totalCargas > 0 && $qtdeDestino > $totalCargas) {
                 Log::info("Criação automática de carga bloqueada para viagem {$viagem->id} por quantidade de destinos maior que cargas existentes.");
+
                 return null;
             }
 
             return $this->cargaViagem->query()->create([
-                'viagem_id'     => $viagem->id,
+                'viagem_id' => $viagem->id,
                 'documento_transporte' => $documentoTransporte,
-                'integrado_id'  => $integrado?->id,
-                'created_by'    => $this->getUserIdChecked(),
-                'updated_by'    => $this->getUserIdChecked(),
+                'integrado_id' => $integrado?->id,
+                'created_by' => $this->getUserIdChecked(),
+                'updated_by' => $this->getUserIdChecked(),
             ]);
         } catch (\Exception $e) {
-            Log::error('Erro ao criar carga de viagem: ' . $e->getMessage(), [
-                'metodo'       => __METHOD__ . ' - ' . __LINE__,
-                'viagem_id'    => $viagem->id,
+            Log::error('Erro ao criar carga de viagem: '.$e->getMessage(), [
+                'metodo' => __METHOD__.' - '.__LINE__,
+                'viagem_id' => $viagem->id,
                 'integrado_id' => $integrado->id ?? null,
             ]);
+
             return null;
         }
     }
@@ -106,15 +107,15 @@ class CargaService
     public function atualizarKmDispersao(int $viagemId): void
     {
         try {
-            $action = new Actions\AtualizarKmDispersao();
+            $action = new Actions\AtualizarKmDispersao;
             $action->handle($viagemId);
 
             Log::info("Quilometragem de dispersão atualizada para CargaViagem ID {$viagemId}");
 
         } catch (\Exception $e) {
-            Log::error('Erro ao atualizar quilometragem de dispersão: ' . $e->getMessage(), [
-                'metodo'         => __METHOD__. ' - ' . __LINE__,
-                'cargas_viagem_id'=> $viagemId,
+            Log::error('Erro ao atualizar quilometragem de dispersão: '.$e->getMessage(), [
+                'metodo' => __METHOD__.' - '.__LINE__,
+                'cargas_viagem_id' => $viagemId,
             ]);
         }
     }

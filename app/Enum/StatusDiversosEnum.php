@@ -4,8 +4,8 @@ namespace App\Enum;
 
 enum StatusDiversosEnum: string
 {
-    case PENDENTE   = 'PENDENTE';
-    case ENCERRADO  = 'ENCERRADO';
+    case PENDENTE = 'PENDENTE';
+    case ENCERRADO = 'ENCERRADO';
 
     public static function toSelectArray(): array
     {

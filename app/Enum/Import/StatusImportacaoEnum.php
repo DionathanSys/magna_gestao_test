@@ -4,12 +4,12 @@ namespace App\Enum\Import;
 
 enum StatusImportacaoEnum: string
 {
-    case PENDENTE               = 'PENDENTE';
-    case PROCESSANDO            = 'PROCESSANDO';
-    case CONCLUIDO              = 'CONCLUIDO';
-    case CONCLUIDO_COM_ERROS    = 'CONCLUIDO COM ERROS';
-    case FALHOU                 = 'FALHOU';
-    case CANCELADO              = 'CANCELADO';
+    case PENDENTE = 'PENDENTE';
+    case PROCESSANDO = 'PROCESSANDO';
+    case CONCLUIDO = 'CONCLUIDO';
+    case CONCLUIDO_COM_ERROS = 'CONCLUIDO COM ERROS';
+    case FALHOU = 'FALHOU';
+    case CANCELADO = 'CANCELADO';
 
     public static function toSelectArray(): array
     {

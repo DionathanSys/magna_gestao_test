@@ -2,19 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Enum\ClienteEnum;
-use App\Enum\Frete\TipoDocumentoEnum;
-use App\Jobs\VincularRegistroResultadoJob;
-use Illuminate\Console\Command;
-use App\Models;
-use App\Models\ImportLog;
-use App\Models\ViagemBugio;
 use App\Services\Veiculo\VeiculoCacheService;
-use App\Services\Veiculo\VeiculoService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Console\Command;
 
 class TesteCommand extends Command
 {

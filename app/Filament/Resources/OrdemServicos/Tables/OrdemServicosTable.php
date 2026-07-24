@@ -2,24 +2,21 @@
 
 namespace App\Filament\Resources\OrdemServicos\Tables;
 
-use App\Models;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Tables\Columns\SelectColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 use App\Enum;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\OrdemServico;
-use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DatePicker;
 use Filament\Support\Enums\Width;
+use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
-use Filament\Tables\Filters\{SelectFilter, Filter};
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
@@ -30,6 +27,7 @@ class OrdemServicosTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->with(['sankhyaId', 'veiculo', 'parceiro', 'creator']);
+
                 return $query->withCount(['itens', 'pendentes']);
             })
             ->columns([
@@ -73,8 +71,8 @@ class OrdemServicosTable
                 TextColumn::make('pendentes_count')->counts('pendentes')
                     ->label('Pendências')
                     ->width('1%')
-                    ->color(fn($state): string => $state == 0 ? 'gray' : 'info')
-                    ->badge(fn($state): bool => $state > 0),
+                    ->color(fn ($state): string => $state == 0 ? 'gray' : 'info')
+                    ->badge(fn ($state): bool => $state > 0),
                 TextColumn::make('status')
                     ->width('1%')
                     ->badge('success'),
@@ -148,7 +146,7 @@ class OrdemServicosTable
                 ActionGroup::make([
                     Actions\EncerrarOrdemServicoAction::make(),
                     EditAction::make()
-                        ->url(fn(Models\OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
+                        ->url(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
                     Actions\PdfOrdemServicoAction::make(),
                     Actions\VincularOrdemSankhyaAction::make(),
                 ])

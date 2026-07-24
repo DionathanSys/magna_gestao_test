@@ -24,19 +24,19 @@ class RegistrarHistoricoMovimentacao implements ShouldQueue
      */
     public function handle(): void
     {
-        
-        $service = new Services\Pneus\MovimentarPneuService();
+
+        $service = new Services\Pneus\MovimentarPneuService;
         $service->registrarHistoricoMovimento($this->dataMovimentacao);
         if ($service->hasError()) {
             Log::error('Erro ao registrar histórico de movimentação de pneu.', [
-                'metodo'            => __METHOD__ . '@' . __LINE__,
-                'dataMovimentacao'  => $this->dataMovimentacao,
-                'erro'              => $service->getMessage(),
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'dataMovimentacao' => $this->dataMovimentacao,
+                'erro' => $service->getMessage(),
             ]);
         }
-        Log::debug("Registrando histórico de movimentação de pneu.", [
-            'metodo' => __METHOD__ . '@' . __LINE__,
-            'dataMovimentacao' => $this->dataMovimentacao
+        Log::debug('Registrando histórico de movimentação de pneu.', [
+            'metodo' => __METHOD__.'@'.__LINE__,
+            'dataMovimentacao' => $this->dataMovimentacao,
         ]);
     }
 }

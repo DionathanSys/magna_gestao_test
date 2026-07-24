@@ -2,16 +2,13 @@
 
 namespace App\Filament\Resources\CargaViagems;
 
-use App\Filament\Resources\CargaViagems\Pages\CreateCargaViagem;
-use App\Filament\Resources\CargaViagems\Pages\EditCargaViagem;
 use App\Filament\Resources\CargaViagems\Pages\ListCargaViagems;
 use App\Filament\Resources\CargaViagems\Schemas\CargaViagemForm;
 use App\Filament\Resources\CargaViagems\Tables\CargaViagemsTable;
-use BackedEnum;
 use App\Models\CargaViagem;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -21,7 +18,7 @@ class CargaViagemResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Viagens';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-square-3-stack-3d';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-square-3-stack-3d';
 
     protected static ?string $modelLabel = 'Carga Viagem';
 

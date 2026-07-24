@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrdemServicos\Actions;
 
 use App\Models;
 use App\Services;
+use App\Services\Garantia\GarantiaServicoService;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
@@ -45,6 +46,15 @@ class EncerrarOrdemServicoAction
                 }
 
                 notify::success(mensagem: 'Ordem de Serviço encerrada com sucesso!');
+
+                $alertas = app(GarantiaServicoService::class)->alertasDaOrdem($record);
+
+                if ($alertas->isNotEmpty()) {
+                    notify::alert(
+                        titulo: 'Serviço em garantia',
+                        mensagem: $alertas->count().' serviço(s) retornaram dentro do prazo/km de garantia.'
+                    );
+                }
             });
     }
 }

@@ -8,12 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Number;
 
 class ResultadoPeriodo extends Model
 {
-
     protected $appends = [
         'periodo',
         'km_rodado_abastecimento',
@@ -92,18 +89,18 @@ class ResultadoPeriodo extends Model
     protected function title(): Attribute
     {
         return Attribute::make(
-            get: fn(): string => $this->veiculo->placa . ' ' . ucfirst(Carbon::parse($this->data_fim)->locale('pt_BR')->isoFormat('MMM YY'))
+            get: fn (): string => $this->veiculo->placa.' '.ucfirst(Carbon::parse($this->data_fim)->locale('pt_BR')->isoFormat('MMM YY'))
         );
     }
 
     protected function periodo(): Attribute
     {
         return Attribute::make(
-            get: fn(): string => Carbon::parse($this->data_inicio)->format('d/m/Y') . ' à ' . Carbon::parse($this->data_fim)->format('d/m/Y')
+            get: fn (): string => Carbon::parse($this->data_inicio)->format('d/m/Y').' à '.Carbon::parse($this->data_fim)->format('d/m/Y')
         );
     }
 
-    //Período do mês anterior do mesmo veículo
+    // Período do mês anterior do mesmo veículo
     public function periodoMesAnterior(): HasOne
     {
         return $this->hasOne(ResultadoPeriodo::class, 'veiculo_id', 'veiculo_id')
@@ -138,7 +135,7 @@ class ResultadoPeriodo extends Model
                     ->first();
 
                 // Se não houver período anterior
-                if (!$periodoAnterior) {
+                if (! $periodoAnterior) {
                     return null;
                 }
 
@@ -167,14 +164,14 @@ class ResultadoPeriodo extends Model
     protected function kmPago(): Attribute
     {
         return Attribute::make(
-            get: fn(): float => (float) ($this->viagens_sum_km_pago ?? 0)
+            get: fn (): float => (float) ($this->viagens_sum_km_pago ?? 0)
         );
     }
 
     protected function kmRodadoViagens(): Attribute
     {
         return Attribute::make(
-            get: fn(): int => ($this->viagens_sum_km_rodado ?? 0)
+            get: fn (): int => ($this->viagens_sum_km_rodado ?? 0)
         );
     }
 
@@ -184,6 +181,7 @@ class ResultadoPeriodo extends Model
             get: function (): int {
                 $kmFinal = $this->abastecimentoFinal?->quilometragem ?? 0;
                 $kmInicial = $this->abastecimentoInicial?->ultimo_abastecimento_anterior?->quilometragem ?? 0;
+
                 return $kmFinal - $kmInicial;
             }
         );
@@ -192,21 +190,21 @@ class ResultadoPeriodo extends Model
     protected function quantidadeLitrosCombustivel(): Attribute
     {
         return Attribute::make(
-            get: fn(): float => (float) ($this->abastecimentos->sum('quantidade') ?? 0)
+            get: fn (): float => (float) ($this->abastecimentos->sum('quantidade') ?? 0)
         );
     }
 
     protected function precoMedioCombustivel(): Attribute
     {
         return Attribute::make(
-            get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0
+            get: fn (): float => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0
         );
     }
 
     protected function consumoMedioCombustivel(): Attribute
     {
         return Attribute::make(
-            get: fn(): float => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0
+            get: fn (): float => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0
         );
     }
 
@@ -222,7 +220,7 @@ class ResultadoPeriodo extends Model
                 $meta = $this->veiculo?->tipoVeiculo?->meta_media;
 
                 // Se não houver meta
-                if (!$meta || $meta <= 0) {
+                if (! $meta || $meta <= 0) {
                     return 'Sem Meta';
                 }
 
@@ -230,7 +228,7 @@ class ResultadoPeriodo extends Model
                 $consumoReal = $this->consumo_medio_combustivel;
 
                 // Se não houver consumo
-                if (!$consumoReal || $consumoReal <= 0) {
+                if (! $consumoReal || $consumoReal <= 0) {
                     return 'Sem Consumo';
                 }
 
@@ -264,28 +262,28 @@ class ResultadoPeriodo extends Model
     protected function dispersaoKm(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->km_rodado_abastecimento - ($this->km_pago ?? 0)
+            get: fn () => $this->km_rodado_abastecimento - ($this->km_pago ?? 0)
         );
     }
 
     protected function dispersaoKmAbastecimentoKmViagem(): Attribute
     {
         return Attribute::make(
-            get: fn(): int => ($this->km_rodado_viagens ?? 0) - ($this->km_rodado_abastecimento ?? 0)
+            get: fn (): int => ($this->km_rodado_viagens ?? 0) - ($this->km_rodado_abastecimento ?? 0)
         );
     }
 
     protected function quantidadeViagens(): Attribute
     {
         return Attribute::make(
-            get: fn(): int => $this->viagens_count ?? 0
+            get: fn (): int => $this->viagens_count ?? 0
         );
     }
 
     protected function mediaKmPagoViagem(): Attribute
     {
         return Attribute::make(
-            get: fn(): string => $this->quantidade_viagens > 0 ? number_format($this->km_pago / $this->quantidade_viagens, 2, ',', '.') . " Km/Viagem" : "0"
+            get: fn (): string => $this->quantidade_viagens > 0 ? number_format($this->km_pago / $this->quantidade_viagens, 2, ',', '.').' Km/Viagem' : '0'
         );
     }
 

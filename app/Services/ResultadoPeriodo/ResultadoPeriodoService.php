@@ -2,7 +2,6 @@
 
 namespace App\Services\ResultadoPeriodo;
 
-use App\Models;
 use Illuminate\Support\Facades\Log;
 
 class ResultadoPeriodoService
@@ -41,10 +40,5 @@ class ResultadoPeriodoService
         }
     }
 
-    public function importarViagem()
-    {
-
-    }
-
-
+    public function importarViagem() {}
 }

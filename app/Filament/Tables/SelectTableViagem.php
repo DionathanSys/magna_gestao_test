@@ -4,9 +4,7 @@ namespace App\Filament\Tables;
 
 use App\Models\Viagem;
 use Filament\Actions\BulkActionGroup;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
@@ -24,11 +22,12 @@ class SelectTableViagem
                 if (isset($arguments['veiculo_id'])) {
                     $query->where('veiculo_id', $arguments['veiculo_id']);
                 }
+
                 return $query;
-                
+
             })
             ->columns([
-                TextColumn::make('veiculo.placa')   
+                TextColumn::make('veiculo.placa')
                     ->label('Placa'),
                 TextColumn::make('numero_viagem')
                     ->label('Nº Viagem')

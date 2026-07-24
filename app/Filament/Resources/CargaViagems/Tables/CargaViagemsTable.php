@@ -3,31 +3,31 @@
 namespace App\Filament\Resources\CargaViagems\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
-use App\Filament\Resources\CargaViagems\CargaViagemResource;
+use App\Enum\MotivoDivergenciaViagem;
 use App\Filament\Resources\Viagems\ViagemResource;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Tables\Columns\ColumnGroup;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 use App\Models;
 use Carbon\Carbon;
-use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Forms\Components\DatePicker;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\TextSize;
+use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
+use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
+use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\IsRelatedToOperator;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Session;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class CargaViagemsTable
@@ -64,7 +64,7 @@ class CargaViagemsTable
                     ->label('Nº Viagem')
                     ->width('1%')
                     ->numeric(0, '', '')
-                    ->url(fn(Models\CargaViagem $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id]))
+                    ->url(fn (Models\CargaViagem $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id]))
                     ->openUrlInNewTab()
                     ->searchable(isIndividual: true)
                     ->sortable(),
@@ -131,14 +131,14 @@ class CargaViagemsTable
                     TextColumn::make('km_dispersao_rateio')
                         ->label('Km Rateio')
                         ->width('1%')
-                        ->formatStateUsing(fn($state) => $state ? 'Sim' : 'Não')
+                        ->formatStateUsing(fn ($state) => $state ? 'Sim' : 'Não')
                         ->wrapHeader()
                         ->toggleable(isToggledHiddenByDefault: false),
-                TextColumn::make('viagem.motivo_divergencia')
-                    ->label('Motivo Divergência')
-                    ->width('2%')
-                    ->formatStateUsing(fn($state) => $state?->value ?? '')
-                    ->wrapHeader(),
+                    TextColumn::make('viagem.motivo_divergencia')
+                        ->label('Motivo Divergência')
+                        ->width('2%')
+                        ->formatStateUsing(fn ($state) => $state?->value ?? '')
+                        ->wrapHeader(),
                     IconColumn::make('viagem.possui_pendencia')
                         ->label('Pendência')
                         ->boolean(),
@@ -174,7 +174,7 @@ class CargaViagemsTable
                     Group::make('viagem.data_competencia')
                         ->label('Data Competência')
                         ->titlePrefixedWithLabel(false)
-                        ->getTitleFromRecordUsing(fn(Models\CargaViagem $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
+                        ->getTitleFromRecordUsing(fn (Models\CargaViagem $record): string => Carbon::parse($record->data_competencia)->format('d/m/Y'))
                         ->collapsible(),
                     Group::make('viagem.veiculo.placa')
                         ->label('Veículo')
@@ -187,8 +187,7 @@ class CargaViagemsTable
                     Group::make('viagem.motivo_divergencia')
                         ->label('Motivo Divergência')
                         // garante que o título seja uma string (usa ->value se for BackedEnum)
-                        ->getTitleFromRecordUsing(fn(Models\CargaViagem $record): string =>
-                            $record->viagem?->motivo_divergencia?->value
+                        ->getTitleFromRecordUsing(fn (Models\CargaViagem $record): string => $record->viagem?->motivo_divergencia?->value
                             ?? (string) ($record->viagem?->motivo_divergencia ?? '')
                         )
                         ->titlePrefixedWithLabel(false)
@@ -205,16 +204,15 @@ class CargaViagemsTable
                     ->schema([
                         Select::make('motivo_divergencia')
                             ->label('Motivo Divergência')
-                            ->options(\App\Enum\MotivoDivergenciaViagem::toSelectArray())
+                            ->options(MotivoDivergenciaViagem::toSelectArray())
                             ->searchable()
                             ->preload()
                             ->multiple(),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
-                            !empty($data['motivo_divergencia']),
-                            fn($query) =>
-                            $query->whereHas('viagem', function ($q) use ($data) {
+                            ! empty($data['motivo_divergencia']),
+                            fn ($query) => $query->whereHas('viagem', function ($q) use ($data) {
                                 $q->whereIn('motivo_divergencia', $data['motivo_divergencia']);
                             })
                         );
@@ -239,9 +237,9 @@ class CargaViagemsTable
                     ->trueLabel('Sim')
                     ->falseLabel('Não')
                     ->queries(
-                        true: fn(Builder $query) => $query->doesntHave('viagem.complementos'),
-                        false: fn(Builder $query) => $query->has('viagem.complementos'),
-                        blank: fn(Builder $query) => $query,
+                        true: fn (Builder $query) => $query->doesntHave('viagem.complementos'),
+                        false: fn (Builder $query) => $query->has('viagem.complementos'),
+                        blank: fn (Builder $query) => $query,
                     ),
                 DateRangeFilter::make('viagem.data_competencia')
                     ->label('Dt. Competência')
@@ -250,8 +248,7 @@ class CargaViagemsTable
                     ->alwaysShowCalendar()
                     ->alwaysShowCalendar()
                     ->modifyQueryUsing(
-                        fn(Builder $query, ?Carbon $startDate, ?Carbon $endDate, $dateString) =>
-                        $query->when(
+                        fn (Builder $query, ?Carbon $startDate, ?Carbon $endDate, $dateString) => $query->when(
                             ! empty($dateString),
                             function (Builder $query) use ($startDate, $endDate): Builder {
                                 // clona as datas para não alterar os objetos originais
@@ -267,17 +264,17 @@ class CargaViagemsTable
                     ),
                 QueryBuilder::make()
                     ->constraints([
-                        \Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint::make('km_perdido'),
-                        \Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint::make('integrado')
+                        NumberConstraint::make('km_perdido'),
+                        RelationshipConstraint::make('integrado')
                             ->multiple()
                             ->emptyable()
                             ->selectable(
-                                \Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\IsRelatedToOperator::make()
+                                IsRelatedToOperator::make()
                                     ->titleAttribute('nome')
                                     ->searchable()
                                     ->multiple()
-                            )
-                    ])
+                            ),
+                    ]),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->searchOnBlur()
             ->persistFiltersInSession()

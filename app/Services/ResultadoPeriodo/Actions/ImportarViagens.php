@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class ImportarViagens
 {
     protected Models\ResultadoPeriodo $resultadoPeriodo;
+
     protected Collection $viagens;
 
     public function __construct(int $resultadoPeriodoId, protected bool $considerarPeriodo = true)
@@ -25,6 +26,7 @@ class ImportarViagens
                 'resultado_periodo_id' => $this->resultadoPeriodo->id,
                 'status_atual' => $this->resultadoPeriodo->status,
             ]);
+
             return;
         }
 
@@ -32,9 +34,9 @@ class ImportarViagens
 
         if ($this->viagens->isEmpty()) {
             Log::info('Nenhuma viagem para importar encontrada.', [
-                'metodo'        => __METHOD__,
-                'veiculo_id'    => $this->resultadoPeriodo->veiculo_id,
-                'data_inicial'  => $this->resultadoPeriodo->data_inicial,
+                'metodo' => __METHOD__,
+                'veiculo_id' => $this->resultadoPeriodo->veiculo_id,
+                'data_inicial' => $this->resultadoPeriodo->data_inicial,
             ]);
         }
 
@@ -61,7 +63,7 @@ class ImportarViagens
     private function vincularViagens(): void
     {
         $viagemIds = $this->viagens->pluck('id')->toArray();
-        
+
         Models\Viagem::query()
             ->whereIn('id', $viagemIds)
             ->update([

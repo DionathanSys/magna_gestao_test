@@ -2,8 +2,8 @@
 
 namespace App\Services\Abastecimento;
 
-use App\{Models, Services};
 use App\Jobs\VincularRegistroResultadoJob;
+use App\Models;
 use App\Traits\ServiceResponseTrait;
 use Illuminate\Support\Facades\Log;
 
@@ -13,24 +13,25 @@ class AbastecimentoService
 
     public function criar(array $data): ?Models\Abastecimento
     {
-         try {
+        try {
 
-            $action = new Action\CriarAbastecimento();
+            $action = new Action\CriarAbastecimento;
             $abastecimento = $action->handle($data);
 
-            if($action->hasErrors) {
+            if ($action->hasErrors) {
                 $this->setError('Erro ao criar abastecimento', $action->errors);
+
                 return null;
             }
 
             VincularRegistroResultadoJob::dispatch($abastecimento->id, Models\Abastecimento::class);
 
-            Log::info('Job de vinculação de registro de resultado despachado para abastecimento ID: ' . $abastecimento->id, [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+            Log::info('Job de vinculação de registro de resultado despachado para abastecimento ID: '.$abastecimento->id, [
+                'metodo' => __METHOD__.'@'.__LINE__,
             ]);
 
-            Log::info('Abastecimento criado com sucesso ID: '. $abastecimento->id_abastecimento ?? 'null', [
-                'metodo'        => __METHOD__.'@'.__LINE__,
+            Log::info('Abastecimento criado com sucesso ID: '.$abastecimento->id_abastecimento ?? 'null', [
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'abastecimento' => $abastecimento,
             ]);
 
@@ -38,14 +39,14 @@ class AbastecimentoService
 
             return $abastecimento;
 
-         } catch (\Exception $e) {
-            Log::error('Erro ao criar abastecimento: ' . $e->getMessage(), [
+        } catch (\Exception $e) {
+            Log::error('Erro ao criar abastecimento: '.$e->getMessage(), [
                 'metodo' => __METHOD__,
-                'data'   => $data,
+                'data' => $data,
             ]);
             $this->setError('Erro interno ao criar abastecimento');
-            return null;
-         }
-    } 
 
+            return null;
+        }
+    }
 }

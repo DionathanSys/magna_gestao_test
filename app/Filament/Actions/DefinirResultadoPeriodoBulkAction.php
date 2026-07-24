@@ -3,21 +3,15 @@
 namespace App\Filament\Actions;
 
 use App\Models\ResultadoPeriodo;
-use App\Services\Import\AbastecimentoImportService;
-use Filament\Actions\Action;
-use Filament\Actions\BulkAction;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 
 class DefinirResultadoPeriodoBulkAction
 {
@@ -62,7 +56,7 @@ class DefinirResultadoPeriodoBulkAction
                                 $set('data_inicio', null)
                             }
                         JS),
-                ])
+                ]),
             ])
             ->action(function (Collection $records, array $data) {
                 $recordsUpdated = 0;
@@ -87,13 +81,13 @@ class DefinirResultadoPeriodoBulkAction
                         Log::error('Erro ao definir Resultado Período no Bulk Action.', [
                             'metodo' => __METHOD__,
                             'record_id' => $record->id,
-                            'error' => $e->getMessage()
+                            'error' => $e->getMessage(),
                         ]);
                     }
                 });
-                
+
                 notify::success("{$recordsUpdated} registro(s) atualizado(s) com sucesso. {$recordsFailed} registro(s) falharam.");
-                
+
                 return true;
             })
             ->deselectRecordsAfterCompletion();
@@ -101,7 +95,7 @@ class DefinirResultadoPeriodoBulkAction
 
     private static function getResultadoPeriodoIdByData(?string $data, int $veiculoId): ?int
     {
-        if (!$data) {
+        if (! $data) {
             return null;
         }
 
@@ -116,15 +110,15 @@ class DefinirResultadoPeriodoBulkAction
 
     private static function getResultadoPeriodoIdByRegistro($record): ?int
     {
-        $dataReferencia     = $record->data_referencia;
-        $veiculoId          = $record->veiculo_id;
+        $dataReferencia = $record->data_referencia;
+        $veiculoId = $record->veiculo_id;
         Log::debug('Buscando Resultado Período para o registro.', [
             'metodo' => __METHOD__,
             'record' => $record,
             'data_referencia' => $dataReferencia,
-            'veiculo_id' => $veiculoId
+            'veiculo_id' => $veiculoId,
         ]);
-        
+
         $resultadoPeriodo = ResultadoPeriodo::query()
             ->where('veiculo_id', $veiculoId)
             ->whereDate('data_inicio', '<=', $dataReferencia)
@@ -132,10 +126,9 @@ class DefinirResultadoPeriodoBulkAction
             ->first();
 
         Log::debug('Resultado Período encontrado para o registro.', [
-            'resultado_periodo' => $resultadoPeriodo
+            'resultado_periodo' => $resultadoPeriodo,
         ]);
 
         return $resultadoPeriodo?->id;
     }
-
 }

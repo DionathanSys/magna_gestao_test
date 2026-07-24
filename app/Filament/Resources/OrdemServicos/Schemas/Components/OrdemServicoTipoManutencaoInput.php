@@ -4,8 +4,6 @@ namespace App\Filament\Resources\OrdemServicos\Schemas\Components;
 
 use App\Enum;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Utilities\Set;
 
 class OrdemServicoTipoManutencaoInput
 {

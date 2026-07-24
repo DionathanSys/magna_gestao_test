@@ -10,10 +10,8 @@ use App\Filament\Resources\AnotacaoVeiculos\Schemas\AnotacaoVeiculoForm;
 use App\Filament\Resources\AnotacaoVeiculos\Schemas\AnotacaoVeiculoInfolist;
 use App\Filament\Resources\AnotacaoVeiculos\Tables\AnotacaoVeiculosTable;
 use App\Models\AnotacaoVeiculo;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 

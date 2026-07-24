@@ -10,6 +10,7 @@ class ConsertoService
     public function create(Pneu $pneu, array $data): ?Conserto
     {
         $data['pneu_id'] = $pneu->id;
+
         return Conserto::create($data);
     }
 }

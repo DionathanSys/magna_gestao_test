@@ -21,6 +21,7 @@ trait UserCheckTrait
     public function setSystemUserId(int $userId): self
     {
         $this->systemUserId = $userId;
+
         return $this;
     }
 }

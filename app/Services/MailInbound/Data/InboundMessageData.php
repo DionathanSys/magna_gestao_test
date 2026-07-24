@@ -21,6 +21,5 @@ readonly class InboundMessageData
         public array $headers,
         public array $attachments,
         public mixed $sourceMessage = null,
-    ) {
-    }
+    ) {}
 }

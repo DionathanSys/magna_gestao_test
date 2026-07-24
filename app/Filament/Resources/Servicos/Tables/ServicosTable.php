@@ -26,6 +26,16 @@ class ServicosTable
                     ->searchable(),
                 IconColumn::make('controla_posicao')
                     ->boolean(),
+                TextColumn::make('garantia_km')
+                    ->label('Garantia km')
+                    ->numeric(0, ',', '.')
+                    ->placeholder('Padrão')
+                    ->toggleable(),
+                TextColumn::make('garantia_dias')
+                    ->label('Garantia dias')
+                    ->numeric(0, ',', '.')
+                    ->placeholder('Padrão')
+                    ->toggleable(),
                 IconColumn::make('is_active')
                     ->boolean(),
                 TextColumn::make('created_at')

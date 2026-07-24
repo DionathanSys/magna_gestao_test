@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class ImportarDocumentosFrete
 {
     protected Models\ResultadoPeriodo $resultadoPeriodo;
+
     protected Collection $documentosFrete;
 
     public function __construct(int $resultadoPeriodoId, protected bool $considerarPeriodo = true)
@@ -25,6 +26,7 @@ class ImportarDocumentosFrete
                 'resultado_periodo_id' => $this->resultadoPeriodo->id,
                 'status_atual' => $this->resultadoPeriodo->status,
             ]);
+
             return;
         }
 

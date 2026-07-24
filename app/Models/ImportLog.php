@@ -3,24 +3,23 @@
 namespace App\Models;
 
 use App\Enum;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Facades\Log;
 
 class ImportLog extends Model
 {
-     protected $casts = [
-        'status'                => Enum\Import\StatusImportacaoEnum::class,
-        'errors'                => 'array',
-        'warnings'              => 'array',
-        'skipped_reasons'       => 'array',
-        'options'               => 'array',
-        'mapping'               => 'array',
-        'summary'               => 'array',
-        'started_at'            => 'datetime',
-        'finished_at'           => 'datetime',
+    protected $casts = [
+        'status' => Enum\Import\StatusImportacaoEnum::class,
+        'errors' => 'array',
+        'warnings' => 'array',
+        'skipped_reasons' => 'array',
+        'options' => 'array',
+        'mapping' => 'array',
+        'summary' => 'array',
+        'started_at' => 'datetime',
+        'finished_at' => 'datetime',
         // 'progress_percentage'   => 'decimal:2',
     ];
 
@@ -40,7 +39,7 @@ class ImportLog extends Model
     {
         return Attribute::make(
             get: function (): ?string {
-                if (!$this->duration_seconds) {
+                if (! $this->duration_seconds) {
                     return null;
                 }
 
@@ -55,7 +54,7 @@ class ImportLog extends Model
     protected function progressPercentageFormatted(): Attribute
     {
         return Attribute::make(
-            get: fn (): string => number_format($this->progress_percentage, 1) . '%'
+            get: fn (): string => number_format($this->progress_percentage, 1).'%'
         );
     }
 
@@ -63,7 +62,7 @@ class ImportLog extends Model
     {
         return Attribute::make(
             get: function (): ?string {
-                if (!$this->file_size) {
+                if (! $this->file_size) {
                     return null;
                 }
 
@@ -74,7 +73,7 @@ class ImportLog extends Model
                     $bytes /= 1024;
                 }
 
-                return round($bytes, 2) . ' ' . $units[$i];
+                return round($bytes, 2).' '.$units[$i];
             }
         );
     }

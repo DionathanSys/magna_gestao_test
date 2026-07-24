@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Contracts\XlsxImportInterface;
 use App\Services;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,9 +14,7 @@ class ProcessarDocumentoFreteJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public string $importer, public string $fileName)
-    {
-    }
+    public function __construct(public string $importer, public string $fileName) {}
 
     public function handle(): void
     {
@@ -28,12 +25,12 @@ class ProcessarDocumentoFreteJob implements ShouldQueue
                 'fileName' => $this->fileName,
             ]);
 
-            $importerClass = new $this->importer();
-            $service = new Services\DocumentoFrete\DocumentoFreteService();
+            $importerClass = new $this->importer;
+            $service = new Services\DocumentoFrete\DocumentoFreteService;
             $service->importarRelatorioDocumentoFrete($importerClass, $this->fileName);
 
-            Log::debug(__METHOD__ . ' Job Finalizado');
-            
+            Log::debug(__METHOD__.' Job Finalizado');
+
         } catch (\Exception $e) {
             Log::error(__METHOD__, [
                 'error' => $e->getMessage(),

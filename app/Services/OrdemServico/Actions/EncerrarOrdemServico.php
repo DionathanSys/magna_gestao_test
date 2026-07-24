@@ -5,6 +5,7 @@ namespace App\Services\OrdemServico\Actions;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Models;
 use App\Services\Agendamento\Actions\EncerrarAgendamento;
+use App\Services\Garantia\GarantiaServicoService;
 use Illuminate\Support\Facades\DB;
 
 class EncerrarOrdemServico
@@ -55,6 +56,8 @@ class EncerrarOrdemServico
             if (! $this->ordemServico->update($data)) {
                 throw new \RuntimeException("Erro ao encerrar a ordem de serviço {$this->ordemServico->id}.");
             }
+
+            (new GarantiaServicoService)->registrarOrdemServico($this->ordemServico->fresh(['itens.servico']));
 
             return $this->ordemServico->fresh(['itens', 'agendamentos']);
         });

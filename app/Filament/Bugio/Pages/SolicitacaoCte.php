@@ -9,7 +9,7 @@ class SolicitacaoCte extends Page
 {
     protected static ?string $title = 'Solicitar CTe';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-document-plus';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-plus';
 
     protected string $view = 'filament.bugio.pages.solicitacao-cte';
 }

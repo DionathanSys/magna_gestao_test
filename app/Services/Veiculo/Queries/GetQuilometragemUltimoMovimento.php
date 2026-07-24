@@ -8,9 +8,6 @@ class GetQuilometragemUltimoMovimento
 {
     /**
      * Handle the query to get the last movement mileage for a given vehicle ID.
-     *
-     * @param int $veiculoId
-     * @return int
      */
     public function handle(int $veiculoId): int
     {
@@ -25,9 +22,6 @@ class GetQuilometragemUltimoMovimento
 
     /**
      * Handle multiple vehicle IDs and return their last movement mileage.
-     *
-     * @param array $veiculoIds
-     * @return array
      */
     public function handleMultiple(array $veiculoIds): array
     {
@@ -45,5 +39,4 @@ class GetQuilometragemUltimoMovimento
 
         return $resultado;
     }
-
 }

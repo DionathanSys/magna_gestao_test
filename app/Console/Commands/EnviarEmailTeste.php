@@ -29,8 +29,9 @@ class EnviarEmailTeste extends Command
     {
         Mail::to('dionathan.silva@transmagnabosco.com.br')
             ->cc('dionideev@gmail.com')
-            ->send(new TesteMail());
+            ->send(new TesteMail);
         $this->info('Email de teste enviado com sucesso!');
+
         return Command::SUCCESS;
     }
 }

@@ -5,35 +5,31 @@ namespace App\Livewire;
 use App\Enum\ClienteEnum;
 use App\Jobs\CriarViagemBugioJob;
 use App\Jobs\SolicitarCteBugio;
+use App\Models\Integrado;
+use App\Models\Veiculo;
+use App\Services\NotificacaoService as notify;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TagsInput;
-use Filament\Schemas\Components\Fieldset;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Livewire\Component;
-use App\Services\CteService;
-use BackedEnum;
-use App\Services\NotificacaoService as notify;
-use Filament\Forms\Components\Toggle;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
-class SolicitarCte extends Component implements HasSchemas, HasActions
+class SolicitarCte extends Component implements HasActions, HasSchemas
 {
-
     use InteractsWithActions;
     use InteractsWithSchemas;
 
@@ -77,7 +73,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->columnSpan(['md' => 3, 'xl' => 4])
                             ->searchable()
                             ->preload()
-                            ->options(fn() => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
+                            ->options(fn () => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
                             ->required()
                             ->reactive()
                             ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
@@ -94,7 +90,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                             ->columnSpan(['md' => 1, 'xl' => 2])
                             ->searchable()
                             ->preload()
-                            ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
+                            ->options(fn () => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
                             ->required()
                             ->reactive(),
                         TagsInput::make('nro_notas')
@@ -150,14 +146,14 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
                                     ->columnSpan(['md' => 2, 'xl' => 4])
                                     ->preload()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                    ->options(\App\Models\Integrado::query()
+                                    ->options(Integrado::query()
                                         ->where('cliente', ClienteEnum::BUGIO)
                                         ->pluck('nome', 'id'))
                                     ->required()
                                     ->live()
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
                                         if ($state) {
-                                            $integrado = \App\Models\Integrado::find($state);
+                                            $integrado = Integrado::find($state);
                                             $kmRota = $integrado?->km_rota;
                                             $municipio = $integrado?->municipio;
                                             $kmTotal = $get('../../km_total') + ($kmRota ?? 0);
@@ -205,14 +201,15 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
         $data = $this->mutateData($this->data ?? []);
 
-        if (!$this->validateData($data)) {
+        if (! $this->validateData($data)) {
             notify::error('Dados inválidos. Verifique os campos e tente novamente.');
+
             return;
         }
 
         $data['created_by'] = Auth::id();
         $data['updated_by'] = Auth::id();
-        $data['status']     = 'pendente';
+        $data['status'] = 'pendente';
 
         SolicitarCteBugio::dispatch($data);
 
@@ -228,46 +225,46 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     private function validateData(array $data): bool
     {
         $validator = Validator::make($data, [
-            'km_total'                   => 'required|numeric|min:0',
-            'valor_frete'                => 'required|numeric|min:0',
-            'motorista.cpf'              => 'required|string',
-            'veiculo'                    => 'required|string|exists:veiculos,placa',
-            'nro_notas'                  => 'required|array|min:1',
-            'cte_complementar'           => 'boolean',
-            'cte_referencia'             => 'required_if:cte_complementar,1|string|nullable',
-            'numero_sequencial'          => 'nullable|integer|exists:viagem_sequences,last_number',
-            'anexos'                     => 'required|array|min:1',
-            'destinos'                   => 'required|array|min:1',
-            'destinos.*.integrado_id'    => 'required|integer|exists:integrados,id',
-            'destinos.*.km_rota'         => 'required|numeric|min:0',
+            'km_total' => 'required|numeric|min:0',
+            'valor_frete' => 'required|numeric|min:0',
+            'motorista.cpf' => 'required|string',
+            'veiculo' => 'required|string|exists:veiculos,placa',
+            'nro_notas' => 'required|array|min:1',
+            'cte_complementar' => 'boolean',
+            'cte_referencia' => 'required_if:cte_complementar,1|string|nullable',
+            'numero_sequencial' => 'nullable|integer|exists:viagem_sequences,last_number',
+            'anexos' => 'required|array|min:1',
+            'destinos' => 'required|array|min:1',
+            'destinos.*.integrado_id' => 'required|integer|exists:integrados,id',
+            'destinos.*.km_rota' => 'required|numeric|min:0',
         ], [
-            'km_total.required'            => "O campo 'KM Total' é obrigatório.",
-            'valor_frete.required'         => "O campo 'Valor do Frete' é obrigatório.",
-            'motorista.cpf.required'       => "O campo 'Motorista' é obrigatório.",
-            'veiculo.required'             => "O campo 'Veículo' é obrigatório.",
-            'veiculo.exists'               => "O veículo selecionado não foi encontrado.",
-            'nro_notas.required'           => "O campo 'Nº de Notas Fiscais' é obrigatório.",
-            'nro_notas.array'              => "O campo 'Nº de Notas Fiscais' deve ser um array.",
-            'nro_notas.min'                => "É necessário adicionar pelo menos 1 nota fiscal.",
-            'cte_referencia.required_if'   => "O campo 'CTe de Referência' é obrigatório quando 'CTe Complementar' está marcado.",
-            'cte_referencia.string'        => "O campo 'CTe de Referência' deve ser uma string.",
-            'numero_sequencial.integer'    => "O campo 'Nº Sequencial' deve ser um número inteiro.",
-            'numero_sequencial.nullable'   => "O campo 'Nº Sequencial' deve ser um número inteiro.",
-            'numero_sequencial.exists'     => "O número sequencial informado não existe.",
-            'anexos.required'              => "O campo 'Anexos' é obrigatório.",
-            'anexos.array'                 => "O campo 'Anexos' deve ser um array.",
-            'anexos.min'                   => "É necessário anexar pelo menos 1 arquivo.",
-            'destinos.required'            => "O campo 'Integrados' é obrigatório.",
-            'destinos.array'               => "O campo 'Integrados' deve ser um array.",
-            'destinos.min'                 => "É necessário adicionar pelo menos 1 destino.",
-            'destinos.*.integrado_id.required'    => "O campo 'Integrado' é obrigatório em cada item.",
-            'destinos.*.integrado_id.exists'      => "O integrado selecionado não foi encontrado em cada item.",
-            'destinos.*.km_rota.required'         => "O campo 'KM Rota' é obrigatório em cada item.",
+            'km_total.required' => "O campo 'KM Total' é obrigatório.",
+            'valor_frete.required' => "O campo 'Valor do Frete' é obrigatório.",
+            'motorista.cpf.required' => "O campo 'Motorista' é obrigatório.",
+            'veiculo.required' => "O campo 'Veículo' é obrigatório.",
+            'veiculo.exists' => 'O veículo selecionado não foi encontrado.',
+            'nro_notas.required' => "O campo 'Nº de Notas Fiscais' é obrigatório.",
+            'nro_notas.array' => "O campo 'Nº de Notas Fiscais' deve ser um array.",
+            'nro_notas.min' => 'É necessário adicionar pelo menos 1 nota fiscal.',
+            'cte_referencia.required_if' => "O campo 'CTe de Referência' é obrigatório quando 'CTe Complementar' está marcado.",
+            'cte_referencia.string' => "O campo 'CTe de Referência' deve ser uma string.",
+            'numero_sequencial.integer' => "O campo 'Nº Sequencial' deve ser um número inteiro.",
+            'numero_sequencial.nullable' => "O campo 'Nº Sequencial' deve ser um número inteiro.",
+            'numero_sequencial.exists' => 'O número sequencial informado não existe.',
+            'anexos.required' => "O campo 'Anexos' é obrigatório.",
+            'anexos.array' => "O campo 'Anexos' deve ser um array.",
+            'anexos.min' => 'É necessário anexar pelo menos 1 arquivo.',
+            'destinos.required' => "O campo 'Integrados' é obrigatório.",
+            'destinos.array' => "O campo 'Integrados' deve ser um array.",
+            'destinos.min' => 'É necessário adicionar pelo menos 1 destino.',
+            'destinos.*.integrado_id.required' => "O campo 'Integrado' é obrigatório em cada item.",
+            'destinos.*.integrado_id.exists' => 'O integrado selecionado não foi encontrado em cada item.',
+            'destinos.*.km_rota.required' => "O campo 'KM Rota' é obrigatório em cada item.",
         ]);
 
         if ($validator->fails()) {
             Log::warning('validação de dados falhou', [
-                'método' => __METHOD__ . '-' . __LINE__,
+                'método' => __METHOD__.'-'.__LINE__,
                 'errors' => $validator->errors()->all(),
                 'data' => $data,
             ]);
@@ -280,7 +277,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         }
 
         // Validação adicional: verificar tipos de arquivos (PDF e XML obrigatórios)
-        if (!$this->validarTiposAnexos($data['anexos'] ?? [])) {
+        if (! $this->validarTiposAnexos($data['anexos'] ?? [])) {
             return false;
         }
 
@@ -294,6 +291,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
     {
         if (empty($anexos)) {
             notify::error('Pelo menos um anexo deve ser enviado.');
+
             return false;
         }
 
@@ -316,22 +314,24 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
         }
 
         // Validar se tem pelo menos 1 PDF
-        if (!$hasPdf) {
+        if (! $hasPdf) {
             notify::error('É obrigatório enviar pelo menos 1 arquivo PDF.');
             Log::warning('Validação falhou: PDF não encontrado', [
                 'anexos' => $anexos,
                 'tipos_encontrados' => $tiposEncontrados,
             ]);
+
             return false;
         }
 
         // Validar se tem pelo menos 1 XML
-        if (!$hasXml) {
+        if (! $hasXml) {
             notify::error('É obrigatório enviar pelo menos 1 arquivo XML.');
             Log::warning('Validação falhou: XML não encontrado', [
                 'anexos' => $anexos,
                 'tipos_encontrados' => $tiposEncontrados,
             ]);
+
             return false;
         }
 
@@ -340,15 +340,15 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     private function mutateData(array $data): array
     {
-        $data['destinos']           = $this->mutateDestinos($data['data-integrados']);
-        $data['veiculo']            = $data['veiculo'] ?? null;
-        $data['veiculo_id']         = \App\Models\Veiculo::where('placa', $data['veiculo'])->first()?->id ?? null;
-        $data['km_pago']            = $data['km_total'] ?? 0;
-        $data['km_rodado']          = 0;
-        $data['data_competencia']   = now()->format('Y-m-d');
-        $data['frete']              = $data['valor_frete'] ?? 0.0;
-        $data['condutor']           = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
-        $data['motorista']          = [
+        $data['destinos'] = $this->mutateDestinos($data['data-integrados']);
+        $data['veiculo'] = $data['veiculo'] ?? null;
+        $data['veiculo_id'] = Veiculo::where('placa', $data['veiculo'])->first()?->id ?? null;
+        $data['km_pago'] = $data['km_total'] ?? 0;
+        $data['km_rodado'] = 0;
+        $data['data_competencia'] = now()->format('Y-m-d');
+        $data['frete'] = $data['valor_frete'] ?? 0.0;
+        $data['condutor'] = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $data['motorista'] ?? null)['motorista'] ?? null;
+        $data['motorista'] = [
             'cpf' => $data['motorista'] ?? null,
         ];
 
@@ -366,11 +366,12 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
         foreach ($destinos as $destino) {
             $destinosProcessados[] = [
-                'integrado_id'    => $destino['integrado_id'],
-                'km_rota'         => $destino['km_rota'],
-                'integrado_nome'  => \App\Models\Integrado::find($destino['integrado_id'])?->nome ?? 'N/A',
+                'integrado_id' => $destino['integrado_id'],
+                'km_rota' => $destino['km_rota'],
+                'integrado_nome' => Integrado::find($destino['integrado_id'])?->nome ?? 'N/A',
             ];
         }
+
         return $destinosProcessados;
     }
 
@@ -394,8 +395,7 @@ class SolicitarCte extends Component implements HasSchemas, HasActions
 
     /**
      * Processar arquivos temporários do Livewire
-     * 
-     * @param array $anexos
+     *
      * @return array Array com paths dos arquivos salvos
      */
     private function processarAnexos(array $anexos): array

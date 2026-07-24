@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
-use App\Enum\MotivoDivergenciaViagem;
 use App\Filament\Resources\DocumentoFretes\DocumentoFreteResource;
 use App\Filament\Resources\Viagems\Actions\AdicionarComentarioAction;
 use App\Filament\Resources\Viagems\Actions\VisualizarComentarioAction;
@@ -15,16 +14,10 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;

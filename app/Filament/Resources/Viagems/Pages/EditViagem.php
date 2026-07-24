@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Viagems\Pages;
 
 use App\Filament\Resources\Viagems\ViagemResource;
-use App\Models\Viagem;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -17,5 +16,4 @@ class EditViagem extends EditRecord
             DeleteAction::make(),
         ];
     }
-
 }

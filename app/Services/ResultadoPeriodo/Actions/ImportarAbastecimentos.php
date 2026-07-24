@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 class ImportarAbastecimentos
 {
     protected Models\ResultadoPeriodo $resultadoPeriodo;
+
     protected Collection $abastecimentos;
 
     public function __construct(int $resultadoPeriodoId, protected bool $considerarPeriodo = true)
@@ -19,7 +20,7 @@ class ImportarAbastecimentos
 
     public function handle()
     {
-        Log::debug('Iniciando importação de abastecimentos para Resultado Período ID: ' . $this->resultadoPeriodo->id, [
+        Log::debug('Iniciando importação de abastecimentos para Resultado Período ID: '.$this->resultadoPeriodo->id, [
             'metodo' => __METHOD__,
             'resultado_periodo->data_inicio' => $this->resultadoPeriodo->data_inicio,
         ]);
@@ -30,6 +31,7 @@ class ImportarAbastecimentos
                 'resultado_periodo_id' => $this->resultadoPeriodo->id,
                 'status_atual' => $this->resultadoPeriodo->status,
             ]);
+
             return;
         }
 

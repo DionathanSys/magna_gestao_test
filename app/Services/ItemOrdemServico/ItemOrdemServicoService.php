@@ -18,16 +18,18 @@ class ItemOrdemServicoService
     public function create(array $data): ?Models\ItemOrdemServico
     {
         try {
-            $item = (new Actions\CriarItem())->handle($data);
+            $item = (new Actions\CriarItem)->handle($data);
             $this->setSuccess('Item criado com sucesso!');
+
             return $item;
         } catch (\Exception $e) {
             Log::error(__METHOD__.'-'.__LINE__, [
                 'error' => $e->getMessage(),
-                'data' => $data
+                'data' => $data,
             ]);
-           $this->setError($e->getMessage());
-           return null;
+            $this->setError($e->getMessage());
+
+            return null;
         }
     }
 
@@ -37,14 +39,16 @@ class ItemOrdemServicoService
             $item = Models\ItemOrdemServico::query()->findOrFail($itemId, 'id');
             $item = (new Actions\AtualizarItem($item))->handle($data);
             $this->setSuccess('Item atualizado com sucesso!');
+
             return $item;
         } catch (\Exception $e) {
             Log::error(__METHOD__, [
                 'error' => $e->getMessage(),
-                'data' => $data
+                'data' => $data,
             ]);
-           $this->setError($e->getMessage());
-           return null;
+            $this->setError($e->getMessage());
+
+            return null;
         }
     }
 }

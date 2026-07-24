@@ -10,10 +10,8 @@ use App\Filament\Resources\ItemInspecaos\Schemas\ItemInspecaoForm;
 use App\Filament\Resources\ItemInspecaos\Schemas\ItemInspecaoInfolist;
 use App\Filament\Resources\ItemInspecaos\Tables\ItemInspecaosTable;
 use App\Models\ItemInspecao;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 

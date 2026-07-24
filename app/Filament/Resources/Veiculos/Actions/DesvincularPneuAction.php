@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Veiculos\Actions;
 
-use App\Filament\Resources\Pneus\PneuResource;
-use App\Services;
 use App\Enum;
 use App\Models\PneuPosicaoVeiculo;
+use App\Services;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
@@ -25,9 +24,7 @@ class DesvincularPneuAction
 {
     protected Services\Pneus\MovimentarPneuService $movimentarPneuService;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function make(): Action
     {
@@ -36,9 +33,9 @@ class DesvincularPneuAction
             ->color('danger')
             ->iconButton()
             ->tooltip('Desvincular Pneu')
-            ->visible(fn($record) => ! $record->pneu_id == null)
+            ->visible(fn ($record) => ! $record->pneu_id == null)
             ->modalWidth(Width::Large)
-            ->schema(fn(Schema $schema) => $schema
+            ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
                     Select::make('motivo')
@@ -86,8 +83,8 @@ class DesvincularPneuAction
                         ->disk('local')
                         ->directory('pneus/movimentacoes')
                         ->visibility('private')
-                        ->columnSpanFull()
+                        ->columnSpanFull(),
                 ]))
-            ->action(fn($record, array $data) => (new Services\Pneus\MovimentarPneuService())->removerPneu($record, $data));
+            ->action(fn ($record, array $data) => (new Services\Pneus\MovimentarPneuService)->removerPneu($record, $data));
     }
 }

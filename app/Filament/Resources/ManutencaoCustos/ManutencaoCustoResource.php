@@ -21,8 +21,8 @@ class ManutencaoCustoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Manutenção';
 
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::Banknotes;
-    
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Banknotes;
+
     protected static ?string $modelLabel = 'Custos de Manutenção';
 
     protected static ?string $pluralModelLabel = 'Custos de Manutenção';

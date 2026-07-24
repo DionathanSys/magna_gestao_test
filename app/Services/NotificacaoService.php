@@ -13,14 +13,14 @@ class NotificacaoService
     public function __construct(
         protected string $tipo, protected string $titulo, protected string $mensagem)
     {
-        //TODO: Implementar o envio de notificações para usuários ativos, precisa add a coluna de usuários ativos
+        // TODO: Implementar o envio de notificações para usuários ativos, precisa add a coluna de usuários ativos
         $this->usersNotify = User::where('is_active', true)->get();
     }
 
     public function sendToDataBase($user = null): void
     {
-        if($user){
-           $user = $this->resolveUser($user);
+        if ($user) {
+            $user = $this->resolveUser($user);
         }
 
         Notification::make()
@@ -41,11 +41,11 @@ class NotificacaoService
 
     private function resolveUser(Collection|User|array|int $user): Collection|User|null
     {
-        if($user instanceof Collection || $user instanceof User){
+        if ($user instanceof Collection || $user instanceof User) {
             return $user;
         }
 
-        if(is_array($user) || is_int($user)){
+        if (is_array($user) || is_int($user)) {
             return User::find($user);
         }
 

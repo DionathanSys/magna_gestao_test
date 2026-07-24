@@ -3,30 +3,27 @@
 namespace App\Services\PlanoManutencao;
 
 use App\Models\PlanoManutencaoVeiculo;
-use App\Models\PlanoPreventivo;
-use App\Models\Veiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RelatorioPlanoManutencaoService
 {
     /**
      * Busca os dados do relatório com base nos filtros
-     *
-     * @param array $filtros
-     * @return array
      */
     public function obterDadosRelatorio(array $filtros = []): array
     {
         $query = PlanoManutencaoVeiculo::query()
             ->with([
                 'veiculo.kmAtual',
-                'planoPreventivo'
+                'planoPreventivo',
             ]);
 
         // Filtrar por veículo se especificado, caso contrário apenas ativos
-        if (!empty($filtros['veiculo_id'])) {
+        if (! empty($filtros['veiculo_id'])) {
             $query->where('veiculo_id', $filtros['veiculo_id']);
         } else {
             $query->whereHas('veiculo', function ($q) {
@@ -35,7 +32,7 @@ class RelatorioPlanoManutencaoService
         }
 
         // Filtrar por plano preventivo se especificado, caso contrário apenas ativos
-        if (!empty($filtros['plano_preventivo_id'])) {
+        if (! empty($filtros['plano_preventivo_id'])) {
             $query->where('plano_preventivo_id', $filtros['plano_preventivo_id']);
         } else {
             $query->whereHas('planoPreventivo', function ($q) {
@@ -45,7 +42,7 @@ class RelatorioPlanoManutencaoService
 
         $planosVeiculos = $query->get();
 
-        Log::info('Total de planos de manutenção veicular encontrados: ' . $planosVeiculos->count());
+        Log::info('Total de planos de manutenção veicular encontrados: '.$planosVeiculos->count());
 
         $dados = [];
 
@@ -54,21 +51,21 @@ class RelatorioPlanoManutencaoService
             $planoPreventivo = $planoVeiculo->planoPreventivo;
             $ultimaExecucao = $planoVeiculo->ultima_execucao;
 
-            Log::info("Verificando última execução", [
+            Log::info('Verificando última execução', [
                 'veiculo_id' => $planoVeiculo->veiculo_id,
                 'plano_preventivo_id' => $planoVeiculo->plano_preventivo_id,
                 'ultima_execucao_encontrada' => $ultimaExecucao ? 'Sim' : 'Não',
-                'km_execucao' => $ultimaExecucao?->km_execucao ?? 'N/A'
+                'km_execucao' => $ultimaExecucao?->km_execucao ?? 'N/A',
             ]);
 
-            if (!$veiculo || !$planoPreventivo) {
+            if (! $veiculo || ! $planoPreventivo) {
                 continue;
             }
 
             $kmAtual = $veiculo->quilometragem_atual;
             $kmUltimaExecucao = $ultimaExecucao?->km_execucao ?? 0;
             $dataUltimaExecucao = $ultimaExecucao?->created_at;
-            
+
             $proximaExecucao = $kmUltimaExecucao + $planoPreventivo->intervalo;
             $kmRestante = $proximaExecucao - $kmAtual;
 
@@ -88,7 +85,7 @@ class RelatorioPlanoManutencaoService
 
             // Calcular km médio e data prevista
             $kmMedioDiario = $veiculo->calcularKmMedioDiario(30);
-            
+
             // Se km_restante for negativo, marcar como "Atrasado"
             if ($kmRestante < 0) {
                 $dataPrevista = 'Atrasado';
@@ -112,11 +109,11 @@ class RelatorioPlanoManutencaoService
             ];
         }
 
-        Log::info('Total de registros após aplicação dos filtros: ' . count($dados));
+        Log::info('Total de registros após aplicação dos filtros: '.count($dados));
 
         // Ordenar conforme o agrupamento escolhido
         $agrupamento = $filtros['agrupamento'] ?? 'veiculo';
-        
+
         if ($agrupamento === 'plano') {
             // Ordenar por plano preventivo e depois por km_restante
             usort($dados, function ($a, $b) {
@@ -124,6 +121,7 @@ class RelatorioPlanoManutencaoService
                 if ($planoCompare !== 0) {
                     return $planoCompare;
                 }
+
                 return $a['km_restante'] <=> $b['km_restante'];
             });
         } else {
@@ -133,6 +131,7 @@ class RelatorioPlanoManutencaoService
                 if ($placaCompare !== 0) {
                     return $placaCompare;
                 }
+
                 return $a['km_restante'] <=> $b['km_restante'];
             });
         }
@@ -143,8 +142,7 @@ class RelatorioPlanoManutencaoService
     /**
      * Gera o relatório em PDF e faz download
      *
-     * @param array $filtros
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @return StreamedResponse
      */
     public function gerarRelatorio(array $filtros = [])
     {
@@ -157,7 +155,7 @@ class RelatorioPlanoManutencaoService
             'dados' => $dados,
             'filtros' => $filtros,
             'totalRegistros' => count($dados),
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         $pdf = Pdf::loadView('pdf.relatorio-plano-manutencao', $data);
@@ -167,17 +165,14 @@ class RelatorioPlanoManutencaoService
             function () use ($pdf) {
                 echo $pdf->stream();
             },
-            'relatorio-plano-manutencao-' . date('Y-m-d-H-i') . '.pdf'
+            'relatorio-plano-manutencao-'.date('Y-m-d-H-i').'.pdf'
         );
     }
 
     /**
      * Visualiza o relatório em PDF no navegador
-     *
-     * @param array $filtros
-     * @return \Illuminate\Http\Response
      */
-    public function visualizarRelatorio(array $filtros = []): \Illuminate\Http\Response
+    public function visualizarRelatorio(array $filtros = []): Response
     {
         $dados = $this->obterDadosRelatorio($filtros);
 
@@ -188,7 +183,7 @@ class RelatorioPlanoManutencaoService
             'dados' => $dados,
             'filtros' => $filtros,
             'totalRegistros' => count($dados),
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         return Pdf::loadView('pdf.relatorio-plano-manutencao', $data)
@@ -201,21 +196,18 @@ class RelatorioPlanoManutencaoService
                 'isRemoteEnabled' => true,
                 'chroot' => base_path(),
             ])
-            ->stream('relatorio-plano-manutencao-' . date('Y-m-d-H-i') . '.pdf');
+            ->stream('relatorio-plano-manutencao-'.date('Y-m-d-H-i').'.pdf');
     }
 
     /**
      * Sanitiza dados para UTF-8 correto
-     *
-     * @param array $data
-     * @return array
      */
     private function sanitizeUtf8Data(array $data): array
     {
         return array_map(function ($item) {
             if (is_array($item)) {
                 return $this->sanitizeUtf8Data($item);
-            } elseif ($item instanceof \Carbon\Carbon) {
+            } elseif ($item instanceof Carbon) {
                 // Converter objetos Carbon para string
                 return $item->format('Y-m-d H:i:s');
             } elseif (is_object($item)) {
@@ -227,9 +219,10 @@ class RelatorioPlanoManutencaoService
                 }
             } elseif (is_string($item)) {
                 // Garantir codificação UTF-8 correta
-                if (!mb_check_encoding($item, 'UTF-8')) {
+                if (! mb_check_encoding($item, 'UTF-8')) {
                     $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
                 }
+
                 // Remover caracteres inválidos
                 return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $item);
             } elseif (is_numeric($item)) {
@@ -239,6 +232,7 @@ class RelatorioPlanoManutencaoService
             } elseif (is_null($item)) {
                 return null;
             }
+
             return $item;
         }, $data);
     }

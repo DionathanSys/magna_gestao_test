@@ -7,15 +7,14 @@ use Illuminate\Support\Facades\Auth;
 
 class ViagemConferida
 {
-
     public function handle(Models\Viagem $viagem): Models\Viagem
     {
         $this->validate($viagem);
 
         $viagem->update([
-            'conferido'             => true,
-            'updated_by'            => Auth::user()->id ?? 1,
-            'checked_by'            => Auth::user()->id ?? 1
+            'conferido' => true,
+            'updated_by' => Auth::user()->id ?? 1,
+            'checked_by' => Auth::user()->id ?? 1,
         ]);
 
         return $viagem;

@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\OrdemServicos\Actions;
 
-use App\{Models, Enum, Services};
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
-use App\Services\NotificacaoService as notify;
+use App\Models;
+use App\Services;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\Width;
@@ -24,13 +25,13 @@ class VincularPlanoPreventivoAction
             ->modalIcon('heroicon-o-document-plus')
             ->modalWidth(Width::Large)
             ->modalAlignment(Alignment::Center)
-            ->extraModalFooterActions(fn(Action $action): array => [
+            ->extraModalFooterActions(fn (Action $action): array => [
                 $action->makeModalSubmitAction('vincularOutro', arguments: ['another' => true]),
             ])
             ->modalSubmitActionLabel('Vincular')
-            ->schema(fn(Schema $form) => $form
+            ->schema(fn (Schema $form) => $form
                 ->schema([
-                    \Filament\Forms\Components\Select::make('plano_preventivo_id')
+                    Select::make('plano_preventivo_id')
                         ->label('Plano Preventivo')
                         ->options(
                             Models\Veiculo::find($veiculoId)
@@ -39,7 +40,7 @@ class VincularPlanoPreventivoAction
                         )
                         ->searchable()
                         ->preload()
-                        ->required()
+                        ->required(),
                 ]))
             ->action(function (
                 Action $action,
@@ -53,12 +54,12 @@ class VincularPlanoPreventivoAction
                     $form->fill();
                     $action->halt();
                 }
-                return;
+
             })
             ->color('primary')
             ->icon('heroicon-o-wrench')
             ->successRedirectUrl(fn (Model $record): string => OrdemServicoResource::getUrl('custom', [
-                        'record' => $record,
-                    ]));
+                'record' => $record,
+            ]));
     }
 }

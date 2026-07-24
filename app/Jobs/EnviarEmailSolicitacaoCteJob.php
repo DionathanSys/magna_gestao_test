@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\DTO\PayloadCteDTO;
+use App\Mail\SolicitacaoCteMail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
@@ -24,6 +25,6 @@ class EnviarEmailSolicitacaoCteJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Mail::send(new \App\Mail\SolicitacaoCteMail($this->payloadCteDTO));
+        Mail::send(new SolicitacaoCteMail($this->payloadCteDTO));
     }
 }

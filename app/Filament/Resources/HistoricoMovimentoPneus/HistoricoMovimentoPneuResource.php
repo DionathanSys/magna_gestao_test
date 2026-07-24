@@ -9,12 +9,10 @@ use App\Filament\Resources\HistoricoMovimentoPneus\Pages\ViewHistoricoMovimentoP
 use App\Filament\Resources\HistoricoMovimentoPneus\Schemas\HistoricoMovimentoPneuForm;
 use App\Filament\Resources\HistoricoMovimentoPneus\Schemas\HistoricoMovimentoPneuInfolist;
 use App\Filament\Resources\HistoricoMovimentoPneus\Tables\HistoricoMovimentoPneusTable;
-use BackedEnum;
+use App\Models\HistoricoMovimentoPneu;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use App\Models\HistoricoMovimentoPneu;
 use UnitEnum;
 
 class HistoricoMovimentoPneuResource extends Resource

@@ -10,9 +10,7 @@ class CreateTripFromShipmentDocumentsJob implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public int $shipmentDocumentGroupId)
-    {
-    }
+    public function __construct(public int $shipmentDocumentGroupId) {}
 
     public function handle(ShipmentTripService $service): void
     {

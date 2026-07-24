@@ -5,10 +5,10 @@ namespace App\Models;
 use App\Casts\MoneyCast;
 use App\Enum\Frete\TipoDocumentoEnum;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentoFrete extends Model
@@ -29,10 +29,8 @@ class DocumentoFrete extends Model
         return $this->belongsTo(Viagem::class, 'viagem_id', 'id');
     }
 
-     /**
+    /**
      * Relação com o modelo ResultadoPeriodo
-     *
-     * @return BelongsTo
      */
     public function resultadoPeriodo(): BelongsTo
     {
@@ -62,6 +60,7 @@ class DocumentoFrete extends Model
     public function descricao(): Attribute
     {
         $dataEmissaoFormatada = Carbon::parse($this->attributes['data_emissao'])->format('d/m/Y');
+
         return Attribute::make(
             get: fn () => "Nº {$this->numero_documento} {$dataEmissaoFormatada} - {$this->parceiro_destino}",
         );

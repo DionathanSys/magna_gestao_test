@@ -6,7 +6,6 @@ use App\Enum\Frete\TipoDocumentoEnum;
 use App\Services\ViagemBugio\ViagemBugioService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Log;
 
 class ViagemBugio extends Model
@@ -43,33 +42,32 @@ class ViagemBugio extends Model
 
     protected static function booted()
     {
-        static::created(function(self $model){
+        static::created(function (self $model) {
 
-            Log::info('Solicitação Viagem Bugio Criada - ' . __METHOD__, [
-                'id'                => $model->id,
-                'nro_notas'         => $model->nro_notas,
-                'tipo_documento'    => $model->info_adicionais['tipo_documento'] ?? null,
+            Log::info('Solicitação Viagem Bugio Criada - '.__METHOD__, [
+                'id' => $model->id,
+                'nro_notas' => $model->nro_notas,
+                'tipo_documento' => $model->info_adicionais['tipo_documento'] ?? null,
                 'numero_sequencial' => $model->numero_sequencial,
-                'destinos'          => $model->destinos,
+                'destinos' => $model->destinos,
             ]);
 
-            if($model->info_adicionais['tipo_documento'] == TipoDocumentoEnum::NFS->value){
-                    
-                Log::info('Iniciando criação de Viagem a partir da solicitação Bugio nro sequencial: ' . $model->numero_sequencial);
+            if ($model->info_adicionais['tipo_documento'] == TipoDocumentoEnum::NFS->value) {
+
+                Log::info('Iniciando criação de Viagem a partir da solicitação Bugio nro sequencial: '.$model->numero_sequencial);
 
                 $model->update([
                     'nro_documento' => $model->numero_sequencial,
-                    'status'        => 'concluido',
+                    'status' => 'concluido',
                 ]);
 
-                $service = new ViagemBugioService();
+                $service = new ViagemBugioService;
                 $service->createViagemFromBugio($model);
 
-            } elseif (in_array($model->info_adicionais['tipo_documento'], [TipoDocumentoEnum::CTE->value, TipoDocumentoEnum::CTE_COMPLEMENTO->value])){
-                $service = new ViagemBugioService();
+            } elseif (in_array($model->info_adicionais['tipo_documento'], [TipoDocumentoEnum::CTE->value, TipoDocumentoEnum::CTE_COMPLEMENTO->value])) {
+                $service = new ViagemBugioService;
                 $service->solicitarCte($model);
             }
-
 
         });
 
@@ -79,11 +77,10 @@ class ViagemBugio extends Model
                 'mudancas' => $model->getDirty(),
             ]);
 
-            if($model->isDirty('nro_documento')){
+            if ($model->isDirty('nro_documento')) {
                 Log::info('Campo nro documento da solicitação foi alterado');
             }
         });
 
-
-    } 
+    }
 }

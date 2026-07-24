@@ -10,10 +10,10 @@ class Checklist extends Model
 {
     protected $casts = [
         'itens_verificados' => 'array',
-        'itens_corrigidos'  => 'array',
-        'pendencias'        => 'array',
-        'anexos'            => 'array',
-        'active'            => 'boolean',
+        'itens_corrigidos' => 'array',
+        'pendencias' => 'array',
+        'anexos' => 'array',
+        'active' => 'boolean',
     ];
 
     public function veiculo(): BelongsTo

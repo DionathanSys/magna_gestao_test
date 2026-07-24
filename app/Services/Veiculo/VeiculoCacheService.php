@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Log;
 class VeiculoCacheService
 {
     private const CACHE_KEY_PLACAS_ATIVAS = 'veiculos_placas_ativas';
+
     private const CACHE_KEY_PLACAS_TODAS = 'veiculos_placas';
+
     private const CACHE_TTL = 43200; // 1 dia
 
     /**
@@ -20,7 +22,7 @@ class VeiculoCacheService
     {
         return Cache::remember(self::CACHE_KEY_PLACAS_ATIVAS, self::CACHE_TTL, function () {
             Log::debug('Carregando placas ativas do banco de dados', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
             ]);
 
             return Veiculo::query()
@@ -40,7 +42,7 @@ class VeiculoCacheService
     {
         return Cache::remember(self::CACHE_KEY_PLACAS_TODAS, self::CACHE_TTL, function () {
             Log::debug('Carregando todas as placas do banco de dados', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
             ]);
 
             return Veiculo::query()
@@ -48,7 +50,8 @@ class VeiculoCacheService
                 ->orderBy('placa')
                 ->get()
                 ->mapWithKeys(function ($veiculo) {
-                    $label = $veiculo->placa . ($veiculo->is_active ? '' : ' (Inativo)');
+                    $label = $veiculo->placa.($veiculo->is_active ? '' : ' (Inativo)');
+
                     return [$veiculo->id => $label];
                 })
                 ->toArray();
@@ -62,7 +65,7 @@ class VeiculoCacheService
     {
         return Cache::remember('veiculos_completos', self::CACHE_TTL, function () {
             Log::debug('Carregando veículos completos do banco de dados', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
             ]);
 
             return Veiculo::query()
@@ -87,16 +90,16 @@ class VeiculoCacheService
         // Se for um veículo específico, limpa também caches individuais
         if ($veiculoId) {
             $keys = array_merge($keys, [
-                'km_atual_veiculo_id_' . $veiculoId,
-                'km_ultimo_movimento_veiculo_id_' . $veiculoId,
+                'km_atual_veiculo_id_'.$veiculoId,
+                'km_ultimo_movimento_veiculo_id_'.$veiculoId,
             ]);
         } else {
             // Se não especificou veículo, limpa cache de todos os veículos
             $veiculosIds = Veiculo::pluck('id')->toArray();
             foreach ($veiculosIds as $id) {
                 $keys = array_merge($keys, [
-                    'km_atual_veiculo_id_' . $id,
-                    'km_ultimo_movimento_veiculo_id_' . $id,
+                    'km_atual_veiculo_id_'.$id,
+                    'km_ultimo_movimento_veiculo_id_'.$id,
                 ]);
             }
         }
@@ -104,14 +107,14 @@ class VeiculoCacheService
         foreach ($keys as $key) {
             Cache::forget($key);
             Log::debug('Cache invalidado', [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'cache_key' => $key,
                 'veiculo_id' => $veiculoId,
             ]);
         }
 
         Log::info('Cache de veículos invalidado completamente', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
             'veiculo_id' => $veiculoId,
             'total_keys' => count($keys),
         ]);
@@ -123,7 +126,7 @@ class VeiculoCacheService
     public static function precarregarCaches(): void
     {
         Log::info('Iniciando pré-carregamento de caches de veículos', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
         ]);
 
         self::getPlacasAtivasForSelect();
@@ -131,7 +134,7 @@ class VeiculoCacheService
         self::getVeiculosCompletos();
 
         Log::info('Pré-carregamento de caches de veículos concluído', [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+            'metodo' => __METHOD__.'@'.__LINE__,
         ]);
     }
 

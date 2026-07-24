@@ -31,7 +31,7 @@ return new class extends Migration
         Schema::table('recapagens', function (Blueprint $table) {
             $table->dropColumn('ciclo_vida');
         });
-        
+
         Schema::table('consertos', function (Blueprint $table) {
             $table->dropColumn('ciclo_vida');
         });

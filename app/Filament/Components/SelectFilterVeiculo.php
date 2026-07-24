@@ -4,7 +4,6 @@ namespace App\Filament\Components;
 
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Forms\Components\Select;
-use Filament\Tables\Filters\SelectFilter;
 
 class SelectFilterVeiculo
 {

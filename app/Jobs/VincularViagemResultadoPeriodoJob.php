@@ -19,16 +19,15 @@ class VincularViagemResultadoPeriodoJob implements ShouldQueue
         protected int $viagemId,
         protected string $dataInicio,
         protected string $dataFim
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        Log::debug("Iniciando vinculação de viagem ao resultado período", [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+        Log::debug('Iniciando vinculação de viagem ao resultado período', [
+            'metodo' => __METHOD__.'@'.__LINE__,
             'viagem_id' => $this->viagemId,
             'data_inicio' => $this->dataInicio,
             'data_fim' => $this->dataFim,
@@ -36,19 +35,21 @@ class VincularViagemResultadoPeriodoJob implements ShouldQueue
 
         $viagem = Viagem::find($this->viagemId);
 
-        if (!$viagem) {
-            Log::error("Viagem não encontrada para vinculação ao resultado período.", [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+        if (! $viagem) {
+            Log::error('Viagem não encontrada para vinculação ao resultado período.', [
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'viagem_id' => $this->viagemId,
             ]);
+
             return;
         }
 
-        if (!$viagem->veiculo_id) {
-            Log::warning("Viagem sem veículo vinculado, não é possível vincular ao resultado período.", [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+        if (! $viagem->veiculo_id) {
+            Log::warning('Viagem sem veículo vinculado, não é possível vincular ao resultado período.', [
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'viagem_id' => $this->viagemId,
             ]);
+
             return;
         }
 
@@ -58,13 +59,14 @@ class VincularViagemResultadoPeriodoJob implements ShouldQueue
             ->where('data_fim', $this->dataFim)
             ->first();
 
-        if (!$resultadoPeriodo) {
-            Log::warning("Nenhum Resultado Período encontrado com os critérios especificados.", [
-                'metodo' => __METHOD__ . '@' . __LINE__,
+        if (! $resultadoPeriodo) {
+            Log::warning('Nenhum Resultado Período encontrado com os critérios especificados.', [
+                'metodo' => __METHOD__.'@'.__LINE__,
                 'veiculo_id' => $viagem->veiculo_id,
                 'data_inicio' => $this->dataInicio,
                 'data_fim' => $this->dataFim,
             ]);
+
             return;
         }
 
@@ -72,8 +74,8 @@ class VincularViagemResultadoPeriodoJob implements ShouldQueue
             'resultado_periodo_id' => $resultadoPeriodo->id,
         ]);
 
-        Log::info("Viagem vinculada ao resultado período com sucesso.", [
-            'metodo' => __METHOD__ . '@' . __LINE__,
+        Log::info('Viagem vinculada ao resultado período com sucesso.', [
+            'metodo' => __METHOD__.'@'.__LINE__,
             'viagem_id' => $this->viagemId,
             'resultado_periodo_id' => $resultadoPeriodo->id,
         ]);

@@ -2,13 +2,9 @@
 
 namespace App\Filament\Actions;
 
-use App\Services\Import\AbastecimentoImportService;
-use Filament\Actions\Action;
-use Filament\Actions\BulkAction;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 use App\Services\NotificacaoService as notify;
+use Filament\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
 
 class DissociateResultadoPeriodoBulkAction
 {
@@ -34,7 +30,7 @@ class DissociateResultadoPeriodoBulkAction
                 });
 
                 notify::success("{$count} registro(s) foram desvinculados do resultado do período.");
-                
+
                 return true;
             })
             ->deselectRecordsAfterCompletion();

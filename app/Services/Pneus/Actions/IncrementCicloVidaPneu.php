@@ -2,15 +2,17 @@
 
 namespace App\Services\Pneus\Actions;
 
-use App\{Models, Enum};
+use App\Models;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class IncrementCicloVidaPneu
 {
-    public $message     = '';
-    public $hasError    = false;
-    public $errors      = [];
+    public $message = '';
+
+    public $hasError = false;
+
+    public $errors = [];
 
     public function handle(int $pneuId): bool
     {
@@ -45,15 +47,15 @@ class IncrementCicloVidaPneu
             'pneu_id' => 'required|exists:pneus,id',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             $this->hasError = true;
-            $this->errors   = $validator->errors()->all();
-            $this->message  = 'Dados inválidos para incremento do ciclo de vida do pneu.';
+            $this->errors = $validator->errors()->all();
+            $this->message = 'Dados inválidos para incremento do ciclo de vida do pneu.';
 
             Log::error('Erro ao validar dados para incremento do ciclo de vida do pneu', [
                 'metodo' => __METHOD__.'@'.__LINE__,
                 'errors' => $this->errors,
-                'data'   => ['pneu_id' => $pneuId]
+                'data' => ['pneu_id' => $pneuId],
             ]);
         }
 

@@ -4,10 +4,10 @@ namespace App\Enum\Pneu;
 
 enum StatusPneuEnum: string
 {
-    case DISPONIVEL     = 'DISPONIVEL';
-    case EM_USO         = 'EM USO';
-    case INDISPONIVEL   = 'INDISPONIVEL';
-    case SUCATA         = 'SUCATA';
+    case DISPONIVEL = 'DISPONIVEL';
+    case EM_USO = 'EM USO';
+    case INDISPONIVEL = 'INDISPONIVEL';
+    case SUCATA = 'SUCATA';
 
     public static function toSelectArray(): array
     {

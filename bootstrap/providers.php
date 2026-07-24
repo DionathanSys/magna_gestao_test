@@ -1,9 +1,14 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\Filament\BugioPanelProvider;
+use App\Providers\Filament\OficinaPanelProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
+    AppServiceProvider::class,
     // App\Providers\ServiceServiceProvider::class,
-    App\Providers\Filament\AdminPanelProvider::class,
-    App\Providers\Filament\BugioPanelProvider::class,
-    App\Providers\Filament\OficinaPanelProvider::class,
+    AdminPanelProvider::class,
+    BugioPanelProvider::class,
+    OficinaPanelProvider::class,
 ];

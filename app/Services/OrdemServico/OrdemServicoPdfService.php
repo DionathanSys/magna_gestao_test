@@ -3,9 +3,7 @@
 namespace App\Services\OrdemServico;
 
 use App\Models\OrdemServico;
-use App\Services\Pdf\MakePdf;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Log;
 
 class OrdemServicoPdfService
 {
@@ -22,13 +20,13 @@ class OrdemServicoPdfService
             'sankhyaId',
             'itens.servico',
             'itens.creator',
-            'creator'
+            'creator',
         ]);
 
         $data = [
             'ordemServico' => $ordemServico,
-            'osSankhya'    => $ordemServico->sankhyaId,
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'osSankhya' => $ordemServico->sankhyaId,
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         $pdf = Pdf::loadView('pdf.ordem-servico', $data);
@@ -37,7 +35,7 @@ class OrdemServicoPdfService
             function () use ($pdf) {
                 echo $pdf->stream();
             },
-            'ordem-servico-' . date('Y-m-d-H-i') . '.pdf'
+            'ordem-servico-'.date('Y-m-d-H-i').'.pdf'
         );
     }
 
@@ -54,19 +52,19 @@ class OrdemServicoPdfService
             'sankhyaId',
             'itens.servico',
             'itens.creator',
-            'creator'
+            'creator',
         ]);
 
         $data = [
             'ordemServico' => $ordemServico,
-            'osSankhya'    => $ordemServico->sankhyaId,
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'osSankhya' => $ordemServico->sankhyaId,
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         // Para visualizar no navegador
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ordem-servico', $data)
+        return Pdf::loadView('pdf.ordem-servico', $data)
             ->setPaper('A4', 'portrait')
-            ->stream('ordem-servico-' . $ordemServico->id . '-' . date('Y-m-d-H-i') . '.pdf');
+            ->stream('ordem-servico-'.$ordemServico->id.'-'.date('Y-m-d-H-i').'.pdf');
     }
 
     /**
@@ -82,12 +80,12 @@ class OrdemServicoPdfService
             'sankhyaId',
             'itens.servico',
             'itens.creator',
-            'creator'
+            'creator',
         ]);
 
         $data = [
             'ordemServico' => $ordemServico,
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         $pdf = Pdf::loadView('pdf.ordem-servico', $data);
@@ -96,7 +94,7 @@ class OrdemServicoPdfService
             function () use ($pdf) {
                 echo $pdf->stream();
             },
-            'ordem-servico-tailwind-' . date('Y-m-d-H-i') . '.pdf'
+            'ordem-servico-tailwind-'.date('Y-m-d-H-i').'.pdf'
         );
     }
 
@@ -113,12 +111,12 @@ class OrdemServicoPdfService
             'sankhyaId',
             'itens.servico',
             'itens.creator',
-            'creator'
+            'creator',
         ]);
 
         $data = [
             'ordemServico' => $ordemServico,
-            'dataGeracao' => now()->format('d/m/Y H:i:s')
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
         ];
 
         // Para visualizar no navegador
@@ -135,7 +133,7 @@ class OrdemServicoPdfService
                 return $this->sanitizeUtf8Data($item);
             } elseif (is_string($item)) {
                 // Garantir codificação UTF-8 correta
-                if (!mb_check_encoding($item, 'UTF-8')) {
+                if (! mb_check_encoding($item, 'UTF-8')) {
                     $item = mb_convert_encoding($item, 'UTF-8', 'auto');
                 }
 
@@ -147,6 +145,7 @@ class OrdemServicoPdfService
 
                 return trim($item);
             }
+
             return $item;
         }, $data);
     }

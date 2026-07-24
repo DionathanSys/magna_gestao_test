@@ -2,18 +2,23 @@
 
 namespace App\Filament\Bugio\Resources\ViagemBugios\Schemas;
 
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\{ToggleButtons, Select, TagsInput, FileUpload, Repeater, DatePicker};
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
-use Filament\Schemas\Components\Section;
-use Illuminate\Support\Str;
+use App\Models\Integrado;
 use App\Services\FreteCalculador;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class ViagemBugioForm
 {
@@ -27,7 +32,7 @@ class ViagemBugioForm
                     ->schema([
                         Section::make('Detalhes da Viagem')
                             ->columns(['md' => 4, 'xl' => 6])
-                            ->columnSpan(fn($operation) => $operation === 'create' ? 1 : 2)
+                            ->columnSpan(fn ($operation) => $operation === 'create' ? 1 : 2)
                             ->components([
                                 Select::make('motorista')
                                     ->label('Motorista')
@@ -35,7 +40,7 @@ class ViagemBugioForm
                                     ->columnSpan(['md' => 3, 'xl' => 4])
                                     ->searchable()
                                     ->preload()
-                                    ->options(fn() => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
+                                    ->options(fn () => collect(db_config('config-bugio.motoristas'))->pluck('motorista', 'cpf')->toArray())
                                     ->required()
                                     ->reactive()
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
@@ -53,7 +58,7 @@ class ViagemBugioForm
                                     ->columnSpan(['md' => 1, 'xl' => 2])
                                     ->searchable()
                                     ->preload()
-                                    ->options(fn() => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
+                                    ->options(fn () => collect(db_config('config-bugio.veiculos'))->pluck('placa', 'placa')->toArray())
                                     ->required()
                                     ->reactive(),
                                 TextInput::make('numero_sequencial')
@@ -131,14 +136,14 @@ class ViagemBugioForm
                                     ->columnSpan(['md' => 2, 'xl' => 4])
                                     ->preload()
                                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                    ->options(\App\Models\Integrado::query()
+                                    ->options(Integrado::query()
                                         ->where('cliente', ClienteEnum::BUGIO)
                                         ->pluck('nome', 'id'))
                                     ->required()
                                     ->live()
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state) {
                                         if ($state) {
-                                            $integrado = \App\Models\Integrado::find($state);
+                                            $integrado = Integrado::find($state);
                                             $kmRota = $integrado?->km_rota;
                                             $municipio = $integrado?->municipio;
                                             $kmTotal = $kmRota ?? 0;
@@ -284,7 +289,7 @@ class ViagemBugioForm
                                     ->dehydrated(false),
                             ]),
 
-                    ])
+                    ]),
             ]);
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Viagem;
+use Carbon\Carbon;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -19,7 +21,7 @@ class DispersaoMedia extends StatsOverviewWidget
         $veiculoId = $this->pageFilters['veiculo_id'] ?? null;
         $dataCompetencia = $this->pageFilters['data_competencia'] ?? null;
 
-        $viagens = \App\Models\Viagem::query()
+        $viagens = Viagem::query()
             ->when($veiculoId, function ($query, $veiculoId) {
                 return $query->where('veiculo_id', $veiculoId);
             })
@@ -30,7 +32,7 @@ class DispersaoMedia extends StatsOverviewWidget
                     if (is_array($dataCompetencia) && count($dataCompetencia) === 2) {
                         return $query->whereBetween('data_competencia', [
                             $dataCompetencia[0],
-                            $dataCompetencia[1]
+                            $dataCompetencia[1],
                         ]);
                     }
 
@@ -38,8 +40,8 @@ class DispersaoMedia extends StatsOverviewWidget
                         [$start, $end] = array_map('trim', explode(' - ', $dataCompetencia, 2));
 
                         // converte 'dd/mm/YYYY' -> 'YYYY-mm-dd'
-                        $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $start)->format('Y-m-d');
-                        $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $end)->format('Y-m-d');
+                        $startDate = Carbon::createFromFormat('d/m/Y', $start)->format('Y-m-d');
+                        $endDate = Carbon::createFromFormat('d/m/Y', $end)->format('Y-m-d');
 
                         return $query->whereBetween('data_competencia', [$startDate, $endDate]);
                     }
@@ -52,7 +54,7 @@ class DispersaoMedia extends StatsOverviewWidget
             ->where('considerar_relatorio', true)
             ->get();
 
-        $countViagensNaoConsideradas = \App\Models\Viagem::query()
+        $countViagensNaoConsideradas = Viagem::query()
             ->when($veiculoId, function ($query, $veiculoId) {
                 return $query->where('veiculo_id', $veiculoId);
             })
@@ -63,7 +65,7 @@ class DispersaoMedia extends StatsOverviewWidget
                     if (is_array($dataCompetencia) && count($dataCompetencia) === 2) {
                         return $query->whereBetween('data_competencia', [
                             $dataCompetencia[0],
-                            $dataCompetencia[1]
+                            $dataCompetencia[1],
                         ]);
                     }
 
@@ -71,8 +73,8 @@ class DispersaoMedia extends StatsOverviewWidget
                         [$start, $end] = array_map('trim', explode(' - ', $dataCompetencia, 2));
 
                         // converte 'dd/mm/YYYY' -> 'YYYY-mm-dd'
-                        $startDate = \Carbon\Carbon::createFromFormat('d/m/Y', $start)->format('Y-m-d');
-                        $endDate = \Carbon\Carbon::createFromFormat('d/m/Y', $end)->format('Y-m-d');
+                        $startDate = Carbon::createFromFormat('d/m/Y', $start)->format('Y-m-d');
+                        $endDate = Carbon::createFromFormat('d/m/Y', $end)->format('Y-m-d');
 
                         return $query->whereBetween('data_competencia', [$startDate, $endDate]);
                     }
@@ -99,12 +101,12 @@ class DispersaoMedia extends StatsOverviewWidget
             : 0;
 
         return [
-            Stat::make('Dispersão geral', number_format($kmDispersao, 0, ',', '.') . ' km - ' . number_format($dispersaoMedia, 2, ',', '.') . '%')
-                ->description(number_format($dispersaoPorViagem, 2, ',', '.') . ' Km/Viagem'),
-            Stat::make('Total km rodado', number_format($totalKmRodado, 0, ',', '.') . ' km')
-                ->description(($totalViagens > 0 ? number_format($totalKmRodado / $totalViagens, 2, ',', '.') . ' Km/Viagem' : '0 Km/Viagem')),
+            Stat::make('Dispersão geral', number_format($kmDispersao, 0, ',', '.').' km - '.number_format($dispersaoMedia, 2, ',', '.').'%')
+                ->description(number_format($dispersaoPorViagem, 2, ',', '.').' Km/Viagem'),
+            Stat::make('Total km rodado', number_format($totalKmRodado, 0, ',', '.').' km')
+                ->description(($totalViagens > 0 ? number_format($totalKmRodado / $totalViagens, 2, ',', '.').' Km/Viagem' : '0 Km/Viagem')),
             Stat::make('Qtde viagens', $totalViagens)
-                ->description($countViagensNaoConsideradas > 0 ? $countViagensNaoConsideradas . ' viagens desconsideradas' : 'Não houve viagens desconsideradas'),
+                ->description($countViagensNaoConsideradas > 0 ? $countViagensNaoConsideradas.' viagens desconsideradas' : 'Não houve viagens desconsideradas'),
         ];
     }
 }

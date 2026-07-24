@@ -7,8 +7,8 @@ class FreteCalculador
     /**
      * Calcula o piso mínimo de frete baseado em coeficientes tabelados.
      *
-     * @param float $kmTotal Quilometragem total (ida + volta)
-     * @param bool $temRetornoVazio Se a viagem tem retorno vazio
+     * @param  float  $kmTotal  Quilometragem total (ida + volta)
+     * @param  bool  $temRetornoVazio  Se a viagem tem retorno vazio
      * @return array Array com detalhes do cálculo
      */
     public static function calcularPisoMinimo(float $kmTotal, bool $temRetornoVazio = false): array
@@ -67,23 +67,17 @@ class FreteCalculador
 
     /**
      * Formata um valor numérico para exibição de moeda.
-     *
-     * @param float $valor
-     * @return string
      */
     public static function formatarMoeda(float $valor): string
     {
-        return 'R$ ' . number_format($valor, 2, ',', '.');
+        return 'R$ '.number_format($valor, 2, ',', '.');
     }
 
     /**
      * Formata um valor numérico para distância em KM.
-     *
-     * @param float $valor
-     * @return string
      */
     public static function formatarKm(float $valor): string
     {
-        return number_format($valor, 2, ',', '.') . ' km';
+        return number_format($valor, 2, ',', '.').' km';
     }
 }

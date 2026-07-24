@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -66,6 +67,11 @@ class ItemOrdemServico extends Model
             'item_ordem_servico_id',
             'ordem_servico_apontamento_id'
         )->withTimestamps();
+    }
+
+    public function garantia(): HasOne
+    {
+        return $this->hasOne(GarantiaServico::class, 'item_ordem_servico_id');
     }
 
     protected function servicoNome(): Attribute

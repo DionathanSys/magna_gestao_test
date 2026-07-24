@@ -10,9 +10,7 @@ class ProcessIncomingFiscalEmailJob implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public int $incomingEmailId)
-    {
-    }
+    public function __construct(public int $incomingEmailId) {}
 
     public function handle(FiscalEmailProcessingService $service): void
     {

@@ -2,17 +2,16 @@
 
 namespace App\Services\Veiculo;
 
-use App\{Models, Services, Enum};
+use App\Models\Veiculo;
 use App\Services\Veiculo\Queries\GetQuilometragemUltimoMovimento;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class VeiculoService
 {
-
     public function getVeiculoIdByPlaca(string $placa): ?int
     {
-        $veiculo = \App\Models\Veiculo::query()
+        $veiculo = Veiculo::query()
             ->select('id')
             ->where('placa', $placa)
             ->where('is_active', true)
@@ -21,11 +20,9 @@ class VeiculoService
         return $veiculo?->id;
     }
 
-    
-  
-    public function getVeiculoByPlaca(string $placa): ?Models\Veiculo
+    public function getVeiculoByPlaca(string $placa): ?Veiculo
     {
-        $veiculo = \App\Models\Veiculo::query()
+        $veiculo = Veiculo::query()
             ->where('placa', $placa)
             ->where('is_active', true)
             ->first();
@@ -35,15 +32,16 @@ class VeiculoService
 
     public function getKmMedio(int $veiculoId): float
     {
-        $veiculo = \App\Models\Veiculo::query()
+        $veiculo = Veiculo::query()
             ->select('km_medio')
             ->findOrFail($veiculoId);
+
         return $veiculo->km_medio ?? 0.0;
     }
 
     public function getKmAtualVeiculos(array $veiculos): array
     {
-        $veiculos = \App\Models\Veiculo::query()
+        $veiculos = Veiculo::query()
             ->select('id', 'placa', 'km_medio')
             ->with('kmAtual')
             ->whereIn('id', $veiculos)
@@ -64,8 +62,8 @@ class VeiculoService
 
     public static function getQuilometragemAtualByVeiculoId(int $veiculoId): int
     {
-        return Cache::remember('km_atual_veiculo_id_' . $veiculoId, 43200, function () use ($veiculoId) {
-            $veiculo = \App\Models\Veiculo::query()
+        return Cache::remember('km_atual_veiculo_id_'.$veiculoId, 43200, function () use ($veiculoId) {
+            $veiculo = Veiculo::query()
                 ->select('id', 'placa')
                 ->findOrFail($veiculoId);
 
@@ -75,14 +73,14 @@ class VeiculoService
 
     public static function getQuilometragemUltimoMovimento(int $veiculoId): int
     {
-        return Cache::remember('km_ultimo_movimento_veiculo_id_' . $veiculoId, 86400, function () use ($veiculoId) {
-            return (new GetQuilometragemUltimoMovimento())->handle($veiculoId);
+        return Cache::remember('km_ultimo_movimento_veiculo_id_'.$veiculoId, 86400, function () use ($veiculoId) {
+            return (new GetQuilometragemUltimoMovimento)->handle($veiculoId);
         });
     }
 
     public static function getQuilometragemLimiteMovimentacao(int $veiculoId): array
     {
-        $query = new Queries\GetQuilometragemLimiteMovimentacao();
+        $query = new Queries\GetQuilometragemLimiteMovimentacao;
         $km_limite = $query->handle($veiculoId);
 
         return $km_limite;
@@ -90,16 +88,16 @@ class VeiculoService
 
     public function setDataUltimoChecklist(int $veiculoId, string $data): void
     {
-        $veiculo = Models\Veiculo::query()
+        $veiculo = Veiculo::query()
             ->where('id', $veiculoId)
             ->select('informacoes_complementares')
             ->first();
 
-        if (!$veiculo) {
+        if (! $veiculo) {
             Log::error('Veículo não encontrado ao tentar atualizar data do último checklist', [
-                'metodo'        => __METHOD__.'@'.__LINE__,
-                'veiculo_id'    => $veiculoId,
-                'data'          => $data,
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'veiculo_id' => $veiculoId,
+                'data' => $data,
             ]);
             throw new \InvalidArgumentException("Veículo com ID {$veiculoId} não encontrado");
         }
@@ -108,22 +106,22 @@ class VeiculoService
         $informacoesComplementares = $veiculo->informacoes_complementares ?? [];
         $informacoesComplementares['data_ultimo_checklist'] = $data;
 
-        Log::debug('Atualizando data do último checklist para o veículo ID: ' . $veiculoId . ' para ' . $data, [
-            'metodo'                => __METHOD__ . '@' . __LINE__,
-            'veiculo_id'            => $veiculoId,
-            'data'                  => $data,
-            'informacoes_antes'     => $veiculo->getOriginal('informacoes_complementares'),
-            'informacoes_depois'    => $informacoesComplementares,
+        Log::debug('Atualizando data do último checklist para o veículo ID: '.$veiculoId.' para '.$data, [
+            'metodo' => __METHOD__.'@'.__LINE__,
+            'veiculo_id' => $veiculoId,
+            'data' => $data,
+            'informacoes_antes' => $veiculo->getOriginal('informacoes_complementares'),
+            'informacoes_depois' => $informacoesComplementares,
         ]);
 
-        $resultado = Models\Veiculo::query()
+        $resultado = Veiculo::query()
             ->where('id', $veiculoId)
             ->update([
-                'informacoes_complementares' => $informacoesComplementares
+                'informacoes_complementares' => $informacoesComplementares,
             ]);
 
-        Log::debug('Resultado do update - ' . __METHOD__ . '@' . __LINE__, [
-            'sucesso'    => $resultado,
+        Log::debug('Resultado do update - '.__METHOD__.'@'.__LINE__, [
+            'sucesso' => $resultado,
             'veiculo_id' => $veiculoId,
         ]);
 
@@ -131,7 +129,8 @@ class VeiculoService
 
     public function hasAgendamentoAberto(int $veiculoId): bool
     {
-        Log::debug('Verificando agendamento aberto para o veículo ID: ' . $veiculoId);
-        return (new Queries\GetAgendamentoAberto())->handle($veiculoId);
+        Log::debug('Verificando agendamento aberto para o veículo ID: '.$veiculoId);
+
+        return (new Queries\GetAgendamentoAberto)->handle($veiculoId);
     }
 }

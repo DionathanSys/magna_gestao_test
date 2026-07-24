@@ -15,6 +15,7 @@ class MapaPneu extends Model
         'quantidade_posicoes',
         'ativo',
     ];
+
     public function posicoes(): HasMany
     {
         return $this->hasMany(MapaPneuPosicao::class);

@@ -191,11 +191,11 @@ class IncomingEmailsTable
                         $indicators = [];
 
                         if (filled($data['received_from'] ?? null)) {
-                            $indicators[] = 'Recebido de: ' . $data['received_from'];
+                            $indicators[] = 'Recebido de: '.$data['received_from'];
                         }
 
                         if (filled($data['received_until'] ?? null)) {
-                            $indicators[] = 'Recebido ate: ' . $data['received_until'];
+                            $indicators[] = 'Recebido ate: '.$data['received_until'];
                         }
 
                         return $indicators;

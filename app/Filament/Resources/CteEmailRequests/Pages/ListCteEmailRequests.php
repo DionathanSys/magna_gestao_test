@@ -46,7 +46,7 @@ class ListCteEmailRequests extends ListRecords
         ];
     }
 
-    public function getDefaultActiveTab(): string | int | null
+    public function getDefaultActiveTab(): string|int|null
     {
         $lastActiveTab = session(self::LAST_ACTIVE_TAB_SESSION_KEY);
 

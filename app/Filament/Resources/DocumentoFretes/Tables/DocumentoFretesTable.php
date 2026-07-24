@@ -3,14 +3,14 @@
 namespace App\Filament\Resources\DocumentoFretes\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
-use App\{Models};
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Actions\DefinirResultadoPeriodoBulkAction;
-use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\DocumentoFretes\Actions;
 use App\Filament\Resources\DocumentoFretes\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
+use App\Models;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -19,11 +19,8 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -41,7 +38,7 @@ class DocumentoFretesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['veiculo:id,placa', 'resultadoPeriodo:id,data_inicio']))
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -66,7 +63,7 @@ class DocumentoFretesTable
                 TextColumn::make('tipo_documento')
                     ->label('Tipo Documento')
                     ->width('1%')
-                    ->formatStateUsing(fn($state) => $state?->value ?? $state)
+                    ->formatStateUsing(fn ($state) => $state?->value ?? $state)
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('data_emissao')
@@ -108,15 +105,15 @@ class DocumentoFretesTable
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('viagem_id')
-                    ->label("viagem ID")
-                    ->url(fn(Models\DocumentoFrete $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id ?? 0]))
+                    ->label('viagem ID')
+                    ->url(fn (Models\DocumentoFrete $record): string => ViagemResource::getUrl('view', ['record' => $record->viagem_id ?? 0]))
                     ->openUrlInNewTab(),
                 TextColumn::make('status_vinculo')
                     ->label('Status Vinculo')
                     ->badge()
                     ->color(fn (string $state): string => $state === 'Vinculado' ? 'success' : 'warning'),
                 TextInputColumn::make('resultado_periodo_id')
-                    ->label("Resultado Período ID")
+                    ->label('Resultado Período ID')
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('resultadoPeriodo.data_inicio')
                     ->label('Resultado Período')
@@ -160,7 +157,7 @@ class DocumentoFretesTable
                 Filter::make('sem_vinculo_viagem')
                     ->label('Sem Viagem')
                     ->toggle()
-                    ->query(fn(Builder $query): Builder => $query->whereNull('viagem_id')),
+                    ->query(fn (Builder $query): Builder => $query->whereNull('viagem_id')),
                 RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->groups([
@@ -170,7 +167,7 @@ class DocumentoFretesTable
                 Group::make('data_emissao')
                     ->label('Dt. Emissão')
                     ->titlePrefixedWithLabel(false)
-                    ->getTitleFromRecordUsing(fn(Models\DocumentoFrete $record): string => Carbon::parse($record->data_emissao)->format('d/m/Y'))
+                    ->getTitleFromRecordUsing(fn (Models\DocumentoFrete $record): string => Carbon::parse($record->data_emissao)->format('d/m/Y'))
                     ->collapsible(),
                 Group::make('parceiro_origem')
                     ->label('Parceiro Origem')
@@ -194,48 +191,48 @@ class DocumentoFretesTable
                     ])
                     ->action(function (Models\DocumentoFrete $record, array $data) {
                         try {
-                            Log::debug("Iniciando vinculação do DocumentoFrete ID {$record->id} à Viagem ID {$data['viagem_id']} pelo usuário ID " . Auth::id());
+                            Log::debug("Iniciando vinculação do DocumentoFrete ID {$record->id} à Viagem ID {$data['viagem_id']} pelo usuário ID ".Auth::id());
                             // Buscar a viagem
                             $viagem = Models\Viagem::findOrFail($data['viagem_id']);
-                            
+
                             // Atualizar o documento de frete com o documento_transporte da viagem
                             $record->update([
                                 'viagem_id' => $viagem->id,
                                 'documento_transporte' => $viagem->documento_transporte,
                             ]);
-                            
-                            Log::debug("DocumentoFrete ID {$record->id} vinculado à Viagem ID {$viagem->id} com sucesso pelo usuário ID " . Auth::id());
+
+                            Log::debug("DocumentoFrete ID {$record->id} vinculado à Viagem ID {$viagem->id} com sucesso pelo usuário ID ".Auth::id());
 
                             Notification::make()
                                 ->success()
                                 ->title('Documento vinculado com sucesso!')
                                 ->body("Documento vinculado à viagem {$viagem->numero_viagem}.")
                                 ->send();
-                                
+
                         } catch (\Exception $e) {
-                            Log::error("Erro ao vincular DocumentoFrete ID {$record->id} à Viagem ID {$data['viagem_id']}: " . $e->getMessage() . " pelo usuário ID " . Auth::id());
+                            Log::error("Erro ao vincular DocumentoFrete ID {$record->id} à Viagem ID {$data['viagem_id']}: ".$e->getMessage().' pelo usuário ID '.Auth::id());
                             Notification::make()
                                 ->danger()
                                 ->title('Erro ao vincular documento')
                                 ->body($e->getMessage())
                                 ->send();
                         }
-                        
+
                         return true;
                     })
-                    ->visible(fn(Models\DocumentoFrete $record): bool => is_null($record->viagem_id))
+                    ->visible(fn (Models\DocumentoFrete $record): bool => is_null($record->viagem_id))
                     ->iconButton(),
             ])
             ->headerActions([])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(): bool => Auth::user()->is_admin),
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
                     DefinirResultadoPeriodoBulkAction::make(),
                     VincularResultadoPeriodoBulkAction::make(),
                     Actions\ExportarDocumentoFreteExcelBulkAction::make(),
-                    FilamentExportBulkAction::make('export')
+                    FilamentExportBulkAction::make('export'),
                 ]),
                 ActionGroup::make([
                     CreateAction::make()

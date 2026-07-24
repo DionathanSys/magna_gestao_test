@@ -148,8 +148,9 @@ class SolicitarCteBugioFromViagem
             throw new \InvalidArgumentException('As viagens selecionadas possuem documentos de transporte diferentes.');
         }
 
+        $viagemReferencia = $viagens->first();
         $documentoTransporte = $documentosTransporte->first()
-            ?? 'AGR-'.now()->format('YmdHis').'-'.$viagens->pluck('id')->take(3)->implode('-');
+            ?? 'AGR-'.now()->format('YmdHi').'-'.trim((string) $viagemReferencia->numero_viagem);
 
         $viagens->each(function (Viagem $viagem) use ($documentoTransporte): void {
             if ($viagem->documento_transporte !== $documentoTransporte) {
@@ -158,7 +159,6 @@ class SolicitarCteBugioFromViagem
         });
 
         $integrado = Integrado::query()->findOrFail($data['integrado_id']);
-        $viagemReferencia = $viagens->first();
         $veiculo = Veiculo::query()->findOrFail($viagemReferencia->veiculo_id);
 
         $integradosSelecionados = $viagens

@@ -230,7 +230,7 @@ class SolicitarCteBugioAgrupadoBulkAction
             'resumo_viagens' => $records->pluck('numero_viagem')->implode(', ').' | Placa '.($primeiraViagem->veiculo?->placa ?? 'N/A'),
             'resumo_notas' => $resumoNotas,
             'resumo_anexos' => $resumoAnexos,
-            'documento_transporte_preview' => $documentosTransporte->first() ?? 'Será gerado ao confirmar',
+            'documento_transporte_preview' => $documentosTransporte->first() ?? 'AGR-'.now()->format('YmdHi').'-'.trim((string) $primeiraViagem->numero_viagem),
             'integrados_options' => $integradosOptions,
             'integrado_id' => $integrado?->id,
             'integrado_municipio_uf' => $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '',

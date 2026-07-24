@@ -9,6 +9,7 @@ enum PosicaoItemOrdemServicoEnum: string
     case TD = 'TD';
     case TE = 'TE';
     case DT = 'DT';
+    case MEIO = 'MEIO';
     case TR = 'TR';
     case POS_2DD = '2DD';
     case POS_2DE = '2DE';

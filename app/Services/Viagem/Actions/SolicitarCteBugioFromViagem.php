@@ -127,7 +127,7 @@ class SolicitarCteBugioFromViagem
             throw new \InvalidArgumentException('Selecione pelo menos duas viagens para agrupar a solicitação.');
         }
 
-        $viagens->loadMissing([
+        $viagens->load([
             'attachments.incomingEmailAttachment',
             'attachments.receivedFiscalDocument',
             'cargas.integrado',

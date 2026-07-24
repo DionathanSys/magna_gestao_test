@@ -9,6 +9,7 @@ use App\Services\NotificacaoService as notify;
 use App\Services\Viagem\Actions\SolicitarCteBugioFromViagem;
 use Filament\Actions\BulkAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -47,6 +48,8 @@ class SolicitarCteBugioAgrupadoBulkAction
                 Section::make('Resumo das Viagens')
                     ->columns(2)
                     ->schema([
+                        Hidden::make('integrados_options')
+                            ->dehydrated(false),
                         TextInput::make('resumo_viagens')
                             ->label('Viagens')
                             ->readOnly()
@@ -71,7 +74,7 @@ class SolicitarCteBugioAgrupadoBulkAction
                     ->schema([
                         Select::make('integrado_id')
                             ->label('Integrado que constará no email')
-                            ->options(fn (): array => Integrado::query()->orderBy('nome')->pluck('nome', 'id')->toArray())
+                            ->options(fn (Get $get): array => $get('integrados_options') ?? [])
                             ->searchable()
                             ->required()
                             ->live()
@@ -163,7 +166,7 @@ class SolicitarCteBugioAgrupadoBulkAction
     {
         self::validateSelection($records);
 
-        $records->loadMissing('veiculo', 'cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');
+        $records->load('veiculo', 'cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');
 
         $primeiraViagem = $records->first();
         $motoristas = self::getMotoristas();
@@ -178,6 +181,15 @@ class SolicitarCteBugioAgrupadoBulkAction
             ->map(fn ($carga) => $carga->integrado)
             ->filter()
             ->first();
+
+        $integradosOptions = $records
+            ->flatMap(fn (Viagem $viagem) => $viagem->cargas)
+            ->map(fn ($carga) => $carga->integrado)
+            ->filter()
+            ->unique('id')
+            ->sortBy('nome')
+            ->mapWithKeys(fn (Integrado $integrado): array => [$integrado->id => $integrado->nome])
+            ->toArray();
 
         $kmRota = $records
             ->flatMap(fn (Viagem $viagem) => $viagem->cargas)
@@ -219,6 +231,7 @@ class SolicitarCteBugioAgrupadoBulkAction
             'resumo_notas' => $resumoNotas,
             'resumo_anexos' => $resumoAnexos,
             'documento_transporte_preview' => $documentosTransporte->first() ?? 'Será gerado ao confirmar',
+            'integrados_options' => $integradosOptions,
             'integrado_id' => $integrado?->id,
             'integrado_municipio_uf' => $integrado ? ($integrado->municipio ?? '').' - '.($integrado->estado ?? '') : '',
             'motorista' => $motoristaPadraoCpf,
@@ -238,7 +251,7 @@ class SolicitarCteBugioAgrupadoBulkAction
             throw new \InvalidArgumentException('Selecione pelo menos duas viagens para agrupar a solicitação.');
         }
 
-        $records->loadMissing('cargas.integrado');
+        $records->load('cargas.integrado');
 
         if ($records->pluck('veiculo_id')->filter()->unique()->count() !== 1) {
             throw new \InvalidArgumentException('Selecione somente viagens do mesmo veículo.');

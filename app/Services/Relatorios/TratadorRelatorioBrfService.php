@@ -96,6 +96,12 @@ class TratadorRelatorioBrfService
             $normalizedExpected[$this->normalize($col)] = $col;
         }
 
+        foreach ($this->columnAliases() as $col => $aliases) {
+            foreach ($aliases as $alias) {
+                $normalizedExpected[$this->normalize($alias)] = $col;
+            }
+        }
+
         foreach ($headers as $index => $header) {
             $normalizedHeader = $this->normalize($header);
             if (isset($normalizedExpected[$normalizedHeader])) {
@@ -110,6 +116,27 @@ class TratadorRelatorioBrfService
                 'Colunas obrigatórias não encontradas no arquivo: '.implode(', ', $missing)
             );
         }
+    }
+
+    private function columnAliases(): array
+    {
+        return [
+            'NºCustoFrete' => [
+                'NºCustFrete',
+                'Nº Custo Frete',
+                'Nº Cust Frete',
+                'NoCustoFrete',
+                'NoCustFrete',
+            ],
+            'Frete Em' => [
+                'Frete em',
+            ],
+            'Tp. Frete' => [
+                'Tp.Frete',
+                'Tp Frete',
+                'Tipo Frete',
+            ],
+        ];
     }
 
     private function normalize(string $name): string

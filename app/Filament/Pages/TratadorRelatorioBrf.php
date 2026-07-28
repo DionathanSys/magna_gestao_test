@@ -61,7 +61,9 @@ class TratadorRelatorioBrf extends Page
 
     public function processar(): void
     {
-        $arquivo = $this->data['arquivo'] ?? null;
+        $raw = $this->data['arquivo'] ?? null;
+        $arquivo = is_array($raw) ? ($raw[0] ?? null) : $raw;
+
         if (! $arquivo) {
             Notification::make()
                 ->title('Selecione um arquivo primeiro')

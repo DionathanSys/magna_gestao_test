@@ -24,13 +24,20 @@ class TratadorRelatorioBrf extends Page
 
     protected static string|UnitEnum|null $navigationGroup = 'Relatórios';
 
-    public $arquivo = null;
+    public ?array $data = [];
 
     public ?array $stats = null;
 
     public ?string $outputPath = null;
 
     public bool $processed = false;
+
+    public function mount(): void
+    {
+        $this->form->fill([
+            'arquivo' => null,
+        ]);
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -48,7 +55,8 @@ class TratadorRelatorioBrf extends Page
                         'text/plain',
                     ])
                     ->maxSize(50 * 1024),
-            ]);
+            ])
+            ->statePath('data');
     }
 
     public function processar(): void

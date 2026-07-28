@@ -198,10 +198,12 @@ class TratadorRelatorioBrfService
                 $this->stats['single_delivery_trips']++;
                 $this->stats['total_output_rows']++;
             } else {
-                $header = $this->findSummaryRow($rows) ?? $rows[0];
+                $summaryRows = $this->findSummaryRows($rows);
+                $header = $this->consolidateSummaryRows($summaryRows !== [] ? $summaryRows : [$rows[0]]);
                 $deliveries = array_values(array_filter(
                     $rows,
-                    fn (array $row): bool => $row !== $header && trim((string) ($row['Nome Fornecedor'] ?? '')) !== ''
+                    fn (array $row): bool => trim((string) ($row['NºCustoFrete'] ?? '')) === ''
+                        && trim((string) ($row['Nome Fornecedor'] ?? '')) !== ''
                 ));
 
                 $deliveryCount = count($deliveries);
@@ -218,6 +220,11 @@ class TratadorRelatorioBrfService
                     continue;
                 }
 
+                if (count($summaryRows) > 1) {
+                    $this->stats['divergencias'][] =
+                        "Doc. Transporte {$docTransporte}: totais somados de ".count($summaryRows).' linhas sumarizadoras';
+                }
+
                 $this->stats['multi_delivery_trips']++;
 
                 foreach ($deliveries as $delivery) {
@@ -231,15 +238,33 @@ class TratadorRelatorioBrfService
         return $outputRows;
     }
 
-    private function findSummaryRow(array $rows): ?array
+    private function findSummaryRows(array $rows): array
     {
-        foreach ($rows as $row) {
-            if (trim((string) ($row['NºCustoFrete'] ?? '')) !== '') {
-                return $row;
-            }
+        return array_values(array_filter(
+            $rows,
+            fn (array $row): bool => trim((string) ($row['NºCustoFrete'] ?? '')) !== ''
+        ));
+    }
+
+    private function consolidateSummaryRows(array $rows): array
+    {
+        $summary = $rows[0];
+
+        foreach (['Quantidade', 'KM Realizado', 'ValorFrete'] as $field) {
+            $summary[$field] = array_sum(array_map(
+                fn (array $row): float => $this->toNumeric($row[$field] ?? 0),
+                $rows
+            ));
         }
 
-        return null;
+        $summary['NºCustoFrete'] = collect($rows)
+            ->pluck('NºCustoFrete')
+            ->map(fn ($value): string => trim((string) $value))
+            ->filter()
+            ->unique()
+            ->implode(', ');
+
+        return $summary;
     }
 
     private function mergeRows(array $header, array $delivery, int $totalDeliveries): array

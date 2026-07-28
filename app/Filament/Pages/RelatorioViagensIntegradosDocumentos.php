@@ -19,6 +19,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
 class RelatorioViagensIntegradosDocumentos extends Page
@@ -108,84 +109,7 @@ class RelatorioViagensIntegradosDocumentos extends Page
     public function carregarDados(): void
     {
         try {
-            $query = Viagem::query()
-                ->with([
-                    'cargas.integrado',
-                    'documentos',
-                    'attachments.receivedFiscalDocument',
-                    'veiculo',
-                ])
-                ->orderBy($this->ordenarPor, $this->direcaoOrdenacao);
-
-            $dataInicio = $this->data['data_competencia_inicio'] ?? null;
-            $dataFim = $this->data['data_competencia_fim'] ?? null;
-            $integradoId = $this->data['integrado_id'] ?? null;
-            $cliente = $this->data['cliente'] ?? null;
-            $conferido = $this->data['conferido'] ?? null;
-
-            if ($dataInicio) {
-                $query->where('data_competencia', '>=', $dataInicio);
-            }
-
-            if ($dataFim) {
-                $query->where('data_competencia', '<=', $dataFim);
-            }
-
-            if ($integradoId) {
-                $query->whereHas('cargas', function ($q) use ($integradoId): void {
-                    $q->where('integrado_id', $integradoId);
-                });
-            }
-
-            if ($cliente !== null && $cliente !== '') {
-                $query->where('cliente', $cliente);
-            }
-
-            if ($conferido !== null && $conferido !== '') {
-                $query->where('conferido', (bool) $conferido);
-            }
-
-            $viagens = $query->get();
-
-            $mapped = $viagens->map(function (Viagem $viagem): array {
-                $integrados = $viagem->cargas
-                    ->pluck('integrado')
-                    ->filter()
-                    ->unique('id')
-                    ->values();
-
-                $integradosNomes = $integrados->pluck('nome')->filter()->implode(', ');
-                $integradosMunicipios = $integrados->pluck('municipio')->filter()->implode(', ');
-
-                $documentos = $viagem->documentos ?? collect();
-                $numerosDocumentos = $documentos->pluck('numero_documento')->filter()->implode(', ');
-                $valorLiquidoTotal = $documentos->sum('valor_liquido');
-
-                $notas = $viagem->attachments
-                    ->pluck('receivedFiscalDocument')
-                    ->filter()
-                    ->unique('id')
-                    ->values();
-                $numerosNotas = $notas->pluck('numero_nota')->filter()->implode(', ');
-
-                return [
-                    'id' => $viagem->id,
-                    'numero_viagem' => $viagem->numero_viagem ?? '',
-                    'data_competencia' => $viagem->data_competencia ? Carbon::parse($viagem->data_competencia)->format('d/m/Y') : '',
-                    'data_competencia_sort' => $viagem->data_competencia ?? '',
-                    'placa' => $viagem->veiculo?->placa ?? '',
-                    'integrados' => $integradosNomes ?: 'Sem integrado',
-                    'municipios' => $integradosMunicipios ?: '-',
-                    'km_rodado' => $viagem->km_rodado ?? 0,
-                    'km_pago' => $viagem->km_pago ?? 0,
-                    'numeros_documentos' => $numerosDocumentos ?: 'Sem frete',
-                    'valor_liquido' => $valorLiquidoTotal,
-                    'numeros_notas' => $numerosNotas ?: 'Sem nota',
-                    'conferido' => $viagem->conferido,
-                ];
-            });
-
-            $this->dadosRelatorio = $mapped->toArray();
+            $this->dadosRelatorio = $this->buscarDadosRelatorio();
 
             Notification::make()
                 ->title('Dados carregados com sucesso')
@@ -203,16 +127,18 @@ class RelatorioViagensIntegradosDocumentos extends Page
         }
     }
 
-    public function exportarExcel(): void
+    public function exportarExcel(): ?StreamedResponse
     {
-        if (empty($this->dadosRelatorio)) {
+        $dadosRelatorio = $this->buscarDadosRelatorio();
+
+        if (empty($dadosRelatorio)) {
             Notification::make()
                 ->warning()
                 ->title('Sem dados para exportar')
-                ->body('Carregue os dados primeiro antes de exportar.')
+                ->body('Nenhum registro encontrado com os filtros definidos.')
                 ->send();
 
-            return;
+            return null;
         }
 
         $originalMemoryLimit = ini_get('memory_limit');
@@ -263,7 +189,7 @@ class RelatorioViagensIntegradosDocumentos extends Page
             $viagensSheet->getColumnDimension('L')->setWidth(12);
 
             $row = 2;
-            foreach ($this->dadosRelatorio as $item) {
+            foreach ($dadosRelatorio as $item) {
                 $viagensSheet->setCellValue('A'.$row, $item['id']);
                 $viagensSheet->setCellValue('B'.$row, $item['numero_viagem']);
                 $viagensSheet->setCellValue('C'.$row, $item['data_competencia']);
@@ -316,11 +242,11 @@ class RelatorioViagensIntegradosDocumentos extends Page
             $notasSheet->getColumnDimension('G')->setWidth(35);
             $notasSheet->getColumnDimension('H')->setWidth(18);
 
-            $viagensIds = collect($this->dadosRelatorio)->pluck('id')->values()->all();
+            $viagensIds = collect($dadosRelatorio)->pluck('id')->values()->all();
 
             $attachments = ViagemAttachment::query()
                 ->whereIn('viagem_id', $viagensIds)
-                ->with('receivedFiscalDocument')
+                ->with(['receivedFiscalDocument', 'viagem:id,numero_viagem'])
                 ->get();
 
             $row = 2;
@@ -331,10 +257,8 @@ class RelatorioViagensIntegradosDocumentos extends Page
                     continue;
                 }
 
-                $viagem = Viagem::find($attachment->viagem_id);
-
                 $notasSheet->setCellValue('A'.$row, $attachment->viagem_id);
-                $notasSheet->setCellValue('B'.$row, $viagem?->numero_viagem ?? '');
+                $notasSheet->setCellValue('B'.$row, $attachment->viagem?->numero_viagem ?? '');
                 $notasSheet->setCellValue('C'.$row, $doc->numero_nota ?? '');
                 $notasSheet->setCellValue('D'.$row, $doc->chave_nfe ?? '');
                 $notasSheet->setCellValue('E'.$row, $doc->tipo_documento ?? '');
@@ -351,18 +275,16 @@ class RelatorioViagensIntegradosDocumentos extends Page
 
             $spreadsheet->setActiveSheetIndex(0);
 
-            ini_set('memory_limit', $originalMemoryLimit);
-
             $fileName = 'relatorio_viagens_integrados_documentos_'.date('Y-m-d_His').'.xlsx';
 
-            response()->streamDownload(function () use ($spreadsheet) {
+            return response()->streamDownload(function () use ($spreadsheet, $originalMemoryLimit): void {
                 $writer = new Xlsx($spreadsheet);
                 $writer->save('php://output');
+
+                ini_set('memory_limit', $originalMemoryLimit);
             }, $fileName, [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ])->send();
-
-            exit;
+            ]);
         } catch (\Exception $e) {
             ini_set('memory_limit', $originalMemoryLimit);
 
@@ -371,7 +293,106 @@ class RelatorioViagensIntegradosDocumentos extends Page
                 ->title('Erro ao exportar')
                 ->body('Ocorreu um erro ao gerar o arquivo Excel: '.$e->getMessage())
                 ->send();
+
+            return null;
         }
+    }
+
+    protected function buscarDadosRelatorio(): array
+    {
+        $dataInicio = $this->data['data_competencia_inicio'] ?? null;
+        $dataFim = $this->data['data_competencia_fim'] ?? null;
+        $integradoId = $this->data['integrado_id'] ?? null;
+        $cliente = $this->data['cliente'] ?? null;
+        $conferido = $this->data['conferido'] ?? null;
+
+        $query = Viagem::query()
+            ->with([
+                'cargas.integrado',
+                'documentos',
+                'attachments.receivedFiscalDocument',
+                'veiculo',
+            ]);
+
+        if ($dataInicio) {
+            $query->where('data_competencia', '>=', $dataInicio);
+        }
+
+        if ($dataFim) {
+            $query->where('data_competencia', '<=', $dataFim);
+        }
+
+        if ($integradoId) {
+            $query->whereHas('cargas', function ($q) use ($integradoId): void {
+                $q->where('integrado_id', $integradoId);
+            });
+        }
+
+        if ($cliente !== null && $cliente !== '') {
+            $query->where('cliente', $cliente);
+        }
+
+        if ($conferido !== null && $conferido !== '') {
+            $query->where('conferido', (bool) $conferido);
+        }
+
+        $dados = $query->get()
+            ->map(function (Viagem $viagem): array {
+                $integrados = $viagem->cargas
+                    ->pluck('integrado')
+                    ->filter()
+                    ->unique('id')
+                    ->values();
+
+                $integradosNomes = $integrados->pluck('nome')->filter()->implode(', ');
+                $integradosMunicipios = $integrados->pluck('municipio')->filter()->implode(', ');
+
+                $documentos = $viagem->documentos ?? collect();
+                $numerosDocumentos = $documentos->pluck('numero_documento')->filter()->implode(', ');
+                $valorLiquidoTotal = $documentos->sum('valor_liquido');
+
+                $notas = $viagem->attachments
+                    ->pluck('receivedFiscalDocument')
+                    ->filter()
+                    ->unique('id')
+                    ->values();
+                $numerosNotas = $notas->pluck('numero_nota')->filter()->implode(', ');
+
+                return [
+                    'id' => $viagem->id,
+                    'numero_viagem' => $viagem->numero_viagem ?? '',
+                    'data_competencia' => $viagem->data_competencia ? Carbon::parse($viagem->data_competencia)->format('d/m/Y') : '',
+                    'data_competencia_sort' => $viagem->data_competencia ?? '',
+                    'placa' => $viagem->veiculo?->placa ?? '',
+                    'integrados' => $integradosNomes ?: 'Sem integrado',
+                    'municipios' => $integradosMunicipios ?: '-',
+                    'km_rodado' => $viagem->km_rodado ?? 0,
+                    'km_pago' => $viagem->km_pago ?? 0,
+                    'numeros_documentos' => $numerosDocumentos ?: 'Sem frete',
+                    'valor_liquido' => $valorLiquidoTotal,
+                    'numeros_notas' => $numerosNotas ?: 'Sem nota',
+                    'conferido' => $viagem->conferido,
+                ];
+            })
+            ->toArray();
+
+        $this->ordenarDadosRelatorio($dados);
+
+        return $dados;
+    }
+
+    protected function ordenarDadosRelatorio(array &$dados): void
+    {
+        usort($dados, function ($a, $b) {
+            $valorA = $a[$this->ordenarPor] ?? '';
+            $valorB = $b[$this->ordenarPor] ?? '';
+
+            if ($this->direcaoOrdenacao === 'asc') {
+                return $valorA <=> $valorB;
+            }
+
+            return $valorB <=> $valorA;
+        });
     }
 
     public function ordenarPorColuna(string $coluna): void
@@ -384,16 +405,7 @@ class RelatorioViagensIntegradosDocumentos extends Page
         }
 
         if (! empty($this->dadosRelatorio)) {
-            usort($this->dadosRelatorio, function ($a, $b) {
-                $valorA = $a[$this->ordenarPor] ?? '';
-                $valorB = $b[$this->ordenarPor] ?? '';
-
-                if ($this->direcaoOrdenacao === 'asc') {
-                    return $valorA <=> $valorB;
-                }
-
-                return $valorB <=> $valorA;
-            });
+            $this->ordenarDadosRelatorio($this->dadosRelatorio);
         }
     }
 

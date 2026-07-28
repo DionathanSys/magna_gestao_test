@@ -198,21 +198,26 @@ class TratadorRelatorioBrfService
                 $this->stats['single_delivery_trips']++;
                 $this->stats['total_output_rows']++;
             } else {
-                $header = $rows[0];
-                $deliveries = array_slice($rows, 1);
+                $header = $this->findSummaryRow($rows) ?? $rows[0];
+                $deliveries = array_values(array_filter(
+                    $rows,
+                    fn (array $row): bool => $row !== $header && trim((string) ($row['Nome Fornecedor'] ?? '')) !== ''
+                ));
 
-                $entregas = (int) ($header['Entregas'] ?? 0);
-                if ($entregas <= 0) {
-                    $entregas = count($deliveries);
-                }
-
-                $atual = count($deliveries);
-                if ($entregas !== $atual) {
+                $deliveryCount = count($deliveries);
+                $entregasInformadas = (int) ($header['Entregas'] ?? 0);
+                if ($entregasInformadas > 0 && $entregasInformadas !== $deliveryCount) {
                     $this->stats['divergencias'][] =
-                        "Doc. Transporte {$docTransporte}: informa {$entregas} entrega(s), mas possui {$atual} linha(s) de entrega";
+                        "Doc. Transporte {$docTransporte}: informa {$entregasInformadas} entrega(s), mas possui {$deliveryCount} destino(s) com Nome Fornecedor";
                 }
 
-                $deliveryCount = max($entregas, $atual);
+                if ($deliveryCount === 0) {
+                    $this->stats['divergencias'][] =
+                        "Doc. Transporte {$docTransporte}: nenhuma entrega encontrada com Nome Fornecedor preenchido";
+
+                    continue;
+                }
+
                 $this->stats['multi_delivery_trips']++;
 
                 foreach ($deliveries as $delivery) {
@@ -226,6 +231,17 @@ class TratadorRelatorioBrfService
         return $outputRows;
     }
 
+    private function findSummaryRow(array $rows): ?array
+    {
+        foreach ($rows as $row) {
+            if (trim((string) ($row['NºCustoFrete'] ?? '')) !== '') {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
     private function mergeRows(array $header, array $delivery, int $totalDeliveries): array
     {
         $row = [];
@@ -234,6 +250,7 @@ class TratadorRelatorioBrfService
         foreach ($fromHeader as $field) {
             $row[$field] = $header[$field] ?? null;
         }
+        $row['Entregas'] = $totalDeliveries;
 
         $fromDelivery = ['Nº NF', 'Nome Fornecedor', 'LocDest.', 'NroConhecimento', 'NF Serviço'];
         foreach ($fromDelivery as $field) {

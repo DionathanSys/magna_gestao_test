@@ -24,20 +24,13 @@ class TratadorRelatorioBrf extends Page
 
     protected static string|UnitEnum|null $navigationGroup = 'Relatórios';
 
-    public ?array $data = [];
+    public $arquivo = null;
 
     public ?array $stats = null;
 
     public ?string $outputPath = null;
 
     public bool $processed = false;
-
-    public function mount(): void
-    {
-        $this->data = [
-            'arquivo' => null,
-        ];
-    }
 
     public function form(Schema $schema): Schema
     {
@@ -55,14 +48,13 @@ class TratadorRelatorioBrf extends Page
                         'text/plain',
                     ])
                     ->maxSize(50 * 1024),
-            ])
-            ->statePath('data');
+            ]);
     }
 
     public function processar(): void
     {
-        $raw = $this->data['arquivo'] ?? null;
-        $arquivo = is_array($raw) ? ($raw[0] ?? null) : $raw;
+        $data = $this->form->getState();
+        $arquivo = $data['arquivo'] ?? null;
 
         if (! $arquivo) {
             Notification::make()

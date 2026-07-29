@@ -53,32 +53,31 @@ class ListOrdemServicos extends ListRecords
     public function getTabs(): array
     {
         return [
-            'todos' => Tab::make(),
+            'todos' => Tab::make()
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')),
             'hoje' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereDate('data_inicio', today()))
-                ->badge(Models\OrdemServico::query()->whereDate('data_inicio', today())->count()),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->whereDate('data_inicio', today()))
+                ->badge(Models\OrdemServico::query()->whereNull('parceiro_id')->whereDate('data_inicio', today())->count()),
             'pendente' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)),
             'concluído' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)),
             'abrir_ordem' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status_sankhya', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE))
-                ->badge(Models\OrdemServico::query()->where('status_sankhya', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)->count())
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status_sankhya', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE))
+                ->badge(Models\OrdemServico::query()->whereNull('parceiro_id')->where('status_sankhya', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)->count())
                 ->badgeColor('info'),
             'encerrar_ordem' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                     ->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                    ->where('parceiro_id', null))
+                    ->whereNull('parceiro_id'))
                 ->badge(Models\OrdemServico::query()
                     ->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                     ->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                    ->where('parceiro_id', null)->count())
+                    ->whereNull('parceiro_id')->count())
                 ->badgeColor('info'),
             'Terceiros' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                    ->where('parceiro_id', '!=', null))
-                ->badge(Models\OrdemServico::query()->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
-                    ->where('parceiro_id', '!=', null)->count())
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNotNull('parceiro_id'))
+                ->badge(Models\OrdemServico::query()->whereNotNull('parceiro_id')->count())
                 ->badgeColor('danger'),
 
         ];

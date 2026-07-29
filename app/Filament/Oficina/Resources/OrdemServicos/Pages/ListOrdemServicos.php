@@ -19,7 +19,7 @@ class ListOrdemServicos extends ListRecords
     {
         return [
             'abertas' => Tab::make('Abertas')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereNotIn('status', [
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->whereNotIn('status', [
                     StatusOrdemServicoEnum::CONCLUIDO->value,
                     StatusOrdemServicoEnum::CANCELADO->value,
                 ]))
@@ -28,7 +28,7 @@ class ListOrdemServicos extends ListRecords
                     StatusOrdemServicoEnum::CANCELADO->value,
                 ])->count()),
             'encerradas' => Tab::make('Encerradas')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', StatusOrdemServicoEnum::CONCLUIDO->value))
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status', StatusOrdemServicoEnum::CONCLUIDO->value))
                 ->badge(OrdemServico::query()->whereNull('parceiro_id')->where('status', StatusOrdemServicoEnum::CONCLUIDO->value)->count()),
         ];
     }

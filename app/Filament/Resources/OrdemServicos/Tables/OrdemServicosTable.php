@@ -6,6 +6,7 @@ use App\Enum;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\OrdemServico;
+use App\Models\Servico;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -121,6 +122,16 @@ class OrdemServicosTable
                     ->label('Tipo Manutenção')
                     ->options(Enum\OrdemServico\TipoManutencaoEnum::toSelectArray())
                     ->multiple(),
+                SelectFilter::make('servico_id')
+                    ->label('Serviço')
+                    ->options(fn (): array => Servico::query()->orderBy('descricao')->pluck('descricao', 'id')->all())
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        filled($data['values'] ?? null),
+                        fn (Builder $query) => $query->whereHas('itens', fn (Builder $query) => $query->whereIn('servico_id', $data['values']))
+                    ))
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options(Enum\OrdemServico\StatusOrdemServicoEnum::toSelectArray())

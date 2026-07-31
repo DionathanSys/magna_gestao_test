@@ -41,6 +41,7 @@ class MobilePanelProvider extends PanelProvider
             ->navigationGroups([
                 'Manutenção',
                 'Viagens',
+                'Pneus',
             ])
             ->discoverResources(in: app_path('Filament/Mobile/Resources'), for: 'App\Filament\Mobile\Resources')
             ->discoverPages(in: app_path('Filament/Mobile/Pages'), for: 'App\Filament\Mobile\Pages')

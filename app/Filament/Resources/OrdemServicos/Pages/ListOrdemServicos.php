@@ -49,12 +49,15 @@ class ListOrdemServicos extends ListRecords
     {
         return [
             'todos' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')),
+                ->modifyQueryUsing(fn (Builder $query) => $query),
             'hoje' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->whereDate('data_inicio', today()))
                 ->badge(Models\OrdemServico::query()->whereNull('parceiro_id')->whereDate('data_inicio', today())->count()),
             'pendente' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->whereIn('status', [
+                    Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
+                    Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
+                ])),
             'concluído' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)),
             'abrir_ordem' => Tab::make()
@@ -71,8 +74,14 @@ class ListOrdemServicos extends ListRecords
                     ->whereNull('parceiro_id')->count())
                 ->badgeColor('info'),
             'Terceiros' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereNotNull('parceiro_id'))
-                ->badge(Models\OrdemServico::query()->whereNotNull('parceiro_id')->count())
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNotNull('parceiro_id')->whereIn('status', [
+                    Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
+                    Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
+                ]))
+                ->badge(Models\OrdemServico::query()->whereNotNull('parceiro_id')->whereIn('status', [
+                    Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
+                    Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
+                ])->count())
                 ->badgeColor('danger'),
 
         ];

@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Agendamentos\Pages;
 
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
-use App\Filament\Resources\Agendamentos\AgendamentoResource;
+use App\Filament\Mobile\Resources\Agendamentos\AgendamentoResource;
 use App\Models\Agendamento;
 use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
@@ -526,7 +526,7 @@ class MobileOperacaoAgendamentos extends Page implements HasSchemas
 
     public function getOperacaoUrl(): string
     {
-        return AgendamentoResource::getUrl('operacao');
+        return AgendamentoResource::getUrl('index');
     }
 
     public function formatCategoria(CategoriaAgendamentoEnum|string|null $categoria): string

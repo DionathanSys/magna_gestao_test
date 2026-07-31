@@ -54,10 +54,6 @@ class OperacaoAgendamentos extends Page implements HasSchemas
             Action::make('lista')
                 ->label('Abrir Lista Completa')
                 ->url(AgendamentoResource::getUrl('index')),
-            Action::make('mobile')
-                ->label('Abrir Mobile')
-                ->icon('heroicon-o-device-phone-mobile')
-                ->url(AgendamentoResource::getUrl('mobile-operacao')),
         ];
     }
 

@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
-use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use App\Filament\Mobile\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\OrdemServico;
 use Filament\Resources\Pages\Page;
 use UnitEnum;
@@ -68,12 +68,12 @@ class MobileListOrdemServicos extends Page
 
     public function getCreateUrl(): string
     {
-        return OrdemServicoResource::getUrl('mobile-create');
+        return OrdemServicoResource::getUrl('create');
     }
 
     public function getDetailUrl(OrdemServico $ordemServico): string
     {
-        return OrdemServicoResource::getUrl('mobile-detail', ['record' => $ordemServico->id]);
+        return OrdemServicoResource::getUrl('detail', ['record' => $ordemServico->id]);
     }
 
     public function getStatusBadgeColor(OrdemServico $ordemServico): string

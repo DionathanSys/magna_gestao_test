@@ -60,9 +60,6 @@ class OrdemServicoResource extends Resource
             'index' => ListOrdemServicos::route('/'),
             'edit' => EditOrdemServico::route('/{record}/edit'),
             'custom' => OrdemServicoTeste::route('/{record}/custom'),
-            'mobile-list' => Pages\MobileListOrdemServicos::route('/mobile'),
-            'mobile-create' => Pages\MobileCreateOrdemServico::route('/mobile/create'),
-            'mobile-detail' => Pages\MobileDetailOrdemServico::route('/mobile/{record}'),
         ];
     }
 

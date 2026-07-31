@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Pages;
 
 use App\Enum;
-use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use App\Filament\Mobile\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoDataAberturaInput;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
@@ -80,11 +80,11 @@ class MobileCreateOrdemServico extends Page implements HasSchemas
         $ordemServico = OrdemServico::create($data);
         notify::success(mensagem: 'Ordem de Serviço criada com sucesso!');
 
-        $this->redirect(OrdemServicoResource::getUrl('mobile-detail', ['record' => $ordemServico->id]));
+        $this->redirect(OrdemServicoResource::getUrl('detail', ['record' => $ordemServico->id]));
     }
 
     public function getListUrl(): string
     {
-        return OrdemServicoResource::getUrl('mobile-list');
+        return OrdemServicoResource::getUrl('index');
     }
 }

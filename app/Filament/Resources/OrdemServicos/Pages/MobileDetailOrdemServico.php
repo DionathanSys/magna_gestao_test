@@ -4,9 +4,9 @@ namespace App\Filament\Resources\OrdemServicos\Pages;
 
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
+use App\Filament\Mobile\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
-use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
 use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
 use App\Filament\Resources\OrdemServicos\Schemas\ItemOrdemServicoForm;
@@ -172,7 +172,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
         notify::success(mensagem: 'Ordem de Serviço excluída com sucesso!');
 
-        $this->redirect(OrdemServicoResource::getUrl('mobile-list'));
+        $this->redirect(OrdemServicoResource::getUrl('index'));
     }
 
     // ── Item Serviço Actions ──────────────────────────────
@@ -575,7 +575,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
 
     public function getListUrl(): string
     {
-        return OrdemServicoResource::getUrl('mobile-list');
+        return OrdemServicoResource::getUrl('index');
     }
 
     public function getAgendamentoEditUrl(int $agendamentoId): string

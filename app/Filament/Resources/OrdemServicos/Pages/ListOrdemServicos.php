@@ -6,7 +6,6 @@ use App\Enum;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models;
 use App\Services\NotificacaoService as notify;
-use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -24,10 +23,6 @@ class ListOrdemServicos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('mobile')
-                ->label('Mobile')
-                ->icon('heroicon-o-device-phone-mobile')
-                ->url(OrdemServicoResource::getUrl('mobile-list')),
             CreateAction::make()
                 ->label('OS')
                 ->icon('heroicon-o-plus')

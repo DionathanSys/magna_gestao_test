@@ -2,6 +2,7 @@
 
 namespace App\Filament\Oficina\Resources\OrdemServicos\Tables;
 
+use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Oficina\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Actions\EncerrarOrdemServicoAction;
 use App\Models\Colaborador;
@@ -14,14 +15,10 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Text;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Support\Colors\Color;
-use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
@@ -29,6 +26,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -85,6 +83,16 @@ class OrdemServicosTable
                 'xl' => 2,
             ])
             ->defaultSort('id', 'desc')
+            ->filters([
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options(StatusOrdemServicoEnum::toSelectArray())
+                    ->multiple()
+                    ->default([
+                        StatusOrdemServicoEnum::PENDENTE->value,
+                        StatusOrdemServicoEnum::EXECUCAO->value,
+                    ]),
+            ])
             ->recordActions([
                 self::servicosAction(),
                 self::iniciarAction(),
@@ -136,10 +144,11 @@ class OrdemServicosTable
             ->button()
             ->size(Size::Small)
             ->color('info')
+            ->modalWidth(Width::Large)
             ->form(fn (OrdemServico $record): array => [
-                self::codigoColaboradorInput(),
+                self::colaboradorSelect(),
                 DateTimePicker::make('iniciado_em')
-                    ->label('Hora de início')
+                    ->label('Início')
                     ->seconds(false)
                     ->default(now())
                     ->minDate($record->data_inicio)
@@ -171,10 +180,11 @@ class OrdemServicosTable
             ->button()
             ->size(Size::Small)
             ->color('success')
+            ->modalWidth(Width::Large)
             ->form(fn (OrdemServico $record): array => [
-                self::codigoColaboradorInput(),
+                self::colaboradorSelect($record, somenteComApontamentoAberto: true),
                 DateTimePicker::make('encerrado_em')
-                    ->label('Hora final')
+                    ->label('Fim')
                     ->seconds(false)
                     ->default(now())
                     ->minDate($record->data_inicio)
@@ -206,42 +216,28 @@ class OrdemServicosTable
             });
     }
 
-    private static function codigoColaboradorInput(): TextInput
+    private static function colaboradorSelect(?OrdemServico $record = null, bool $somenteComApontamentoAberto = false): Select
     {
-        return TextInput::make('codigo')
-            ->label('Código do responsável')
-            ->inputMode('numeric')
-            ->extraInputAttributes(['pattern' => '[0-9]*'])
-            ->regex('/^\d+$/')
-            ->validationMessages([
-                'regex' => 'Informe apenas números no código do responsável.',
-            ])
-            ->live(onBlur: true)
-            ->afterStateUpdated(function (Set $set, Field $component, $state): void {
-                $codigo = preg_replace('/\D+/', '', (string) $state);
-                $set('codigo', $codigo);
-
-                if (blank($codigo)) {
-                    $component->belowContent(null);
-
-                    return;
-                }
-
-                $colaborador = Colaborador::query()
-                    ->where('codigo', $codigo)
-                    ->where('ativo', true)
-                    ->where('tipo', 'MECANICO')
-                    ->first();
-
-                $component->belowContent([
-                    Text::make($colaborador
-                        ? 'Colaborador: '.$colaborador->nome
-                        : 'Colaborador ativo/mecânico não encontrado para este código.'
-                    )
-                        ->weight(FontWeight::Bold)
-                        ->color($colaborador ? Color::Green : Color::Red),
-                ]);
-            })
+        return Select::make('codigo')
+            ->label('Responsável')
+            ->options(fn (): array => Colaborador::query()
+                ->where('ativo', true)
+                ->where('tipo', 'MECANICO')
+                ->when(
+                    $somenteComApontamentoAberto && $record,
+                    fn ($query) => $query->whereHas('apontamentosOficina', fn ($query) => $query
+                        ->where('ordem_servico_id', $record->id)
+                        ->whereNull('encerrado_em'))
+                )
+                ->orderBy('nome')
+                ->get()
+                ->mapWithKeys(fn (Colaborador $colaborador): array => [
+                    $colaborador->codigo => trim($colaborador->codigo.' - '.$colaborador->nome),
+                ])
+                ->all())
+            ->searchable()
+            ->preload()
+            ->native(false)
             ->required();
     }
 

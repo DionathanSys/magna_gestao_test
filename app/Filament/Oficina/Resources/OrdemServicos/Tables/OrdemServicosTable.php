@@ -19,6 +19,9 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
@@ -128,9 +131,36 @@ class OrdemServicosTable
             ->size(Size::Small)
             ->modalWidth(Width::FourExtraLarge)
             ->modalHeading(fn (OrdemServico $record): string => 'Serviços da OS #'.$record->id)
-            ->modalContent(fn (OrdemServico $record) => view('filament.oficina.ordem-servicos.servicos-modal', [
-                'ordemServico' => $record->loadMissing('itens.servico'),
-            ]))
+            ->infolist([
+                RepeatableEntry::make('itens')
+                    ->label('Serviços')
+                    ->columnSpanFull()
+                    ->columns(12)
+                    ->table([
+                        TableColumn::make('Código')->hiddenHeaderLabel(),
+                        TableColumn::make('Serviço'),
+                        TableColumn::make('Posição'),
+                        TableColumn::make('Observação'),
+                        TableColumn::make('Status'),
+                    ])
+                    ->schema([
+                        TextEntry::make('servico.codigo')
+                            ->columnSpan(1),
+                        TextEntry::make('servico.descricao')
+                            ->columnSpan(4),
+                        TextEntry::make('posicao')
+                            ->columnSpan(1)
+                            ->placeholder(''),
+                        TextEntry::make('observacao')
+                            ->columnSpan(4)
+                            ->prefix('Obs: ')
+                            ->placeholder('Sem observações'),
+                        TextEntry::make('status')
+                            ->columnSpan(2)
+                            ->badge()
+                            ->color('primary'),
+                    ]),
+            ])
             ->modalSubmitAction(false)
             ->modalCancelActionLabel('Fechar')
             ->action(fn (): null => null);

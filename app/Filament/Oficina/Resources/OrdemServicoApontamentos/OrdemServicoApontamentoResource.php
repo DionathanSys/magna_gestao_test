@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -89,8 +90,21 @@ class OrdemServicoApontamentoResource extends Resource
                 TextColumn::make('itens.servico.descricao')
                     ->label('Serviços executados')
                     ->listWithLineBreaks()
+                    ->limitList(1)
+                    ->expandableLimitedList()
                     ->wrap()
                     ->toggleable(),
+            ])
+            ->groups([
+                Group::make('ordem_servico_id')
+                    ->label('OS')
+                    ->getTitleFromRecordUsing(fn (OrdemServicoApontamento $record): string => 'OS #'.$record->ordem_servico_id)
+                    ->titlePrefixedWithLabel(false)
+                    ->collapsible(),
+                Group::make('colaborador.nome')
+                    ->label('Colaborador')
+                    ->titlePrefixedWithLabel(false)
+                    ->collapsible(),
             ])
             ->filters([
                 SelectFilter::make('situacao')

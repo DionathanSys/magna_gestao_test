@@ -61,7 +61,7 @@ class OrdemServicoApontamentoService
         });
     }
 
-    public function encerrar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $encerradoEm, array $itemIds, bool $ignorarLimiteAjusteHorario = false, bool $concluirServicos = false): OrdemServicoApontamento
+    public function encerrar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $encerradoEm, array $itemIds, bool $ignorarLimiteAjusteHorario = false, array $itemIdsConcluidos = []): OrdemServicoApontamento
     {
         if ($itemIds === []) {
             throw new InvalidArgumentException('Selecione ao menos um serviço executado.');
@@ -70,7 +70,7 @@ class OrdemServicoApontamentoService
         $colaborador = $this->resolveMecanico($codigoColaborador);
         $encerradoEm = $this->validarHorario($encerradoEm, $ordemServico->data_inicio, $ignorarLimiteAjusteHorario);
 
-        return DB::transaction(function () use ($ordemServico, $colaborador, $encerradoEm, $itemIds, $concluirServicos): OrdemServicoApontamento {
+        return DB::transaction(function () use ($ordemServico, $colaborador, $encerradoEm, $itemIds, $itemIdsConcluidos): OrdemServicoApontamento {
             $ordemServico = OrdemServico::query()
                 ->whereKey($ordemServico->id)
                 ->lockForUpdate()
@@ -100,12 +100,18 @@ class OrdemServicoApontamentoService
                 throw new InvalidArgumentException('A seleção possui serviços que não pertencem a esta OS.');
             }
 
+            $itemIdsConcluidos = array_values(array_unique($itemIdsConcluidos));
+
+            if (array_diff($itemIdsConcluidos, $itensValidos) !== []) {
+                throw new InvalidArgumentException('Só é possível concluir serviços selecionados como executados nesta janela.');
+            }
+
             $apontamento->update(['encerrado_em' => $encerradoEm]);
             $apontamento->itens()->sync($itensValidos);
 
-            if ($concluirServicos) {
+            if ($itemIdsConcluidos !== []) {
                 $ordemServico->itens()
-                    ->whereIn('id', $itensValidos)
+                    ->whereIn('id', $itemIdsConcluidos)
                     ->update(['status' => StatusOrdemServicoEnum::CONCLUIDO]);
             }
 

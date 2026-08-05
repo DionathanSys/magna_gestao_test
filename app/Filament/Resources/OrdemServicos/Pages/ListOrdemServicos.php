@@ -17,9 +17,6 @@ class ListOrdemServicos extends ListRecords
 {
     protected static string $resource = OrdemServicoResource::class;
 
-    // Habilita a persistência da aba ativa no localStorage
-    protected bool $persistTabInLocalStorage = true;
-
     protected function getHeaderActions(): array
     {
         return [
@@ -48,8 +45,12 @@ class ListOrdemServicos extends ListRecords
     public function getTabs(): array
     {
         return [
-            'todos' => Tab::make()
+            'todos' => Tab::make('Todos')
                 ->modifyQueryUsing(fn (Builder $query) => $query),
+            'oficina' => Tab::make('Oficina')
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('veiculo_na_oficina', true))
+                ->badge(Models\OrdemServico::query()->whereNull('parceiro_id')->where('veiculo_na_oficina', true)->count())
+                ->badgeColor('success'),
             'hoje' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->whereDate('data_inicio', today()))
                 ->badge(Models\OrdemServico::query()->whereNull('parceiro_id')->whereDate('data_inicio', today())->count()),
@@ -58,7 +59,7 @@ class ListOrdemServicos extends ListRecords
                     Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
                     Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
                 ])),
-            'concluído' => Tab::make()
+            'concluido' => Tab::make('Concluído')
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)),
             'abrir_ordem' => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('parceiro_id')->where('status_sankhya', Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE))
@@ -73,7 +74,7 @@ class ListOrdemServicos extends ListRecords
                     ->where('status_sankhya', '!=', Enum\OrdemServico\StatusOrdemServicoEnum::CONCLUIDO)
                     ->whereNull('parceiro_id')->count())
                 ->badgeColor('info'),
-            'Terceiros' => Tab::make()
+            'terceiros' => Tab::make('Terceiros')
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereNotNull('parceiro_id')->whereIn('status', [
                     Enum\OrdemServico\StatusOrdemServicoEnum::PENDENTE,
                     Enum\OrdemServico\StatusOrdemServicoEnum::EXECUCAO,
@@ -89,22 +90,11 @@ class ListOrdemServicos extends ListRecords
 
     public function getDefaultActiveTab(): string|int|null
     {
-        $lastActiveTab = session('ordem_servicos_last_active_tab');
-
-        if ($lastActiveTab && array_key_exists($lastActiveTab, $this->getTabs())) {
-            return $lastActiveTab;
-        }
-
         return 'pendente';
     }
 
     protected function getHeaderWidgets(): array
     {
         return [];
-    }
-
-    public function updatedActiveTab(): void
-    {
-        session(['ordem_servicos_last_active_tab' => $this->activeTab]);
     }
 }

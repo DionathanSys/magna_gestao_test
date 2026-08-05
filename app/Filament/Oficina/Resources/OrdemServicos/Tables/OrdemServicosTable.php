@@ -19,10 +19,10 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn as RepeaterTableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
@@ -213,6 +213,7 @@ class OrdemServicosTable
             ->size(Size::Small)
             ->color('success')
             ->modalWidth(Width::ScreenTwoExtraLarge)
+            ->modalSubmitActionLabel('Encerrar')
             ->form(fn (OrdemServico $record): array => [
                 Repeater::make('servicos_resumo')
                     ->label('Serviços da OS')
@@ -238,13 +239,15 @@ class OrdemServicosTable
                             ->listWithLineBreaks(),
                     ])
                     ->columnSpanFull(),
-                self::colaboradorSelect($record, somenteComApontamentoAberto: true),
+                self::colaboradorSelect($record, somenteComApontamentoAberto: true)
+                    ->columnSpan(1),
                 DateTimePicker::make('encerrado_em')
                     ->label('Fim')
                     ->seconds(false)
                     ->default(now())
                     ->minDate($record->data_inicio)
                     ->maxDate(fn () => Auth::user()->is_admin ? null : now())
+                    ->columnSpan(1)
                     ->required(),
                 CheckboxList::make('item_ids')
                     ->label('Serviços executados nesta janela')
@@ -252,11 +255,21 @@ class OrdemServicosTable
                         $item->id => trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').$item->servico?->descricao),
                     ])->all())
                     ->columns(1)
+                    ->columnSpanFull()
+                    ->live()
                     ->required(),
-                Toggle::make('concluir_servicos')
-                    ->label('Marcar os serviços selecionados como concluídos')
-                    ->helperText('Use somente se os serviços executados nesta janela foram finalizados pelo mecânico.'),
-            ])
+                CheckboxList::make('item_ids_concluidos')
+                    ->label('Serviços finalizados nesta janela')
+                    ->options(fn (Get $get): array => $record->itens
+                        ->whereIn('id', $get('item_ids') ?? [])
+                        ->mapWithKeys(fn ($item): array => [
+                            $item->id => trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').$item->servico?->descricao),
+                        ])
+                        ->all())
+                    ->columns(1)
+                    ->columnSpanFull()
+                    ->helperText('Marque apenas os serviços executados que devem mudar para concluído.'),
+            ])->columns(2)
             ->action(function (OrdemServico $record, array $data, Action $action): void {
                 try {
                     app(OrdemServicoApontamentoService::class)->encerrar(
@@ -265,7 +278,7 @@ class OrdemServicosTable
                         $data['encerrado_em'],
                         $data['item_ids'] ?? [],
                         Auth::user()->is_admin,
-                        (bool) ($data['concluir_servicos'] ?? false),
+                        $data['item_ids_concluidos'] ?? [],
                     );
 
                     notify::success(mensagem: 'Trabalho encerrado com sucesso.');

@@ -24,6 +24,9 @@ class EncerrarOrdemServicoAction
                 Checkbox::make('encerrar_sankhya')
                     ->label('OS Sankhya Encerrada?')
                     ->default(false),
+                Checkbox::make('imprimir_relatorio')
+                    ->label('Imprimir Relatório?')
+                    ->default(false),
             ])
             ->action(function (array $data, Action $action, ?Models\OrdemServico $record = null) use ($ordemServico) {
                 $record ??= $ordemServico;
@@ -54,6 +57,10 @@ class EncerrarOrdemServicoAction
                         titulo: 'Serviço em garantia',
                         mensagem: $alertas->count().' serviço(s) retornaram dentro do prazo/km de garantia.'
                     );
+                }
+
+                if ($data['imprimir_relatorio'] ?? false) {
+                    return redirect()->to(route('oficina.ordem-servico.relatorio', $record->refresh()));
                 }
             });
     }

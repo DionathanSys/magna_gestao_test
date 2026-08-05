@@ -13,6 +13,16 @@ class ListOrdemServicos extends ListRecords
 {
     protected static string $resource = OrdemServicoResource::class;
 
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     public function getTabs(): array
     {
         return [

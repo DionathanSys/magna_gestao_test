@@ -16,8 +16,8 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn as RepeaterTableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -36,7 +36,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\HtmlString;
 use Throwable;
 
 class OrdemServicosTable
@@ -224,9 +223,29 @@ class OrdemServicosTable
             ->color('success')
             ->modalWidth(Width::ScreenTwoExtraLarge)
             ->form(fn (OrdemServico $record): array => [
-                Placeholder::make('resumo_servicos')
+                Repeater::make('servicos_resumo')
                     ->label('Serviços da OS')
-                    ->content(fn (): HtmlString => self::servicosResumoHtml($record))
+                    ->default(fn (): array => self::servicosResumoData($record))
+                    ->addable(false)
+                    ->deletable(false)
+                    ->reorderable(false)
+                    ->dehydrated(false)
+                    ->compact()
+                    ->table([
+                        RepeaterTableColumn::make('Serviço')->width('45%'),
+                        RepeaterTableColumn::make('Status')->width('15%'),
+                        RepeaterTableColumn::make('Quem trabalhou')->width('40%'),
+                    ])
+                    ->schema([
+                        TextEntry::make('servico')
+                            ->hiddenLabel(),
+                        TextEntry::make('status')
+                            ->hiddenLabel()
+                            ->badge(),
+                        TextEntry::make('trabalhadores')
+                            ->hiddenLabel()
+                            ->listWithLineBreaks(),
+                    ])
                     ->columnSpanFull(),
                 self::colaboradorSelect($record, somenteComApontamentoAberto: true),
                 DateTimePicker::make('encerrado_em')
@@ -291,22 +310,21 @@ class OrdemServicosTable
             ->required();
     }
 
-    private static function servicosResumoHtml(OrdemServico $record): HtmlString
+    private static function servicosResumoData(OrdemServico $record): array
     {
         $record->loadMissing(['itens.servico', 'itens.apontamentosOficina.colaborador']);
 
-        $linhas = $record->itens->map(function ($item): string {
-            $servico = e(trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').($item->servico?->descricao ?? 'Serviço não informado')));
-            $status = e((string) ($item->status?->value ?? $item->status ?? '-'));
-            $trabalhadores = $item->apontamentosOficina
-                ->map(fn ($apontamento): string => e(trim(($apontamento->colaborador?->nome ?? 'Colaborador não informado').' ('.($apontamento->iniciado_em?->format('d/m H:i') ?? '-').' - '.($apontamento->encerrado_em?->format('d/m H:i') ?? 'aberto').')')))
-                ->filter()
-                ->join('<br>');
-
-            return '<tr><td class="px-3 py-2 align-top">'.$servico.'</td><td class="px-3 py-2 align-top">'.$status.'</td><td class="px-3 py-2 align-top">'.($trabalhadores ?: 'Sem apontamentos').'</td></tr>';
-        })->join('');
-
-        return new HtmlString('<div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700"><table class="w-full text-sm"><thead><tr class="bg-gray-50 dark:bg-gray-800"><th class="px-3 py-2 text-left">Serviço</th><th class="px-3 py-2 text-left">Status</th><th class="px-3 py-2 text-left">Quem trabalhou</th></tr></thead><tbody>'.$linhas.'</tbody></table></div>');
+        return $record->itens->map(function ($item): array {
+            return [
+                'servico' => trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').($item->servico?->descricao ?? 'Serviço não informado')),
+                'status' => (string) ($item->status?->value ?? $item->status ?? '-'),
+                'trabalhadores' => $item->apontamentosOficina
+                    ->map(fn ($apontamento): string => trim(($apontamento->colaborador?->nome ?? 'Colaborador não informado').' ('.($apontamento->iniciado_em?->format('d/m H:i') ?? '-').' - '.($apontamento->encerrado_em?->format('d/m H:i') ?? 'aberto').')'))
+                    ->filter()
+                    ->values()
+                    ->all() ?: ['Sem apontamentos'],
+            ];
+        })->all();
     }
 
     public static function relatorioAction(): Action

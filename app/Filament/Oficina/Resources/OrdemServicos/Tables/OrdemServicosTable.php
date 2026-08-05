@@ -2,7 +2,6 @@
 
 namespace App\Filament\Oficina\Resources\OrdemServicos\Tables;
 
-use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Oficina\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Actions\EncerrarOrdemServicoAction;
 use App\Models\Colaborador;
@@ -30,9 +29,7 @@ use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -51,11 +48,10 @@ class OrdemServicosTable
                             ->formatStateUsing(fn ($state, OrdemServico $record): string => 'OS #'.$state.' - '.strtoupper((string) ($record->veiculo?->placa ?? '-')))
                             ->icon('heroicon-o-truck')
                             ->size(TextSize::Large)
-                            ->weight('bold')
-                            ->sortable()
-                            ->searchable(),
+                            ->weight('bold'),
                         TextColumn::make('status')
                             ->badge()
+                            ->icon(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina->isNotEmpty() ? 'heroicon-o-bolt' : 'heroicon-o-clock')
                             ->color(fn ($state): string => match ((string) ($state?->value ?? $state)) {
                                 'PENDENTE' => 'warning',
                                 'EXECUÇÃO' => 'info',
@@ -64,18 +60,6 @@ class OrdemServicosTable
                                 default => 'primary',
                             }),
                     ]),
-                    TextColumn::make('execucao_agora')
-                        ->label('Andamento')
-                        ->state(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina->isNotEmpty() ? 'EM EXECUÇÃO AGORA' : 'PENDENTE / SEM MECÂNICO')
-                        ->badge()
-                        ->color(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina->isNotEmpty() ? 'info' : 'warning')
-                        ->icon(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina->isNotEmpty() ? 'heroicon-o-bolt' : 'heroicon-o-clock'),
-                    ToggleColumn::make('veiculo_na_oficina')
-                        ->label('Veículo na oficina')
-                        ->onIcon('heroicon-o-building-storefront')
-                        ->offIcon('heroicon-o-truck')
-                        ->onColor('success')
-                        ->offColor('gray'),
                     TextColumn::make('itens_count')
                         ->counts('itens')
                         ->label('Serviços')
@@ -84,8 +68,7 @@ class OrdemServicosTable
                     TextColumn::make('data_inicio')
                         ->label('Abertura')
                         ->icon('heroicon-o-calendar-days')
-                        ->dateTime('d/m/Y H:i')
-                        ->sortable(),
+                        ->dateTime('d/m/Y H:i'),
                     TextColumn::make('trabalhando')
                         ->label('Trabalhando')
                         ->icon('heroicon-o-user-group')
@@ -101,16 +84,11 @@ class OrdemServicosTable
                 'xl' => 2,
             ])
             ->defaultSort('id', 'desc')
-            ->filters([
-                SelectFilter::make('status')
-                    ->label('Status')
-                    ->options(StatusOrdemServicoEnum::toSelectArray())
-                    ->multiple(),
-            ])
             ->recordActions([
                 self::servicosAction(),
                 self::iniciarAction(),
                 self::encerrarAction(),
+                self::veiculoNaOficinaAction(),
                 ActionGroup::make([
                     EncerrarOrdemServicoAction::make()
                         ->visible(fn (): bool => Auth::user()->is_admin),
@@ -131,6 +109,19 @@ class OrdemServicosTable
             ], RecordActionsPosition::AfterContent)
             ->poll('30s')
             ->striped();
+    }
+
+    public static function veiculoNaOficinaAction(): Action
+    {
+        return Action::make('alternar_veiculo_na_oficina')
+            ->label(fn (OrdemServico $record): string => $record->veiculo_na_oficina ? 'Na oficina' : 'Fora')
+            ->icon(fn (OrdemServico $record): string => $record->veiculo_na_oficina ? 'heroicon-o-building-storefront' : 'heroicon-o-truck')
+            ->color(fn (OrdemServico $record): string => $record->veiculo_na_oficina ? 'success' : 'gray')
+            ->button()
+            ->size(Size::Small)
+            ->action(fn (OrdemServico $record): bool => $record->update([
+                'veiculo_na_oficina' => ! $record->veiculo_na_oficina,
+            ]));
     }
 
     public static function servicosAction(): Action
@@ -304,9 +295,7 @@ class OrdemServicosTable
                     $colaborador->codigo => trim($colaborador->codigo.' - '.$colaborador->nome),
                 ])
                 ->all())
-            ->searchable()
-            ->preload()
-            ->native(false)
+            ->native(true)
             ->required();
     }
 

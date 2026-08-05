@@ -163,6 +163,7 @@ class OrdemServicosTable
             ->selectable()
             ->recordActions([
                 ActionGroup::make([
+                    Actions\CriarOrdemTerceiroAction::make(),
                     Actions\EncerrarOrdemServicoAction::make(),
                     EditAction::make()
                         ->url(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),

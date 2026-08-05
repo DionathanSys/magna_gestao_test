@@ -69,6 +69,8 @@ class OrdemServicoTeste extends Page implements HasSchemas
             ActionGroup::make([
                 Actions\VincularServicoOrdemServicoAction::make($this->record)
                     ->size(Size::ExtraSmall),
+                Actions\CriarOrdemTerceiroAction::make($this->record)
+                    ->size(Size::ExtraSmall),
                 Action::make('novo_agendamento')
                     ->label('Novo Agendamento')
                     ->icon('heroicon-o-calendar-days')

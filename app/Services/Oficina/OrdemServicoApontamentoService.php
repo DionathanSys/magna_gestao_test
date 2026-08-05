@@ -49,7 +49,7 @@ class OrdemServicoApontamentoService
                 );
             }
 
-            if ($ordemServico->status === StatusOrdemServicoEnum::PENDENTE) {
+            if ($ordemServico->status !== StatusOrdemServicoEnum::EXECUCAO) {
                 $ordemServico->update(['status' => StatusOrdemServicoEnum::EXECUCAO]);
             }
 
@@ -61,7 +61,7 @@ class OrdemServicoApontamentoService
         });
     }
 
-    public function encerrar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $encerradoEm, array $itemIds, bool $ignorarLimiteAjusteHorario = false): OrdemServicoApontamento
+    public function encerrar(OrdemServico $ordemServico, string $codigoColaborador, Carbon|string $encerradoEm, array $itemIds, bool $ignorarLimiteAjusteHorario = false, bool $concluirServicos = false): OrdemServicoApontamento
     {
         if ($itemIds === []) {
             throw new InvalidArgumentException('Selecione ao menos um serviço executado.');
@@ -70,7 +70,12 @@ class OrdemServicoApontamentoService
         $colaborador = $this->resolveMecanico($codigoColaborador);
         $encerradoEm = $this->validarHorario($encerradoEm, $ordemServico->data_inicio, $ignorarLimiteAjusteHorario);
 
-        return DB::transaction(function () use ($ordemServico, $colaborador, $encerradoEm, $itemIds): OrdemServicoApontamento {
+        return DB::transaction(function () use ($ordemServico, $colaborador, $encerradoEm, $itemIds, $concluirServicos): OrdemServicoApontamento {
+            $ordemServico = OrdemServico::query()
+                ->whereKey($ordemServico->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
             $apontamento = OrdemServicoApontamento::query()
                 ->where('ordem_servico_id', $ordemServico->id)
                 ->where('colaborador_id', $colaborador->id)
@@ -97,6 +102,14 @@ class OrdemServicoApontamentoService
 
             $apontamento->update(['encerrado_em' => $encerradoEm]);
             $apontamento->itens()->sync($itensValidos);
+
+            if ($concluirServicos) {
+                $ordemServico->itens()
+                    ->whereIn('id', $itensValidos)
+                    ->update(['status' => StatusOrdemServicoEnum::CONCLUIDO]);
+            }
+
+            $this->recalcularStatusOrdemServico($ordemServico);
 
             return $apontamento->load(['colaborador', 'itens.servico']);
         });
@@ -149,5 +162,34 @@ class OrdemServicoApontamentoService
         }
 
         return $horario;
+    }
+
+    private function recalcularStatusOrdemServico(OrdemServico $ordemServico): void
+    {
+        if ($ordemServico->apontamentosAbertosOficina()->exists()) {
+            $ordemServico->update(['status' => StatusOrdemServicoEnum::EXECUCAO]);
+
+            return;
+        }
+
+        if ($ordemServico->itens()->where('status', StatusOrdemServicoEnum::PENDENTE)->exists()) {
+            $ordemServico->update(['status' => StatusOrdemServicoEnum::PENDENTE]);
+
+            return;
+        }
+
+        $statusFinalizados = [
+            StatusOrdemServicoEnum::CONCLUIDO,
+            StatusOrdemServicoEnum::ADIADO,
+            StatusOrdemServicoEnum::CANCELADO,
+        ];
+
+        $possuiItemNaoFinalizado = $ordemServico->itens()
+            ->whereNotIn('status', $statusFinalizados)
+            ->exists();
+
+        if (! $possuiItemNaoFinalizado) {
+            $ordemServico->update(['status' => StatusOrdemServicoEnum::CONCLUIDO]);
+        }
     }
 }

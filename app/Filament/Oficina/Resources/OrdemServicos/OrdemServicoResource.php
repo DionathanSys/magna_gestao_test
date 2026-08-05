@@ -13,6 +13,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
@@ -61,6 +62,9 @@ class OrdemServicoResource extends Resource
                     DateTimePicker::make('data_inicio')
                         ->label('Data de Abertura')
                         ->seconds(false)
+                        ->disabled(fn (): bool => ! Auth::user()->is_admin),
+                    Toggle::make('veiculo_na_oficina')
+                        ->label('Veículo na oficina')
                         ->disabled(fn (): bool => ! Auth::user()->is_admin),
                 ]),
             Section::make('Serviços')
@@ -136,6 +140,11 @@ class OrdemServicoResource extends Resource
                     TextEntry::make('id')->label('OS'),
                     TextEntry::make('veiculo.placa')->label('Veículo')->badge(),
                     TextEntry::make('status')->label('Status')->badge(),
+                    TextEntry::make('veiculo_na_oficina')
+                        ->label('Oficina')
+                        ->formatStateUsing(fn (bool $state): string => $state ? 'Na oficina' : 'Fora da oficina')
+                        ->badge()
+                        ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                     TextEntry::make('data_inicio')->label('Abertura')->dateTime('d/m/Y H:i'),
                 ]),
             Section::make('Serviços')

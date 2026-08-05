@@ -17,6 +17,7 @@ class OrdemServico extends Model
     protected $casts = [
         'tipo_manutencao' => TipoManutencaoEnum::class,
         'status' => StatusOrdemServicoEnum::class,
+        'veiculo_na_oficina' => 'boolean',
         'data_inicio' => 'datetime',
         'data_fim' => 'datetime',
     ];

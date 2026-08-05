@@ -16,9 +16,11 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
@@ -28,11 +30,13 @@ use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use Throwable;
 
 class OrdemServicosTable
@@ -61,6 +65,18 @@ class OrdemServicosTable
                                 default => 'primary',
                             }),
                     ]),
+                    TextColumn::make('execucao_agora')
+                        ->label('Andamento')
+                        ->state(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina->isNotEmpty() ? 'EM EXECUÇÃO AGORA' : 'PENDENTE / SEM MECÂNICO')
+                        ->badge()
+                        ->color(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina->isNotEmpty() ? 'info' : 'warning')
+                        ->icon(fn (OrdemServico $record): string => $record->apontamentosAbertosOficina->isNotEmpty() ? 'heroicon-o-bolt' : 'heroicon-o-clock'),
+                    ToggleColumn::make('veiculo_na_oficina')
+                        ->label('Veículo na oficina')
+                        ->onIcon('heroicon-o-building-storefront')
+                        ->offIcon('heroicon-o-truck')
+                        ->onColor('success')
+                        ->offColor('gray'),
                     TextColumn::make('itens_count')
                         ->counts('itens')
                         ->label('Serviços')
@@ -90,11 +106,7 @@ class OrdemServicosTable
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options(StatusOrdemServicoEnum::toSelectArray())
-                    ->multiple()
-                    ->default([
-                        StatusOrdemServicoEnum::PENDENTE->value,
-                        StatusOrdemServicoEnum::EXECUCAO->value,
-                    ]),
+                    ->multiple(),
             ])
             ->recordActions([
                 self::servicosAction(),
@@ -210,8 +222,12 @@ class OrdemServicosTable
             ->button()
             ->size(Size::Small)
             ->color('success')
-            ->modalWidth(Width::Large)
+            ->modalWidth(Width::ScreenTwoExtraLarge)
             ->form(fn (OrdemServico $record): array => [
+                Placeholder::make('resumo_servicos')
+                    ->label('Serviços da OS')
+                    ->content(fn (): HtmlString => self::servicosResumoHtml($record))
+                    ->columnSpanFull(),
                 self::colaboradorSelect($record, somenteComApontamentoAberto: true),
                 DateTimePicker::make('encerrado_em')
                     ->label('Fim')
@@ -227,6 +243,9 @@ class OrdemServicosTable
                     ])->all())
                     ->columns(1)
                     ->required(),
+                Toggle::make('concluir_servicos')
+                    ->label('Marcar os serviços selecionados como concluídos')
+                    ->helperText('Use somente se os serviços executados nesta janela foram finalizados pelo mecânico.'),
             ])
             ->action(function (OrdemServico $record, array $data, Action $action): void {
                 try {
@@ -236,6 +255,7 @@ class OrdemServicosTable
                         $data['encerrado_em'],
                         $data['item_ids'] ?? [],
                         Auth::user()->is_admin,
+                        (bool) ($data['concluir_servicos'] ?? false),
                     );
 
                     notify::success(mensagem: 'Trabalho encerrado com sucesso.');
@@ -269,6 +289,24 @@ class OrdemServicosTable
             ->preload()
             ->native(false)
             ->required();
+    }
+
+    private static function servicosResumoHtml(OrdemServico $record): HtmlString
+    {
+        $record->loadMissing(['itens.servico', 'itens.apontamentosOficina.colaborador']);
+
+        $linhas = $record->itens->map(function ($item): string {
+            $servico = e(trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').($item->servico?->descricao ?? 'Serviço não informado')));
+            $status = e((string) ($item->status?->value ?? $item->status ?? '-'));
+            $trabalhadores = $item->apontamentosOficina
+                ->map(fn ($apontamento): string => e(trim(($apontamento->colaborador?->nome ?? 'Colaborador não informado').' ('.($apontamento->iniciado_em?->format('d/m H:i') ?? '-').' - '.($apontamento->encerrado_em?->format('d/m H:i') ?? 'aberto').')')))
+                ->filter()
+                ->join('<br>');
+
+            return '<tr><td class="px-3 py-2 align-top">'.$servico.'</td><td class="px-3 py-2 align-top">'.$status.'</td><td class="px-3 py-2 align-top">'.($trabalhadores ?: 'Sem apontamentos').'</td></tr>';
+        })->join('');
+
+        return new HtmlString('<div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700"><table class="w-full text-sm"><thead><tr class="bg-gray-50 dark:bg-gray-800"><th class="px-3 py-2 text-left">Serviço</th><th class="px-3 py-2 text-left">Status</th><th class="px-3 py-2 text-left">Quem trabalhou</th></tr></thead><tbody>'.$linhas.'</tbody></table></div>');
     }
 
     public static function relatorioAction(): Action

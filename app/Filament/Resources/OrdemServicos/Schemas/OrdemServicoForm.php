@@ -7,6 +7,7 @@ use App\Filament\Resources\Parceiros\ParceiroResource;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
@@ -30,6 +31,8 @@ class OrdemServicoForm
                                     Components\OrdemServicoTipoManutencaoInput::make()
                                         ->columnSpan(1),
                                     Components\OrdemServicoDataAberturaInput::make()
+                                        ->columnSpan(1),
+                                    static::getVeiculoNaOficinaFormField()
                                         ->columnSpan(1),
                                     static::getDataFimFormField()
                                         ->columnSpan(1)
@@ -70,6 +73,13 @@ class OrdemServicoForm
             ->columnSpan(2)
             ->seconds(false)
             ->maxDate(now());
+    }
+
+    public static function getVeiculoNaOficinaFormField(): Toggle
+    {
+        return Toggle::make('veiculo_na_oficina')
+            ->label('Veículo na oficina')
+            ->default(true);
     }
 
     public static function getStatusFormField(): Select

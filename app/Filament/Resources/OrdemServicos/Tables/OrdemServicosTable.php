@@ -15,6 +15,7 @@ use Filament\Actions\ViewAction;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -46,6 +47,13 @@ class OrdemServicosTable
                 TextColumn::make('veiculo.placa')
                     ->label('Veículo')
                     ->sortable()
+                    ->width('1%'),
+                ToggleColumn::make('veiculo_na_oficina')
+                    ->label('Oficina')
+                    ->onIcon('heroicon-o-building-storefront')
+                    ->offIcon('heroicon-o-truck')
+                    ->onColor('success')
+                    ->offColor('gray')
                     ->width('1%'),
                 TextColumn::make('quilometragem')
                     ->label('Quilometragem')

@@ -22,6 +22,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
@@ -239,16 +240,18 @@ class OrdemServicosTable
                             ->listWithLineBreaks(),
                     ])
                     ->columnSpanFull(),
-                self::colaboradorSelect($record, somenteComApontamentoAberto: true)
-                    ->columnSpan(1),
-                DateTimePicker::make('encerrado_em')
-                    ->label('Fim')
-                    ->seconds(false)
-                    ->default(now())
-                    ->minDate($record->data_inicio)
-                    ->maxDate(fn () => Auth::user()->is_admin ? null : now())
-                    ->columnSpan(1)
-                    ->required(),
+                Grid::make(2)
+                    ->schema([
+                        self::colaboradorSelect($record, somenteComApontamentoAberto: true),
+                        DateTimePicker::make('encerrado_em')
+                            ->label('Fim')
+                            ->seconds(false)
+                            ->default(now())
+                            ->minDate($record->data_inicio)
+                            ->maxDate(fn () => Auth::user()->is_admin ? null : now())
+                            ->required(),
+                    ])
+                    ->columnSpanFull(),
                 CheckboxList::make('item_ids')
                     ->label('Serviços executados nesta janela')
                     ->options($record->itens->mapWithKeys(fn ($item): array => [
@@ -269,7 +272,7 @@ class OrdemServicosTable
                     ->columns(1)
                     ->columnSpanFull()
                     ->helperText('Marque apenas os serviços executados que devem mudar para concluído.'),
-            ])->columns(2)
+            ])
             ->action(function (OrdemServico $record, array $data, Action $action): void {
                 try {
                     app(OrdemServicoApontamentoService::class)->encerrar(

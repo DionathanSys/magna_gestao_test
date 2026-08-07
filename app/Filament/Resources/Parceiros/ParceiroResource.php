@@ -21,7 +21,7 @@ class ParceiroResource extends Resource
 {
     protected static ?string $model = Parceiro::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
+    protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 

@@ -24,7 +24,7 @@ class TipoVeiculoResource extends Resource
 {
     protected static ?string $model = TipoVeiculo::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
+    protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
 
     protected static ?string $recordTitleAttribute = 'descricao';
 

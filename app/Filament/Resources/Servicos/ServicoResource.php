@@ -18,7 +18,7 @@ class ServicoResource extends Resource
 {
     protected static ?string $model = Servico::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
+    protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-wrench';
 

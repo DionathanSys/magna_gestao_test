@@ -22,7 +22,7 @@ class IntegradoResource extends Resource
 {
     protected static ?string $model = Integrado::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Cadastro';
+    protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 

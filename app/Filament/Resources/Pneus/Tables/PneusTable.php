@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Pneus\Tables;
 use App\Enum\Pneu\StatusPneuEnum;
 use App\Filament\Resources\Pneus\Actions\EnviarRecapagemPneuAction;
 use App\Filament\Resources\Pneus\Actions\ReceberRecapagemPneuAction;
+use App\Filament\Resources\Pneus\Actions\RegistrarHistoricoAnteriorPneuAction;
 use App\Filament\Resources\Pneus\Actions\RetornarConsertoPneuAction;
 use App\Filament\Resources\Pneus\Actions\ReverterRecapagemPneuAction;
 use App\Filament\Resources\Veiculos\VeiculoResource;
@@ -110,6 +111,7 @@ class PneusTable
                     ReceberRecapagemPneuAction::make(),
                     ReverterRecapagemPneuAction::make(),
                     RetornarConsertoPneuAction::make(),
+                    RegistrarHistoricoAnteriorPneuAction::make(),
                 ]),
             ])
             ->toolbarActions([

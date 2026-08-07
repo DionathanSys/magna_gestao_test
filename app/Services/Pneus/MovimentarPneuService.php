@@ -232,7 +232,7 @@ class MovimentarPneuService
                 'pneu_id' => $data['pneu_id'],
                 'data_inicial' => $data['data_movimento'],
                 'km_inicial' => $data['km_movimento'],
-                'motivo' => $data['motivo'],
+                'motivo' => MotivoMovimentoPneuEnum::APLICACAO,
                 'sulco' => $data['sulco'] ?? 0,
                 'observacao' => $data['observacao'] ?? null,
                 'anexos' => $data['anexos'] ?? null,

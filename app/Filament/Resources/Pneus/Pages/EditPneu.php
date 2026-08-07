@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Pneus\Pages;
 
 use App\Filament\Resources\Pneus\Actions\EnviarRecapagemPneuAction;
 use App\Filament\Resources\Pneus\Actions\ReceberRecapagemPneuAction;
+use App\Filament\Resources\Pneus\Actions\RegistrarHistoricoAnteriorPneuAction;
 use App\Filament\Resources\Pneus\Actions\RetornarConsertoPneuAction;
 use App\Filament\Resources\Pneus\Actions\ReverterRecapagemPneuAction;
 use App\Filament\Resources\Pneus\PneuResource;
@@ -32,6 +33,7 @@ class EditPneu extends EditRecord
             EnviarRecapagemPneuAction::make(),
             ReceberRecapagemPneuAction::make(),
             ReverterRecapagemPneuAction::make(),
+            RegistrarHistoricoAnteriorPneuAction::make(),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),

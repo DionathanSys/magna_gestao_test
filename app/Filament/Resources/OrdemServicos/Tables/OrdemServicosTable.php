@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrdemServicos\Tables;
 
 use App\Enum;
+use App\Filament\Oficina\Resources\OrdemServicos\Tables\OrdemServicosTable as OficinaOrdemServicosTable;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\OrdemServico;
@@ -166,6 +167,7 @@ class OrdemServicosTable
                     Actions\EncerrarOrdemServicoAction::make(),
                     EditAction::make()
                         ->url(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->id])),
+                    OficinaOrdemServicosTable::relatorioAction(),
                     Actions\PdfOrdemServicoAction::make(),
                     Actions\VincularOrdemSankhyaAction::make(),
                 ])

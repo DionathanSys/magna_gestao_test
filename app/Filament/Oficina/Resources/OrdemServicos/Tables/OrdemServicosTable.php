@@ -89,12 +89,12 @@ class OrdemServicosTable
             ->defaultSort('id', 'desc')
             ->recordActions([
                 self::servicosAction(),
-                VincularServicoOrdemServicoAction::make()
-                    ->visible(fn (): bool => Auth::user()->is_admin),
                 self::iniciarAction(),
                 self::encerrarAction(),
                 self::veiculoNaOficinaAction(),
                 ActionGroup::make([
+                    VincularServicoOrdemServicoAction::make()
+                        ->visible(fn (): bool => Auth::user()->is_admin),
                     EncerrarOrdemServicoAction::make()
                         ->visible(fn (): bool => Auth::user()->is_admin),
                     self::ajustarHorariosAction(),

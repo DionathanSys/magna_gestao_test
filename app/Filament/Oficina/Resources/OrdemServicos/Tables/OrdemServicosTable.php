@@ -5,6 +5,7 @@ namespace App\Filament\Oficina\Resources\OrdemServicos\Tables;
 use App\Filament\Oficina\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Actions\EncerrarOrdemServicoAction;
 use App\Models\Colaborador;
+use App\Models\ItemOrdemServico;
 use App\Models\OrdemServico;
 use App\Services\NotificacaoService as notify;
 use App\Services\Oficina\OrdemServicoApontamentoService;
@@ -255,7 +256,7 @@ class OrdemServicosTable
                 CheckboxList::make('item_ids')
                     ->label('Serviços executados nesta janela')
                     ->options($record->itens->mapWithKeys(fn ($item): array => [
-                        $item->id => trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').$item->servico?->descricao),
+                        $item->id => self::servicoItemLabel($item),
                     ])->all())
                     ->columns(1)
                     ->columnSpanFull()
@@ -266,7 +267,7 @@ class OrdemServicosTable
                     ->options(fn (Get $get): array => $record->itens
                         ->whereIn('id', $get('item_ids') ?? [])
                         ->mapWithKeys(fn ($item): array => [
-                            $item->id => trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').$item->servico?->descricao),
+                            $item->id => self::servicoItemLabel($item),
                         ])
                         ->all())
                     ->columns(1)
@@ -321,7 +322,7 @@ class OrdemServicosTable
 
         return $record->itens->map(function ($item): array {
             return [
-                'servico' => trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').($item->servico?->descricao ?? 'Serviço não informado')),
+                'servico' => self::servicoItemLabel($item),
                 'status' => (string) ($item->status?->value ?? $item->status ?? '-'),
                 'trabalhadores' => $item->apontamentosOficina
                     ->map(fn ($apontamento): string => trim(($apontamento->colaborador?->nome ?? 'Colaborador não informado').' ('.($apontamento->iniciado_em?->format('d/m H:i') ?? '-').' - '.($apontamento->encerrado_em?->format('d/m H:i') ?? 'aberto').')'))
@@ -330,6 +331,17 @@ class OrdemServicosTable
                     ->all() ?: ['Sem apontamentos'],
             ];
         })->all();
+    }
+
+    private static function servicoItemLabel(ItemOrdemServico $item): string
+    {
+        $label = trim(($item->servico?->codigo ? $item->servico->codigo.' - ' : '').($item->servico?->descricao ?? 'Serviço não informado'));
+
+        if (filled($item->posicao)) {
+            $label .= ' | Posição: '.$item->posicao;
+        }
+
+        return $label;
     }
 
     public static function relatorioAction(): Action

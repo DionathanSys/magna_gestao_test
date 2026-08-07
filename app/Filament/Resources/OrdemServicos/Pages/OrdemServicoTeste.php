@@ -9,6 +9,11 @@ use App\Filament\Resources\Agendamentos\AgendamentoResource;
 use App\Filament\Resources\Agendamentos\Schemas\AgendamentoForm;
 use App\Filament\Resources\OrdemServicos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
+use App\Filament\Resources\OrdemServicos\Schemas\Components;
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoDataAberturaInput;
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoTipoManutencaoInput;
+use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoInput;
+use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
 use App\Models\Agendamento;
 use App\Models\ManutencaoLancamento;
 use App\Services\Agendamento\AgendamentoHistoricoService;
@@ -22,6 +27,9 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
@@ -58,9 +66,73 @@ class OrdemServicoTeste extends Page implements HasSchemas
 
     public ?array $createAgendamentoData = [];
 
+    public ?array $data = [];
+
     public function mount(int|string $record): void
     {
         $this->record = $this->loadRecordRelations($this->resolveRecord($record));
+        $this->form->fill($this->record->attributesToArray());
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Tabs::make('Tabs')
+                    ->contained(false)
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tabs\Tab::make('Informações Gerais')
+                            ->schema([
+                                Grid::make([
+                                    'default' => 2,
+                                ])
+                                    ->schema([
+                                        OrdemServicoVeiculoInput::make()
+                                            ->columnSpan(1),
+                                        OrdemServicoForm::getQuilometragemFormField()
+                                            ->label('Quilometragem')
+                                            ->columnSpan(1),
+                                        OrdemServicoTipoManutencaoInput::make()
+                                            ->columnSpan(1),
+                                        OrdemServicoForm::getStatusFormField()
+                                            ->columnSpan(1),
+                                        OrdemServicoForm::getStatusSankhyaFormField()
+                                            ->columnSpan(1),
+                                        OrdemServicoForm::getParceiroIdFormField()
+                                            ->label('Parceiro Externo')
+                                            ->columnSpan(1),
+                                        OrdemServicoDataAberturaInput::make()
+                                            ->columnSpan(1),
+                                        OrdemServicoForm::getDataFimFormField()
+                                            ->columnSpan(1),
+                                    ]),
+                            ]),
+                        Tabs\Tab::make('Sankhya')
+                            ->columns(4)
+                            ->schema([
+                                Components\OrdemServicoSankhyaRepeater::make(),
+                            ]),
+                        Tabs\Tab::make('Apontamentos da Oficina')
+                            ->schema([
+                                View::make('filament.resources.ordem-servicos.pages.partials.apontamentos-oficina'),
+                            ]),
+                        Tabs\Tab::make('Custos')
+                            ->schema([
+                                View::make('filament.resources.ordem-servicos.pages.partials.custos')
+                                    ->viewData(fn ($livewire): array => ['livewire' => $livewire]),
+                            ]),
+                    ]),
+            ])
+            ->statePath('data')
+            ->model($this->record);
+    }
+
+    public function edit(): void
+    {
+        $this->record->update($this->form->getState());
+        notify::success('Ordem de Serviço atualizada com sucesso!');
+        $this->record = $this->loadRecordRelations($this->record->fresh());
     }
 
     protected function getHeaderActions(): array

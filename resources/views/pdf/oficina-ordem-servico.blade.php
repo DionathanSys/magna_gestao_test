@@ -112,7 +112,12 @@
                         <tr>
                             <td>
                                 @forelse ($apontamento->itens as $item)
-                                    <div>{{ $item->servico->codigo ?? '-' }} - {{ $item->servico->descricao ?? '-' }}</div>
+                                    <div>
+                                        {{ $item->servico->codigo ?? '-' }} - {{ $item->servico->descricao ?? '-' }}
+                                        @if (filled($item->posicao))
+                                            | Posição: {{ $item->posicao }}
+                                        @endif
+                                    </div>
                                 @empty
                                     -
                                 @endforelse

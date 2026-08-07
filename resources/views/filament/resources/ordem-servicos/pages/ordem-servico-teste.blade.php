@@ -202,7 +202,15 @@
     </style>
     <div class="os-flex-container">
         <div class="os-flex-form">
-            @livewire('form-teste', ['ordemServico' => $record])
+            <form wire:submit="edit">
+                {{ $this->form }}
+            </form>
+
+            <div style="margin-top: 2rem;">
+                <x-filament::button wire:click="edit" outlined>
+                    Salvar Alterações
+                </x-filament::button>
+            </div>
         </div>
         <div class="os-flex-item">
             @livewire('list-teste', ['ordemServico' => $record])
@@ -343,127 +351,6 @@
                             @endforeach
                         </div>
                     @endif
-                </section>
-
-                <section class="os-list-panel">
-                    <div class="os-list-title">Apontamentos da Oficina</div>
-
-                    <div class="os-simple-list" style="margin-top: 0.75rem;">
-                        <div class="os-simple-item">
-                            <strong>Trabalhando agora</strong>
-
-                            @if ($record->apontamentosAbertosOficina->isEmpty())
-                                <span>Nenhum apontamento em aberto.</span>
-                            @else
-                                @foreach ($record->apontamentosAbertosOficina->sortBy('iniciado_em') as $apontamento)
-                                    <span>
-                                        {{ trim(($apontamento->colaborador?->codigo ? $apontamento->colaborador->codigo . ' - ' : '') . ($apontamento->colaborador?->nome ?? 'Responsável não informado')) }}
-                                        desde {{ $apontamento->iniciado_em?->format('d/m/Y H:i') ?? '-' }}
-                                        @if ($apontamento->iniciado_em)
-                                            ({{ $apontamento->iniciado_em->diffForHumans(now(), true) }})
-                                        @endif
-                                    </span>
-                                @endforeach
-                            @endif
-                        </div>
-
-                        <div class="os-simple-item">
-                            <strong>Histórico</strong>
-
-                            @if ($record->apontamentosOficina->isEmpty())
-                                <span>Nenhum apontamento registrado.</span>
-                            @else
-                                @foreach ($record->apontamentosOficina->sortByDesc('iniciado_em') as $apontamento)
-                                    @php
-                                        $servicos = $apontamento->itens
-                                            ->map(fn ($item) => trim(($item->servico?->codigo ? $item->servico->codigo . ' - ' : '') . ($item->servico?->descricao ?? '')))
-                                            ->filter()
-                                            ->join(', ');
-                                    @endphp
-
-                                    <div class="os-simple-item">
-                                        <strong>{{ trim(($apontamento->colaborador?->codigo ? $apontamento->colaborador->codigo . ' - ' : '') . ($apontamento->colaborador?->nome ?? 'Responsável não informado')) }}</strong>
-                                        <span>Início: {{ $apontamento->iniciado_em?->format('d/m/Y H:i') ?? '-' }}</span>
-                                        <span>Fim: {{ $apontamento->encerrado_em?->format('d/m/Y H:i') ?? 'Aberto' }}</span>
-                                        <span>
-                                            Duração:
-                                            @if ($apontamento->iniciado_em && $apontamento->encerrado_em)
-                                                {{ $apontamento->iniciado_em->diffForHumans($apontamento->encerrado_em, true) }}
-                                            @elseif ($apontamento->iniciado_em)
-                                                {{ $apontamento->iniciado_em->diffForHumans(now(), true) }} em andamento
-                                            @else
-                                                -
-                                            @endif
-                                        </span>
-                                        <span>Serviços: {{ $servicos ?: '-' }}</span>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-                    </div>
-                </section>
-
-                <section class="os-list-panel" x-data="{ activeTab: 'vinculados' }">
-                    <div class="os-list-title">Custos</div>
-
-                    <div class="os-tab-list" role="tablist" aria-label="Abas de custos">
-                        <button type="button" class="os-tab-button" :class="{ 'is-active': activeTab === 'vinculados' }" x-on:click="activeTab = 'vinculados'">
-                            Vinculados ({{ $record->manutencaoLancamentos->count() }})
-                        </button>
-                        <button type="button" class="os-tab-button" :class="{ 'is-active': activeTab === 'pendentes' }" x-on:click="activeTab = 'pendentes'">
-                            Pendentes ({{ $this->lancamentosPendentes->count() }})
-                        </button>
-                    </div>
-
-                    <div x-show="activeTab === 'vinculados'" x-cloak>
-                        @if ($record->manutencaoLancamentos->isEmpty())
-                            <div class="os-empty-list">Nenhum custo vinculado.</div>
-                        @else
-                            <div class="os-simple-list">
-                                @foreach ($record->manutencaoLancamentos->sortByDesc('data_negociacao') as $lancamento)
-                                    <div class="os-simple-item">
-                                        <strong>{{ $lancamento->produto }}</strong>
-                                        <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
-                                        <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
-                                        <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
-                                        <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                                        <span>Vínculo: {{ $lancamento->tipo_vinculo === 'automatico' ? 'Automático' : 'Manual' }}</span>
-                                        <div class="os-item-actions">
-                                            <x-filament::button size="xs" color="danger" wire:click="desvincularLancamento({{ $lancamento->id }})">
-                                                Desvincular
-                                            </x-filament::button>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
-
-                    <div x-show="activeTab === 'pendentes'" x-cloak>
-                        @if ($this->lancamentosPendentes->isEmpty())
-                            <div class="os-empty-list">Nenhum custo pendente para este veículo.</div>
-                        @else
-                            <div class="os-simple-list">
-                                @foreach ($this->lancamentosPendentes as $lancamento)
-                                    <div class="os-simple-item">
-                                        <strong>{{ $lancamento->produto }}</strong>
-                                        <span>Data: {{ $lancamento->data_negociacao?->format('d/m/Y') ?? 'Sem data' }}</span>
-                                        <span>Origem: {{ $lancamento->origem ?? '-' }} | Nro: {{ $lancamento->nr_os_nf ?: '-' }}</span>
-                                        <span>Parceiro: {{ $lancamento->parceiro ?? 'N/A' }}</span>
-                                        <span>Valor: R$ {{ number_format(($lancamento->valor_total_centavos ?? 0) / 100, 2, ',', '.') }}</span>
-                                    <div class="os-item-actions">
-                                        <x-filament::button size="xs" color="primary" wire:click="vincularLancamento({{ $lancamento->id }})">
-                                            Vincular nesta OS
-                                        </x-filament::button>
-                                        <x-filament::button size="xs" color="warning" wire:click="dispensarLancamento({{ $lancamento->id }})">
-                                            Dispensar
-                                        </x-filament::button>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                    </div>
                 </section>
             </div>
         </div>

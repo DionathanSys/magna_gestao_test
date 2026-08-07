@@ -4,6 +4,7 @@ namespace App\Filament\Oficina\Resources\OrdemServicos\Tables;
 
 use App\Filament\Oficina\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Actions\EncerrarOrdemServicoAction;
+use App\Filament\Resources\OrdemServicos\Actions\VincularServicoOrdemServicoAction;
 use App\Models\Colaborador;
 use App\Models\ItemOrdemServico;
 use App\Models\OrdemServico;
@@ -88,6 +89,8 @@ class OrdemServicosTable
             ->defaultSort('id', 'desc')
             ->recordActions([
                 self::servicosAction(),
+                VincularServicoOrdemServicoAction::make()
+                    ->visible(fn (): bool => Auth::user()->is_admin),
                 self::iniciarAction(),
                 self::encerrarAction(),
                 self::veiculoNaOficinaAction(),
@@ -253,26 +256,28 @@ class OrdemServicosTable
                             ->required(),
                     ])
                     ->columnSpanFull(),
-                CheckboxList::make('item_ids')
-                    ->label('Serviços executados nesta janela')
-                    ->options($record->itens->mapWithKeys(fn ($item): array => [
-                        $item->id => self::servicoItemLabel($item),
-                    ])->all())
-                    ->columns(1)
-                    ->columnSpanFull()
-                    ->live()
-                    ->required(),
-                CheckboxList::make('item_ids_concluidos')
-                    ->label('Serviços finalizados nesta janela')
-                    ->options(fn (Get $get): array => $record->itens
-                        ->whereIn('id', $get('item_ids') ?? [])
-                        ->mapWithKeys(fn ($item): array => [
-                            $item->id => self::servicoItemLabel($item),
-                        ])
-                        ->all())
-                    ->columns(1)
-                    ->columnSpanFull()
-                    ->helperText('Marque apenas os serviços executados que devem mudar para concluído.'),
+                Grid::make(2)
+                    ->schema([
+                        CheckboxList::make('item_ids')
+                            ->label('Serviços executados nesta janela')
+                            ->options($record->itens->mapWithKeys(fn ($item): array => [
+                                $item->id => self::servicoItemLabel($item),
+                            ])->all())
+                            ->columns(1)
+                            ->live()
+                            ->required(),
+                        CheckboxList::make('item_ids_concluidos')
+                            ->label('Serviços finalizados nesta janela')
+                            ->options(fn (Get $get): array => $record->itens
+                                ->whereIn('id', $get('item_ids') ?? [])
+                                ->mapWithKeys(fn ($item): array => [
+                                    $item->id => self::servicoItemLabel($item),
+                                ])
+                                ->all())
+                            ->columns(1)
+                            ->helperText('Marque apenas os serviços executados que devem mudar para concluído.'),
+                    ])
+                    ->columnSpanFull(),
             ])
             ->action(function (OrdemServico $record, array $data, Action $action): void {
                 try {

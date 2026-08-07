@@ -5,6 +5,7 @@ namespace App\Services\Agendamento\Actions;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Models;
 use App\Services\Agendamento\AgendamentoHistoricoService;
+use App\Services\OrdemServico\Actions\VincularAgendamento;
 use App\Services\OrdemServico\OrdemServicoService;
 use App\Traits\UserCheckTrait;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ class VincularOrdemServico
 
     protected OrdemServicoService $ordemServicoService;
 
-    public function __construct(protected Models\Agendamento $agendamento)
+    public function __construct(protected Models\Agendamento $agendamento, protected ?Models\OrdemServico $ordemServico = null)
     {
         $this->ordemServicoService = new OrdemServicoService;
     }
@@ -26,7 +27,13 @@ class VincularOrdemServico
         $this->validate();
 
         DB::transaction(function (): void {
-            $ordemServico = $this->ordemServicoService->vincularAgendamento($this->agendamento);
+            $ordemServico = $this->ordemServico;
+
+            if ($ordemServico) {
+                (new VincularAgendamento($ordemServico, $this->agendamento))->handle();
+            } else {
+                $ordemServico = $this->ordemServicoService->vincularAgendamento($this->agendamento);
+            }
 
             if (! $ordemServico) {
                 throw new \RuntimeException('Erro ao vincular agendamento a ordem de serviço.');

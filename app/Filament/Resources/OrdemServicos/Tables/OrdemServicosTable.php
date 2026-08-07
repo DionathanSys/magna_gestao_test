@@ -188,6 +188,7 @@ class OrdemServicosTable
                 ]),
             ])
             ->headerActions([
+                Actions\GerarRelatorioApontamentosOficinaPeriodoAction::make(),
             ])
             ->striped()
             ->poll('10s');

@@ -493,7 +493,7 @@ class MobileDetailOrdemServico extends Page implements HasSchemas
         }
 
         $service = new AgendamentoService;
-        $service->vincularEmOrdemServico($agendamento);
+        $service->vincularEmOrdemServico($agendamento, $this->record);
 
         if ($service->hasError()) {
             notify::error(mensagem: $service->getMessage());

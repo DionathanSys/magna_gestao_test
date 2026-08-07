@@ -4,6 +4,7 @@ namespace App\Filament\Oficina\Resources\OrdemServicos\Tables;
 
 use App\Filament\Oficina\Resources\OrdemServicos\OrdemServicoResource;
 use App\Filament\Resources\OrdemServicos\Actions\EncerrarOrdemServicoAction;
+use App\Filament\Resources\OrdemServicos\Actions\GerarRelatorioApontamentosOficinaPeriodoAction;
 use App\Filament\Resources\OrdemServicos\Actions\VincularServicoOrdemServicoAction;
 use App\Models\Colaborador;
 use App\Models\ItemOrdemServico;
@@ -98,6 +99,7 @@ class OrdemServicosTable
                     EncerrarOrdemServicoAction::make()
                         ->visible(fn (): bool => Auth::user()->is_admin),
                     self::ajustarHorariosAction(),
+                    self::adicionarServicosApontamentoEncerradoAction(),
                     self::removerApontamentoAbertoAction(),
                     self::relatorioAction(),
                     ViewAction::make()
@@ -112,6 +114,9 @@ class OrdemServicosTable
                     ->button()
                     ->size(Size::Small),
             ], RecordActionsPosition::AfterContent)
+            ->headerActions([
+                GerarRelatorioApontamentosOficinaPeriodoAction::make(),
+            ])
             ->poll('30s')
             ->striped();
     }
@@ -434,6 +439,83 @@ class OrdemServicosTable
                     }
 
                     notify::success(mensagem: 'Horários ajustados com sucesso.');
+                } catch (Throwable $exception) {
+                    notify::error(mensagem: $exception->getMessage());
+                    $action->halt();
+                }
+            });
+    }
+
+    public static function adicionarServicosApontamentoEncerradoAction(): Action
+    {
+        return Action::make('adicionar_servicos_apontamento_encerrado')
+            ->label('Adicionar serviços ao apontamento')
+            ->icon('heroicon-o-plus-circle')
+            ->visible(fn (): bool => Auth::user()->is_admin)
+            ->modalWidth(Width::FourExtraLarge)
+            ->modalSubmitActionLabel('Adicionar')
+            ->form(fn (OrdemServico $record): array => [
+                Select::make('apontamento_id')
+                    ->label('Apontamento encerrado')
+                    ->options(fn (): array => $record->apontamentosOficina()
+                        ->whereNotNull('encerrado_em')
+                        ->with('colaborador')
+                        ->orderByDesc('encerrado_em')
+                        ->get()
+                        ->mapWithKeys(fn ($apontamento): array => [
+                            $apontamento->id => sprintf(
+                                '%s | %s - %s',
+                                trim(($apontamento->colaborador?->codigo ? $apontamento->colaborador->codigo.' - ' : '').($apontamento->colaborador?->nome ?? 'Responsável não informado')),
+                                $apontamento->iniciado_em?->format('d/m/Y H:i') ?? '-',
+                                $apontamento->encerrado_em?->format('d/m/Y H:i') ?? '-'
+                            ),
+                        ])
+                        ->all())
+                    ->live()
+                    ->required(),
+                CheckboxList::make('item_ids')
+                    ->label('Serviços da OS para incluir')
+                    ->options(function (Get $get) use ($record): array {
+                        $apontamentoId = $get('apontamento_id');
+                        $itensJaVinculados = $apontamentoId
+                            ? $record->apontamentosOficina()
+                                ->whereNotNull('encerrado_em')
+                                ->find($apontamentoId)?->itens()->pluck('itens_ordem_servico.id')->all() ?? []
+                            : [];
+
+                        return $record->itens
+                            ->reject(fn (ItemOrdemServico $item): bool => in_array($item->id, $itensJaVinculados, true))
+                            ->mapWithKeys(fn (ItemOrdemServico $item): array => [
+                                $item->id => self::servicoItemLabel($item),
+                            ])
+                            ->all();
+                    })
+                    ->columns(1)
+                    ->helperText('Apenas serviços cadastrados nesta OS são listados. Serviços já vinculados ao apontamento selecionado não aparecem.')
+                    ->required(),
+            ])
+            ->action(function (OrdemServico $record, array $data, Action $action): void {
+                try {
+                    $itemIds = array_values(array_unique(array_map('intval', $data['item_ids'] ?? [])));
+
+                    if ($itemIds === []) {
+                        throw new \InvalidArgumentException('Selecione ao menos um serviço da OS.');
+                    }
+
+                    $apontamento = $record->apontamentosOficina()
+                        ->whereNotNull('encerrado_em')
+                        ->findOrFail($data['apontamento_id']);
+
+                    $itemIdsDaOrdem = $record->itens()->pluck('id')->all();
+
+                    if (array_diff($itemIds, $itemIdsDaOrdem) !== []) {
+                        throw new \InvalidArgumentException('Selecione apenas serviços desta ordem de serviço.');
+                    }
+
+                    $apontamento->itens()->syncWithoutDetaching($itemIds);
+                    $record->load(['apontamentosOficina.itens.servico']);
+
+                    notify::success(mensagem: 'Serviço(s) incluído(s) no apontamento encerrado com sucesso.');
                 } catch (Throwable $exception) {
                     notify::error(mensagem: $exception->getMessage());
                     $action->halt();

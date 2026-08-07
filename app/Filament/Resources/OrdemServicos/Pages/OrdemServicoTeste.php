@@ -173,6 +173,8 @@ class OrdemServicoTeste extends Page implements HasSchemas
                     ->size(Size::ExtraSmall),
                 OficinaOrdemServicosTable::ajustarHorariosAction()
                     ->size(Size::ExtraSmall),
+                OficinaOrdemServicosTable::adicionarServicosApontamentoEncerradoAction()
+                    ->size(Size::ExtraSmall),
                 OficinaOrdemServicosTable::removerApontamentoAbertoAction()
                     ->size(Size::ExtraSmall),
             ])->label('Apontamentos')->button()->size(Size::ExtraSmall),

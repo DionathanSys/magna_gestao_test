@@ -53,10 +53,10 @@ class AgendamentoService
 
     }
 
-    public function vincularEmOrdemServico(Models\Agendamento $agendamento)
+    public function vincularEmOrdemServico(Models\Agendamento $agendamento, ?Models\OrdemServico $ordemServico = null)
     {
         try {
-            $agendamento = (new Actions\VincularOrdemServico($agendamento))->handle();
+            $agendamento = (new Actions\VincularOrdemServico($agendamento, $ordemServico))->handle();
 
             return $this->setSuccess('Agendamento vinculado a Ordem de Serviço com sucesso.');
         } catch (\Exception $e) {

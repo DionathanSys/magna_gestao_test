@@ -343,10 +343,13 @@ class MapaPneusVeiculo extends Page implements HasActions
             ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
-                    TextInput::make('motivo')
+                    Select::make('motivo')
                         ->columnSpan(5)
+                        ->options(MotivoMovimentoPneuEnum::toSelectArray())
                         ->default(MotivoMovimentoPneuEnum::INVERSAO->value)
+                        ->native(false)
                         ->disabled()
+                        ->dehydrated()
                         ->required(),
                     TextInput::make('sulco')
                         ->label('Sulco (mm)')
@@ -403,10 +406,13 @@ class MapaPneusVeiculo extends Page implements HasActions
             ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
-                    TextInput::make('motivo')
+                    Select::make('motivo')
                         ->columnSpan(5)
+                        ->options(MotivoMovimentoPneuEnum::toSelectArray())
                         ->default(MotivoMovimentoPneuEnum::RODIZIO->value)
+                        ->native(false)
                         ->disabled()
+                        ->dehydrated()
                         ->required(),
                     TextInput::make('sulco')
                         ->label('Sulco Removido (mm)')
@@ -465,10 +471,13 @@ class MapaPneusVeiculo extends Page implements HasActions
             ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
-                    TextInput::make('motivo')
+                    Select::make('motivo')
                         ->columnSpan(5)
+                        ->options(MotivoMovimentoPneuEnum::toSelectArray())
                         ->default(MotivoMovimentoPneuEnum::REAPLICACAO->value)
+                        ->native(false)
                         ->disabled()
+                        ->dehydrated()
                         ->required(),
                     TextInput::make('sulco')
                         ->label('Sulco Removido (mm)')

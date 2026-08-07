@@ -6,6 +6,7 @@ use App\Enum\Pneu\MotivoMovimentoPneuEnum;
 use App\Models\HistoricoMovimentoPneu;
 use App\Models\Pneu;
 use App\Models\PneuCiclo;
+use App\Models\PneuPosicaoVeiculo;
 use App\Models\Veiculo;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Action;
@@ -14,6 +15,8 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +47,8 @@ class RegistrarHistoricoAnteriorPneuAction
                                 ->searchable()
                                 ->preload()
                                 ->native(false)
+                                ->live()
+                                ->afterStateUpdated(fn (Set $set) => $set('pneu_posicao_veiculo_id', null))
                                 ->required()
                                 ->columnSpan(4),
                             Select::make('tipo_evento')
@@ -62,17 +67,12 @@ class RegistrarHistoricoAnteriorPneuAction
                                 ->native(false)
                                 ->required()
                                 ->columnSpan(4),
-                            TextInput::make('eixo')
-                                ->numeric()
-                                ->required()
-                                ->minValue(1)
-                                ->maxValue(4)
-                                ->columnSpan(2),
-                            TextInput::make('posicao')
+                            Select::make('pneu_posicao_veiculo_id')
                                 ->label('Posição')
+                                ->options(fn (Get $get): array => self::getPosicoesOptions((int) $get('veiculo_id')))
+                                ->native(false)
                                 ->required()
-                                ->maxLength(20)
-                                ->columnSpan(2),
+                                ->columnSpan(4),
                             TextInput::make('ciclo_vida')
                                 ->label('Vida')
                                 ->numeric()
@@ -137,16 +137,21 @@ class RegistrarHistoricoAnteriorPneuAction
                                 ->where('numero', $movimentacao['ciclo_vida'])
                                 ->value('id');
 
+                            $posicao = PneuPosicaoVeiculo::query()
+                                ->where('veiculo_id', $movimentacao['veiculo_id'])
+                                ->findOrFail($movimentacao['pneu_posicao_veiculo_id']);
+
                             HistoricoMovimentoPneu::query()->create([
                                 'pneu_id' => $record->id,
                                 'pneu_ciclo_id' => $cicloId,
+                                'pneu_posicao_veiculo_id' => $posicao->id,
                                 'veiculo_id' => $movimentacao['veiculo_id'],
                                 'data_inicial' => $movimentacao['data_inicial'],
                                 'data_final' => $movimentacao['data_final'],
                                 'km_inicial' => $movimentacao['km_inicial'],
                                 'km_final' => $movimentacao['km_final'],
-                                'eixo' => $movimentacao['eixo'],
-                                'posicao' => $movimentacao['posicao'],
+                                'eixo' => $posicao->eixo,
+                                'posicao' => $posicao->posicao,
                                 'sulco_movimento' => $movimentacao['sulco_movimento'],
                                 'motivo' => $movimentacao['motivo'],
                                 'tipo_evento' => $movimentacao['tipo_evento'],
@@ -162,5 +167,26 @@ class RegistrarHistoricoAnteriorPneuAction
 
                 notify::success('Histórico anterior registrado com sucesso.');
             });
+    }
+
+    protected static function getPosicoesOptions(int $veiculoId): array
+    {
+        if (! $veiculoId) {
+            return [];
+        }
+
+        return PneuPosicaoVeiculo::query()
+            ->with('mapaPosicao')
+            ->where('veiculo_id', $veiculoId)
+            ->orderBy('sequencia')
+            ->get()
+            ->mapWithKeys(function (PneuPosicaoVeiculo $posicao): array {
+                $codigo = $posicao->mapaPosicao?->codigo ?? $posicao->posicao;
+                $nome = $posicao->mapaPosicao?->nome;
+                $label = $nome ? "{$codigo} - {$nome}" : $codigo;
+
+                return [$posicao->id => "Eixo {$posicao->eixo} / {$label}"];
+            })
+            ->toArray();
     }
 }

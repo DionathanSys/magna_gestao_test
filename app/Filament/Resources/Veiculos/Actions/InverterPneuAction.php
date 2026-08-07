@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Icon;
@@ -33,10 +34,13 @@ class InverterPneuAction
             ->schema(fn (Schema $schema) => $schema
                 ->columns(8)
                 ->schema([
-                    TextInput::make('motivo')
+                    Select::make('motivo')
                         ->columnSpan(5)
-                        ->default(Enum\Pneu\MotivoMovimentoPneuEnum::INVERSAO)
+                        ->options(Enum\Pneu\MotivoMovimentoPneuEnum::toSelectArray())
+                        ->default(Enum\Pneu\MotivoMovimentoPneuEnum::INVERSAO->value)
+                        ->native(false)
                         ->disabled()
+                        ->dehydrated()
                         ->required(),
                     TextInput::make('sulco')
                         ->label('Sulco (mm)')

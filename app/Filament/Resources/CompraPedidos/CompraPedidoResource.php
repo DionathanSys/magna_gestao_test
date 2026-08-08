@@ -19,6 +19,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -164,6 +165,11 @@ class CompraPedidoResource extends Resource
                     ->columnSpanFull(),
                 Repeater::make('itens')
                     ->label('Itens da ordem')
+                    ->table([
+                        TableColumn::make('Código'),
+                        TableColumn::make('Produto'),
+                        TableColumn::make('Quantidade prevista'),
+                    ])
                     ->schema([
                         Hidden::make('compra_pedido_item_id')
                             ->required(),

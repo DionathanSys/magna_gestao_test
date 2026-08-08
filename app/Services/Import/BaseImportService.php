@@ -91,6 +91,9 @@ abstract class BaseImportService
     protected function validateHeaders(array $headers, ExcelImportInterface $importer): void
     {
         $requiredColumns = $importer->getRequiredColumns();
+        $requiredColumnAliases = method_exists($importer, 'getRequiredColumnAliases')
+            ? $importer->getRequiredColumnAliases()
+            : [];
         $missingColumns = [];
 
         Log::debug('Validando cabeçalho do arquivo de importação.', ['headers' => $headers, 'required_columns' => $requiredColumns]);
@@ -101,11 +104,14 @@ abstract class BaseImportService
         }
 
         foreach ($requiredColumns as $column) {
-            if (! in_array($column, $headers)) {
+            $aliases = $requiredColumnAliases[$column] ?? [$column];
+
+            if (empty(array_intersect($aliases, $headers))) {
 
                 Log::warning("Coluna obrigatória ausente: {$column}", [
                     'headers' => $headers,
                     'required_columns' => $requiredColumns,
+                    'aliases' => $aliases,
                 ]);
 
                 $missingColumns[] = $column;

@@ -61,6 +61,7 @@ class CompraPedidoResource extends Resource
             Repeater::make('itens')
                 ->label('Itens')
                 ->relationship()
+                ->compact()
                 ->schema([
                     Select::make('estoque_produto_id')
                         ->label('Produto')
@@ -86,7 +87,6 @@ class CompraPedidoResource extends Resource
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->withCount('itens')->withSum('itens', 'quantidade_pedida')->withSum('itens', 'quantidade_recebida'))
             ->defaultSort('created_at', 'desc')
-            ->compact()
             ->columns([
                 TextColumn::make('numero')
                     ->label('Número')

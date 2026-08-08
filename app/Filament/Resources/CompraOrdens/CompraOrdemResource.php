@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CompraOrdens;
 
 use App\Filament\Resources\CompraOrdens\Pages\EditCompraOrdem;
 use App\Filament\Resources\CompraOrdens\Pages\ListCompraOrdens;
+use App\Filament\Resources\Parceiros\ParceiroResource;
 use App\Models\CompraOrdem;
 use App\Models\CompraOrdemItem;
 use App\Models\CompraRecebimento;
@@ -48,6 +49,8 @@ class CompraOrdemResource extends Resource
             Select::make('parceiro_id')
                 ->label('Fornecedor')
                 ->relationship('parceiro', 'nome')
+                ->createOptionForm(fn (Schema $schema) => ParceiroResource::form($schema))
+                ->editOptionForm(fn (Schema $schema) => ParceiroResource::form($schema))
                 ->searchable()
                 ->required(),
             TextInput::make('status')

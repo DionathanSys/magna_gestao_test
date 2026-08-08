@@ -5,6 +5,7 @@ namespace App\Filament\Resources\CompraPedidos;
 use App\Filament\Resources\CompraPedidos\Pages\CreateCompraPedido;
 use App\Filament\Resources\CompraPedidos\Pages\EditCompraPedido;
 use App\Filament\Resources\CompraPedidos\Pages\ListCompraPedidos;
+use App\Filament\Resources\Parceiros\ParceiroResource;
 use App\Models\CompraOrdem;
 use App\Models\CompraPedido;
 use App\Models\CompraPedidoItem;
@@ -16,16 +17,19 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\ValidationException;
 use UnitEnum;
 
 class CompraPedidoResource extends Resource
@@ -149,6 +153,8 @@ class CompraPedidoResource extends Resource
                 Select::make('parceiro_id')
                     ->label('Fornecedor')
                     ->options(fn (): array => Parceiro::query()->orderBy('nome')->pluck('nome', 'id')->all())
+                    ->createOptionForm(fn (Schema $schema) => ParceiroResource::form($schema))
+                    ->createOptionUsing(fn (array $data): int => Parceiro::query()->create($data)->getKey())
                     ->searchable()
                     ->required(),
                 DatePicker::make('previsao_entrega_em')
@@ -159,19 +165,31 @@ class CompraPedidoResource extends Resource
                 Repeater::make('itens')
                     ->label('Itens da ordem')
                     ->schema([
-                        Select::make('compra_pedido_item_id')
-                            ->label('Item do pedido')
-                            ->options(fn (): array => $record->itens()->with('produto:id,codigo,nome')->get()->mapWithKeys(
-                                fn (CompraPedidoItem $item): array => [$item->id => $item->produto->codigo.' - '.$item->produto->nome.' | pendente: '.number_format(max(0, (float) $item->quantidade_pedida - (float) $item->quantidade_recebida), 4, ',', '.')]
-                            )->all())
+                        Hidden::make('compra_pedido_item_id')
                             ->required(),
+                        TextInput::make('codigo_produto')
+                            ->label('Código')
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Set $set, ?string $state) use ($record): void {
+                                $pedidoItem = self::buscarItemPedidoPorCodigo($record, $state);
+
+                                $set('compra_pedido_item_id', $pedidoItem?->id);
+                                $set('produto_nome', $pedidoItem?->produto?->nome);
+                                $set('quantidade_prevista', $pedidoItem ? max(0, (float) $pedidoItem->quantidade_pedida - (float) $pedidoItem->quantidade_recebida) : null);
+                            })
+                            ->helperText('Informe o código de um produto existente neste pedido.'),
+                        TextInput::make('produto_nome')
+                            ->label('Produto')
+                            ->readOnly()
+                            ->dehydrated(false),
                         TextInput::make('quantidade_prevista')
                             ->label('Quantidade prevista')
                             ->numeric()
                             ->minValue(0.0001)
                             ->required(),
                     ])
-                    ->columns(2)
+                    ->columns(3)
                     ->minItems(1)
                     ->columnSpanFull(),
             ])
@@ -186,13 +204,33 @@ class CompraPedidoResource extends Resource
 
                 foreach ($data['itens'] as $itemData) {
                     $pedidoItem = $record->itens()->findOrFail($itemData['compra_pedido_item_id']);
+                    $quantidadePrevista = (float) $itemData['quantidade_prevista'];
+                    $quantidadePendente = max(0, (float) $pedidoItem->quantidade_pedida - (float) $pedidoItem->quantidade_recebida);
+
+                    if ($quantidadePrevista > $quantidadePendente) {
+                        throw ValidationException::withMessages([
+                            'itens' => 'A quantidade prevista não pode ultrapassar a quantidade pendente do pedido.',
+                        ]);
+                    }
 
                     $ordem->itens()->create([
                         'compra_pedido_item_id' => $pedidoItem->id,
                         'estoque_produto_id' => $pedidoItem->estoque_produto_id,
-                        'quantidade_prevista' => $itemData['quantidade_prevista'],
+                        'quantidade_prevista' => $quantidadePrevista,
                     ]);
                 }
             });
+    }
+
+    private static function buscarItemPedidoPorCodigo(CompraPedido $pedido, ?string $codigo): ?CompraPedidoItem
+    {
+        if (blank($codigo)) {
+            return null;
+        }
+
+        return $pedido->itens()
+            ->whereHas('produto', fn (Builder $query): Builder => $query->where('codigo', trim($codigo)))
+            ->with('produto:id,codigo,nome')
+            ->first();
     }
 }

@@ -176,6 +176,7 @@ class CompraPedidoResource extends Resource
                             ->required(),
                         TextInput::make('codigo_produto')
                             ->label('Código')
+                            ->hiddenLabel()
                             ->required()
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (Set $set, ?string $state) use ($record): void {
@@ -184,19 +185,20 @@ class CompraPedidoResource extends Resource
                                 $set('compra_pedido_item_id', $pedidoItem?->id);
                                 $set('produto_nome', $pedidoItem?->produto?->nome);
                                 $set('quantidade_prevista', $pedidoItem ? max(0, (float) $pedidoItem->quantidade_pedida - (float) $pedidoItem->quantidade_recebida) : null);
-                            })
-                            ->helperText('Informe o código de um produto existente neste pedido.'),
+                            }),
                         TextInput::make('produto_nome')
                             ->label('Produto')
+                            ->hiddenLabel()
                             ->readOnly()
                             ->dehydrated(false),
                         TextInput::make('quantidade_prevista')
                             ->label('Quantidade prevista')
+                            ->hiddenLabel()
                             ->numeric()
                             ->minValue(0.0001)
                             ->required(),
                     ])
-                    ->columns(3)
+                    ->compact()
                     ->minItems(1)
                     ->columnSpanFull(),
             ])

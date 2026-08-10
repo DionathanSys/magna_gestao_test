@@ -78,7 +78,7 @@ class CompraOrdemResource extends Resource
                     Select::make('compra_pedido_item_id')
                         ->label('Item do pedido')
                         ->hiddenLabel()
-                        ->options(fn (?CompraOrdem $record): array => self::pedidoItemOptions($record))
+                        ->options(fn (?CompraOrdemItem $record): array => self::pedidoItemOptions($record?->ordem))
                         ->searchable()
                         ->live()
                         ->afterStateUpdated(function (Set $set, ?int $state): void {

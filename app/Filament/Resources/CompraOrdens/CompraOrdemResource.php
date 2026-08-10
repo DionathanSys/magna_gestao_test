@@ -188,21 +188,36 @@ class CompraOrdemResource extends Resource
                     ->columnSpanFull(),
                 Repeater::make('itens')
                     ->label('Itens recebidos')
+                    ->default(fn (): array => $record->itens()->with('produto:id,codigo,nome')->get()->map(
+                        fn (CompraOrdemItem $item): array => [
+                            'compra_ordem_item_id' => $item->id,
+                            'item_label' => $item->produto->codigo.' - '.$item->produto->nome,
+                            'quantidade_recebida' => max(0, (float) $item->quantidade_prevista - (float) $item->quantidade_recebida),
+                        ]
+                    )->all())
+                    ->table([
+                        TableColumn::make('Item'),
+                        TableColumn::make('Quantidade recebida'),
+                    ])
                     ->schema([
-                        Select::make('compra_ordem_item_id')
-                            ->label('Item')
-                            ->options(fn (): array => $record->itens()->with('produto:id,codigo,nome')->get()->mapWithKeys(
-                                fn (CompraOrdemItem $item): array => [$item->id => $item->produto->codigo.' - '.$item->produto->nome.' | pendente: '.number_format(max(0, (float) $item->quantidade_prevista - (float) $item->quantidade_recebida), 4, ',', '.')]
-                            )->all())
+                        Hidden::make('compra_ordem_item_id')
                             ->required(),
+                        TextInput::make('item_label')
+                            ->label('Item')
+                            ->hiddenLabel()
+                            ->readOnly()
+                            ->dehydrated(false),
                         TextInput::make('quantidade_recebida')
                             ->label('Quantidade recebida')
+                            ->hiddenLabel()
                             ->numeric()
-                            ->minValue(0.0001)
+                            ->minValue(0)
                             ->required(),
                     ])
-                    ->columns(2)
-                    ->minItems(1)
+                    ->addable(false)
+                    ->deletable(false)
+                    ->reorderable(false)
+                    ->compact()
                     ->columnSpanFull(),
             ])
             ->action(function (CompraOrdem $record, array $data): void {
@@ -212,9 +227,16 @@ class CompraOrdemResource extends Resource
                     'observacoes' => $data['observacoes'] ?? null,
                 ]);
 
+                $recebeuAlgumItem = false;
+
                 foreach ($data['itens'] as $itemData) {
                     $ordemItem = $record->itens()->with('pedidoItem')->findOrFail($itemData['compra_ordem_item_id']);
                     $quantidadeRecebida = (float) $itemData['quantidade_recebida'];
+
+                    if ($quantidadeRecebida <= 0) {
+                        continue;
+                    }
+
                     $quantidadePendente = max(0, (float) $ordemItem->quantidade_prevista - (float) $ordemItem->quantidade_recebida);
 
                     if ($quantidadeRecebida > $quantidadePendente) {
@@ -231,6 +253,16 @@ class CompraOrdemResource extends Resource
 
                     $ordemItem->increment('quantidade_recebida', $quantidadeRecebida);
                     $ordemItem->pedidoItem->increment('quantidade_recebida', $quantidadeRecebida);
+
+                    $recebeuAlgumItem = true;
+                }
+
+                if (! $recebeuAlgumItem) {
+                    $recebimento->delete();
+
+                    throw ValidationException::withMessages([
+                        'itens' => 'Informe a quantidade recebida em pelo menos um item.',
+                    ]);
                 }
 
                 $record->refresh()->atualizarAtendimento();

@@ -16,4 +16,9 @@ class EditCompraPedido extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+    {
+        $this->record->refresh()->atualizarAtendimento();
+    }
 }

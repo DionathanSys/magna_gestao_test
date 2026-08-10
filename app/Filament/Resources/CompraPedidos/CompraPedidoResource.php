@@ -62,21 +62,33 @@ class CompraPedidoResource extends Resource
                 ->label('Itens')
                 ->relationship()
                 ->compact()
+                ->table([
+                    TableColumn::make('Produto'),
+                    TableColumn::make('Quantidade pedida'),
+                    TableColumn::make('Quantidade recebida'),
+                ])
                 ->schema([
                     Select::make('estoque_produto_id')
                         ->label('Produto')
+                        ->hiddenLabel()
                         ->relationship('produto', 'nome')
                         ->getOptionLabelFromRecordUsing(fn (EstoqueProduto $record): string => $record->codigo.' - '.$record->nome)
                         ->searchable(['codigo', 'nome'])
                         ->preload()
                         ->required(),
                     TextInput::make('quantidade_pedida')
-                        ->label('Quantidade')
+                        ->label('Quantidade pedida')
+                        ->hiddenLabel()
                         ->numeric()
                         ->minValue(0.0001)
                         ->required(),
+                    TextInput::make('quantidade_recebida')
+                        ->label('Quantidade recebida')
+                        ->hiddenLabel()
+                        ->default(0)
+                        ->numeric()
+                        ->readOnly(),
                 ])
-                ->columns(2)
                 ->minItems(1)
                 ->columnSpanFull(),
         ]);

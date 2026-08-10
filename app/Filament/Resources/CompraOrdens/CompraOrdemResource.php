@@ -7,16 +7,20 @@ use App\Filament\Resources\CompraOrdens\Pages\ListCompraOrdens;
 use App\Filament\Resources\Parceiros\ParceiroResource;
 use App\Models\CompraOrdem;
 use App\Models\CompraOrdemItem;
+use App\Models\CompraPedidoItem;
 use App\Models\CompraRecebimento;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -58,6 +62,46 @@ class CompraOrdemResource extends Resource
                 ->disabled(),
             Textarea::make('observacoes')
                 ->label('Observações')
+                ->columnSpanFull(),
+            Repeater::make('itens')
+                ->label('Itens')
+                ->relationship()
+                ->compact()
+                ->table([
+                    TableColumn::make('Item do pedido'),
+                    TableColumn::make('Quantidade prevista'),
+                    TableColumn::make('Quantidade recebida'),
+                ])
+                ->schema([
+                    Hidden::make('estoque_produto_id')
+                        ->required(),
+                    Select::make('compra_pedido_item_id')
+                        ->label('Item do pedido')
+                        ->hiddenLabel()
+                        ->options(fn (?CompraOrdem $record): array => self::pedidoItemOptions($record))
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(function (Set $set, ?int $state): void {
+                            $pedidoItem = CompraPedidoItem::query()->find($state);
+
+                            $set('estoque_produto_id', $pedidoItem?->estoque_produto_id);
+                            $set('quantidade_prevista', $pedidoItem ? max(0, (float) $pedidoItem->quantidade_pedida - (float) $pedidoItem->quantidade_recebida) : null);
+                        })
+                        ->required(),
+                    TextInput::make('quantidade_prevista')
+                        ->label('Quantidade prevista')
+                        ->hiddenLabel()
+                        ->numeric()
+                        ->minValue(0.0001)
+                        ->required(),
+                    TextInput::make('quantidade_recebida')
+                        ->label('Quantidade recebida')
+                        ->hiddenLabel()
+                        ->default(0)
+                        ->numeric()
+                        ->readOnly(),
+                ])
+                ->minItems(1)
                 ->columnSpanFull(),
         ]);
     }
@@ -192,5 +236,21 @@ class CompraOrdemResource extends Resource
                 $record->refresh()->atualizarAtendimento();
                 $record->pedido->refresh()->atualizarAtendimento();
             });
+    }
+
+    private static function pedidoItemOptions(?CompraOrdem $ordem): array
+    {
+        if (! $ordem?->compra_pedido_id) {
+            return [];
+        }
+
+        return CompraPedidoItem::query()
+            ->where('compra_pedido_id', $ordem->compra_pedido_id)
+            ->with('produto:id,codigo,nome')
+            ->get()
+            ->mapWithKeys(fn (CompraPedidoItem $item): array => [
+                $item->id => $item->produto->codigo.' - '.$item->produto->nome.' | pedido: '.number_format((float) $item->quantidade_pedida, 4, ',', '.').' | recebido: '.number_format((float) $item->quantidade_recebida, 4, ',', '.'),
+            ])
+            ->all();
     }
 }

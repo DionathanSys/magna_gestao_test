@@ -26,6 +26,7 @@ class MobileListOrdemServicos extends Page
     {
         $query = OrdemServico::query()
             ->with(['veiculo:id,placa', 'itens.servico:id,descricao'])
+            ->whereNull('parceiro_id')
             ->whereNotIn('status', [
                 StatusOrdemServicoEnum::CONCLUIDO,
                 StatusOrdemServicoEnum::CANCELADO,
@@ -34,13 +35,17 @@ class MobileListOrdemServicos extends Page
         return match ($this->activeTab) {
             'hoje' => $query->whereDate('data_inicio', today())->orderByDesc('id')->get(),
             'todas' => $query->orderByDesc('id')->get(),
-            default => $query->where('status', StatusOrdemServicoEnum::PENDENTE)->orderByDesc('id')->get(),
+            default => $query->whereIn('status', [
+                StatusOrdemServicoEnum::PENDENTE,
+                StatusOrdemServicoEnum::EXECUCAO,
+            ])->orderByDesc('id')->get(),
         };
     }
 
     public function getHojeCount(): int
     {
         return OrdemServico::query()
+            ->whereNull('parceiro_id')
             ->whereNotIn('status', [
                 StatusOrdemServicoEnum::CONCLUIDO,
                 StatusOrdemServicoEnum::CANCELADO,
@@ -52,13 +57,18 @@ class MobileListOrdemServicos extends Page
     public function getPendenteCount(): int
     {
         return OrdemServico::query()
-            ->where('status', StatusOrdemServicoEnum::PENDENTE)
+            ->whereNull('parceiro_id')
+            ->whereIn('status', [
+                StatusOrdemServicoEnum::PENDENTE,
+                StatusOrdemServicoEnum::EXECUCAO,
+            ])
             ->count();
     }
 
     public function getTodasCount(): int
     {
         return OrdemServico::query()
+            ->whereNull('parceiro_id')
             ->whereNotIn('status', [
                 StatusOrdemServicoEnum::CONCLUIDO,
                 StatusOrdemServicoEnum::CANCELADO,

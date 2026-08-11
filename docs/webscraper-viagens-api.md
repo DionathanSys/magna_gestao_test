@@ -170,7 +170,6 @@ Endpoint:
   "nro_viagem": "EXT-12345",
   "destino": "Chapeco/SC",
   "km_pago": 118.0,
-  "km_sugerido": 120.5,
   "inicio": "2026-08-11 08:00:00",
   "status": "em_rota"
 }
@@ -188,9 +187,10 @@ Tambem sao aceitos estes aliases:
 - `nro_viagem` ou `numero_viagem`.
 - `destino`.
 - `km_pago`.
-- `km_sugerido`.
 - `inicio`.
 - `status`.
+
+Observacao: o km de cadastro do integrado nao deve ser enviado. O sistema receptor busca esse valor na tabela `integrados`, usando o `destino` recebido para localizar o integrado e apresentar o `km_rota` no dashboard.
 
 ### Armazenamento
 
@@ -215,7 +215,7 @@ Tambem sao aceitos estes aliases:
 
 ```bash
 timestamp=$(date +%s)
-body='{"veiculo":"ABC1D23","nro_viagem":"EXT-12345","destino":"Chapeco/SC","km_pago":118,"km_sugerido":120.5,"inicio":"2026-08-11 08:00:00","status":"em_rota"}'
+body='{"veiculo":"ABC1D23","nro_viagem":"EXT-12345","destino":"Chapeco/SC","km_pago":118,"inicio":"2026-08-11 08:00:00","status":"em_rota"}'
 signature="sha256=$(printf "%s.%s" "$timestamp" "$body" | openssl dgst -sha256 -hmac "$WEBSCRAPER_API_SECRET" -binary | xxd -p -c 256)"
 
 curl -X POST "https://seu-dominio.com/api/integracoes/viagem-atual" \

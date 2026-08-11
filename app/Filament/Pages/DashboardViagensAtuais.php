@@ -2,10 +2,12 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Integrado;
 use App\Services\WebScraper\WebScraperViagemAtualCache;
 use BackedEnum;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use UnitEnum;
 
 class DashboardViagensAtuais extends Page
@@ -36,6 +38,8 @@ class DashboardViagensAtuais extends Page
                 ...$item,
                 'placa' => $item['placa_normalizada'] ?: ($item['veiculo'] ?? 'Sem placa'),
                 'status' => filled($item['status'] ?? null) ? (string) $item['status'] : 'Status não informado',
+                'km_pago' => (float) ($item['km_pago'] ?? 0),
+                'km_cadastro_integrado' => $this->buscarKmCadastroIntegrado($item['destino'] ?? null),
                 'recebido_em_humano' => $this->formatarData($item['recebido_em'] ?? null),
                 'inicio_humano' => $this->formatarData($item['inicio'] ?? null),
                 'duracao_viagem' => $this->formatarDuracaoDesde($item['inicio'] ?? null),
@@ -49,23 +53,6 @@ class DashboardViagensAtuais extends Page
     public function getTotalVeiculosProperty(): int
     {
         return count($this->viagens);
-    }
-
-    public function getTotalKmPagoProperty(): float
-    {
-        return round(collect($this->viagens)->sum('km_pago'), 2);
-    }
-
-    public function getTotalKmSugeridoProperty(): float
-    {
-        return round(collect($this->viagens)->sum('km_sugerido'), 2);
-    }
-
-    public function getViagemMaisRecenteProperty(): ?array
-    {
-        return collect($this->viagens)
-            ->sortByDesc(fn (array $item): int => strtotime((string) ($item['recebido_em'] ?? '')) ?: 0)
-            ->first();
     }
 
     private function formatarData(?string $value): string
@@ -115,5 +102,54 @@ class DashboardViagensAtuais extends Page
         } catch (\Throwable) {
             return 'N/A';
         }
+    }
+
+    private function buscarKmCadastroIntegrado(?string $destino): ?float
+    {
+        if (blank($destino)) {
+            return null;
+        }
+
+        $destinoNormalizado = $this->normalizarTexto($destino);
+
+        try {
+            $integrados = Integrado::query()
+                ->select('id', 'nome', 'municipio', 'km_rota')
+                ->whereNotNull('km_rota')
+                ->get();
+
+            $integrado = $integrados->first(function (Integrado $integrado) use ($destinoNormalizado): bool {
+                $nome = $this->normalizarTexto($integrado->nome ?? '');
+                $municipio = $this->normalizarTexto($integrado->municipio ?? '');
+                $nomeMunicipio = trim($nome.' '.$municipio);
+
+                return $destinoNormalizado === $nome
+                    || $destinoNormalizado === $municipio
+                    || $destinoNormalizado === $nomeMunicipio
+                    || ($nome !== '' && str_contains($destinoNormalizado, $nome))
+                    || ($municipio !== '' && str_contains($destinoNormalizado, $municipio));
+            });
+
+            return $integrado ? (float) $integrado->km_rota : null;
+        } catch (\Throwable $exception) {
+            Log::warning('Nao foi possivel buscar km_rota do integrado para dashboard de viagens atuais', [
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'destino' => $destino,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    private function normalizarTexto(?string $value): string
+    {
+        $value = str($value ?? '')
+            ->lower()
+            ->ascii()
+            ->replaceMatches('/[^a-z0-9]+/', ' ')
+            ->squish();
+
+        return (string) $value;
     }
 }

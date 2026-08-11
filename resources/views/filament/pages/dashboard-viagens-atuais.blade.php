@@ -1,8 +1,4 @@
 <x-filament-panels::page>
-    @php
-        $maisRecente = $this->viagemMaisRecente;
-    @endphp
-
     <style>
         .live-trip-dashboard {
             display: flex;
@@ -27,9 +23,8 @@
             position: relative;
             z-index: 1;
             display: grid;
-            grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+            grid-template-columns: 1fr;
             gap: 28px;
-            align-items: end;
         }
 
         .live-trip-eyebrow {
@@ -52,43 +47,6 @@
             font-weight: 950;
             letter-spacing: -.055em;
             line-height: .95;
-        }
-
-        .live-trip-subtitle {
-            max-width: 680px;
-            margin: 18px 0 0;
-            color: #cbd5e1;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        .live-trip-panel {
-            border: 1px solid rgba(255, 255, 255, .16);
-            border-radius: 24px;
-            padding: 22px;
-            background: rgba(255, 255, 255, .09);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1);
-            backdrop-filter: blur(14px);
-        }
-
-        .live-trip-panel-label {
-            color: #cbd5e1;
-            font-size: 13px;
-            font-weight: 800;
-        }
-
-        .live-trip-panel-main {
-            margin-top: 12px;
-            font-size: 36px;
-            font-weight: 950;
-            letter-spacing: -.04em;
-            line-height: 1;
-        }
-
-        .live-trip-panel-sub {
-            margin-top: 9px;
-            color: #d1d5db;
-            font-size: 13px;
         }
 
         .live-trip-actions {
@@ -144,65 +102,6 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 12px;
             line-height: 1.65;
-        }
-
-        .live-trip-kpis {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 16px;
-        }
-
-        .live-trip-kpi {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(15, 23, 42, .08);
-            border-radius: 24px;
-            padding: 22px;
-            background: #fff;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, .05);
-        }
-
-        .dark .live-trip-kpi {
-            border-color: rgba(255, 255, 255, .1);
-            background: #111827;
-        }
-
-        .live-trip-kpi::before {
-            content: '';
-            position: absolute;
-            right: -30px;
-            top: -34px;
-            width: 120px;
-            height: 120px;
-            border-radius: 999px;
-            background: var(--accent, rgba(34, 197, 94, .18));
-        }
-
-        .live-trip-kpi-label {
-            position: relative;
-            color: #64748b;
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-        }
-
-        .dark .live-trip-kpi-label {
-            color: #94a3b8;
-        }
-
-        .live-trip-kpi-value {
-            position: relative;
-            margin-top: 8px;
-            color: #020617;
-            font-size: 42px;
-            font-weight: 950;
-            letter-spacing: -.05em;
-            line-height: 1;
-        }
-
-        .dark .live-trip-kpi-value {
-            color: #fff;
         }
 
         .live-trip-cards {
@@ -408,7 +307,6 @@
 
         @media (max-width: 900px) {
             .live-trip-hero-grid,
-            .live-trip-kpis,
             .live-trip-cards {
                 grid-template-columns: 1fr;
             }
@@ -434,24 +332,7 @@
             <div class="live-trip-hero-grid">
                 <div>
                     <div class="live-trip-eyebrow">Operação em tempo real</div>
-                    <h2 class="live-trip-title">Caminhões em viagem agora, direto do WebScraper.</h2>
-                    <p class="live-trip-subtitle">
-                        Leitura temporária em cache para dashboard operacional. Cada chamada da API substitui a viagem atual do veículo.
-                    </p>
-                </div>
-
-                <div class="live-trip-panel">
-                    <div class="live-trip-panel-label">Última atualização recebida</div>
-
-                    @if ($maisRecente)
-                        <div class="live-trip-panel-main">{{ $maisRecente['placa'] }}</div>
-                        <div class="live-trip-panel-sub">
-                            Viagem {{ $maisRecente['numero_viagem'] }} · {{ $maisRecente['status'] }} · recebida em {{ $maisRecente['recebido_em_humano'] }}
-                        </div>
-                    @else
-                        <div class="live-trip-panel-main">Sem dados</div>
-                        <div class="live-trip-panel-sub">Aguardando primeira chamada em /api/integracoes/viagem-atual.</div>
-                    @endif
+                    <h2 class="live-trip-title">Viagens em Andamento.</h2>
                 </div>
             </div>
         </section>
@@ -475,27 +356,9 @@
   "nro_viagem": "EXT-12345",
   "destino": "Chapeco/SC",
   "km_pago": 118.0,
-  "km_sugerido": 120.5,
   "inicio": "2026-08-11 08:00:00",
   "status": "em_rota"
 }</pre>
-        </section>
-
-        <section class="live-trip-kpis">
-            <div class="live-trip-kpi" style="--accent: rgba(34, 197, 94, .2)">
-                <div class="live-trip-kpi-label">Veículos monitorados</div>
-                <div class="live-trip-kpi-value">{{ number_format($this->totalVeiculos, 0, ',', '.') }}</div>
-            </div>
-
-            <div class="live-trip-kpi" style="--accent: rgba(14, 165, 233, .18)">
-                <div class="live-trip-kpi-label">Km pago total</div>
-                <div class="live-trip-kpi-value">{{ number_format($this->totalKmPago, 1, ',', '.') }}</div>
-            </div>
-
-            <div class="live-trip-kpi" style="--accent: rgba(250, 204, 21, .2)">
-                <div class="live-trip-kpi-label">Km sugerido total</div>
-                <div class="live-trip-kpi-value">{{ number_format($this->totalKmSugerido, 1, ',', '.') }}</div>
-            </div>
         </section>
 
         @if (filled($viagens))
@@ -531,8 +394,10 @@
                                 </div>
 
                                 <div class="live-meta">
-                                    <div class="live-meta-label">Km sugerido</div>
-                                    <div class="live-meta-value">{{ number_format($viagem['km_sugerido'], 1, ',', '.') }}</div>
+                                    <div class="live-meta-label">Km cadastro integrado</div>
+                                    <div class="live-meta-value">
+                                        {{ $viagem['km_cadastro_integrado'] !== null ? number_format($viagem['km_cadastro_integrado'], 1, ',', '.') : 'N/A' }}
+                                    </div>
                                 </div>
 
                                 <div class="live-meta">

@@ -19,7 +19,6 @@ class WebScraperViagemAtualApiTest extends TestCase
             'nro_viagem' => 'EXT-12345',
             'destino' => 'Chapeco/SC',
             'km_pago' => 118,
-            'km_sugerido' => 120.5,
             'inicio' => '2026-08-11 08:00:00',
             'status' => 'em_rota',
         ], JSON_THROW_ON_ERROR);
@@ -45,7 +44,6 @@ class WebScraperViagemAtualApiTest extends TestCase
         $this->assertSame('EXT-12345', $data['numero_viagem']);
         $this->assertSame('Chapeco/SC', $data['destino']);
         $this->assertSame(118.0, $data['km_pago']);
-        $this->assertSame(120.5, $data['km_sugerido']);
         $this->assertSame('em_rota', $data['status']);
     }
 

@@ -27,7 +27,6 @@ class WebScraperViagemAtualController extends Controller
             'nro_viagem' => 'required_without:numero_viagem|string|max:255',
             'destino' => 'required|string|max:255',
             'km_pago' => 'required|numeric|min:0',
-            'km_sugerido' => 'required|numeric|min:0',
             'inicio' => 'required|date',
             'status' => 'required|string|max:80',
         ]);
@@ -58,7 +57,6 @@ class WebScraperViagemAtualController extends Controller
             'numero_viagem' => (string) ($payload['numero_viagem'] ?? $payload['nro_viagem']),
             'destino' => (string) $payload['destino'],
             'km_pago' => (float) $payload['km_pago'],
-            'km_sugerido' => (float) $payload['km_sugerido'],
             'inicio' => (string) $payload['inicio'],
             'status' => trim((string) $payload['status']),
             'recebido_em' => now()->toDateTimeString(),

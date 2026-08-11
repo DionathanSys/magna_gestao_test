@@ -171,7 +171,8 @@ Endpoint:
   "destino": "Chapeco/SC",
   "km_pago": 118.0,
   "km_sugerido": 120.5,
-  "inicio": "2026-08-11 08:00:00"
+  "inicio": "2026-08-11 08:00:00",
+  "status": "em_rota"
 }
 ```
 
@@ -189,6 +190,7 @@ Tambem sao aceitos estes aliases:
 - `km_pago`.
 - `km_sugerido`.
 - `inicio`.
+- `status`.
 
 ### Armazenamento
 
@@ -213,7 +215,7 @@ Tambem sao aceitos estes aliases:
 
 ```bash
 timestamp=$(date +%s)
-body='{"veiculo":"ABC1D23","nro_viagem":"EXT-12345","destino":"Chapeco/SC","km_pago":118,"km_sugerido":120.5,"inicio":"2026-08-11 08:00:00"}'
+body='{"veiculo":"ABC1D23","nro_viagem":"EXT-12345","destino":"Chapeco/SC","km_pago":118,"km_sugerido":120.5,"inicio":"2026-08-11 08:00:00","status":"em_rota"}'
 signature="sha256=$(printf "%s.%s" "$timestamp" "$body" | openssl dgst -sha256 -hmac "$WEBSCRAPER_API_SECRET" -binary | xxd -p -c 256)"
 
 curl -X POST "https://seu-dominio.com/api/integracoes/viagem-atual" \

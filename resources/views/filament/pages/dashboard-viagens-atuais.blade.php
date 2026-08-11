@@ -1,7 +1,6 @@
 <x-filament-panels::page>
     @php
         $maisRecente = $this->viagemMaisRecente;
-        $maiorKm = max(collect($viagens)->max('km_sugerido') ?? 0, 1);
     @endphp
 
     <style>
@@ -95,6 +94,56 @@
         .live-trip-actions {
             display: flex;
             justify-content: flex-end;
+        }
+
+        .live-payload-example {
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, .08);
+            border-radius: 24px;
+            background: #0f172a;
+            box-shadow: 0 14px 38px rgba(15, 23, 42, .08);
+        }
+
+        .live-payload-example-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, .09);
+            padding: 16px 18px;
+        }
+
+        .live-payload-example-title {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 950;
+        }
+
+        .live-payload-example-subtitle {
+            margin-top: 2px;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .live-payload-endpoint {
+            border-radius: 999px;
+            padding: 7px 10px;
+            background: rgba(34, 197, 94, .14);
+            color: #bbf7d0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .live-payload-code {
+            overflow-x: auto;
+            margin: 0;
+            padding: 18px;
+            color: #dbeafe;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.65;
         }
 
         .live-trip-kpis {
@@ -212,41 +261,52 @@
             line-height: 1;
         }
 
-        .live-truck-pill {
-            max-width: 150px;
-            border-radius: 18px;
-            padding: 11px 13px;
-            background: #fff;
-            color: #020617;
-            text-align: right;
-            box-shadow: 0 18px 34px rgba(0, 0, 0, .28);
-        }
-
-        .live-truck-pill strong {
+        .live-trip-number {
             display: block;
+            max-width: 180px;
             overflow: hidden;
-            font-size: 16px;
-            font-weight: 950;
+            color: #e0f2fe;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -.03em;
             line-height: 1;
+            text-align: right;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        .live-truck-pill span {
+        .live-trip-number span {
             display: block;
             margin-top: 5px;
-            color: #64748b;
+            color: #93c5fd;
             font-size: 9px;
             font-weight: 900;
             letter-spacing: .14em;
             text-transform: uppercase;
         }
 
-        .live-truck-progress {
+        .live-status-badge {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            margin-top: 12px;
+            border: 1px solid rgba(187, 247, 208, .22);
+            border-radius: 999px;
+            padding: 7px 10px;
+            background: rgba(34, 197, 94, .13);
+            color: #bbf7d0;
+            font-size: 10px;
+            font-weight: 950;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        .live-truck-destination {
             margin-top: 22px;
         }
 
-        .live-truck-progress-row {
+        .live-truck-destination-label {
             display: flex;
             justify-content: space-between;
             color: #d1d5db;
@@ -256,33 +316,17 @@
             text-transform: uppercase;
         }
 
-        .live-bar {
-            overflow: hidden;
-            height: 8px;
+        .live-destination {
             margin-top: 9px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, .12);
-        }
-
-        .live-bar-fill {
-            height: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, #bbf7d0, #22c55e, #0ea5e9);
+            color: #fff;
+            font-size: 20px;
+            font-weight: 950;
+            letter-spacing: -.035em;
+            line-height: 1.15;
         }
 
         .live-truck-body {
             padding: 22px;
-        }
-
-        .live-destination {
-            color: #0f172a;
-            font-size: 15px;
-            font-weight: 950;
-            line-height: 1.25;
-        }
-
-        .dark .live-destination {
-            color: #fff;
         }
 
         .live-meta-grid {
@@ -379,7 +423,7 @@
                 flex-direction: column;
             }
 
-            .live-truck-pill {
+            .live-trip-number {
                 text-align: left;
             }
         }
@@ -402,7 +446,7 @@
                     @if ($maisRecente)
                         <div class="live-trip-panel-main">{{ $maisRecente['placa'] }}</div>
                         <div class="live-trip-panel-sub">
-                            Viagem {{ $maisRecente['numero_viagem'] }} recebida em {{ $maisRecente['recebido_em_humano'] }}
+                            Viagem {{ $maisRecente['numero_viagem'] }} · {{ $maisRecente['status'] }} · recebida em {{ $maisRecente['recebido_em_humano'] }}
                         </div>
                     @else
                         <div class="live-trip-panel-main">Sem dados</div>
@@ -417,6 +461,25 @@
                 Atualizar agora
             </x-filament::button>
         </div>
+
+        <section class="live-payload-example">
+            <div class="live-payload-example-head">
+                <div>
+                    <div class="live-payload-example-title">Exemplo de payload para o WebScraper</div>
+                    <div class="live-payload-example-subtitle">Enviar com assinatura HMAC nos headers da integração.</div>
+                </div>
+                <div class="live-payload-endpoint">POST /api/integracoes/viagem-atual</div>
+            </div>
+            <pre class="live-payload-code">{
+  "veiculo": "ABC1D23",
+  "nro_viagem": "EXT-12345",
+  "destino": "Chapeco/SC",
+  "km_pago": 118.0,
+  "km_sugerido": 120.5,
+  "inicio": "2026-08-11 08:00:00",
+  "status": "em_rota"
+}</pre>
+        </section>
 
         <section class="live-trip-kpis">
             <div class="live-trip-kpi" style="--accent: rgba(34, 197, 94, .2)">
@@ -438,11 +501,6 @@
         @if (filled($viagens))
             <section class="live-trip-cards">
                 @foreach ($viagens as $viagem)
-                    @php
-                        $percentualKm = (((float) $viagem['km_sugerido']) / $maiorKm) * 100;
-                        $diferenca = (float) $viagem['diferenca_km'];
-                    @endphp
-
                     <article class="live-truck-card">
                         <div class="live-truck-head">
                             <div class="live-truck-top">
@@ -451,26 +509,21 @@
                                     <div class="live-truck-plate">{{ $viagem['placa'] }}</div>
                                 </div>
 
-                                <div class="live-truck-pill">
-                                    <strong>{{ $viagem['numero_viagem'] }}</strong>
+                                <div class="live-trip-number">
+                                    {{ $viagem['numero_viagem'] }}
                                     <span>viagem</span>
                                 </div>
                             </div>
 
-                            <div class="live-truck-progress">
-                                <div class="live-truck-progress-row">
-                                    <span>Km sugerido relativo</span>
-                                    <span>{{ number_format($viagem['km_sugerido'], 1, ',', '.') }} km</span>
-                                </div>
-                                <div class="live-bar">
-                                    <div class="live-bar-fill" style="width: {{ min($percentualKm, 100) }}%"></div>
-                                </div>
+                            <div class="live-status-badge">{{ $viagem['status'] }}</div>
+
+                            <div class="live-truck-destination">
+                                <div class="live-truck-destination-label">Destino</div>
+                                <div class="live-destination">{{ $viagem['destino'] }}</div>
                             </div>
                         </div>
 
                         <div class="live-truck-body">
-                            <div class="live-destination">{{ $viagem['destino'] }}</div>
-
                             <div class="live-meta-grid">
                                 <div class="live-meta">
                                     <div class="live-meta-label">Km pago</div>
@@ -478,13 +531,23 @@
                                 </div>
 
                                 <div class="live-meta">
-                                    <div class="live-meta-label">Diferença</div>
-                                    <div class="live-meta-value">{{ $diferenca >= 0 ? '+' : '' }}{{ number_format($diferenca, 1, ',', '.') }} km</div>
+                                    <div class="live-meta-label">Km sugerido</div>
+                                    <div class="live-meta-value">{{ number_format($viagem['km_sugerido'], 1, ',', '.') }}</div>
+                                </div>
+
+                                <div class="live-meta">
+                                    <div class="live-meta-label">Status</div>
+                                    <div class="live-meta-value">{{ $viagem['status'] }}</div>
                                 </div>
 
                                 <div class="live-meta">
                                     <div class="live-meta-label">Início</div>
                                     <div class="live-meta-value">{{ $viagem['inicio_humano'] }}</div>
+                                </div>
+
+                                <div class="live-meta">
+                                    <div class="live-meta-label">Duração viagem</div>
+                                    <div class="live-meta-value">{{ $viagem['duracao_viagem'] }}</div>
                                 </div>
 
                                 <div class="live-meta">

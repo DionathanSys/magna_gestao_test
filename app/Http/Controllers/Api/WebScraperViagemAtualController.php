@@ -29,6 +29,7 @@ class WebScraperViagemAtualController extends Controller
             'km_pago' => 'required|numeric|min:0',
             'km_sugerido' => 'required|numeric|min:0',
             'inicio' => 'required|date',
+            'status' => 'required|string|max:80',
         ]);
 
         if ($validator->fails()) {
@@ -59,6 +60,7 @@ class WebScraperViagemAtualController extends Controller
             'km_pago' => (float) $payload['km_pago'],
             'km_sugerido' => (float) $payload['km_sugerido'],
             'inicio' => (string) $payload['inicio'],
+            'status' => trim((string) $payload['status']),
             'recebido_em' => now()->toDateTimeString(),
         ];
 
@@ -72,6 +74,7 @@ class WebScraperViagemAtualController extends Controller
             'veiculo' => $data['veiculo'],
             'numero_viagem' => $data['numero_viagem'],
             'destino' => $data['destino'],
+            'status' => $data['status'],
         ]);
 
         return response()->json([

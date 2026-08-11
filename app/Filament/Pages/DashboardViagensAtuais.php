@@ -35,10 +35,11 @@ class DashboardViagensAtuais extends Page
             ->map(fn (array $item): array => [
                 ...$item,
                 'placa' => $item['placa_normalizada'] ?: ($item['veiculo'] ?? 'Sem placa'),
+                'status' => filled($item['status'] ?? null) ? (string) $item['status'] : 'Status não informado',
                 'recebido_em_humano' => $this->formatarData($item['recebido_em'] ?? null),
                 'inicio_humano' => $this->formatarData($item['inicio'] ?? null),
+                'duracao_viagem' => $this->formatarDuracaoDesde($item['inicio'] ?? null),
                 'minutos_desde_atualizacao' => $this->minutosDesde($item['recebido_em'] ?? null),
-                'diferenca_km' => round(((float) ($item['km_sugerido'] ?? 0)) - ((float) ($item['km_pago'] ?? 0)), 2),
             ])
             ->sortBy('placa')
             ->values()
@@ -90,6 +91,29 @@ class DashboardViagensAtuais extends Page
             return (int) Carbon::parse($value)->diffInMinutes(now());
         } catch (\Throwable) {
             return null;
+        }
+    }
+
+    private function formatarDuracaoDesde(?string $value): string
+    {
+        if (blank($value)) {
+            return 'N/A';
+        }
+
+        try {
+            $inicio = Carbon::parse($value);
+            $totalMinutos = max(0, (int) $inicio->diffInMinutes(now()));
+            $dias = intdiv($totalMinutos, 1440);
+            $horas = intdiv($totalMinutos % 1440, 60);
+            $minutos = $totalMinutos % 60;
+
+            if ($dias > 0) {
+                return sprintf('%dd %02dh %02dmin', $dias, $horas, $minutos);
+            }
+
+            return sprintf('%02dh %02dmin', $horas, $minutos);
+        } catch (\Throwable) {
+            return 'N/A';
         }
     }
 }

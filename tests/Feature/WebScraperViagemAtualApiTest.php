@@ -21,6 +21,7 @@ class WebScraperViagemAtualApiTest extends TestCase
             'km_pago' => 118,
             'km_sugerido' => 120.5,
             'inicio' => '2026-08-11 08:00:00',
+            'status' => 'em_rota',
         ], JSON_THROW_ON_ERROR);
 
         $timestamp = (string) time();
@@ -45,6 +46,7 @@ class WebScraperViagemAtualApiTest extends TestCase
         $this->assertSame('Chapeco/SC', $data['destino']);
         $this->assertSame(118.0, $data['km_pago']);
         $this->assertSame(120.5, $data['km_sugerido']);
+        $this->assertSame('em_rota', $data['status']);
     }
 
     public function test_rejeita_payload_de_viagem_atual_incompleto(): void

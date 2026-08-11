@@ -313,11 +313,6 @@
                                 </div>
 
                                 <div class="live-meta">
-                                    <div class="live-meta-label">Status</div>
-                                    <div class="live-meta-value">{{ $viagem['status'] }}</div>
-                                </div>
-
-                                <div class="live-meta">
                                     <div class="live-meta-label">Início</div>
                                     <div class="live-meta-value">{{ $viagem['inicio_humano'] }}</div>
                                 </div>

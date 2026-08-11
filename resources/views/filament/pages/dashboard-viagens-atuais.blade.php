@@ -54,56 +54,6 @@
             justify-content: flex-end;
         }
 
-        .live-payload-example {
-            overflow: hidden;
-            border: 1px solid rgba(15, 23, 42, .08);
-            border-radius: 24px;
-            background: #0f172a;
-            box-shadow: 0 14px 38px rgba(15, 23, 42, .08);
-        }
-
-        .live-payload-example-head {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, .09);
-            padding: 16px 18px;
-        }
-
-        .live-payload-example-title {
-            color: #fff;
-            font-size: 14px;
-            font-weight: 950;
-        }
-
-        .live-payload-example-subtitle {
-            margin-top: 2px;
-            color: #94a3b8;
-            font-size: 12px;
-        }
-
-        .live-payload-endpoint {
-            border-radius: 999px;
-            padding: 7px 10px;
-            background: rgba(34, 197, 94, .14);
-            color: #bbf7d0;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 11px;
-            font-weight: 900;
-            white-space: nowrap;
-        }
-
-        .live-payload-code {
-            overflow-x: auto;
-            margin: 0;
-            padding: 18px;
-            color: #dbeafe;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 12px;
-            line-height: 1.65;
-        }
-
         .live-trip-cards {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -181,22 +131,6 @@
             color: #93c5fd;
             font-size: 9px;
             font-weight: 900;
-            letter-spacing: .14em;
-            text-transform: uppercase;
-        }
-
-        .live-status-badge {
-            display: inline-flex;
-            align-items: center;
-            width: fit-content;
-            margin-top: 12px;
-            border: 1px solid rgba(187, 247, 208, .22);
-            border-radius: 999px;
-            padding: 7px 10px;
-            background: rgba(34, 197, 94, .13);
-            color: #bbf7d0;
-            font-size: 10px;
-            font-weight: 950;
             letter-spacing: .14em;
             text-transform: uppercase;
         }
@@ -343,24 +277,6 @@
             </x-filament::button>
         </div>
 
-        <section class="live-payload-example">
-            <div class="live-payload-example-head">
-                <div>
-                    <div class="live-payload-example-title">Exemplo de payload para o WebScraper</div>
-                    <div class="live-payload-example-subtitle">Enviar com assinatura HMAC nos headers da integração.</div>
-                </div>
-                <div class="live-payload-endpoint">POST /api/integracoes/viagem-atual</div>
-            </div>
-            <pre class="live-payload-code">{
-  "veiculo": "ABC1D23",
-  "nro_viagem": "EXT-12345",
-  "destino": "Chapeco/SC",
-  "km_pago": 118.0,
-  "inicio": "2026-08-11 08:00:00",
-  "status": "em_rota"
-}</pre>
-        </section>
-
         @if (filled($viagens))
             <section class="live-trip-cards">
                 @foreach ($viagens as $viagem)
@@ -378,8 +294,6 @@
                                 </div>
                             </div>
 
-                            <div class="live-status-badge">{{ $viagem['status'] }}</div>
-
                             <div class="live-truck-destination">
                                 <div class="live-truck-destination-label">Destino</div>
                                 <div class="live-destination">{{ $viagem['destino'] }}</div>
@@ -394,10 +308,8 @@
                                 </div>
 
                                 <div class="live-meta">
-                                    <div class="live-meta-label">Km cadastro integrado</div>
-                                    <div class="live-meta-value">
-                                        {{ $viagem['km_cadastro_integrado'] !== null ? number_format($viagem['km_cadastro_integrado'], 1, ',', '.') : 'N/A' }}
-                                    </div>
+                                    <div class="live-meta-label">Status</div>
+                                    <div class="live-meta-value">{{ $viagem['status'] }}</div>
                                 </div>
 
                                 <div class="live-meta">
@@ -415,16 +327,6 @@
                                     <div class="live-meta-value">{{ $viagem['duracao_viagem'] }}</div>
                                 </div>
 
-                                <div class="live-meta">
-                                    <div class="live-meta-label">Atualizado</div>
-                                    <div class="live-meta-value">
-                                        @if ($viagem['minutos_desde_atualizacao'] !== null)
-                                            há {{ $viagem['minutos_desde_atualizacao'] }} min
-                                        @else
-                                            N/A
-                                        @endif
-                                    </div>
-                                </div>
                             </div>
 
                             <div class="live-updated">Recebido em {{ $viagem['recebido_em_humano'] }}</div>

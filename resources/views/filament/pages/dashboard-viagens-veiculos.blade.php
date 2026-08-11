@@ -9,13 +9,11 @@
                     'clientes' => $items->sortByDesc('total_viagens')->values(),
                     'principal' => $items->sortByDesc('total_viagens')->first(),
                     'viagem_atual' => $items->first()['viagem_atual'],
+                    'movimento_diario' => $items->first()['movimento_diario'],
                 ];
             })
             ->sortByDesc('total')
             ->values();
-
-        $maiorVolume = max($veiculos->max('total') ?? 0, 1);
-        $lider = $veiculos->first();
     @endphp
 
     <style>
@@ -189,6 +187,131 @@
             color: #a7f3d0;
         }
 
+        .trip-movement {
+            grid-column: 1 / -1;
+            margin-top: 4px;
+            padding: 12px;
+            border: 1px solid rgba(15, 23, 42, .08);
+            border-radius: 14px;
+            background: #f8fafc;
+        }
+
+        .dark .trip-movement {
+            border-color: rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .trip-movement-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .trip-movement-title {
+            color: #334155;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .dark .trip-movement-title {
+            color: #e5e7eb;
+        }
+
+        .trip-movement-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .dark .trip-movement-meta {
+            color: #94a3b8;
+        }
+
+        .trip-movement-track {
+            display: grid;
+            grid-template-columns: repeat(24, minmax(18px, 1fr));
+            gap: 2px;
+        }
+
+        .trip-hour {
+            min-width: 0;
+        }
+
+        .trip-hour-parts {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            overflow: hidden;
+            height: 18px;
+            border-radius: 4px;
+            background: #e2e8f0;
+        }
+
+        .dark .trip-hour-parts {
+            background: rgba(255, 255, 255, .1);
+        }
+
+        .trip-minute-status {
+            min-width: 2px;
+        }
+
+        .trip-minute-status.status-0 {
+            background: #22c55e;
+        }
+
+        .trip-minute-status.status-1 {
+            background: #f59e0b;
+        }
+
+        .trip-minute-status.status-2 {
+            background: #94a3b8;
+        }
+
+        .trip-hour-label {
+            margin-top: 4px;
+            color: #94a3b8;
+            font-size: 9px;
+            text-align: center;
+        }
+
+        .trip-movement-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .dark .trip-movement-legend {
+            color: #94a3b8;
+        }
+
+        .trip-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trip-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+        }
+
+        .trip-movement-empty {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .dark .trip-movement-empty {
+            color: #94a3b8;
+        }
+
         .trip-empty {
             padding: 42px;
             text-align: center;
@@ -287,6 +410,42 @@
                         </div>
 
                         <div class="trip-total">{{ number_format($veiculo['total'], 0, ',', '.') }}</div>
+
+                        <div class="trip-movement">
+                            <div class="trip-movement-head">
+                                <div class="trip-movement-title">Movimento diário</div>
+                                <div class="trip-movement-meta">
+                                    <span>Dia: {{ $veiculo['movimento_diario']['dia'] }}</span>
+                                    @if ($veiculo['movimento_diario']['disponivel'])
+                                        <span>Km: {{ $veiculo['movimento_diario']['km'] }}</span>
+                                        <span>Tempo movimento: {{ $veiculo['movimento_diario']['tempo_movimento'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            @if ($veiculo['movimento_diario']['disponivel'])
+                                <div class="trip-movement-track">
+                                    @foreach ($veiculo['movimento_diario']['horas'] as $hora)
+                                        <div class="trip-hour">
+                                            <div class="trip-hour-parts" title="{{ str_pad((string) $hora['hora'], 2, '0', STR_PAD_LEFT) }}h">
+                                                @foreach ($hora['minutos'] as $status)
+                                                    <div class="trip-minute-status status-{{ $status }}"></div>
+                                                @endforeach
+                                            </div>
+                                            <div class="trip-hour-label">{{ str_pad((string) $hora['hora'], 2, '0', STR_PAD_LEFT) }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="trip-movement-legend">
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #22c55e"></span>Movimento</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #f59e0b"></span>Parado ligado</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #94a3b8"></span>Desligado</span>
+                                </div>
+                            @else
+                                <div class="trip-movement-empty">Movimento diário ainda não recebido para este veículo no dia selecionado.</div>
+                            @endif
+                        </div>
                     </div>
                 @endforeach
             @else

@@ -6,6 +6,7 @@ use App\Enum\ClienteEnum;
 use App\Models\Veiculo;
 use App\Models\Viagem;
 use App\Services\MailInbound\Support\DocumentIdentity;
+use App\Services\WebScraper\SascarMovimentoDiarioCache;
 use App\Services\WebScraper\WebScraperViagemAtualCache;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
@@ -35,6 +36,8 @@ class DashboardViagensVeiculos extends Page
     public array $cards = [];
 
     private array $viagensAtuais = [];
+
+    private ?string $diaMovimento = null;
 
     public function mount(): void
     {
@@ -86,6 +89,7 @@ class DashboardViagensVeiculos extends Page
     {
         $dataInicio = Carbon::parse($this->data['data_inicio'] ?? today())->toDateString();
         $dataFim = Carbon::parse($this->data['data_fim'] ?? today())->toDateString();
+        $this->diaMovimento = $dataFim;
         $this->viagensAtuais = $this->getViagensAtuaisPorVeiculo();
 
         if ($dataFim < $dataInicio) {
@@ -128,6 +132,7 @@ class DashboardViagensVeiculos extends Page
                 'cliente' => $item->cliente ?: 'Sem cliente',
                 'total_viagens' => (int) $item->total_viagens,
                 'viagem_atual' => $this->resolverViagemAtual($item->veiculo_id, $item->placa),
+                'movimento_diario' => $this->resolverMovimentoDiario($item->veiculo_id, $item->placa),
             ])
             ->toArray();
     }
@@ -215,6 +220,61 @@ class DashboardViagensVeiculos extends Page
             'inicio_humano' => 'N/A',
             'duracao_viagem' => 'N/A',
             'km_pago_humano' => '0,0',
+        ];
+    }
+
+    private function resolverMovimentoDiario(mixed $veiculoId, ?string $placa): array
+    {
+        $dia = $this->diaMovimento ?: today()->toDateString();
+        $cache = app(SascarMovimentoDiarioCache::class);
+
+        if (filled($veiculoId)) {
+            $movimento = $cache->get('id:'.$veiculoId, $dia);
+
+            if ($movimento !== null) {
+                return $this->formatarMovimentoDiario($movimento);
+            }
+        }
+
+        $placaNormalizada = DocumentIdentity::normalizePlate($placa);
+
+        if ($placaNormalizada !== null) {
+            $movimento = $cache->get('placa:'.$placaNormalizada, $dia);
+
+            if ($movimento !== null) {
+                return $this->formatarMovimentoDiario($movimento);
+            }
+        }
+
+        return [
+            'disponivel' => false,
+            'dia' => $dia,
+            'km' => null,
+            'tempo_movimento' => null,
+            'horas' => [],
+        ];
+    }
+
+    private function formatarMovimentoDiario(array $movimento): array
+    {
+        $horas = collect($movimento['horas'] ?? [])
+            ->sortBy('hora')
+            ->map(fn (array $hora): array => [
+                'hora' => (int) ($hora['hora'] ?? 0),
+                'minutos' => collect($hora['minutos'] ?? [])
+                    ->map(fn (mixed $status): string => (string) $status)
+                    ->values()
+                    ->toArray(),
+            ])
+            ->values()
+            ->toArray();
+
+        return [
+            'disponivel' => true,
+            'dia' => (string) ($movimento['dia'] ?? ($this->diaMovimento ?: today()->toDateString())),
+            'km' => number_format((float) ($movimento['km'] ?? 0), 1, ',', '.'),
+            'tempo_movimento' => (string) ($movimento['tempo_movimento'] ?? 'N/A'),
+            'horas' => $horas,
         ];
     }
 

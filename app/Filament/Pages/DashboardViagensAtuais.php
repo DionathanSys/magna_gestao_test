@@ -41,7 +41,7 @@ class DashboardViagensAtuais extends Page
                 'inicio_humano' => $this->formatarData($item['inicio'] ?? null),
                 'duracao_viagem' => $this->formatarDuracaoDesde($item['inicio'] ?? null),
             ])
-            ->sortBy('placa')
+            ->sortBy(fn (array $item): int => strtotime((string) ($item['inicio'] ?? '')) ?: PHP_INT_MAX)
             ->values()
             ->toArray();
     }

@@ -40,6 +40,7 @@ return [
         'signature_tolerance_seconds' => env('WEBSCRAPER_SIGNATURE_TOLERANCE_SECONDS', 300),
         'error_notification_email' => env('WEBSCRAPER_ERROR_NOTIFICATION_EMAIL', 'dionathan.silva@transmagnabosco.com.br'),
         'error_cache_ttl_minutes' => env('WEBSCRAPER_ERROR_CACHE_TTL_MINUTES', 120),
+        'viagem_atual_cache_ttl_minutes' => env('WEBSCRAPER_VIAGEM_ATUAL_CACHE_TTL_MINUTES', 720),
     ],
 
 ];

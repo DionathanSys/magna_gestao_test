@@ -1,10 +1,14 @@
 # API de Integracao WebScraper - Viagens
 
-## Endpoint
+## Endpoints
 
 `POST /api/integracoes/viagens`
 
 Quando a assinatura e o payload forem validos, a API retorna `200` e enfileira o processamento. A criacao/atualizacao da viagem ocorre de forma assincrona via queue.
+
+`POST /api/integracoes/viagem-atual`
+
+Quando a assinatura e o payload forem validos, a API retorna `200` e sobrescreve em cache a viagem atual do veiculo. Esse dado e temporario, nao critico, e voltado para dashboard operacional.
 
 ## Headers obrigatorios
 
@@ -143,6 +147,76 @@ body='{"lote_id":"scraping-20260811-001","viagem":{"numero_viagem":"EXT-12345","
 signature="sha256=$(printf "%s.%s" "$timestamp" "$body" | openssl dgst -sha256 -hmac "$WEBSCRAPER_API_SECRET" -binary | xxd -p -c 256)"
 
 curl -X POST "https://seu-dominio.com/api/integracoes/viagens" \
+  -H "Content-Type: application/json" \
+  -H "X-Webhook-Timestamp: $timestamp" \
+  -H "X-Webhook-Signature: $signature" \
+  -H "X-Request-Id: 550e8400-e29b-41d4-a716-446655440000" \
+  -d "$body"
+```
+
+## Viagem atual do veiculo
+
+Use este endpoint para informar qual viagem esta em andamento para um caminhao. O registro e salvo em cache e sobrescrito a cada nova chamada do mesmo veiculo.
+
+Endpoint:
+
+`POST /api/integracoes/viagem-atual`
+
+### Payload
+
+```json
+{
+  "veiculo": "ABC1D23",
+  "nro_viagem": "EXT-12345",
+  "destino": "Chapeco/SC",
+  "km_pago": 118.0,
+  "km_sugerido": 120.5,
+  "inicio": "2026-08-11 08:00:00"
+}
+```
+
+Tambem sao aceitos estes aliases:
+
+- `placa` no lugar de `veiculo`.
+- `veiculo_id`, se a aplicacao externa conhecer o ID interno, mas nao e recomendado.
+- `numero_viagem` no lugar de `nro_viagem`.
+
+### Campos obrigatorios
+
+- `veiculo`, `placa` ou `veiculo_id`.
+- `nro_viagem` ou `numero_viagem`.
+- `destino`.
+- `km_pago`.
+- `km_sugerido`.
+- `inicio`.
+
+### Armazenamento
+
+- Os dados ficam em cache, nao em tabela permanente.
+- Cada nova chamada do mesmo veiculo sobrescreve a anterior.
+- O TTL padrao e de 12 horas, configuravel por `WEBSCRAPER_VIAGEM_ATUAL_CACHE_TTL_MINUTES`.
+- Se a placa existir no cadastro interno, o sistema salva tambem o `veiculo_id` resolvido.
+- Se a placa nao existir, a API ainda aceita o payload e registra warning em log para debug.
+
+### Resposta de sucesso
+
+```json
+{
+  "success": true,
+  "message": "Viagem atual registrada.",
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "veiculo_key": "placa:ABC1D23"
+}
+```
+
+### Exemplo cURL
+
+```bash
+timestamp=$(date +%s)
+body='{"veiculo":"ABC1D23","nro_viagem":"EXT-12345","destino":"Chapeco/SC","km_pago":118,"km_sugerido":120.5,"inicio":"2026-08-11 08:00:00"}'
+signature="sha256=$(printf "%s.%s" "$timestamp" "$body" | openssl dgst -sha256 -hmac "$WEBSCRAPER_API_SECRET" -binary | xxd -p -c 256)"
+
+curl -X POST "https://seu-dominio.com/api/integracoes/viagem-atual" \
   -H "Content-Type: application/json" \
   -H "X-Webhook-Timestamp: $timestamp" \
   -H "X-Webhook-Signature: $signature" \

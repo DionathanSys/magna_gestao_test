@@ -194,6 +194,7 @@ class OrdemServicoTeste extends Page implements HasSchemas
             ->label('Nova OS')
             ->icon('heroicon-o-plus')
             ->size(Size::ExtraSmall)
+            ->schema(fn (Schema $schema) => OrdemServicoForm::configure($schema))
             ->modalWidth(Width::FourExtraLarge)
             ->before(function (CreateAction $action, array $data): void {
                 $veiculo = Veiculo::with('kmAtual')->find($data['veiculo_id']);

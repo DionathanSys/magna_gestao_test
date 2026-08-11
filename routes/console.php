@@ -142,6 +142,7 @@ Artisan::command('mail:reprocess-bugio-cte-request {requestId}', function (int $
 Schedule::command('email:diario')->dailyAt('07:00')->runInBackground();
 Schedule::command('email:diario')->dailyAt('17:10')->runInBackground();
 Schedule::command('documentos-veiculos:alertar-vencimentos')->dailyAt('07:20')->runInBackground();
+Schedule::command('webscraper:viagens:enviar-falhas')->everyTenMinutes()->runInBackground();
 Schedule::job(new ReadIncomingMailboxJob, config('mail-inbound.queue.ingest'))
     ->everyFifteenMinutes()
     ->withoutOverlapping();

@@ -8,6 +8,7 @@
                     'total' => $items->sum('total_viagens'),
                     'clientes' => $items->sortByDesc('total_viagens')->values(),
                     'principal' => $items->sortByDesc('total_viagens')->first(),
+                    'viagem_atual' => $items->first()['viagem_atual'],
                 ];
             })
             ->sortByDesc('total')
@@ -57,8 +58,8 @@
 
         .trip-list-header {
             display: grid;
-            grid-template-columns: 64px minmax(130px, .8fr) minmax(240px, 1.5fr) 140px 1fr;
-            gap: 16px;
+            grid-template-columns: 54px minmax(110px, .65fr) minmax(180px, 1.2fr) minmax(110px, .65fr) minmax(130px, .7fr) minmax(110px, .6fr) minmax(90px, .5fr) minmax(170px, 1fr) 80px;
+            gap: 12px;
             padding: 12px 18px;
             background: #f8fafc;
             border-bottom: 1px solid rgba(15, 23, 42, .08);
@@ -75,8 +76,8 @@
 
         .trip-row {
             display: grid;
-            grid-template-columns: 64px minmax(130px, .8fr) minmax(240px, 1.5fr) 140px 1fr;
-            gap: 16px;
+            grid-template-columns: 54px minmax(110px, .65fr) minmax(180px, 1.2fr) minmax(110px, .65fr) minmax(130px, .7fr) minmax(110px, .6fr) minmax(90px, .5fr) minmax(170px, 1fr) 80px;
+            gap: 12px;
             align-items: start;
             padding: 16px 18px;
             border-bottom: 1px solid rgba(15, 23, 42, .07);
@@ -132,42 +133,25 @@
             gap: 10px;
         }
 
-        .trip-client-line {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 72px;
-            gap: 12px;
-            align-items: center;
-        }
-
         .trip-client-name {
-            min-width: 0;
+            display: inline-block;
+            width: fit-content;
+            border-radius: 999px;
+            padding: 4px 10px;
+            background: #f1f5f9;
             color: #334155;
             font-size: 13px;
             line-height: 1.3;
         }
 
         .dark .trip-client-name {
+            background: rgba(255, 255, 255, .08);
             color: #e5e7eb;
-        }
-
-        .trip-client-total {
-            border-radius: 999px;
-            padding: 4px 9px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .dark .trip-client-total {
-            background: rgba(96, 165, 250, .12);
-            color: #bfdbfe;
         }
 
         .trip-total {
             color: #020617;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
         }
 
@@ -175,42 +159,34 @@
             color: #fff;
         }
 
-        .trip-progress {
-            min-width: 120px;
-            padding-top: 7px;
-        }
-
-        .trip-progress-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 7px;
-            color: #64748b;
-            font-size: 12px;
-        }
-
-        .dark .trip-progress-meta {
-            color: #94a3b8;
-        }
-
-        .trip-progress-bar {
+        .trip-current-value {
+            min-width: 0;
             overflow: hidden;
-            height: 8px;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.35;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dark .trip-current-value {
+            color: #e5e7eb;
+        }
+
+        .trip-status {
+            display: inline-flex;
+            width: fit-content;
             border-radius: 999px;
-            background: #e2e8f0;
+            padding: 4px 9px;
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 12px;
+            line-height: 1.3;
         }
 
-        .dark .trip-progress-bar {
-            background: rgba(255, 255, 255, .1);
-        }
-
-        .trip-progress-fill {
-            height: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, #0f172a, #475569);
-        }
-
-        .dark .trip-progress-fill {
-            background: linear-gradient(90deg, #facc15, #f59e0b);
+        .dark .trip-status {
+            background: rgba(16, 185, 129, .12);
+            color: #a7f3d0;
         }
 
         .trip-empty {
@@ -244,9 +220,7 @@
                 gap: 12px;
             }
 
-            .trip-row > div:nth-child(3),
-            .trip-row > div:nth-child(4),
-            .trip-row > div:nth-child(5) {
+            .trip-row > div:nth-child(n + 3) {
                 grid-column: 2;
             }
         }
@@ -275,16 +249,16 @@
                 <div class="trip-list-header">
                     <div>Rank</div>
                     <div>Veículo</div>
+                    <div>Destino</div>
+                    <div>Status</div>
+                    <div>Início</div>
+                    <div>Duração</div>
+                    <div>Km pago</div>
                     <div>Clientes trabalhados</div>
                     <div>Total</div>
-                    <div>Volume relativo</div>
                 </div>
 
                 @foreach ($veiculos as $index => $veiculo)
-                    @php
-                        $percentualVolume = ($veiculo['total'] / $maiorVolume) * 100;
-                    @endphp
-
                     <div class="trip-row">
                         <div>
                             <span class="trip-rank">{{ $index + 1 }}</span>
@@ -292,26 +266,27 @@
 
                         <div class="trip-plate">{{ $veiculo['placa'] }}</div>
 
+                        <div class="trip-current-value" title="{{ $veiculo['viagem_atual']['destino'] }}">
+                            {{ $veiculo['viagem_atual']['destino'] }}
+                        </div>
+
+                        <div>
+                            <span class="trip-status">{{ $veiculo['viagem_atual']['status'] }}</span>
+                        </div>
+
+                        <div class="trip-current-value">{{ $veiculo['viagem_atual']['inicio_humano'] }}</div>
+
+                        <div class="trip-current-value">{{ $veiculo['viagem_atual']['duracao_viagem'] }}</div>
+
+                        <div class="trip-current-value">{{ $veiculo['viagem_atual']['km_pago_humano'] }}</div>
+
                         <div class="trip-client-stack">
                             @foreach ($veiculo['clientes'] as $cliente)
-                                <div class="trip-client-line">
-                                    <div class="trip-client-name">{{ $cliente['cliente'] }}</div>
-                                    <div class="trip-client-total">{{ number_format($cliente['total_viagens'], 0, ',', '.') }}</div>
-                                </div>
+                                <div class="trip-client-name">{{ $cliente['cliente'] }}</div>
                             @endforeach
                         </div>
 
                         <div class="trip-total">{{ number_format($veiculo['total'], 0, ',', '.') }}</div>
-
-                        <div class="trip-progress">
-                            <div class="trip-progress-meta">
-                                <span>{{ number_format($percentualVolume, 0, ',', '.') }}%</span>
-                                <span>do maior volume</span>
-                            </div>
-                            <div class="trip-progress-bar">
-                                <div class="trip-progress-fill" style="width: {{ $percentualVolume }}%"></div>
-                            </div>
-                        </div>
                     </div>
                 @endforeach
             @else

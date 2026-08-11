@@ -5,6 +5,8 @@ namespace App\Filament\Pages;
 use App\Enum\ClienteEnum;
 use App\Models\Veiculo;
 use App\Models\Viagem;
+use App\Services\MailInbound\Support\DocumentIdentity;
+use App\Services\WebScraper\WebScraperViagemAtualCache;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -31,6 +33,8 @@ class DashboardViagensVeiculos extends Page
     public ?array $data = [];
 
     public array $cards = [];
+
+    private array $viagensAtuais = [];
 
     public function mount(): void
     {
@@ -82,6 +86,7 @@ class DashboardViagensVeiculos extends Page
     {
         $dataInicio = Carbon::parse($this->data['data_inicio'] ?? today())->toDateString();
         $dataFim = Carbon::parse($this->data['data_fim'] ?? today())->toDateString();
+        $this->viagensAtuais = $this->getViagensAtuaisPorVeiculo();
 
         if ($dataFim < $dataInicio) {
             Notification::make()
@@ -122,6 +127,7 @@ class DashboardViagensVeiculos extends Page
                 'placa' => $item->placa,
                 'cliente' => $item->cliente ?: 'Sem cliente',
                 'total_viagens' => (int) $item->total_viagens,
+                'viagem_atual' => $this->resolverViagemAtual($item->veiculo_id, $item->placa),
             ])
             ->toArray();
     }
@@ -155,5 +161,96 @@ class DashboardViagensVeiculos extends Page
             'veiculo_id' => null,
             'cliente' => null,
         ];
+    }
+
+    private function getViagensAtuaisPorVeiculo(): array
+    {
+        return collect(app(WebScraperViagemAtualCache::class)->all())
+            ->flatMap(function (array $item): array {
+                $data = [
+                    ...$item,
+                    'destino' => filled($item['destino'] ?? null) ? (string) $item['destino'] : 'N/A',
+                    'status' => filled($item['status'] ?? null) ? (string) $item['status'] : 'N/A',
+                    'inicio_humano' => $this->formatarData($item['inicio'] ?? null),
+                    'duracao_viagem' => $this->formatarDuracaoDesde($item['inicio'] ?? null),
+                    'km_pago_humano' => number_format((float) ($item['km_pago'] ?? 0), 1, ',', '.'),
+                ];
+
+                $keys = [];
+
+                if (filled($item['veiculo_key'] ?? null)) {
+                    $keys[(string) $item['veiculo_key']] = $data;
+                }
+
+                if (filled($item['veiculo_id'] ?? null)) {
+                    $keys['id:'.$item['veiculo_id']] = $data;
+                }
+
+                $placa = DocumentIdentity::normalizePlate($item['placa_normalizada'] ?? $item['veiculo'] ?? null);
+
+                if ($placa !== null) {
+                    $keys['placa:'.$placa] = $data;
+                }
+
+                return $keys;
+            })
+            ->toArray();
+    }
+
+    private function resolverViagemAtual(mixed $veiculoId, ?string $placa): array
+    {
+        if (filled($veiculoId) && isset($this->viagensAtuais['id:'.$veiculoId])) {
+            return $this->viagensAtuais['id:'.$veiculoId];
+        }
+
+        $placaNormalizada = DocumentIdentity::normalizePlate($placa);
+
+        if ($placaNormalizada !== null && isset($this->viagensAtuais['placa:'.$placaNormalizada])) {
+            return $this->viagensAtuais['placa:'.$placaNormalizada];
+        }
+
+        return [
+            'destino' => 'N/A',
+            'status' => 'N/A',
+            'inicio_humano' => 'N/A',
+            'duracao_viagem' => 'N/A',
+            'km_pago_humano' => '0,0',
+        ];
+    }
+
+    private function formatarData(?string $value): string
+    {
+        if (blank($value)) {
+            return 'N/A';
+        }
+
+        try {
+            return Carbon::parse($value)->format('d/m/Y H:i');
+        } catch (\Throwable) {
+            return $value;
+        }
+    }
+
+    private function formatarDuracaoDesde(?string $value): string
+    {
+        if (blank($value)) {
+            return 'N/A';
+        }
+
+        try {
+            $inicio = Carbon::parse($value);
+            $totalMinutos = max(0, (int) $inicio->diffInMinutes(now()));
+            $dias = intdiv($totalMinutos, 1440);
+            $horas = intdiv($totalMinutos % 1440, 60);
+            $minutos = $totalMinutos % 60;
+
+            if ($dias > 0) {
+                return sprintf('%dd %02dh %02dmin', $dias, $horas, $minutos);
+            }
+
+            return sprintf('%02dh %02dmin', $horas, $minutos);
+        } catch (\Throwable) {
+            return 'N/A';
+        }
     }
 }

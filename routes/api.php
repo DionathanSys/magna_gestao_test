@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SascarMovimentoDiarioController;
 use App\Http\Controllers\Api\WebScraperViagemAtualController;
 use App\Http\Controllers\Api\WebScraperViagemController;
 use App\Http\Middleware\VerifyWebScraperSignature;
@@ -12,3 +13,7 @@ Route::post('/integracoes/viagens', WebScraperViagemController::class)
 Route::post('/integracoes/viagem-atual', WebScraperViagemAtualController::class)
     ->middleware(VerifyWebScraperSignature::class)
     ->name('api.integracoes.viagem-atual');
+
+Route::post('/integracoes/movimento-diario', SascarMovimentoDiarioController::class)
+    ->middleware(VerifyWebScraperSignature::class)
+    ->name('api.integracoes.movimento-diario');

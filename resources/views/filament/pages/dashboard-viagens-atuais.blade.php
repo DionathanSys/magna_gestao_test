@@ -54,154 +54,117 @@
             justify-content: flex-end;
         }
 
-        .live-trip-cards {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 18px;
-        }
-
-        .live-truck-card {
+        .live-trip-list {
             overflow: hidden;
             border: 1px solid rgba(15, 23, 42, .08);
             border-radius: 28px;
             background: #fff;
             box-shadow: 0 14px 38px rgba(15, 23, 42, .07);
-            transition: transform .2s ease, box-shadow .2s ease;
         }
 
-        .live-truck-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 24px 60px rgba(15, 23, 42, .13);
-        }
-
-        .dark .live-truck-card {
+        .dark .live-trip-list {
             border-color: rgba(255, 255, 255, .1);
             background: #111827;
         }
 
-        .live-truck-head {
-            padding: 22px;
-            color: #fff;
+        .live-trip-row {
+            display: grid;
+            grid-template-columns: minmax(130px, .7fr) minmax(130px, .7fr) minmax(220px, 1.3fr) minmax(90px, .45fr) minmax(120px, .65fr) minmax(140px, .75fr) minmax(130px, .7fr) minmax(145px, .75fr);
+            gap: 14px;
+            align-items: center;
+            border-bottom: 1px solid rgba(15, 23, 42, .07);
+            padding: 16px 18px;
+        }
+
+        .live-trip-row:last-child {
+            border-bottom: 0;
+        }
+
+        .live-trip-row:hover {
+            background: #f8fafc;
+        }
+
+        .dark .live-trip-row {
+            border-color: rgba(255, 255, 255, .08);
+        }
+
+        .dark .live-trip-row:hover {
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .live-trip-list-head {
             background:
-                radial-gradient(circle at top right, rgba(34, 197, 94, .3), transparent 34%),
+                radial-gradient(circle at top right, rgba(34, 197, 94, .18), transparent 34%),
                 linear-gradient(135deg, #020617, #0f172a 70%);
-        }
-
-        .live-truck-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-            align-items: flex-start;
-        }
-
-        .live-truck-label {
-            color: #bbf7d0;
+            color: #d1d5db;
             font-size: 10px;
-            font-weight: 900;
-            letter-spacing: .22em;
-            text-transform: uppercase;
-        }
-
-        .live-truck-plate {
-            margin-top: 7px;
-            font-size: 31px;
             font-weight: 950;
-            letter-spacing: -.045em;
-            line-height: 1;
-        }
-
-        .live-trip-number {
-            display: block;
-            max-width: 180px;
-            overflow: hidden;
-            color: #e0f2fe;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 18px;
-            font-weight: 900;
-            letter-spacing: -.03em;
-            line-height: 1;
-            text-align: right;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .live-trip-number span {
-            display: block;
-            margin-top: 5px;
-            color: #93c5fd;
-            font-size: 9px;
-            font-weight: 900;
             letter-spacing: .14em;
             text-transform: uppercase;
         }
 
-        .live-truck-destination {
-            margin-top: 22px;
-        }
-
-        .live-truck-destination-label {
-            display: flex;
-            justify-content: space-between;
-            color: #d1d5db;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-        }
-
-        .live-destination {
-            margin-top: 9px;
-            color: #fff;
+        .live-list-plate {
+            color: #0f172a;
             font-size: 20px;
             font-weight: 950;
-            letter-spacing: -.035em;
-            line-height: 1.15;
+            letter-spacing: -.04em;
         }
 
-        .live-truck-body {
-            padding: 22px;
+        .dark .live-list-plate {
+            color: #fff;
         }
 
-        .live-meta-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 18px;
-        }
-
-        .live-meta {
-            border-radius: 18px;
-            padding: 13px;
-            background: #f8fafc;
-        }
-
-        .dark .live-meta {
-            background: rgba(255, 255, 255, .07);
-        }
-
-        .live-meta-label {
-            color: #64748b;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-        }
-
-        .live-meta-value {
-            margin-top: 5px;
-            color: #0f172a;
+        .live-list-trip {
+            color: #0369a1;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 14px;
             font-weight: 900;
         }
 
-        .dark .live-meta-value {
+        .dark .live-list-trip {
+            color: #93c5fd;
+        }
+
+        .live-list-destination {
+            min-width: 0;
+            overflow: hidden;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 850;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dark .live-list-destination {
             color: #f8fafc;
         }
 
-        .live-updated {
-            margin-top: 16px;
-            color: #64748b;
-            font-size: 12px;
+        .live-list-value {
+            color: #334155;
+            font-size: 13px;
+            font-weight: 850;
+        }
+
+        .dark .live-list-value {
+            color: #cbd5e1;
+        }
+
+        .live-list-status {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            border-radius: 999px;
+            padding: 7px 10px;
+            background: rgba(34, 197, 94, .12);
+            color: #15803d;
+            font-size: 11px;
+            font-weight: 950;
+            text-transform: uppercase;
+        }
+
+        .dark .live-list-status {
+            background: rgba(34, 197, 94, .16);
+            color: #bbf7d0;
         }
 
         .live-empty {
@@ -233,30 +196,24 @@
             font-size: 13px;
         }
 
-        @media (max-width: 1280px) {
-            .live-trip-cards {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
         @media (max-width: 900px) {
-            .live-trip-hero-grid,
-            .live-trip-cards {
-                grid-template-columns: 1fr;
-            }
-
             .live-trip-hero {
                 padding: 24px;
             }
-        }
 
-        @media (max-width: 560px) {
-            .live-truck-top {
-                flex-direction: column;
+            .live-trip-list-head {
+                display: none;
             }
 
-            .live-trip-number {
-                text-align: left;
+            .live-trip-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                padding: 18px;
+            }
+
+            .live-list-destination {
+                grid-column: span 2;
+                white-space: normal;
             }
         }
     </style>
@@ -278,54 +235,28 @@
         </div>
 
         @if (filled($viagens))
-            <section class="live-trip-cards">
+            <section class="live-trip-list">
+                <div class="live-trip-row live-trip-list-head">
+                    <div>Veículo</div>
+                    <div>Viagem</div>
+                    <div>Destino</div>
+                    <div>Km pago</div>
+                    <div>Status</div>
+                    <div>Início</div>
+                    <div>Duração</div>
+                    <div>Recebido em</div>
+                </div>
+
                 @foreach ($viagens as $viagem)
-                    <article class="live-truck-card">
-                        <div class="live-truck-head">
-                            <div class="live-truck-top">
-                                <div>
-                                    <div class="live-truck-label">Caminhão</div>
-                                    <div class="live-truck-plate">{{ $viagem['placa'] }}</div>
-                                </div>
-
-                                <div class="live-trip-number">
-                                    {{ $viagem['numero_viagem'] }}
-                                    <span>viagem</span>
-                                </div>
-                            </div>
-
-                            <div class="live-truck-destination">
-                                <div class="live-truck-destination-label">Destino</div>
-                                <div class="live-destination">{{ $viagem['destino'] }}</div>
-                            </div>
-                        </div>
-
-                        <div class="live-truck-body">
-                            <div class="live-meta-grid">
-                                <div class="live-meta">
-                                    <div class="live-meta-label">Km pago</div>
-                                    <div class="live-meta-value">{{ number_format($viagem['km_pago'], 1, ',', '.') }}</div>
-                                </div>
-
-                                <div class="live-meta">
-                                    <div class="live-meta-label">Status</div>
-                                    <div class="live-meta-value">{{ $viagem['status'] }}</div>
-                                </div>
-
-                                <div class="live-meta">
-                                    <div class="live-meta-label">Início</div>
-                                    <div class="live-meta-value">{{ $viagem['inicio_humano'] }}</div>
-                                </div>
-
-                                <div class="live-meta">
-                                    <div class="live-meta-label">Duração viagem</div>
-                                    <div class="live-meta-value">{{ $viagem['duracao_viagem'] }}</div>
-                                </div>
-
-                            </div>
-
-                            <div class="live-updated">Recebido em {{ $viagem['recebido_em_humano'] }}</div>
-                        </div>
+                    <article class="live-trip-row">
+                        <div class="live-list-plate">{{ $viagem['placa'] }}</div>
+                        <div class="live-list-trip">{{ $viagem['numero_viagem'] }}</div>
+                        <div class="live-list-destination" title="{{ $viagem['destino'] }}">{{ $viagem['destino'] }}</div>
+                        <div class="live-list-value">{{ number_format($viagem['km_pago'], 1, ',', '.') }}</div>
+                        <div><span class="live-list-status">{{ $viagem['status'] }}</span></div>
+                        <div class="live-list-value">{{ $viagem['inicio_humano'] }}</div>
+                        <div class="live-list-value">{{ $viagem['duracao_viagem'] }}</div>
+                        <div class="live-list-value">{{ $viagem['recebido_em_humano'] }}</div>
                     </article>
                 @endforeach
             </section>

@@ -16,6 +16,8 @@ use App\Filament\Resources\OrdemServicos\Schemas\Components\OrdemServicoVeiculoI
 use App\Filament\Resources\OrdemServicos\Schemas\OrdemServicoForm;
 use App\Models\Agendamento;
 use App\Models\ManutencaoLancamento;
+use App\Models\OrdemServico;
+use App\Models\Veiculo;
 use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
@@ -24,6 +26,7 @@ use App\Services\PlanoManutencao\RelatorioPlanoManutencaoService;
 use App\Services\Servico\ServicoCacheService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
@@ -34,6 +37,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -138,9 +142,12 @@ class OrdemServicoTeste extends Page implements HasSchemas
     protected function getHeaderActions(): array
     {
         return [
+            $this->novaOrdemAction(),
+            $this->ordensAbertasAction(),
             ActionGroup::make([
                 Actions\VincularServicoOrdemServicoAction::make($this->record)
-                    ->size(Size::ExtraSmall),
+                    ->size(Size::ExtraSmall)
+                    ->after(fn () => $this->record = $this->loadRecordRelations($this->record->fresh())),
                 Actions\CriarOrdemTerceiroAction::make($this->record)
                     ->size(Size::ExtraSmall),
                 Action::make('novo_agendamento')
@@ -179,6 +186,54 @@ class OrdemServicoTeste extends Page implements HasSchemas
                     ->size(Size::ExtraSmall),
             ])->label('Apontamentos')->button()->size(Size::ExtraSmall),
         ];
+    }
+
+    protected function novaOrdemAction(): CreateAction
+    {
+        return CreateAction::make('nova_ordem')
+            ->label('Nova OS')
+            ->icon('heroicon-o-plus')
+            ->size(Size::ExtraSmall)
+            ->modalWidth(Width::FourExtraLarge)
+            ->before(function (CreateAction $action, array $data): void {
+                $veiculo = Veiculo::with('kmAtual')->find($data['veiculo_id']);
+
+                if (($veiculo?->kmAtual?->quilometragem ?? 0) > $data['quilometragem']) {
+                    notify::error('A quilometragem informada deve ser maior ou igual à quilometragem atual do veículo.');
+                    $action->halt();
+                }
+            })
+            ->mutateDataUsing(function (array $data): array {
+                $data['created_by'] = Auth::id();
+                $data['status'] = StatusOrdemServicoEnum::PENDENTE;
+                $data['status_sankhya'] = StatusOrdemServicoEnum::PENDENTE;
+
+                return $data;
+            })
+            ->successRedirectUrl(fn (OrdemServico $record): string => OrdemServicoResource::getUrl('custom', ['record' => $record->getKey()]));
+    }
+
+    protected function ordensAbertasAction(): Action
+    {
+        return Action::make('ordens_abertas')
+            ->label('Ordens em Aberto')
+            ->icon('heroicon-o-folder-open')
+            ->size(Size::ExtraSmall)
+            ->modalHeading('Ordens em Aberto')
+            ->modalWidth(Width::FiveExtraLarge)
+            ->modalContent(fn () => view('filament.resources.ordem-servicos.pages.partials.ordens-abertas', [
+                'ordens' => OrdemServico::query()
+                    ->with(['veiculo:id,placa', 'parceiro:id,nome'])
+                    ->whereIn('status', [
+                        StatusOrdemServicoEnum::PENDENTE,
+                        StatusOrdemServicoEnum::EXECUCAO,
+                    ])
+                    ->orderByDesc('id')
+                    ->get(),
+            ]))
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel('Fechar')
+            ->action(fn (): null => null);
     }
 
     public function editAgendamentoForm(Schema $schema): Schema

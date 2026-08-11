@@ -9,6 +9,7 @@ use App\Filament\Resources\OrdemServicos\Actions\VincularServicoOrdemServicoActi
 use App\Models\Colaborador;
 use App\Models\ItemOrdemServico;
 use App\Models\OrdemServico;
+use App\Models\OrdemServicoApontamento;
 use App\Services\NotificacaoService as notify;
 use App\Services\Oficina\OrdemServicoApontamentoService;
 use Filament\Actions\Action;
@@ -37,6 +38,7 @@ use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class OrdemServicosTable
@@ -98,6 +100,7 @@ class OrdemServicosTable
                         ->visible(fn (): bool => Auth::user()->is_admin),
                     EncerrarOrdemServicoAction::make()
                         ->visible(fn (): bool => Auth::user()->is_admin),
+                    self::criarApontamentoManualAction(),
                     self::ajustarHorariosAction(),
                     self::adicionarServicosApontamentoEncerradoAction(),
                     self::removerApontamentoAbertoAction(),
@@ -439,6 +442,98 @@ class OrdemServicosTable
                     }
 
                     notify::success(mensagem: 'Horários ajustados com sucesso.');
+                } catch (Throwable $exception) {
+                    notify::error(mensagem: $exception->getMessage());
+                    $action->halt();
+                }
+            });
+    }
+
+    public static function criarApontamentoManualAction(): Action
+    {
+        return Action::make('criar_apontamento_manual')
+            ->label('Criar apontamento')
+            ->icon('heroicon-o-user-plus')
+            ->visible(fn (): bool => Auth::user()->is_admin)
+            ->modalWidth(Width::FourExtraLarge)
+            ->modalSubmitActionLabel('Criar apontamento')
+            ->form(fn (OrdemServico $record): array => [
+                Grid::make(3)
+                    ->schema([
+                        self::colaboradorSelect(),
+                        DateTimePicker::make('iniciado_em')
+                            ->label('Início')
+                            ->seconds(false)
+                            ->minDate($record->data_inicio)
+                            ->required(),
+                        DateTimePicker::make('encerrado_em')
+                            ->label('Fim')
+                            ->seconds(false)
+                            ->minDate($record->data_inicio)
+                            ->required(),
+                    ])
+                    ->columnSpanFull(),
+                CheckboxList::make('item_ids')
+                    ->label('Serviços executados')
+                    ->options($record->itens->mapWithKeys(fn (ItemOrdemServico $item): array => [
+                        $item->id => self::servicoItemLabel($item),
+                    ])->all())
+                    ->columns(1)
+                    ->required(),
+            ])
+            ->action(function (OrdemServico $record, array $data, Action $action): void {
+                try {
+                    $iniciadoEm = Carbon::parse($data['iniciado_em']);
+                    $encerradoEm = Carbon::parse($data['encerrado_em']);
+
+                    if ($record->data_inicio && $iniciadoEm->lessThan($record->data_inicio)) {
+                        throw new \InvalidArgumentException('A hora inicial não pode ser menor que a data/hora de abertura da OS.');
+                    }
+
+                    if ($record->data_inicio && $encerradoEm->lessThan($record->data_inicio)) {
+                        throw new \InvalidArgumentException('A hora final não pode ser menor que a data/hora de abertura da OS.');
+                    }
+
+                    if ($encerradoEm->lessThan($iniciadoEm)) {
+                        throw new \InvalidArgumentException('A hora final não pode ser menor que a hora inicial.');
+                    }
+
+                    $itemIds = array_values(array_unique(array_map('intval', $data['item_ids'] ?? [])));
+
+                    if ($itemIds === []) {
+                        throw new \InvalidArgumentException('Selecione ao menos um serviço executado.');
+                    }
+
+                    $itemIdsDaOrdem = $record->itens()->pluck('id')->all();
+
+                    if (array_diff($itemIds, $itemIdsDaOrdem) !== []) {
+                        throw new \InvalidArgumentException('Selecione apenas serviços desta ordem de serviço.');
+                    }
+
+                    $colaborador = Colaborador::query()
+                        ->where('codigo', trim((string) $data['codigo']))
+                        ->where('ativo', true)
+                        ->where('tipo', 'MECANICO')
+                        ->first();
+
+                    if (! $colaborador) {
+                        throw new \InvalidArgumentException('Mecânico ativo não encontrado.');
+                    }
+
+                    DB::transaction(function () use ($record, $colaborador, $iniciadoEm, $encerradoEm, $itemIds): void {
+                        $apontamento = OrdemServicoApontamento::create([
+                            'ordem_servico_id' => $record->id,
+                            'colaborador_id' => $colaborador->id,
+                            'iniciado_em' => $iniciadoEm,
+                            'encerrado_em' => $encerradoEm,
+                        ]);
+
+                        $apontamento->itens()->sync($itemIds);
+                    });
+
+                    $record->load(['apontamentosOficina.itens.servico']);
+
+                    notify::success(mensagem: 'Apontamento criado com sucesso.');
                 } catch (Throwable $exception) {
                     notify::error(mensagem: $exception->getMessage());
                     $action->halt();

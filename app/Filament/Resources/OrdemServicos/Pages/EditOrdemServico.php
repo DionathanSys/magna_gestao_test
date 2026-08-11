@@ -21,6 +21,7 @@ class EditOrdemServico extends EditRecord
             OficinaOrdemServicosTable::encerrarAction(),
             ActionGroup::make([
                 EncerrarOrdemServicoAction::make(),
+                OficinaOrdemServicosTable::criarApontamentoManualAction(),
                 OficinaOrdemServicosTable::ajustarHorariosAction(),
                 OficinaOrdemServicosTable::removerApontamentoAbertoAction(),
                 OficinaOrdemServicosTable::relatorioAction(),

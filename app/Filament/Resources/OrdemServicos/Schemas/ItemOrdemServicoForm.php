@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrdemServicos\Schemas;
 
 use App\Enum;
 use App\Filament\Resources\Servicos\Schemas\ServicoForm;
+use App\Models\Servico;
 use App\Services\Servico\ServicoCacheService;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -63,7 +64,8 @@ class ItemOrdemServicoForm
             ->options(fn (): array => ServicoCacheService::getServicosForSelect())
             ->getSearchResultsUsing(fn (string $search): array => ServicoCacheService::searchServicosForSelect($search))
             ->getOptionLabelUsing(fn ($value): ?string => ServicoCacheService::getServicoLabel($value))
-            // ->createOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))    //TODO Não está funcionando por não usar o relationship
+            ->createOptionForm(fn (Schema $schema) => ServicoForm::configure($schema))
+            ->createOptionUsing(fn (array $data): int => Servico::query()->create($data)->getKey())
             // ->editOptionForm(fn(Schema $schema) => ServicoForm::configure($schema))
             ->searchable()
             ->live()

@@ -23,6 +23,7 @@ class EditOrdemServico extends EditRecord
     {
         return [
             ActionGroup::make([
+                OrdemServicosTable::criarApontamentoManualAction(),
                 OrdemServicosTable::ajustarHorariosAction(),
                 OrdemServicosTable::adicionarServicosApontamentoEncerradoAction(),
                 OrdemServicosTable::removerApontamentoAbertoAction(),

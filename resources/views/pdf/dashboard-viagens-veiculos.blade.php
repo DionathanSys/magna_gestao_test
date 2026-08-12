@@ -20,6 +20,13 @@
             font-size: 18px;
         }
 
+        h2 {
+            margin: 14px 0 6px;
+            padding: 6px 8px;
+            background: #e5e7eb;
+            font-size: 12px;
+        }
+
         .meta {
             margin-bottom: 14px;
             color: #4b5563;
@@ -64,6 +71,20 @@
     </style>
 </head>
 <body>
+    @php
+        $gruposCliente = collect($veiculos)
+            ->flatMap(function (array $veiculo): array {
+                return collect($veiculo['clientes'])
+                    ->map(fn (string $cliente): array => [
+                        'cliente' => $cliente,
+                        'veiculo' => $veiculo,
+                    ])
+                    ->all();
+            })
+            ->groupBy('cliente')
+            ->sortKeys();
+    @endphp
+
     <h1>Dashboard Viagens por Veículo</h1>
 
     <div class="meta">
@@ -74,42 +95,45 @@
         Total de veículos: <strong>{{ $totalVeiculos }}</strong> · Total de viagens: <strong>{{ number_format($totalViagens, 0, ',', '.') }}</strong>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 8%;">Veículo</th>
-                <th style="width: 20%;">Destino</th>
-                <th style="width: 10%;">Status</th>
-                <th style="width: 12%;">Início</th>
-                <th style="width: 9%;">Duração</th>
-                <th style="width: 8%;">Km pago</th>
-                <th style="width: 20%;">Clientes</th>
-                <th style="width: 7%;">Viagens</th>
-                <th style="width: 6%;">Mov. diário</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($veiculos as $veiculo)
+    @foreach ($gruposCliente as $cliente => $items)
+        <h2>{{ $cliente }}</h2>
+
+        <table>
+            <thead>
                 <tr>
-                    <td class="plate">{{ $veiculo['placa'] }}</td>
-                    <td>{{ $veiculo['viagem_atual']['destino'] ?? 'N/A' }}</td>
-                    <td>{{ $veiculo['viagem_atual']['status'] ?? 'N/A' }}</td>
-                    <td>{{ $veiculo['viagem_atual']['inicio_humano'] ?? 'N/A' }}</td>
-                    <td>{{ $veiculo['viagem_atual']['duracao_viagem'] ?? 'N/A' }}</td>
-                    <td>{{ $veiculo['viagem_atual']['km_pago_humano'] ?? '0,0' }}</td>
-                    <td>{{ implode('; ', $veiculo['clientes']) }}</td>
-                    <td>{{ number_format($veiculo['total'], 0, ',', '.') }}</td>
-                    <td>
-                        @if ($veiculo['movimento_diario']['disponivel'] ?? false)
-                            Km {{ $veiculo['movimento_diario']['km'] }}<br>
-                            <span class="muted">{{ $veiculo['movimento_diario']['tempo_movimento'] }}</span>
-                        @else
-                            N/A
-                        @endif
-                    </td>
+                    <th style="width: 9%;">Veículo</th>
+                    <th style="width: 24%;">Destino</th>
+                    <th style="width: 11%;">Status</th>
+                    <th style="width: 13%;">Início</th>
+                    <th style="width: 10%;">Duração</th>
+                    <th style="width: 8%;">Km pago</th>
+                    <th style="width: 8%;">Viagens</th>
+                    <th style="width: 17%;">Mov. diário</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach ($items as $item)
+                    @php($veiculo = $item['veiculo'])
+                    <tr>
+                        <td class="plate">{{ $veiculo['placa'] }}</td>
+                        <td>{{ $veiculo['viagem_atual']['destino'] ?? 'N/A' }}</td>
+                        <td>{{ $veiculo['viagem_atual']['status'] ?? 'N/A' }}</td>
+                        <td>{{ $veiculo['viagem_atual']['inicio_humano'] ?? 'N/A' }}</td>
+                        <td>{{ $veiculo['viagem_atual']['duracao_viagem'] ?? 'N/A' }}</td>
+                        <td>{{ $veiculo['viagem_atual']['km_pago_humano'] ?? '0,0' }}</td>
+                        <td>{{ number_format($veiculo['total'], 0, ',', '.') }}</td>
+                        <td>
+                            @if ($veiculo['movimento_diario']['disponivel'] ?? false)
+                                Km {{ $veiculo['movimento_diario']['km'] }}<br>
+                                <span class="muted">{{ $veiculo['movimento_diario']['tempo_movimento'] }}</span>
+                            @else
+                                N/A
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endforeach
 </body>
 </html>

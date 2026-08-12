@@ -267,16 +267,17 @@
         }
 
         .trip-minute-status.status-0 {
-            background: #2563eb;
+            background: #94a3b8;
+            color: #0f172a;
         }
 
         .trip-minute-status.status-1 {
-            background: #f59e0b;
+            background: #2563eb;
         }
 
         .trip-minute-status.status-2 {
-            background: #94a3b8;
-            color: #0f172a;
+            background: #f59e0b;
+            color: #fff;
         }
 
         .trip-hour-label {
@@ -450,9 +451,9 @@
                                 </div>
 
                                 <div class="trip-movement-legend">
-                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #2563eb"></span>0 Movimento</span>
-                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #f59e0b"></span>1 Parado ligado</span>
-                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #94a3b8"></span>2 Desligado</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #2563eb"></span>1 Movimento</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #94a3b8"></span>0 Desligado</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #f59e0b"></span>2 Parado ligado</span>
                                 </div>
                             @else
                                 <div class="trip-movement-empty">Movimento diário ainda não recebido para este veículo no dia selecionado.</div>

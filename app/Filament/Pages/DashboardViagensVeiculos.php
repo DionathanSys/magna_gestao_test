@@ -8,9 +8,9 @@ use App\Models\Viagem;
 use App\Services\MailInbound\Support\DocumentIdentity;
 use App\Services\WebScraper\SascarMovimentoDiarioCache;
 use App\Services\WebScraper\WebScraperViagemAtualCache;
+use App\Support\Filters\ParsesDateRangeFilter;
 use BackedEnum;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -18,10 +18,13 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 use UnitEnum;
 
 class DashboardViagensVeiculos extends Page
 {
+    use ParsesDateRangeFilter;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-truck';
 
     protected string $view = 'filament.pages.dashboard-viagens-veiculos';
@@ -56,14 +59,11 @@ class DashboardViagensVeiculos extends Page
                     ->columns(4)
                     ->columnSpan(12)
                     ->components([
-                        DatePicker::make('data_inicio')
-                            ->label('Data inicial')
-                            ->native(false)
-                            ->required(),
-
-                        DatePicker::make('data_fim')
-                            ->label('Data final')
-                            ->native(false)
+                        DateRangePicker::make('periodo')
+                            ->label('Período')
+                            ->autoApply()
+                            ->firstDayOfWeek(0)
+                            ->alwaysShowCalendar()
                             ->required(),
 
                         Select::make('veiculo_id')
@@ -88,8 +88,9 @@ class DashboardViagensVeiculos extends Page
 
     public function carregarDados(): void
     {
-        $dataInicio = Carbon::parse($this->data['data_inicio'] ?? today())->toDateString();
-        $dataFim = Carbon::parse($this->data['data_fim'] ?? today())->toDateString();
+        [$inicio, $fim] = $this->getPeriodoFiltro();
+        $dataInicio = $inicio->toDateString();
+        $dataFim = $fim->toDateString();
         $this->diaMovimento = $dataFim;
         $this->viagensAtuais = $this->getViagensAtuaisPorVeiculo();
 
@@ -164,6 +165,7 @@ class DashboardViagensVeiculos extends Page
             $pdf = Pdf::loadView('pdf.dashboard-viagens-veiculos', [
                 'veiculos' => $veiculos,
                 'filtros' => $this->data,
+                'periodo' => $this->getPeriodoFormatado(),
                 'totalVeiculos' => count($veiculos),
                 'totalViagens' => collect($veiculos)->sum('total'),
                 'dataGeracao' => now()->format('d/m/Y H:i:s'),
@@ -220,10 +222,29 @@ class DashboardViagensVeiculos extends Page
     private function getDefaultFilters(): array
     {
         return [
-            'data_inicio' => today()->toDateString(),
-            'data_fim' => today()->toDateString(),
+            'periodo' => today()->format('d/m/Y').' - '.today()->format('d/m/Y'),
             'veiculo_id' => null,
             'cliente' => null,
+        ];
+    }
+
+    private function getPeriodoFiltro(): array
+    {
+        [$inicio, $fim] = $this->parseDateRangeFilter($this->data['periodo'] ?? null);
+
+        return [
+            $inicio?->startOfDay() ?? today()->startOfDay(),
+            $fim?->endOfDay() ?? today()->endOfDay(),
+        ];
+    }
+
+    private function getPeriodoFormatado(): array
+    {
+        [$inicio, $fim] = $this->getPeriodoFiltro();
+
+        return [
+            'inicio' => $inicio->format('d/m/Y'),
+            'fim' => $fim->format('d/m/Y'),
         ];
     }
 
@@ -321,7 +342,11 @@ class DashboardViagensVeiculos extends Page
             ->map(fn (array $hora): array => [
                 'hora' => (int) ($hora['hora'] ?? 0),
                 'minutos' => collect($hora['minutos'] ?? [])
-                    ->map(fn (mixed $status): string => (string) $status)
+                    ->map(fn (mixed $status): string => match ((string) $status) {
+                        '1' => '1',
+                        '2' => '2',
+                        default => '0',
+                    })
                     ->values()
                     ->toArray(),
             ])

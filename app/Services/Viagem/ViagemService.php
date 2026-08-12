@@ -81,12 +81,17 @@ class ViagemService
         try {
 
             $viagem = Models\Viagem::where('numero_viagem', $data['numero_viagem'])->first();
+            $action = null;
 
             switch (true) {
                 case $viagem && $viagem->conferido == false:
                     $action = new Actions\AtualizarViagem($viagem);
                     $viagem = $action->handle($data);
-                    Log::info('Viagem Nº '.$viagem['numero_viagem'].' atualizada');
+                    Log::info('Viagem atualizada por integracao', [
+                        'metodo' => __METHOD__.'@'.__LINE__,
+                        'viagem_id' => $viagem->id,
+                        'numero_viagem' => $viagem->numero_viagem,
+                    ]);
                     $this->setSuccess('Viagem atualizada com sucesso!');
                     break;
 
@@ -97,10 +102,24 @@ class ViagemService
                 default:
                     $action = new Actions\CriarViagem;
                     $viagem = $action->handle($data);
-                    Log::info('Viagem Nº '.$data['numero_viagem'].' criada');
+                    Log::info('Viagem criada por integracao', [
+                        'metodo' => __METHOD__.'@'.__LINE__,
+                        'viagem_id' => $viagem?->id,
+                        'numero_viagem' => $data['numero_viagem'] ?? null,
+                    ]);
             }
 
-            $this->setSuccess('Viagem Nº '.$data['numero_viagem'].' criada');
+            if ($action instanceof Actions\CriarViagem && $action->hasError) {
+                $this->setError('Erro no processo de criação da viagem', $action->errors);
+
+                return null;
+            }
+
+            if (! $viagem) {
+                $this->setError('Viagem nao foi criada ou atualizada.');
+
+                return null;
+            }
 
             return $viagem;
         } catch (\Exception $e) {

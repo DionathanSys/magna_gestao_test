@@ -52,7 +52,10 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
                     'index' => $index,
                     'viagem_id' => $viagem->id,
                     'numero_viagem' => $viagem->numero_viagem,
+                    'campos_salvos' => $this->snapshotViagem($viagem->fresh()),
                 ]);
+
+                $this->registrarDiferencasPersistencia($index, $data, $viagem->fresh());
             } catch (Throwable $exception) {
                 $this->registrarFalha($errorCache, $index, $payload, $exception->getMessage());
 
@@ -97,6 +100,40 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
 
     private function normalizarPayload(array $payload): array
     {
+        $expectedKeys = [
+            'placa',
+            'veiculo_id',
+            'unidade_negocio',
+            'cliente',
+            'numero_viagem',
+            'numero_interno',
+            'documento_transporte',
+            'km_rodado',
+            'km_pago',
+            'data_competencia',
+            'data_inicio',
+            'data_fim',
+            'total_destinos',
+            'conferido',
+            'ignorar',
+            'possui_pendencia',
+            'pendencias',
+            'motorista1',
+            'motorista2',
+        ];
+
+        $ignoredKeys = array_values(array_diff(array_keys($payload), $expectedKeys));
+
+        if ($ignoredKeys !== []) {
+            Log::warning('Payload WebScraper contem campos sem mapeamento para viagens', [
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'request_id' => $this->requestId,
+                'lote_id' => $this->loteId,
+                'numero_viagem' => $payload['numero_viagem'] ?? null,
+                'campos_ignorados' => $ignoredKeys,
+            ]);
+        }
+
         $data = Arr::only($payload, [
             'veiculo_id',
             'unidade_negocio',
@@ -135,6 +172,115 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
         }
 
         return $data;
+    }
+
+    private function registrarDiferencasPersistencia(int $index, array $data, ?object $viagem): void
+    {
+        if (! $viagem) {
+            return;
+        }
+
+        $diferencas = [];
+
+        foreach ($data as $campo => $valor) {
+            if (! in_array($campo, [
+                'veiculo_id',
+                'unidade_negocio',
+                'cliente',
+                'numero_viagem',
+                'numero_interno',
+                'documento_transporte',
+                'km_rodado',
+                'km_pago',
+                'data_competencia',
+                'data_inicio',
+                'data_fim',
+                'total_destinos',
+                'conferido',
+                'ignorar',
+                'possui_pendencia',
+                'pendencias',
+                'motorista1',
+                'motorista2',
+            ], true)) {
+                continue;
+            }
+
+            if (! array_key_exists($campo, $viagem->getAttributes())) {
+                continue;
+            }
+
+            $salvo = $viagem->getAttribute($campo);
+
+            if ($this->normalizarComparacao($valor) !== $this->normalizarComparacao($salvo)) {
+                $diferencas[$campo] = [
+                    'payload' => $valor,
+                    'salvo' => $salvo,
+                ];
+            }
+        }
+
+        if ($diferencas === []) {
+            return;
+        }
+
+        Log::warning('Diferenca entre payload WebScraper normalizado e viagem persistida', [
+            'metodo' => __METHOD__.'@'.__LINE__,
+            'request_id' => $this->requestId,
+            'lote_id' => $this->loteId,
+            'index' => $index,
+            'viagem_id' => $viagem->id,
+            'numero_viagem' => $viagem->numero_viagem,
+            'diferencas' => $diferencas,
+        ]);
+    }
+
+    private function snapshotViagem(?object $viagem): array
+    {
+        if (! $viagem) {
+            return [];
+        }
+
+        return Arr::only($viagem->toArray(), [
+            'id',
+            'veiculo_id',
+            'unidade_negocio',
+            'cliente',
+            'numero_viagem',
+            'numero_interno',
+            'documento_transporte',
+            'km_rodado',
+            'km_pago',
+            'data_competencia',
+            'data_inicio',
+            'data_fim',
+            'total_destinos',
+            'conferido',
+            'ignorar',
+            'possui_pendencia',
+            'pendencias',
+            'motorista1',
+            'motorista2',
+        ]);
+    }
+
+    private function normalizarComparacao(mixed $value): mixed
+    {
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        if (is_array($value)) {
+            ksort($value);
+
+            return json_encode($value);
+        }
+
+        if (is_numeric($value)) {
+            return (string) +$value;
+        }
+
+        return $value === null ? null : (string) $value;
     }
 
     private function buscarVeiculoIdPorPlaca(?string $placa): int

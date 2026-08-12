@@ -15,6 +15,8 @@ class AtualizarViagem
 
     protected array $allowedFields = [
         'veiculo_id',
+        'unidade_negocio',
+        'cliente',
         'numero_viagem',
         'numero_interno',
         'documento_transporte',
@@ -58,6 +60,8 @@ class AtualizarViagem
     {
         Validator::make($data, [
             'veiculo_id' => 'required|exists:veiculos,id',
+            'unidade_negocio' => 'required|string',
+            'cliente' => 'nullable|string',
             'numero_viagem' => 'required|string',
             'numero_interno' => 'nullable|string|unique:viagens,numero_interno,'.$this->viagem->id,
             'documento_transporte' => 'nullable|string',
@@ -76,6 +80,9 @@ class AtualizarViagem
         ], [
             'veiculo_id.required' => 'O campo Veículo é obrigatório.',
             'veiculo_id.exists' => 'Veículo não encontrado.',
+            'unidade_negocio.required' => 'O campo Unidade de Negócio é obrigatório.',
+            'unidade_negocio.string' => 'O campo Unidade de Negócio deve ser um texto válido.',
+            'cliente.string' => 'O campo Cliente deve ser um texto válido.',
             'numero_viagem.required' => 'O campo Viagem é obrigatório.',
             'numero_viagem.string' => 'O campo Viagem deve ser um texto válido.',
             'numero_interno.string' => 'O número interno da viagem deve ser um texto válido.',

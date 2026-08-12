@@ -88,7 +88,7 @@
     <h1>Dashboard Viagens por Veículo</h1>
 
     <div class="meta">
-        Gerado em {{ $dataGeracao }} · Período: {{ $filtros['data_inicio'] ?? '-' }} até {{ $filtros['data_fim'] ?? '-' }}
+        Gerado em {{ $dataGeracao }} · Período: {{ $periodo['inicio'] ?? '-' }} até {{ $periodo['fim'] ?? '-' }}
     </div>
 
     <div class="summary">

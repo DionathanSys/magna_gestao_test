@@ -371,6 +371,10 @@
                     <x-filament::button type="button" color="gray" icon="heroicon-o-arrow-path" wire:click="limparFiltros">
                         Voltar para hoje
                     </x-filament::button>
+
+                    <x-filament::button type="button" color="success" icon="heroicon-o-document-arrow-down" wire:click="gerarPdf">
+                        Relatório PDF
+                    </x-filament::button>
                 </div>
             </div>
         </form>

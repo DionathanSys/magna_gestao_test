@@ -81,12 +81,26 @@ class SascarMovimentoDiarioController extends Controller
             'recebido_em' => now()->toDateTimeString(),
         ]);
 
+        $horas = collect($payload['horas'])->sortBy('hora')->values();
+        $statusResumo = $horas
+            ->flatMap(fn (array $hora): array => $hora['minutos'] ?? [])
+            ->countBy(fn (mixed $status): string => (string) $status)
+            ->sortKeys()
+            ->toArray();
+
         Log::info('Movimento diario Sascar registrado em cache', [
             'metodo' => __METHOD__.'@'.__LINE__,
             'request_id' => $requestId,
             'lote_id' => $loteId,
             'veiculo_key' => $veiculoKey,
             'dia' => $dia,
+            'km' => (float) $payload['km'],
+            'tempo_movimento' => (string) ($payload['tempo_movimento'] ?? $payload['tempo']),
+            'status_resumo' => $statusResumo,
+            'total_blocos' => array_sum($statusResumo),
+            'primeira_hora' => $horas->first(),
+            'ultima_hora' => $horas->last(),
+            'horas' => $horas->toArray(),
         ]);
 
         return response()->json([

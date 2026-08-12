@@ -9,6 +9,7 @@ use App\Services\MailInbound\Support\DocumentIdentity;
 use App\Services\WebScraper\SascarMovimentoDiarioCache;
 use App\Services\WebScraper\WebScraperViagemAtualCache;
 use BackedEnum;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -143,6 +144,48 @@ class DashboardViagensVeiculos extends Page
         $this->carregarDados();
     }
 
+    public function gerarPdf(): mixed
+    {
+        try {
+            $this->carregarDados();
+
+            $veiculos = $this->getVeiculosAgrupados();
+
+            if ($veiculos === []) {
+                Notification::make()
+                    ->title('Sem dados para gerar PDF')
+                    ->warning()
+                    ->body('Nenhum veículo encontrado com os filtros atuais.')
+                    ->send();
+
+                return null;
+            }
+
+            $pdf = Pdf::loadView('pdf.dashboard-viagens-veiculos', [
+                'veiculos' => $veiculos,
+                'filtros' => $this->data,
+                'totalVeiculos' => count($veiculos),
+                'totalViagens' => collect($veiculos)->sum('total'),
+                'dataGeracao' => now()->format('d/m/Y H:i:s'),
+            ]);
+
+            $pdf->setPaper('A4', 'landscape');
+
+            return response()->streamDownload(
+                fn () => print ($pdf->output()),
+                'dashboard-viagens-veiculos-'.now()->format('Y-m-d-H-i').'.pdf'
+            );
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->title('Erro ao gerar PDF')
+                ->danger()
+                ->body($exception->getMessage())
+                ->send();
+
+            return null;
+        }
+    }
+
     public function getTotalViagens(): int
     {
         return collect($this->cards)->sum('total_viagens');
@@ -156,6 +199,22 @@ class DashboardViagensVeiculos extends Page
     public function getTotalClientes(): int
     {
         return collect($this->cards)->pluck('cliente')->unique()->count();
+    }
+
+    private function getVeiculosAgrupados(): array
+    {
+        return collect($this->cards)
+            ->groupBy('placa')
+            ->map(fn ($items, $placa): array => [
+                'placa' => $placa,
+                'total' => $items->sum('total_viagens'),
+                'clientes' => $items->sortByDesc('total_viagens')->pluck('cliente')->unique()->values()->all(),
+                'viagem_atual' => $items->first()['viagem_atual'],
+                'movimento_diario' => $items->first()['movimento_diario'],
+            ])
+            ->sortByDesc('total')
+            ->values()
+            ->toArray();
     }
 
     private function getDefaultFilters(): array

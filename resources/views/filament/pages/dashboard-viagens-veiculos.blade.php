@@ -256,11 +256,18 @@
         }
 
         .trip-minute-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             min-width: 2px;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 1;
         }
 
         .trip-minute-status.status-0 {
-            background: #22c55e;
+            background: #2563eb;
         }
 
         .trip-minute-status.status-1 {
@@ -269,6 +276,7 @@
 
         .trip-minute-status.status-2 {
             background: #94a3b8;
+            color: #0f172a;
         }
 
         .trip-hour-label {
@@ -429,7 +437,7 @@
                                         <div class="trip-hour">
                                             <div class="trip-hour-parts" title="{{ str_pad((string) $hora['hora'], 2, '0', STR_PAD_LEFT) }}h">
                                                 @foreach ($hora['minutos'] as $status)
-                                                    <div class="trip-minute-status status-{{ $status }}"></div>
+                                                    <div class="trip-minute-status status-{{ $status }}">{{ $status }}</div>
                                                 @endforeach
                                             </div>
                                             <div class="trip-hour-label">{{ str_pad((string) $hora['hora'], 2, '0', STR_PAD_LEFT) }}</div>
@@ -438,9 +446,9 @@
                                 </div>
 
                                 <div class="trip-movement-legend">
-                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #22c55e"></span>Movimento</span>
-                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #f59e0b"></span>Parado ligado</span>
-                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #94a3b8"></span>Desligado</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #2563eb"></span>0 Movimento</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #f59e0b"></span>1 Parado ligado</span>
+                                    <span class="trip-legend-item"><span class="trip-legend-dot" style="background: #94a3b8"></span>2 Desligado</span>
                                 </div>
                             @else
                                 <div class="trip-movement-empty">Movimento diário ainda não recebido para este veículo no dia selecionado.</div>

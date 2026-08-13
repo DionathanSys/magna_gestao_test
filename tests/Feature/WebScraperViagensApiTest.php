@@ -49,6 +49,37 @@ class WebScraperViagensApiTest extends TestCase
         Queue::assertPushed(ProcessarWebScraperViagensJob::class);
     }
 
+    public function test_aceita_km_pago_nulo_para_normalizacao_assincrona(): void
+    {
+        Queue::fake();
+        config(['services.webscraper.secret' => 'test-secret']);
+
+        $viagem = $this->payloadViagem();
+        $viagem['km_pago'] = null;
+
+        $body = json_encode([
+            'lote_id' => 'teste-lote-km-null',
+            'viagem' => $viagem,
+        ], JSON_THROW_ON_ERROR);
+
+        $timestamp = (string) time();
+        $signature = 'sha256='.hash_hmac('sha256', $timestamp.'.'.$body, 'test-secret');
+
+        $response = $this->call('POST', '/api/integracoes/viagens', [], [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_WEBHOOK_TIMESTAMP' => $timestamp,
+            'HTTP_X_WEBHOOK_SIGNATURE' => $signature,
+            'HTTP_X_REQUEST_ID' => 'request-teste-km-null',
+        ], $body);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        Queue::assertPushed(ProcessarWebScraperViagensJob::class);
+    }
+
     private function payloadViagem(): array
     {
         return [

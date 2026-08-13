@@ -196,6 +196,21 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
             $data['possui_pendencia'] = false;
         }
 
+        foreach (['km_rodado', 'km_pago'] as $campoKm) {
+            if (! array_key_exists($campoKm, $data) || $data[$campoKm] === null || $data[$campoKm] === '') {
+                Log::warning('Payload WebScraper recebido sem valor de KM; normalizando para zero', [
+                    'metodo' => __METHOD__.'@'.__LINE__,
+                    'request_id' => $this->requestId,
+                    'lote_id' => $this->loteId,
+                    'numero_viagem' => $payload['numero_viagem'] ?? null,
+                    'campo' => $campoKm,
+                    'valor_original' => $data[$campoKm] ?? null,
+                ]);
+
+                $data[$campoKm] = 0;
+            }
+        }
+
         return $data;
     }
 

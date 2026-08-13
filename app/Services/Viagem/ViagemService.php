@@ -85,18 +85,32 @@ class ViagemService
 
             switch (true) {
                 case $viagem && $viagem->conferido == false:
+                    $viagemIdOriginal = $viagem->id;
                     $action = new Actions\AtualizarViagem($viagem);
                     $viagem = $action->handle($data);
                     Log::info('Viagem atualizada por integracao', [
                         'metodo' => __METHOD__.'@'.__LINE__,
                         'viagem_id' => $viagem->id,
                         'numero_viagem' => $viagem->numero_viagem,
+                        'conferido' => $viagem->conferido,
                     ]);
-                    $this->setSuccess('Viagem atualizada com sucesso!');
+                    $this->setSuccess('Viagem atualizada com sucesso!', [
+                        'acao' => 'atualizada',
+                        'viagem_id' => $viagemIdOriginal,
+                    ]);
                     break;
 
                 case $viagem && $viagem->conferido == true:
-                    $this->setSuccess('Viagem Nº '.$viagem['numero_viagem'].' já conferida, não será atualizado');
+                    Log::info('Viagem recebida por integracao ignorada por ja estar conferida', [
+                        'metodo' => __METHOD__.'@'.__LINE__,
+                        'viagem_id' => $viagem->id,
+                        'numero_viagem' => $viagem->numero_viagem,
+                        'conferido' => $viagem->conferido,
+                    ]);
+                    $this->setInfo('Viagem Nº '.$viagem['numero_viagem'].' já conferida, não será atualizado', [
+                        'acao' => 'ignorada_conferida',
+                        'viagem_id' => $viagem->id,
+                    ]);
                     break;
 
                 default:
@@ -107,6 +121,12 @@ class ViagemService
                         'viagem_id' => $viagem?->id,
                         'numero_viagem' => $data['numero_viagem'] ?? null,
                     ]);
+                    if ($viagem) {
+                        $this->setSuccess('Viagem criada com sucesso!', [
+                            'acao' => 'criada',
+                            'viagem_id' => $viagem->id,
+                        ]);
+                    }
             }
 
             if ($action instanceof Actions\CriarViagem && $action->hasError) {

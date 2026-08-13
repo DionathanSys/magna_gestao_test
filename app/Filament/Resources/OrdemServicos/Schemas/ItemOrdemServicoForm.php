@@ -97,7 +97,6 @@ class ItemOrdemServicoForm
                 return ServicoCacheService::getPosicoesForSelect($servicoId);
             })
             ->placeholder('Selecione a posição')
-            ->searchable()
             ->preload()
             ->visible(fn (Get $get): bool => (bool) $get('controla_posicao'))
             ->requiredIf('controla_posicao', true)

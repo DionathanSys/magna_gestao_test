@@ -88,6 +88,13 @@ class WebScraperViagemController extends Controller
             'request_id' => $requestId,
             'lote_id' => $loteId,
             'total_viagens' => count($viagens),
+            'queue' => 'integracoes',
+            'numeros_viagem' => collect($viagens)
+                ->pluck('numero_viagem')
+                ->filter()
+                ->take(20)
+                ->values()
+                ->all(),
         ]);
 
         return response()->json([

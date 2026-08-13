@@ -24,6 +24,13 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
 
     public function handle(WebScraperViagemErrorCache $errorCache): void
     {
+        $resumo = [
+            'criadas' => 0,
+            'atualizadas' => 0,
+            'ignoradas_conferidas' => 0,
+            'falhas' => 0,
+        ];
+
         Log::info('Iniciando processamento de viagens WebScraper', [
             'metodo' => __METHOD__.'@'.__LINE__,
             'request_id' => $this->requestId,
@@ -40,23 +47,40 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
                 $viagem = $service->updateOrCreate($data);
 
                 if ($service->hasError() || ! $viagem) {
+                    $resumo['falhas']++;
                     $this->registrarFalha($errorCache, $index, $payload, $service->getMessageUser() ?: 'Falha ao criar/atualizar viagem.');
 
                     continue;
                 }
 
-                Log::info('Viagem WebScraper processada com sucesso', [
+                $serviceData = $service->getData();
+                $acao = (string) ($serviceData['acao'] ?? 'processada');
+
+                match ($acao) {
+                    'criada' => $resumo['criadas']++,
+                    'atualizada' => $resumo['atualizadas']++,
+                    'ignorada_conferida' => $resumo['ignoradas_conferidas']++,
+                    default => null,
+                };
+
+                Log::info('Viagem WebScraper processada', [
                     'metodo' => __METHOD__.'@'.__LINE__,
                     'request_id' => $this->requestId,
                     'lote_id' => $this->loteId,
                     'index' => $index,
+                    'acao' => $acao,
+                    'mensagem' => $service->getMessage(),
                     'viagem_id' => $viagem->id,
                     'numero_viagem' => $viagem->numero_viagem,
+                    'payload_resumo' => $this->snapshotPayload($payload),
                     'campos_salvos' => $this->snapshotViagem($viagem->fresh()),
                 ]);
 
-                $this->registrarDiferencasPersistencia($index, $data, $viagem->fresh());
+                if ($acao !== 'ignorada_conferida') {
+                    $this->registrarDiferencasPersistencia($index, $data, $viagem->fresh());
+                }
             } catch (Throwable $exception) {
+                $resumo['falhas']++;
                 $this->registrarFalha($errorCache, $index, $payload, $exception->getMessage());
 
                 Log::error('Excecao ao processar viagem WebScraper', [
@@ -76,6 +100,7 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
             'request_id' => $this->requestId,
             'lote_id' => $this->loteId,
             'total_viagens' => count($this->viagens),
+            'resumo' => $resumo,
         ]);
     }
 
@@ -261,6 +286,22 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
             'pendencias',
             'motorista1',
             'motorista2',
+        ]);
+    }
+
+    private function snapshotPayload(array $payload): array
+    {
+        return Arr::only($payload, [
+            'numero_viagem',
+            'placa',
+            'veiculo_id',
+            'unidade_negocio',
+            'data_competencia',
+            'data_inicio',
+            'data_fim',
+            'conferido',
+            'ignorar',
+            'possui_pendencia',
         ]);
     }
 

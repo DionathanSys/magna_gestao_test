@@ -257,6 +257,8 @@ class DashboardViagensVeiculos extends Page
                 $data = [
                     ...$item,
                     'destino' => filled($item['destino'] ?? null) ? (string) $item['destino'] : 'N/A',
+                    'local_atual' => filled($item['local_atual'] ?? null) ? (string) $item['local_atual'] : 'N/A',
+                    'peso_humano' => isset($item['peso']) ? number_format((float) $item['peso'], 2, ',', '.').' kg' : 'N/A',
                     'status' => filled($item['status'] ?? null) ? (string) $item['status'] : 'N/A',
                     'inicio_humano' => $this->formatarData($item['inicio'] ?? null),
                     'duracao_viagem' => $this->formatarDuracaoDesde($item['inicio'] ?? null),
@@ -298,6 +300,8 @@ class DashboardViagensVeiculos extends Page
 
         return [
             'destino' => 'N/A',
+            'local_atual' => 'N/A',
+            'peso_humano' => 'N/A',
             'status' => 'N/A',
             'inicio_humano' => 'N/A',
             'duracao_viagem' => 'N/A',

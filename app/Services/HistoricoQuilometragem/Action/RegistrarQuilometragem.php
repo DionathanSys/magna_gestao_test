@@ -39,6 +39,26 @@ class RegistrarQuilometragem
             'quilometragem.min' => 'A quilometragem deve ser maior ou igual a 0.',
         ]);
 
+        $validator->after(function ($validator) use ($data): void {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            $ultimaQuilometragem = Models\HistoricoQuilometragem::query()
+                ->where('veiculo_id', $data['veiculo_id'])
+                ->whereDate('data_referencia', '<=', $data['data_referencia'])
+                ->orderByDesc('data_referencia')
+                ->orderByDesc('id')
+                ->value('quilometragem');
+
+            if ($ultimaQuilometragem !== null && $data['quilometragem'] < $ultimaQuilometragem) {
+                $validator->errors()->add(
+                    'quilometragem',
+                    'A quilometragem nao pode ser menor que a ultima registrada ate a data de referencia.'
+                );
+            }
+        });
+
         if ($validator->fails()) {
             Log::warning('Validação falhou ao registrar quilometragem', [
                 'errors' => $validator->errors()->all(),

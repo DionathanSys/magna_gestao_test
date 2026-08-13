@@ -170,6 +170,17 @@
             white-space: nowrap;
         }
 
+        .trip-current-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .trip-current-detail {
+            color: #64748b;
+            font-size: 12px;
+        }
+
         .dark .trip-current-value {
             color: #e5e7eb;
         }
@@ -398,8 +409,14 @@
 
                         <div class="trip-plate">{{ $veiculo['placa'] }}</div>
 
-                        <div class="trip-current-value" title="{{ $veiculo['viagem_atual']['destino'] }}">
-                            {{ $veiculo['viagem_atual']['destino'] }}
+                        <div class="trip-current-details">
+                            <div class="trip-current-value" title="{{ $veiculo['viagem_atual']['destino'] }}">
+                                {{ $veiculo['viagem_atual']['destino'] }}
+                            </div>
+                            <div class="trip-current-detail" title="{{ $veiculo['viagem_atual']['local_atual'] }}">
+                                Local: {{ $veiculo['viagem_atual']['local_atual'] }}
+                            </div>
+                            <div class="trip-current-detail">Peso: {{ $veiculo['viagem_atual']['peso_humano'] }}</div>
                         </div>
 
                         <div>

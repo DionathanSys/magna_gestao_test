@@ -102,7 +102,9 @@
             <thead>
                 <tr>
                     <th style="width: 9%;">Veículo</th>
-                    <th style="width: 24%;">Destino</th>
+                    <th style="width: 19%;">Destino</th>
+                    <th style="width: 14%;">Local atual</th>
+                    <th style="width: 8%;">Peso</th>
                     <th style="width: 11%;">Status</th>
                     <th style="width: 13%;">Início</th>
                     <th style="width: 10%;">Duração</th>
@@ -117,6 +119,8 @@
                     <tr>
                         <td class="plate">{{ $veiculo['placa'] }}</td>
                         <td>{{ $veiculo['viagem_atual']['destino'] ?? 'N/A' }}</td>
+                        <td>{{ $veiculo['viagem_atual']['local_atual'] ?? 'N/A' }}</td>
+                        <td>{{ $veiculo['viagem_atual']['peso_humano'] ?? 'N/A' }}</td>
                         <td>{{ $veiculo['viagem_atual']['status'] ?? 'N/A' }}</td>
                         <td>{{ $veiculo['viagem_atual']['inicio_humano'] ?? 'N/A' }}</td>
                         <td>{{ $veiculo['viagem_atual']['duracao_viagem'] ?? 'N/A' }}</td>

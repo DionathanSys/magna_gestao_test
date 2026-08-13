@@ -26,6 +26,8 @@ class WebScraperViagemAtualController extends Controller
             'numero_viagem' => 'required_without:nro_viagem|string|max:255',
             'nro_viagem' => 'required_without:numero_viagem|string|max:255',
             'destino' => 'required|string|max:255',
+            'local_atual' => 'nullable|string|max:255',
+            'peso' => 'nullable|numeric|min:0',
             'km_pago' => 'required|numeric|min:0',
             'inicio' => 'required|date',
             'status' => 'required|string|max:80',
@@ -56,6 +58,8 @@ class WebScraperViagemAtualController extends Controller
             'placa_normalizada' => DocumentIdentity::normalizePlate($payload['placa'] ?? $payload['veiculo'] ?? $veiculo?->placa),
             'numero_viagem' => (string) ($payload['numero_viagem'] ?? $payload['nro_viagem']),
             'destino' => (string) $payload['destino'],
+            'local_atual' => filled($payload['local_atual'] ?? null) ? trim((string) $payload['local_atual']) : null,
+            'peso' => isset($payload['peso']) ? (float) $payload['peso'] : null,
             'km_pago' => (float) $payload['km_pago'],
             'inicio' => (string) $payload['inicio'],
             'status' => trim((string) $payload['status']),
@@ -72,6 +76,8 @@ class WebScraperViagemAtualController extends Controller
             'veiculo' => $data['veiculo'],
             'numero_viagem' => $data['numero_viagem'],
             'destino' => $data['destino'],
+            'local_atual' => $data['local_atual'],
+            'peso' => $data['peso'],
             'status' => $data['status'],
         ]);
 

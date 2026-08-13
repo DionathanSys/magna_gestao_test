@@ -34,6 +34,9 @@
             border-radius: 18px;
             background: #fff;
             box-shadow: 0 10px 30px rgba(15, 23, 42, .05);
+        }
+
+        .trip-list-card {
             overflow: hidden;
         }
 

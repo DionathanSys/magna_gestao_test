@@ -55,7 +55,7 @@ class DashboardViagensVeiculos extends Page
             ->columns(12)
             ->components([
                 Section::make('Filtros')
-                    ->description('Os dados são buscados diretamente da tabela viagens.')
+                    ->description('As viagens são agrupadas pelo cliente vinculado ao veículo.')
                     ->columns(4)
                     ->columnSpan(12)
                     ->components([
@@ -80,7 +80,8 @@ class DashboardViagensVeiculos extends Page
                             ->label('Cliente')
                             ->placeholder('Todos')
                             ->options(ClienteEnum::toSelectArray())
-                            ->searchable(),
+                            ->searchable()
+                            ->native(false),
                     ]),
             ])
             ->statePath('data');
@@ -110,7 +111,7 @@ class DashboardViagensVeiculos extends Page
             ->leftJoin('veiculos', 'veiculos.id', '=', 'viagens.veiculo_id')
             ->select([
                 'viagens.veiculo_id',
-                'viagens.cliente',
+                DB::raw("COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(veiculos.informacoes_complementares, '$.cliente')), ''), 'Sem cliente') as cliente"),
                 DB::raw("COALESCE(veiculos.placa, 'Sem veículo') as placa"),
                 DB::raw('COUNT(*) as total_viagens'),
             ])
@@ -122,9 +123,10 @@ class DashboardViagensVeiculos extends Page
             )
             ->when(
                 filled($this->data['cliente'] ?? null),
-                fn ($query) => $query->where('viagens.cliente', $this->data['cliente']),
+                fn ($query) => $query->where('veiculos.informacoes_complementares->cliente', $this->data['cliente']),
             )
-            ->groupBy('viagens.veiculo_id', 'veiculos.placa', 'viagens.cliente')
+            ->groupBy('viagens.veiculo_id', 'veiculos.placa')
+            ->groupByRaw("COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(veiculos.informacoes_complementares, '$.cliente')), ''), 'Sem cliente')")
             ->orderByDesc('total_viagens')
             ->orderBy('placa')
             ->get()

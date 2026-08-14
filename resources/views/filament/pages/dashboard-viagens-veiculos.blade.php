@@ -6,6 +6,7 @@
                 return [
                     'placa' => $placa,
                     'total' => $items->sum('total_viagens'),
+                    'total_encerradas' => $items->sum('total_viagens_encerradas'),
                     'clientes' => $items->sortByDesc('total_viagens')->values(),
                     'principal' => $items->sortByDesc('total_viagens')->first(),
                     'viagem_atual' => $items->first()['viagem_atual'],
@@ -14,6 +15,8 @@
             })
             ->sortByDesc('total')
             ->values();
+        $graficoViagensEncerradas = $veiculos->sortBy('placa')->values();
+        $maiorTotalEncerradas = max(1, $graficoViagensEncerradas->max('total_encerradas'));
     @endphp
 
     <style>
@@ -40,14 +43,83 @@
             overflow: hidden;
         }
 
+        .trip-chart-card {
+            padding: 20px;
+        }
+
         .dark .trip-filter-card,
-        .dark .trip-list-card {
+        .dark .trip-list-card,
+        .dark .trip-chart-card {
             border-color: rgba(255, 255, 255, .1);
             background: #111827;
         }
 
         .trip-filter-body {
             padding: 18px;
+        }
+
+        .trip-chart-title {
+            color: #020617;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .trip-chart-subtitle {
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .trip-chart-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .trip-chart-row {
+            display: grid;
+            grid-template-columns: 100px minmax(0, 1fr) 42px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trip-chart-label,
+        .trip-chart-value {
+            color: #334155;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .trip-chart-value {
+            text-align: right;
+        }
+
+        .trip-chart-track {
+            overflow: hidden;
+            height: 22px;
+            border-radius: 6px;
+            background: #e2e8f0;
+        }
+
+        .trip-chart-bar {
+            height: 100%;
+            border-radius: inherit;
+            background: #2563eb;
+        }
+
+        .dark .trip-chart-title,
+        .dark .trip-chart-label,
+        .dark .trip-chart-value {
+            color: #fff;
+        }
+
+        .dark .trip-chart-subtitle {
+            color: #94a3b8;
+        }
+
+        .dark .trip-chart-track {
+            background: rgba(255, 255, 255, .1);
         }
 
         .trip-actions {
@@ -364,6 +436,13 @@
             }
         }
 
+        @media (max-width: 640px) {
+            .trip-chart-row {
+                grid-template-columns: 78px minmax(0, 1fr) 36px;
+                gap: 8px;
+            }
+        }
+
     </style>
 
     <div class="trip-dashboard">
@@ -386,6 +465,25 @@
                 </div>
             </div>
         </form>
+
+        @if ($graficoViagensEncerradas->isNotEmpty())
+            <section class="trip-filter-card trip-chart-card">
+                <div class="trip-chart-title">Viagens encerradas por veículo</div>
+                <div class="trip-chart-subtitle">Quantidade de viagens encerradas no período selecionado.</div>
+
+                <div class="trip-chart-bars">
+                    @foreach ($graficoViagensEncerradas as $veiculo)
+                        <div class="trip-chart-row">
+                            <div class="trip-chart-label">{{ $veiculo['placa'] }}</div>
+                            <div class="trip-chart-track">
+                                <div class="trip-chart-bar" style="width: {{ ($veiculo['total_encerradas'] / $maiorTotalEncerradas) * 100 }}%"></div>
+                            </div>
+                            <div class="trip-chart-value">{{ number_format($veiculo['total_encerradas'], 0, ',', '.') }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
 
         <section class="trip-list-card">
             @if ($veiculos->isNotEmpty())

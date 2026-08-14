@@ -114,6 +114,7 @@ class DashboardViagensVeiculos extends Page
                 DB::raw("COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(veiculos.informacoes_complementares, '$.cliente')), ''), 'Sem cliente') as cliente"),
                 DB::raw("COALESCE(veiculos.placa, 'Sem veículo') as placa"),
                 DB::raw('COUNT(*) as total_viagens'),
+                DB::raw('SUM(CASE WHEN viagens.data_fim IS NOT NULL THEN 1 ELSE 0 END) as total_viagens_encerradas'),
             ])
             ->whereDate('viagens.data_competencia', '>=', $dataInicio)
             ->whereDate('viagens.data_competencia', '<=', $dataFim)
@@ -135,6 +136,7 @@ class DashboardViagensVeiculos extends Page
                 'placa' => $item->placa,
                 'cliente' => $item->cliente ?: 'Sem cliente',
                 'total_viagens' => (int) $item->total_viagens,
+                'total_viagens_encerradas' => (int) $item->total_viagens_encerradas,
                 'viagem_atual' => $this->resolverViagemAtual($item->veiculo_id, $item->placa),
                 'movimento_diario' => $this->resolverMovimentoDiario($item->veiculo_id, $item->placa),
             ])

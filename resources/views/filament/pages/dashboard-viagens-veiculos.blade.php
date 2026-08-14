@@ -71,17 +71,18 @@
         }
 
         .trip-chart-bars {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+            align-items: end;
+            gap: 14px;
             margin-top: 18px;
         }
 
         .trip-chart-row {
-            display: grid;
-            grid-template-columns: 100px minmax(0, 1fr) 42px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
         .trip-chart-label,
@@ -91,21 +92,22 @@
             font-weight: 600;
         }
 
-        .trip-chart-value {
-            text-align: right;
-        }
-
         .trip-chart-track {
-            overflow: hidden;
-            height: 22px;
-            border-radius: 6px;
-            background: #e2e8f0;
+            position: relative;
+            width: 100%;
+            height: 180px;
+            border-bottom: 1px solid #cbd5e1;
         }
 
-        .trip-chart-bar {
-            height: 100%;
-            border-radius: inherit;
+        .trip-chart-dot {
+            position: absolute;
+            left: 50%;
+            width: 14px;
+            height: 14px;
+            border: 3px solid #dbeafe;
+            border-radius: 999px;
             background: #2563eb;
+            transform: translateX(-50%);
         }
 
         .dark .trip-chart-title,
@@ -119,7 +121,11 @@
         }
 
         .dark .trip-chart-track {
-            background: rgba(255, 255, 255, .1);
+            border-bottom-color: rgba(255, 255, 255, .2);
+        }
+
+        .dark .trip-chart-dot {
+            border-color: #1e3a8a;
         }
 
         .trip-actions {
@@ -437,9 +443,18 @@
         }
 
         @media (max-width: 640px) {
-            .trip-chart-row {
-                grid-template-columns: 78px minmax(0, 1fr) 36px;
-                gap: 8px;
+            .trip-chart-bars {
+                grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+                gap: 10px;
+            }
+
+            .trip-chart-track {
+                height: 140px;
+            }
+
+            .trip-chart-label,
+            .trip-chart-value {
+                font-size: 11px;
             }
         }
 
@@ -474,11 +489,11 @@
                 <div class="trip-chart-bars">
                     @foreach ($graficoViagensEncerradas as $veiculo)
                         <div class="trip-chart-row">
-                            <div class="trip-chart-label">{{ $veiculo['placa'] }}</div>
-                            <div class="trip-chart-track">
-                                <div class="trip-chart-bar" style="width: {{ ($veiculo['total_encerradas'] / $maiorTotalEncerradas) * 100 }}%"></div>
-                            </div>
                             <div class="trip-chart-value">{{ number_format($veiculo['total_encerradas'], 0, ',', '.') }}</div>
+                            <div class="trip-chart-track">
+                                <div class="trip-chart-dot" style="bottom: calc({{ ($veiculo['total_encerradas'] / $maiorTotalEncerradas) * 100 }}% - 7px)"></div>
+                            </div>
+                            <div class="trip-chart-label">{{ $veiculo['placa'] }}</div>
                         </div>
                     @endforeach
                 </div>

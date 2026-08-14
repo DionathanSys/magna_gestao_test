@@ -109,7 +109,7 @@
                     <th style="width: 13%;">Início</th>
                     <th style="width: 10%;">Duração</th>
                     <th style="width: 8%;">Km pago</th>
-                    <th style="width: 8%;">Viagens</th>
+                    <th style="width: 8%;">Viagens encerradas</th>
                     <th style="width: 17%;">Mov. diário</th>
                 </tr>
             </thead>
@@ -125,7 +125,7 @@
                         <td>{{ $veiculo['viagem_atual']['inicio_humano'] ?? 'N/A' }}</td>
                         <td>{{ $veiculo['viagem_atual']['duracao_viagem'] ?? 'N/A' }}</td>
                         <td>{{ $veiculo['viagem_atual']['km_pago_humano'] ?? '0,0' }}</td>
-                        <td>{{ number_format($veiculo['total'], 0, ',', '.') }}</td>
+                        <td>{{ number_format($veiculo['total_encerradas'], 0, ',', '.') }}</td>
                         <td>
                             @if ($veiculo['movimento_diario']['disponivel'] ?? false)
                                 Km {{ $veiculo['movimento_diario']['km'] }}<br>

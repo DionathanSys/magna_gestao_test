@@ -47,6 +47,26 @@
             padding: 20px;
         }
 
+        .trip-totalizer {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 18px 20px;
+        }
+
+        .trip-totalizer-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .trip-totalizer-value {
+            color: #2563eb;
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
         .dark .trip-filter-card,
         .dark .trip-list-card,
         .dark .trip-chart-card {
@@ -101,6 +121,7 @@
 
         .trip-chart-dot {
             position: absolute;
+            z-index: 2;
             left: 50%;
             width: 14px;
             height: 14px;
@@ -110,10 +131,34 @@
             transform: translateX(-50%);
         }
 
+        .trip-chart-line {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 50%;
+            width: calc(100% + 14px);
+            height: 100%;
+            overflow: visible;
+        }
+
+        .trip-chart-line path {
+            fill: none;
+            stroke: #2563eb;
+            stroke-width: 2;
+        }
+
         .dark .trip-chart-title,
         .dark .trip-chart-label,
         .dark .trip-chart-value {
             color: #fff;
+        }
+
+        .dark .trip-totalizer-label {
+            color: #94a3b8;
+        }
+
+        .dark .trip-totalizer-value {
+            color: #60a5fa;
         }
 
         .dark .trip-chart-subtitle {
@@ -126,6 +171,10 @@
 
         .dark .trip-chart-dot {
             border-color: #1e3a8a;
+        }
+
+        .dark .trip-chart-line path {
+            stroke: #60a5fa;
         }
 
         .trip-actions {
@@ -481,6 +530,11 @@
             </div>
         </form>
 
+        <section class="trip-filter-card trip-totalizer">
+            <div class="trip-totalizer-label">Total de viagens encerradas</div>
+            <div class="trip-totalizer-value">{{ number_format($this->getTotalViagensEncerradas(), 0, ',', '.') }}</div>
+        </section>
+
         @if ($graficoViagensEncerradas->isNotEmpty())
             <section class="trip-filter-card trip-chart-card">
                 <div class="trip-chart-title">Viagens encerradas por veículo</div>
@@ -488,10 +542,22 @@
 
                 <div class="trip-chart-bars">
                     @foreach ($graficoViagensEncerradas as $veiculo)
+                        @php
+                            $percentualEncerradas = ($veiculo['total_encerradas'] / $maiorTotalEncerradas) * 100;
+                            $proximoVeiculo = $graficoViagensEncerradas->get($loop->index + 1);
+                        @endphp
                         <div class="trip-chart-row">
                             <div class="trip-chart-value">{{ number_format($veiculo['total_encerradas'], 0, ',', '.') }}</div>
                             <div class="trip-chart-track">
-                                <div class="trip-chart-dot" style="bottom: calc({{ ($veiculo['total_encerradas'] / $maiorTotalEncerradas) * 100 }}% - 7px)"></div>
+                                @if ($proximoVeiculo)
+                                    @php
+                                        $proximoPercentualEncerradas = ($proximoVeiculo['total_encerradas'] / $maiorTotalEncerradas) * 100;
+                                    @endphp
+                                    <svg class="trip-chart-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                                        <path d="M 0 {{ 100 - $percentualEncerradas }} L 100 {{ 100 - $proximoPercentualEncerradas }}" />
+                                    </svg>
+                                @endif
+                                <div class="trip-chart-dot" style="bottom: calc({{ $percentualEncerradas }}% - 7px)"></div>
                             </div>
                             <div class="trip-chart-label">{{ $veiculo['placa'] }}</div>
                         </div>

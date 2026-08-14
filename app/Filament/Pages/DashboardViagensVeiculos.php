@@ -197,6 +197,11 @@ class DashboardViagensVeiculos extends Page
         return collect($this->cards)->sum('total_viagens');
     }
 
+    public function getTotalViagensEncerradas(): int
+    {
+        return collect($this->cards)->sum('total_viagens_encerradas');
+    }
+
     public function getTotalVeiculos(): int
     {
         return collect($this->cards)->pluck('veiculo_id')->filter()->unique()->count();
@@ -214,6 +219,7 @@ class DashboardViagensVeiculos extends Page
             ->map(fn ($items, $placa): array => [
                 'placa' => $placa,
                 'total' => $items->sum('total_viagens'),
+                'total_encerradas' => $items->sum('total_viagens_encerradas'),
                 'clientes' => $items->sortByDesc('total_viagens')->pluck('cliente')->unique()->values()->all(),
                 'viagem_atual' => $items->first()['viagem_atual'],
                 'movimento_diario' => $items->first()['movimento_diario'],

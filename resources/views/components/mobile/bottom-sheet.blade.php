@@ -7,6 +7,8 @@
     'draggable' => true,
     'showHandle' => true,
     'openState' => 'false',
+    'isOpen' => false,
+    'closeAction' => null,
 ])
 
 <div
@@ -23,17 +25,18 @@
     aria-modal="true"
     :aria-hidden="(!open).toString()"
     :class="{ 'is-open': open }"
-    class="mb-sheet-root"
+    class="mb-sheet-root {{ $isOpen ? 'is-open' : '' }}"
 >
     <div
-        class="mb-sheet-overlay"
+        class="mb-sheet-overlay {{ $isOpen ? 'is-visible' : '' }}"
         :class="{ 'is-visible': open }"
         x-on:click="closeOnOverlay && hide()"
+        @if ($closeAction) wire:click="{{ $closeAction }}" @endif
         aria-hidden="true"
     ></div>
 
     <div
-        class="mb-sheet-panel"
+        class="mb-sheet-panel {{ $isOpen ? 'is-open' : '' }}"
         :class="{ 'is-open': open, 'is-dragging': dragging }"
         :style="panelStyle"
     >

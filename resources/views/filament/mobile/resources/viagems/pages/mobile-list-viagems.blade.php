@@ -21,13 +21,7 @@
         }
     </style>
 
-    <div
-        x-data="{
-            abrirDetalhes(id) {
-                $wire.selecionarViagem(id)
-            },
-        }"
-    >
+    <div>
         <div class="vg-mobile-hero">
             <div class="vg-mobile-hero-kicker">Painel mobile</div>
             <div class="vg-mobile-hero-title">Viagens na palma da mão</div>
@@ -63,7 +57,7 @@
             @forelse ($this->viagens as $viagem)
                 <x-mobile.record-card
                     wire:key="viagem-mobile-{{ $viagem->id }}"
-                    :click="'abrirDetalhes('.$viagem->id.')'"
+                    wire:click="selecionarViagem({{ $viagem->id }})"
                 >
                     <x-slot:title>
                         {{ $viagem->numero_viagem ?? 'Viagem #'.$viagem->id }} · {{ $viagem->veiculo?->placa ?? 'Sem placa' }}
@@ -125,6 +119,8 @@
             name="trip-details"
             :height="60"
             open-state="$wire.entangle('sheetOpen').live"
+            :is-open="$sheetOpen"
+            close-action="$set('sheetOpen', false)"
         >
             <x-slot:header>
                 <div class="mb-sheet-title">{{ $this->selectedViagem?->numero_viagem ?? 'Detalhes da viagem' }}</div>
@@ -133,6 +129,7 @@
                     class="mb-sheet-close"
                     x-ref="closeButton"
                     x-on:click="hide()"
+                    wire:click="$set('sheetOpen', false)"
                     aria-label="Fechar"
                 >
                     <x-filament::icon icon="heroicon-o-x-mark" class="h-5 w-5" />

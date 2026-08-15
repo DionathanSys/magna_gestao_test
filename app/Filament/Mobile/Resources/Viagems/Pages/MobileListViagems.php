@@ -58,7 +58,11 @@ class MobileListViagems extends Page
 
     public function getDetalheCompletoUrl(Viagem $viagem): string
     {
-        return \App\Filament\Resources\Viagems\ViagemResource::getUrl('view', ['record' => $viagem->id]);
+        return \App\Filament\Resources\Viagems\ViagemResource::getUrl(
+            'view',
+            ['record' => $viagem->id],
+            panel: 'admin',
+        );
     }
 
     public function formatValor(Viagem $viagem): string

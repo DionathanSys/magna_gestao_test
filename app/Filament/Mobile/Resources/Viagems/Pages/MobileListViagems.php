@@ -24,6 +24,8 @@ class MobileListViagems extends Page
 
     public string $busca = '';
 
+    public ?int $selectedViagemId = null;
+
     public function updatedBusca(): void
     {
         $this->resetPage();
@@ -32,6 +34,38 @@ class MobileListViagems extends Page
     public function updatedActiveTab(): void
     {
         $this->resetPage();
+    }
+
+    public function selecionarViagem(int $id): void
+    {
+        $this->selectedViagemId = $id;
+    }
+
+    public function getSelectedViagemProperty(): ?Viagem
+    {
+        if (! $this->selectedViagemId) {
+            return null;
+        }
+
+        return Viagem::query()
+            ->with([
+                'veiculo:id,placa',
+                'cargas.integrado:id,codigo,nome,municipio',
+                'documentos:id,viagem_id,numero_documento,valor_liquido,parceiro_destino',
+            ])
+            ->find($this->selectedViagemId);
+    }
+
+    public function getDetalheCompletoUrl(Viagem $viagem): string
+    {
+        return \App\Filament\Resources\Viagems\ViagemResource::getUrl('view', ['record' => $viagem->id]);
+    }
+
+    public function formatValor(Viagem $viagem): string
+    {
+        $total = (float) $viagem->documentos->sum('valor_liquido');
+
+        return 'R$ '.number_format($total, 2, ',', '.');
     }
 
     public function getViagensProperty(): LengthAwarePaginator

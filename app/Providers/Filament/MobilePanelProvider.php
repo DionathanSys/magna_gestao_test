@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Mobile\Resources\OrdemServicos\OrdemServicoResource;
+use App\Filament\Mobile\Resources\PneuInspecoes\PneuInspecaoResource;
+use App\Filament\Mobile\Resources\Viagems\ViagemResource;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -69,12 +72,51 @@ class MobilePanelProvider extends PanelProvider
                 fn (): View => view('filament.hooks.pwa-head'),
             )
             ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): View => view('filament.hooks.mobile-viewport'),
+            )
+            ->renderHook(
+                PanelsRenderHook::STYLES_AFTER,
+                fn (): View => view('filament.hooks.mobile-shell-styles'),
+            )
+            ->renderHook(
+                PanelsRenderHook::FOOTER,
+                fn (): View => view('filament.hooks.mobile-bottom-navigation', [
+                    'items' => [
+                        [
+                            'label' => 'Início',
+                            'icon' => 'heroicon-o-home',
+                            'url' => Dashboard::getUrl(),
+                        ],
+                        [
+                            'label' => 'Viagens',
+                            'icon' => 'heroicon-o-map',
+                            'url' => ViagemResource::getUrl(),
+                        ],
+                        [
+                            'label' => 'Pneus',
+                            'icon' => 'heroicon-o-magnifying-glass-circle',
+                            'url' => PneuInspecaoResource::getUrl(),
+                        ],
+                        [
+                            'label' => 'Oficina',
+                            'icon' => 'heroicon-o-wrench-screwdriver',
+                            'url' => OrdemServicoResource::getUrl(),
+                        ],
+                    ],
+                ]),
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): View => view('filament.hooks.close-action-group-js'),
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): View => view('filament.hooks.pwa-register'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): View => view('filament.hooks.mobile-shell-js'),
             );
     }
 }

@@ -115,7 +115,7 @@ class MobilePanelProvider extends PanelProvider
                 fn (): View => view('filament.hooks.pwa-register'),
             )
             ->renderHook(
-                PanelsRenderHook::BODY_END,
+                PanelsRenderHook::SCRIPTS_BEFORE,
                 fn (): View => view('filament.hooks.mobile-shell-js'),
             );
     }

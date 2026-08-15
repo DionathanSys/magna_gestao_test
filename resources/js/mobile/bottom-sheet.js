@@ -1,4 +1,8 @@
-document.addEventListener('alpine:init', () => {
+const registerBottomSheet = () => {
+    if (typeof window.Alpine === 'undefined') {
+        return
+    }
+
     window.Alpine.data('bottomSheet', (config = {}) => ({
         open: false,
         dragging: false,
@@ -75,10 +79,10 @@ document.addEventListener('alpine:init', () => {
                     return
                 }
 
+                const shouldClose = this.offsetY > this.threshold || this.dragVelocity > this.velocityThreshold
+
                 this.dragging = false
                 this.offsetY = 0
-
-                const shouldClose = this.offsetY > this.threshold || this.dragVelocity > this.velocityThreshold
 
                 if (shouldClose) {
                     this.hide()
@@ -145,4 +149,10 @@ document.addEventListener('alpine:init', () => {
             this.dragLastTime = performance.now()
         },
     }))
-})
+}
+
+if (typeof window.Alpine !== 'undefined') {
+    registerBottomSheet()
+} else {
+    document.addEventListener('alpine:init', registerBottomSheet, { once: true })
+}

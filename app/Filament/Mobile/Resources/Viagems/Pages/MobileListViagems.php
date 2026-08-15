@@ -26,6 +26,8 @@ class MobileListViagems extends Page
 
     public ?int $selectedViagemId = null;
 
+    public bool $sheetOpen = false;
+
     public function updatedBusca(): void
     {
         $this->resetPage();
@@ -39,8 +41,7 @@ class MobileListViagems extends Page
     public function selecionarViagem(int $id): void
     {
         $this->selectedViagemId = $id;
-
-        $this->dispatch('open-bottom-sheet', name: 'trip-details', id: $id);
+        $this->sheetOpen = true;
     }
 
     public function getSelectedViagemProperty(): ?Viagem

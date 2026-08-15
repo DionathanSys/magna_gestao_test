@@ -5,7 +5,7 @@
         }
 
         window.Alpine.data('bottomSheet', (config = {}) => ({
-            open: false,
+            open: config.open ?? false,
             name: config.name ?? null,
             height: config.height ?? 60,
             maxHeight: config.maxHeight ?? '92dvh',

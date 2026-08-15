@@ -6,6 +6,7 @@
     'closeOnEscape' => true,
     'draggable' => true,
     'showHandle' => true,
+    'openState' => 'false',
 ])
 
 <div
@@ -16,6 +17,7 @@
         closeOnOverlay: {{ $closeOnOverlay ? 'true' : 'false' }},
         closeOnEscape: {{ $closeOnEscape ? 'true' : 'false' }},
         draggable: {{ $draggable ? 'true' : 'false' }},
+        open: {{ $openState }},
     })"
     role="dialog"
     aria-modal="true"

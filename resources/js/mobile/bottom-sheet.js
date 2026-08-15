@@ -4,7 +4,7 @@ const registerBottomSheet = () => {
     }
 
     window.Alpine.data('bottomSheet', (config = {}) => ({
-        open: false,
+        open: config.open ?? false,
         dragging: false,
         startY: 0,
         offsetY: 0,

@@ -121,7 +121,11 @@
             {{ $this->viagens->links() }}
         </div>
 
-        <x-mobile.bottom-sheet name="trip-details" :height="60">
+        <x-mobile.bottom-sheet
+            name="trip-details"
+            :height="60"
+            open-state="$wire.entangle('sheetOpen').live"
+        >
             <x-slot:header>
                 <div class="mb-sheet-title">{{ $this->selectedViagem?->numero_viagem ?? 'Detalhes da viagem' }}</div>
                 <button

@@ -23,9 +23,9 @@
 
     <div
         x-data="{
-            abrirDetalhes(id) {
+            async abrirDetalhes(id) {
+                await $wire.selecionarViagem(id)
                 window.dispatchEvent(new CustomEvent('open-bottom-sheet', { detail: { name: 'trip-details', id } }))
-                $wire.selecionarViagem(id)
             },
         }"
     >

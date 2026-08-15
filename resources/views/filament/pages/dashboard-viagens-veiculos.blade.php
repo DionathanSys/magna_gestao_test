@@ -91,15 +91,17 @@
         }
 
         .trip-chart-bars {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
-            align-items: end;
+            display: flex;
+            align-items: flex-end;
             gap: 14px;
             margin-top: 18px;
+            overflow-x: auto;
+            padding: 8px 0;
         }
 
         .trip-chart-row {
             display: flex;
+            flex: 0 0 72px;
             flex-direction: column;
             align-items: center;
             gap: 6px;
@@ -493,8 +495,11 @@
 
         @media (max-width: 640px) {
             .trip-chart-bars {
-                grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
                 gap: 10px;
+            }
+
+            .trip-chart-row {
+                flex-basis: 58px;
             }
 
             .trip-chart-track {

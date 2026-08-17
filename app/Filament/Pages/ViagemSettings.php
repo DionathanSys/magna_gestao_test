@@ -47,6 +47,8 @@ class ViagemSettings extends AbstractPageSettings
     {
         return [
             'km_rodado_maximo_alerta' => 1000,
+            'km_dispersao_minima_alerta' => 4,
+            'emails_alerta_dispersao' => ['dionathan.silva@transmagnabosco.com.br'],
         ];
     }
 
@@ -82,6 +84,26 @@ class ViagemSettings extends AbstractPageSettings
                                         ->email()
                                         ->required()),
                             ]),
+                    ]),
+                Section::make('Alerta de dispersão (envio horário)')
+                    ->columns(12)
+                    ->columnSpan(6)
+                    ->description('Envia, a cada hora, um e-mail com todas as viagens cuja dispersão seja maior ou igual ao limite. Cada viagem é notificada uma única vez.')
+                    ->components([
+                        TextInput::make('km_dispersao_minima_alerta')
+                            ->label('KM Mínimo de Dispersão para Alerta')
+                            ->numeric()
+                            ->minValue(0)
+                            ->required()
+                            ->columnSpanFull(),
+                        Repeater::make('emails_alerta_dispersao')
+                            ->label('Destinatários do Alerta de Dispersão')
+                            ->columnSpanFull()
+                            ->simple(TextInput::make('email')
+                                ->label('E-mail')
+                                ->columnSpanFull()
+                                ->email()
+                                ->required()),
                     ]),
             ])
             ->statePath('data');

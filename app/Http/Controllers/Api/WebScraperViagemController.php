@@ -61,6 +61,7 @@ class WebScraperViagemController extends Controller
             'viagens.*.pendencias' => 'nullable|array',
             'viagens.*.motorista1' => 'nullable|string|max:255',
             'viagens.*.motorista2' => 'nullable|string|max:255',
+            'viagens.*.destino' => 'nullable|string|max:255',
         ]);
 
         if ($itemsValidator->fails()) {

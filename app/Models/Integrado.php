@@ -22,6 +22,11 @@ class Integrado extends Model
         return $this->hasMany(CargaViagem::class, 'integrado_id');
     }
 
+    public function aliases(): HasMany
+    {
+        return $this->hasMany(IntegradoAlias::class);
+    }
+
     public function comentarios(): MorphMany
     {
         return $this->morphMany(Comentario::class, 'comentavel');

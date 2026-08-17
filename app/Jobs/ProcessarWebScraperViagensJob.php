@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Veiculo;
+use App\Services\Integrado\IntegradoDestinoService;
 use App\Services\MailInbound\Support\DocumentIdentity;
 use App\Services\Viagem\ViagemService;
 use App\Services\WebScraper\WebScraperViagemErrorCache;
@@ -55,6 +56,8 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
 
                 $serviceData = $service->getData();
                 $acao = (string) ($serviceData['acao'] ?? 'processada');
+
+                (new IntegradoDestinoService)->vincularCarga($viagem, $payload['destino'] ?? null);
 
                 match ($acao) {
                     'criada' => $resumo['criadas']++,
@@ -145,6 +148,7 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
             'pendencias',
             'motorista1',
             'motorista2',
+            'destino',
         ];
 
         $ignoredKeys = array_values(array_diff(array_keys($payload), $expectedKeys));
@@ -317,6 +321,7 @@ class ProcessarWebScraperViagensJob implements ShouldQueue
             'conferido',
             'ignorar',
             'possui_pendencia',
+            'destino',
         ]);
     }
 

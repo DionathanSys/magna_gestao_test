@@ -6,6 +6,7 @@ use App\Filament\Resources\Integrados\Pages\CreateIntegrado;
 use App\Filament\Resources\Integrados\Pages\EditIntegrado;
 use App\Filament\Resources\Integrados\Pages\ListIntegrados;
 use App\Filament\Resources\Integrados\Pages\ViewIntegrado;
+use App\Filament\Resources\Integrados\RelationManagers\AliasesRelationManager;
 use App\Filament\Resources\Integrados\RelationManagers\ComentariosRelationManager;
 use App\Filament\Resources\Integrados\Schemas\IntegradoForm;
 use App\Filament\Resources\Integrados\Tables\IntegradosTable;
@@ -45,6 +46,7 @@ class IntegradoResource extends Resource
     public static function getRelations(): array
     {
         return [
+            AliasesRelationManager::class,
             ComentariosRelationManager::class,
         ];
     }

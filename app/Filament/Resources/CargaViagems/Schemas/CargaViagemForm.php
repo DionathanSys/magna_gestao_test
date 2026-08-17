@@ -20,6 +20,10 @@ class CargaViagemForm
                     ->required(),
                 TextInput::make('documento_transporte')
                     ->columnSpan(1),
+                TextInput::make('destino_externo')
+                    ->label('Destino recebido')
+                    ->columnSpan(1)
+                    ->disabled(),
                 Select::make('integrado_id')
                     ->columnSpan(1)
                     ->relationship('integrado', 'nome')

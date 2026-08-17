@@ -6,6 +6,7 @@ use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Enum\MotivoDivergenciaViagem;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
+use App\Services\Integrado\IntegradoDestinoService;
 use Carbon\Carbon;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -70,6 +71,10 @@ class CargaViagemsTable
                     ->sortable(),
                 TextColumn::make('documento_transporte')
                     ->label('Doc. Transporte')
+                    ->searchable(isIndividual: true)
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('destino_externo')
+                    ->label('Destino recebido')
                     ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('integrado.codigo')
@@ -282,6 +287,11 @@ class CargaViagemsTable
                 DeleteAction::make()
                     ->iconButton(),
                 EditAction::make()
+                    ->after(function (Models\CargaViagem $record): void {
+                        if ($record->integrado && filled($record->destino_externo)) {
+                            app(IntegradoDestinoService::class)->registrarAlias($record->integrado, $record->destino_externo);
+                        }
+                    })
                     ->iconButton(),
             ])
             ->toolbarActions([

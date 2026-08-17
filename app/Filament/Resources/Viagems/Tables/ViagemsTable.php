@@ -700,6 +700,7 @@ class ViagemsTable
                         ->url(fn (Viagem $record) => $record->maps_integrados['directions_url'] ?? null)
                         ->openUrlInNewTab()
                         ->visible(fn (Viagem $record): bool => $record->cargas_count > 0),
+                    VincularDestinoRecebidoAction::make(),
                     Viagems\Actions\SolicitarCteBugioAction::make(),
                     ReplicateAction::make()
                         ->label('Duplicar')
@@ -748,7 +749,6 @@ class ViagemsTable
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),
-                VincularDestinoRecebidoAction::make(),
                 Viagems\Actions\NovaCargaAction::make(),
                 Viagems\Actions\ViagemConferidaAction::make(),
                 Viagems\Actions\ViagemNaoConferidaAction::make(),

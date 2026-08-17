@@ -48,7 +48,7 @@ class ViagemSettings extends AbstractPageSettings
         return [
             'km_rodado_maximo_alerta' => 1000,
             'km_dispersao_minima_alerta' => 4,
-            'emails_alerta_dispersao' => ['dionathan.silva@transmagnabosco.com.br'],
+            'emails_alerta_dispersao' => [],
         ];
     }
 

@@ -10,6 +10,7 @@ use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\DocumentoFretes;
 use App\Filament\Resources\Viagems;
 use App\Filament\Resources\Viagems\Actions\CriarViagemBugioAction;
+use App\Filament\Resources\Viagems\Actions\VincularDestinoRecebidoAction;
 use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
@@ -747,6 +748,7 @@ class ViagemsTable
                     DeleteAction::make(),
                 ])->link()
                     ->dropdownPlacement('top-start'),
+                VincularDestinoRecebidoAction::make(),
                 Viagems\Actions\NovaCargaAction::make(),
                 Viagems\Actions\ViagemConferidaAction::make(),
                 Viagems\Actions\ViagemNaoConferidaAction::make(),

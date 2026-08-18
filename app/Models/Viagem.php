@@ -115,6 +115,11 @@ class Viagem extends Model
         return $this->hasMany(ViagemAttachment::class, 'viagem_id');
     }
 
+    public function justificativasDispersao(): HasMany
+    {
+        return $this->hasMany(JustificativaDispersaoViagem::class, 'viagem_id');
+    }
+
     protected function mapsIntegrados(): Attribute
     {
         return Attribute::make(

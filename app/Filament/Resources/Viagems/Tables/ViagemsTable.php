@@ -702,6 +702,7 @@ class ViagemsTable
                         ->visible(fn (Viagem $record): bool => $record->cargas_count > 0),
                     VincularDestinoRecebidoAction::make(),
                     Viagems\Actions\SolicitarCteBugioAction::make(),
+                    Viagems\Actions\JustificarDispersaoAction::make(),
                     ReplicateAction::make()
                         ->label('Duplicar')
                         ->mutateRecordDataUsing(function (array $data): array {

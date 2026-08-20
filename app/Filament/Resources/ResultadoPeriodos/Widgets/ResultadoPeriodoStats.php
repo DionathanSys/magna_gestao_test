@@ -43,7 +43,7 @@ class ResultadoPeriodoStats extends StatsOverviewWidget
         $faturamento = $records->sum('documentos_sum_valor_liquido') / 100;
         $faturamentoMedio = $registrosCount > 0 ? $faturamento / $registrosCount : 0;
         $percentualFaturamentoMeta = $faturamento > 0 ? ($faturamento / $metaFaturamento) * 100 : 0;
-        $manutencao = $records->sum('manutencao_sum_custo_total');
+        $manutencao = $records->sum('manutencao_lancamentos_sum_valor_total_centavos') / 100;
         $manutencaoMedia = $registrosCount > 0 ? $manutencao / $registrosCount : 0;
         $percentualManutencaoFaturamento = $faturamento > 0 ? ($manutencao / $faturamento) * 100 : 0;
         $combustivel = $records->sum('abastecimentos_sum_preco_total') / 100;

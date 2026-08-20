@@ -2,6 +2,7 @@
 
 namespace App\Services\Manutencao;
 
+use App\Enum\StatusDiversosEnum;
 use App\Models\ManutencaoCusto;
 use App\Models\ManutencaoLancamento;
 use App\Models\ResultadoPeriodo;
@@ -29,6 +30,7 @@ class ManutencaoImportSyncService
             );
 
             $this->vinculoService->conciliarAutomaticamente($lancamento);
+            $this->vincularAoResultadoEmAberto($lancamento);
 
             $this->setSuccess('Lançamento de manutenção sincronizado com sucesso.');
 
@@ -100,5 +102,25 @@ class ManutencaoImportSyncService
                 ]
             );
         }
+    }
+
+    private function vincularAoResultadoEmAberto(ManutencaoLancamento $lancamento): void
+    {
+        if ($lancamento->resultado_periodo_id) {
+            return;
+        }
+
+        $resultadoPeriodoId = ResultadoPeriodo::query()
+            ->where('veiculo_id', $lancamento->veiculo_id)
+            ->where('status', StatusDiversosEnum::PENDENTE->value)
+            ->orderByDesc('data_fim')
+            ->orderByDesc('id')
+            ->value('id');
+
+        if (! $resultadoPeriodoId) {
+            return;
+        }
+
+        $lancamento->update(['resultado_periodo_id' => $resultadoPeriodoId]);
     }
 }

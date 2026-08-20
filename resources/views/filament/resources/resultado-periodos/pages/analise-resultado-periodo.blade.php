@@ -60,6 +60,16 @@
         .resultado-list-main span:last-child { text-align: right; white-space: nowrap; }
         .resultado-list-detail { overflow: hidden; color: #94a3b8; font-size: .73rem; text-overflow: ellipsis; white-space: nowrap; }
         .resultado-empty { padding: 1.4rem 1.25rem; color: #94a3b8; font-size: .8rem; text-align: center; }
+        .resultado-os-list { display: grid; gap: .8rem; margin-top: 1.15rem; }
+        .resultado-os-group { overflow: hidden; border: 1px solid #e2e8f0; border-radius: .9rem; }
+        .resultado-os-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 1rem; background: #f8fafc; }
+        .resultado-os-title { color: #1e293b; font-size: .85rem; font-weight: 750; }
+        .resultado-os-meta { margin-top: .15rem; color: #64748b; font-size: .73rem; }
+        .resultado-os-total { color: #0f766e; font-size: .88rem; font-weight: 750; white-space: nowrap; }
+        .resultado-os-item { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(7rem, .8fr) auto; gap: 1rem; align-items: center; padding: .75rem 1rem; border-top: 1px solid #f1f5f9; }
+        .resultado-os-product { overflow: hidden; color: #334155; font-size: .8rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+        .resultado-os-product small, .resultado-os-detail { display: block; margin-top: .14rem; overflow: hidden; color: #94a3b8; font-size: .71rem; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+        .resultado-os-value { color: #334155; font-size: .8rem; font-weight: 750; text-align: right; white-space: nowrap; }
         .dark .resultado-analise { color: #e2e8f0; }
         .dark .resultado-hero { border-color: rgba(148, 163, 184, .2); background: linear-gradient(135deg, rgba(30, 58, 138, .25), rgba(15, 23, 42, .9) 55%, rgba(6, 78, 59, .25)); }
         .dark .resultado-hero h2, .dark .resultado-kpi-value, .dark .resultado-card-title, .dark .resultado-financial-value, .dark .resultado-op-value { color: #f8fafc; }
@@ -71,9 +81,13 @@
         .dark .resultado-progress { background: rgba(148, 163, 184, .15); }
         .dark .resultado-list, .dark .resultado-list-item { border-color: rgba(148, 163, 184, .12); }
         .dark .resultado-list-main { color: #e2e8f0; }
+        .dark .resultado-os-group { border-color: rgba(148, 163, 184, .18); }
+        .dark .resultado-os-head { background: rgba(148, 163, 184, .08); }
+        .dark .resultado-os-title, .dark .resultado-os-product, .dark .resultado-os-value { color: #e2e8f0; }
+        .dark .resultado-os-item { border-color: rgba(148, 163, 184, .12); }
         @media (max-width: 1100px) { .resultado-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resultado-activity { grid-template-columns: 1fr; } }
         @media (max-width: 800px) { .resultado-hero, .resultado-grid { grid-template-columns: 1fr; display: grid; } .resultado-hero-meta { justify-content: flex-start; } .resultado-financial-row { grid-template-columns: 1fr auto; } .resultado-financial-row .resultado-progress { grid-column: 1 / -1; } }
-        @media (max-width: 520px) { .resultado-kpis, .resultado-ops { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } }
+        @media (max-width: 520px) { .resultado-kpis, .resultado-ops { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
     </style>
 
     <div class="resultado-analise">
@@ -152,6 +166,33 @@
                 <div class="resultado-op"><div class="resultado-op-label">Dispersão KM</div><div class="resultado-op-value">{{ $resumo['dispersao_km'] === null ? 'N/D' : number_format($resumo['dispersao_km'], 0, ',', '.') . ' km' }}</div><div class="resultado-op-detail">KM abastecimento menos KM pago</div></div>
                 <div class="resultado-op"><div class="resultado-op-label">Diesel consumido</div><div class="resultado-op-value">{{ number_format($resumo['litros'], 2, ',', '.') }} L</div><div class="resultado-op-detail">{{ $record->abastecimentos_count }} {{ $record->abastecimentos_count === 1 ? 'abastecimento' : 'abastecimentos' }}</div></div>
                 <div class="resultado-op"><div class="resultado-op-label">Custo de combustível</div><div class="resultado-op-value">R$ {{ number_format($resumo['combustivel'], 2, ',', '.') }}</div><div class="resultado-op-detail">R$ {{ $resumo['litros'] > 0 ? number_format($resumo['combustivel'] / $resumo['litros'], 3, ',', '.') : '0,000' }} por litro</div></div>
+            </div>
+        </section>
+
+        <section class="resultado-card">
+            <h3 class="resultado-card-title">Custos de manutenção por OS</h3>
+            <p class="resultado-card-subtitle">Cada lançamento importado permanece rastreável pelo produto e pela ordem de serviço vinculada.</p>
+            <div class="resultado-os-list">
+                @forelse ($manutencoesPorOs as $manutencaoOs)
+                    <div class="resultado-os-group">
+                        <div class="resultado-os-head">
+                            <div>
+                                <div class="resultado-os-title">{{ $manutencaoOs['ordem_servico_id'] ? 'OS #' . $manutencaoOs['ordem_servico_id'] : 'Sem OS vinculada' }}</div>
+                                <div class="resultado-os-meta">{{ $manutencaoOs['tipo'] ?: 'Tipo não informado' }}{{ $manutencaoOs['status'] ? ' · ' . $manutencaoOs['status'] : '' }} · {{ $manutencaoOs['lancamentos']->count() }} {{ $manutencaoOs['lancamentos']->count() === 1 ? 'item' : 'itens' }}</div>
+                            </div>
+                            <div class="resultado-os-total">R$ {{ number_format($manutencaoOs['total'], 2, ',', '.') }}</div>
+                        </div>
+                        @foreach ($manutencaoOs['lancamentos'] as $lancamento)
+                            <div class="resultado-os-item">
+                                <div class="resultado-os-product">{{ $lancamento['produto'] }}<small>{{ $lancamento['codigo'] ? 'Cód. ' . $lancamento['codigo'] . ' · ' : '' }}{{ $lancamento['parceiro'] ?: 'Parceiro não informado' }}</small></div>
+                                <div class="resultado-os-detail">{{ $lancamento['data'] }} · {{ number_format($lancamento['quantidade'], 4, ',', '.') }} {{ $lancamento['unidade'] }}{{ $lancamento['grupo'] ? ' · ' . $lancamento['grupo'] : '' }}</div>
+                                <div class="resultado-os-value">R$ {{ number_format($lancamento['valor'], 2, ',', '.') }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                @empty
+                    <div class="resultado-empty">Nenhum custo de manutenção foi vinculado a este resultado.</div>
+                @endforelse
             </div>
         </section>
 

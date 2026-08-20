@@ -23,6 +23,11 @@ class ManutencaoLancamento extends Model
         return $this->belongsTo(Veiculo::class);
     }
 
+    public function resultadoPeriodo(): BelongsTo
+    {
+        return $this->belongsTo(ResultadoPeriodo::class);
+    }
+
     public function ordemServico(): BelongsTo
     {
         return $this->belongsTo(OrdemServico::class);

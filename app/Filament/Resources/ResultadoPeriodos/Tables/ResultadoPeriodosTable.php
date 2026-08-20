@@ -45,7 +45,7 @@ class ResultadoPeriodosTable
 
                 return $query
                     ->withSum('documentos', 'valor_liquido')
-                    ->withSum('manutencao', 'custo_total')
+                    ->withSum('manutencaoLancamentos', 'valor_total_centavos')
                     ->withSum('viagens', 'km_pago')
                     ->withSum('viagens', 'km_rodado')
                     ->withSum('abastecimentos', 'preco_total')
@@ -123,11 +123,11 @@ class ResultadoPeriodosTable
                         ->tooltip('Faturamento dividido pelo KM Pago (viagens)'),
                 ]),
                 ColumnGroup::make('Manutenção', [
-                    TextColumn::make('manutencao_sum_custo_total')
+                    TextColumn::make('manutencao_lancamentos_sum_valor_total_centavos')
                         ->label('Manutenção')
                         ->width('1%')
-                        ->money('BRL')
-                        ->sum('manutencao', 'custo_total'),
+                        ->money('BRL', 100)
+                        ->sum('manutencaoLancamentos', 'valor_total_centavos'),
                     TextColumn::make('percentual_manutencao_faturamento')
                         ->label('% Manut/Fat')
                         ->width('1%')
@@ -213,7 +213,7 @@ class ResultadoPeriodosTable
                         ->label('Duplicar')
                         ->icon(Heroicon::DocumentDuplicate)
                         ->schema(fn (Schema $schema) => ResultadoPeriodoResource::form($schema))
-                        ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'abastecimentos_sum_quantidade', 'manutencao_sum_custo_total', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
+                        ->excludeAttributes(['id', 'km_percorrido', 'created_at', 'updated_at', 'abastecimentos_sum_quantidade', 'manutencao_lancamentos_sum_valor_total_centavos', 'documentos_sum_valor_liquido', 'viagens_sum_km_pago', 'viagens_sum_km_rodado', 'abastecimentos_sum_preco_total', 'viagens_count'])
                         ->successNotificationTitle('Resultado Período duplicado com sucesso!'),
 
                 ]),

@@ -9,6 +9,7 @@ use App\Filament\Resources\ResultadoPeriodos\Pages\ListResultadoPeriodos;
 use App\Filament\Resources\ResultadoPeriodos\Pages\ViewResultadoPeriodo;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\DocumentosFreteRelationManager;
+use App\Filament\Resources\ResultadoPeriodos\RelationManagers\ManutencaoLancamentosRelationManager;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\ViagensRelationManager;
 use App\Filament\Resources\ResultadoPeriodos\Schemas\ResultadoPeriodoForm;
 use App\Filament\Resources\ResultadoPeriodos\Schemas\ResultadoPeriodoInfolist;
@@ -48,6 +49,7 @@ class ResultadoPeriodoResource extends Resource
             AbastecimentosRelationManager::class,
             ViagensRelationManager::class,
             DocumentosFreteRelationManager::class,
+            ManutencaoLancamentosRelationManager::class,
         ];
     }
 

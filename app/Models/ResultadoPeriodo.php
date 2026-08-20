@@ -66,6 +66,11 @@ class ResultadoPeriodo extends Model
         return $this->hasOne(ManutencaoCusto::class);
     }
 
+    public function manutencaoLancamentos(): HasMany
+    {
+        return $this->hasMany(ManutencaoLancamento::class);
+    }
+
     public function abastecimentoInicial(): HasOne
     {
         return $this->hasOne(Abastecimento::class)
@@ -297,9 +302,9 @@ class ResultadoPeriodo extends Model
             get: function (): float {
                 $faturamento = $this->documentos_sum_valor_liquido ?? 0;
                 $combustivel = $this->abastecimentos_sum_preco_total ?? 0;
-                $manutencao = $this->manutencao_sum_custo_total ?? 0;
+                $manutencao = $this->manutencao_lancamentos_sum_valor_total_centavos ?? 0;
 
-                return $faturamento - $combustivel - ($manutencao * 100);
+                return $faturamento - $combustivel - $manutencao;
             }
         );
     }
@@ -353,13 +358,13 @@ class ResultadoPeriodo extends Model
         return Attribute::make(
             get: function (): float {
                 $faturamento = $this->documentos_sum_valor_liquido ?? 0;
-                $manutencao = $this->manutencao_sum_custo_total ?? 0;
+                $manutencao = $this->manutencao_lancamentos_sum_valor_total_centavos ?? 0;
 
                 if ($faturamento <= 0) {
                     return 0;
                 }
 
-                return ($manutencao / ($faturamento / 100)) * 100;
+                return ($manutencao / $faturamento) * 100;
             }
         );
     }

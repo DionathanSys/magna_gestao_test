@@ -62,7 +62,7 @@ class AnaliseResultadoPeriodo extends Page
             ->withSum('abastecimentos', 'quantidade')
             ->withSum('viagens', 'km_pago')
             ->withSum('viagens', 'km_rodado')
-            ->withSum('manutencao', 'custo_total')
+            ->withSum('manutencaoLancamentos', 'valor_total_centavos')
             ->findOrFail($this->recordId);
     }
 
@@ -71,7 +71,7 @@ class AnaliseResultadoPeriodo extends Page
         $record = $this->getRecord();
         $faturamento = ((float) ($record->documentos_sum_valor_liquido ?? 0)) / 100;
         $combustivel = ((float) ($record->abastecimentos_sum_preco_total ?? 0)) / 100;
-        $manutencao = (float) ($record->manutencao_sum_custo_total ?? 0);
+        $manutencao = ((float) ($record->manutencao_lancamentos_sum_valor_total_centavos ?? 0)) / 100;
         $resultadoLiquido = $faturamento - $combustivel - $manutencao;
         $margemLiquida = $faturamento > 0 ? ($resultadoLiquido / $faturamento) * 100 : null;
         $litros = (float) ($record->abastecimentos_sum_quantidade ?? 0);
@@ -105,6 +105,7 @@ class AnaliseResultadoPeriodo extends Page
             ],
             'composicaoFinanceira' => $this->getComposicaoFinanceira($faturamento, $combustivel, $manutencao),
             'alertas' => $this->getAlertas($record, $resultadoLiquido, $margemLiquida, $kmRodadoAbastecimento, $consumo, $metaConsumo),
+            'manutencoesPorOs' => $this->getManutencoesPorOs($record),
             'viagens' => $record->viagens()
                 ->orderByDesc('data_competencia')
                 ->limit(5)
@@ -150,6 +151,49 @@ class AnaliseResultadoPeriodo extends Page
         }
 
         return max(0, $kmFinal - $kmInicial);
+    }
+
+    private function getManutencoesPorOs(ResultadoPeriodo $record)
+    {
+        return $record->manutencaoLancamentos()
+            ->with('ordemServico:id,tipo_manutencao,status')
+            ->orderByDesc('data_negociacao')
+            ->get([
+                'id',
+                'ordem_servico_id',
+                'data_negociacao',
+                'tipo_manutencao',
+                'produto',
+                'codigo_produto',
+                'quantidade',
+                'unidade',
+                'grupo_produto',
+                'parceiro',
+                'valor_total_centavos',
+            ])
+            ->groupBy(fn ($lancamento): string => $lancamento->ordem_servico_id ? (string) $lancamento->ordem_servico_id : 'sem-os')
+            ->map(function ($lancamentos, string $ordemServicoId): array {
+                $ordemServico = $lancamentos->first()->ordemServico;
+
+                return [
+                    'ordem_servico_id' => $ordemServicoId === 'sem-os' ? null : (int) $ordemServicoId,
+                    'tipo' => $ordemServico?->tipo_manutencao?->value ?? $lancamentos->first()->tipo_manutencao,
+                    'status' => $ordemServico?->status?->value,
+                    'total' => $lancamentos->sum('valor_total_centavos') / 100,
+                    'lancamentos' => $lancamentos->map(fn ($lancamento): array => [
+                        'data' => Carbon::parse($lancamento->data_negociacao)->format('d/m/Y'),
+                        'produto' => $lancamento->produto,
+                        'codigo' => $lancamento->codigo_produto,
+                        'quantidade' => (float) $lancamento->quantidade,
+                        'unidade' => $lancamento->unidade,
+                        'grupo' => $lancamento->grupo_produto,
+                        'parceiro' => $lancamento->parceiro,
+                        'valor' => $lancamento->valor_total_centavos / 100,
+                    ]),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values();
     }
 
     private function getComposicaoFinanceira(float $faturamento, float $combustivel, float $manutencao): array

@@ -53,8 +53,8 @@ class AnaliseResultadoPeriodo extends Page
             ->with([
                 'veiculo:id,placa,tipo_veiculo_id',
                 'veiculo.tipoVeiculo:id,descricao,meta_media',
-                'abastecimentoInicial:id,resultado_periodo_id,veiculo_id,quilometragem,data_abastecimento',
-                'abastecimentoFinal:id,resultado_periodo_id,veiculo_id,quilometragem,data_abastecimento',
+                'abastecimentoInicial',
+                'abastecimentoFinal',
             ])
             ->withCount(['viagens', 'documentos', 'abastecimentos'])
             ->withSum('documentos', 'valor_liquido')

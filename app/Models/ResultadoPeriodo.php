@@ -299,7 +299,7 @@ class ResultadoPeriodo extends Model
                 $combustivel = $this->abastecimentos_sum_preco_total ?? 0;
                 $manutencao = $this->manutencao_sum_custo_total ?? 0;
 
-                return $faturamento - $combustivel - $manutencao;
+                return $faturamento - $combustivel - ($manutencao * 100);
             }
         );
     }

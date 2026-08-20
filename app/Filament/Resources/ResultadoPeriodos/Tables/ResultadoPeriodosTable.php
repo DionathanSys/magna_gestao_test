@@ -9,6 +9,7 @@ use App\Models;
 use App\Services;
 use App\Services\NotificacaoService as notify;
 use App\Services\Veiculo\VeiculoCacheService;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -202,6 +203,10 @@ class ResultadoPeriodosTable
             ->recordActions([
                 ActionGroup::make([
                     Actions\ImportarRegistrosAction::make(),
+                    Action::make('analise_veiculo')
+                        ->label('Análise do veículo')
+                        ->icon('heroicon-o-chart-bar-square')
+                        ->url(fn (Models\ResultadoPeriodo $record): string => ResultadoPeriodoResource::getUrl('analise', ['record' => $record])),
                     ViewAction::make(),
                     EditAction::make(),
                     ReplicateAction::make()

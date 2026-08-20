@@ -4,6 +4,7 @@ namespace App\Services\DocumentoFrete;
 
 use App\Contracts\XlsxImportInterface;
 use App\Jobs\ProcessXlsxRowJob;
+use App\Jobs\VincularRegistroResultadoJob;
 use App\Jobs\VincularViagemDocumentoFrete;
 use App\Models;
 use App\Models\Viagem;
@@ -36,14 +37,9 @@ class DocumentoFreteService
                 return;
             }
 
-            // TODO: Devido alteração na regra de negócio, o job de vinculação do registro de resultado foi comentado temporariamente.
-            // VincularRegistroResultadoJob::dispatch($documentoFrete->id, Models\DocumentoFrete::class);
-
-            // Log::info('Job de vinculação de registro de resultado despachado para documento de frete ID: ' . $documentoFrete->id, [
-            //     'metodo' => __METHOD__ . '@' . __LINE__,
-            // ]);
-
             $this->setSuccess('Documento registrado com sucesso.');
+
+            VincularRegistroResultadoJob::dispatch($documentoFrete->id, Models\DocumentoFrete::class);
 
             VincularViagemDocumentoFrete::dispatch($dados['documento_transporte']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Services\Viagem;
 
+use App\Jobs\VincularRegistroResultadoJob;
 use App\Models;
 use App\Services;
 use App\Traits\ServiceResponseTrait;
@@ -40,6 +41,7 @@ class ViagemService
 
             if ($viagem) {
                 $this->setSuccess('Viagem criada com sucesso!');
+                VincularRegistroResultadoJob::dispatch($viagem->id, Models\Viagem::class);
             }
 
             return $viagem;
@@ -88,6 +90,7 @@ class ViagemService
                     $viagemIdOriginal = $viagem->id;
                     $action = new Actions\AtualizarViagem($viagem);
                     $viagem = $action->handle($data);
+                    VincularRegistroResultadoJob::dispatch($viagem->id, Models\Viagem::class);
                     Log::info('Viagem atualizada por integracao', [
                         'metodo' => __METHOD__.'@'.__LINE__,
                         'viagem_id' => $viagem->id,
@@ -126,6 +129,7 @@ class ViagemService
                             'acao' => 'criada',
                             'viagem_id' => $viagem->id,
                         ]);
+                        VincularRegistroResultadoJob::dispatch($viagem->id, Models\Viagem::class);
                     }
             }
 

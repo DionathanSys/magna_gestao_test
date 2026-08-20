@@ -203,6 +203,8 @@ class ResultadoPeriodosTable
             ->recordActions([
                 ActionGroup::make([
                     Actions\ImportarRegistrosAction::make(),
+                    Actions\EncerrarResultadoAction::make(),
+                    Actions\ReabrirResultadoAction::make(),
                     Action::make('analise_veiculo')
                         ->label('Análise do veículo')
                         ->icon('heroicon-o-chart-bar-square')
@@ -222,20 +224,26 @@ class ResultadoPeriodosTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     BulkAction::make('vincular_registros_resultado')
-                        ->label('Importar Registros')
+                        ->label('Buscar e vincular registros')
                         ->icon(Heroicon::ArrowUpOnSquare)
+                        ->requiresConfirmation()
+                        ->modalDescription('Somente registros sem vínculo dos veículos selecionados serão incluídos. Períodos encerrados serão ignorados.')
                         ->schema(function (Schema $schema): Schema {
                             return $schema
                                 ->columns(1)
                                 ->components([
                                     Toggle::make('considerar_periodo')
-                                        ->label('Considerar Período')
-                                        ->helperText('Se ativado, apenas os registros dentro do período definido serão importados.')
+                                        ->label('Restringir à data do período')
+                                        ->helperText('Desative para buscar todos os registros sem vínculo do veículo, independentemente da data.')
                                         ->default(true),
                                 ]);
                         })
                         ->action(function (Collection $records, array $data) {
                             $records->each(function (Models\ResultadoPeriodo $record) use ($data) {
+                                if ($record->status !== StatusDiversosEnum::PENDENTE->value) {
+                                    return;
+                                }
+
                                 Log::debug('Iniciando importação de registros para Resultado Período ID: '.$record->id);
                                 $service = new Services\ResultadoPeriodo\ResultadoPeriodoService;
                                 $service->importarRegistros($record->id, $data['considerar_periodo']);
@@ -264,7 +272,6 @@ class ResultadoPeriodosTable
                             });
                             notify::success(mensagem: 'Registros marcados como Pendente com sucesso!');
                         }),
-                    Actions\SincronizarDocumentosFreteAction::make(),
                 ]),
             ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
+use App\Enum\StatusDiversosEnum;
 use App\Filament\Resources\ManutencaoLancamentos\Tables\ManutencaoLancamentosTable;
 use App\Models\ManutencaoLancamento;
 use Carbon\Carbon;
@@ -23,6 +24,7 @@ class ManutencaoLancamentosRelationManager extends RelationManager
             ->headerActions([
                 AssociateAction::make()
                     ->label('Vincular custos')
+                    ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value)
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(fn (Builder $query): Builder => $query
                         ->whereNull('resultado_periodo_id')
@@ -40,7 +42,8 @@ class ManutencaoLancamentosRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 DissociateBulkAction::make()
-                    ->label('Desvincular do resultado'),
+                    ->label('Desvincular do resultado')
+                    ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value),
             ]);
     }
 }

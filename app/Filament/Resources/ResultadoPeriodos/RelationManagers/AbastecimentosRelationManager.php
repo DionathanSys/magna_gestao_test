@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use App\Enum\Abastecimento\TipoCombustivelEnum;
+use App\Enum\StatusDiversosEnum;
 use App\Filament\Resources\Abastecimentos\Tables\AbastecimentosTable;
 use App\Models;
 use Carbon\Carbon;
@@ -154,6 +155,7 @@ class AbastecimentosRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make(),
                 AssociateAction::make()
+                    ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value)
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(
                         fn ($query) => $query
@@ -176,13 +178,15 @@ class AbastecimentosRelationManager extends RelationManager
                 EditAction::make()
                     ->iconButton(),
                 DissociateAction::make()
+                    ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value)
                     ->iconButton(),
                 DeleteAction::make()
                     ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
+                    DissociateBulkAction::make()
+                        ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value),
                     DeleteBulkAction::make(),
                 ]),
             ]);

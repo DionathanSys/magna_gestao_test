@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources\ManutencaoLancamentos\Tables;
 
+use App\Filament\Actions\DesvincularResultadoPeriodoAction;
+use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Actions\VincularResultadoPeriodoAction;
+use App\Filament\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\ManutencaoLancamento;
 use App\Models\OrdemServico;
@@ -137,6 +141,8 @@ class ManutencaoLancamentosTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                VincularResultadoPeriodoAction::make(),
+                DesvincularResultadoPeriodoAction::make(),
                 Action::make('conciliar_automaticamente')
                     ->label('Conciliar')
                     ->icon('heroicon-o-arrow-path')
@@ -209,6 +215,9 @@ class ManutencaoLancamentosTable
                         $service->reabrirPendencia($record);
                     }),
             ])
-            ->toolbarActions([]);
+            ->toolbarActions([
+                VincularResultadoPeriodoBulkAction::make(),
+                DissociateResultadoPeriodoBulkAction::make(),
+            ]);
     }
 }

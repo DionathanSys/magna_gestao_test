@@ -3,7 +3,10 @@
 namespace App\Filament\Resources\Abastecimentos\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
+use App\Filament\Actions\DesvincularResultadoPeriodoAction;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Actions\VincularResultadoPeriodoAction;
+use App\Filament\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\Abastecimentos;
 use App\Filament\Resources\ResultadoPeriodos\RelationManagers\AbastecimentosRelationManager;
@@ -17,7 +20,6 @@ use Filament\Actions\EditAction;
 use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -150,7 +152,7 @@ class AbastecimentosTable
                 ToggleColumn::make('considerar_calculo_medio')
                     ->label('Considerar Cálculo Médio')
                     ->toggleable(isToggledHiddenByDefault: false),
-                TextInputColumn::make('resultado_periodo_id')
+                TextColumn::make('resultado_periodo_id')
                     ->label('Resultado ID')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -218,6 +220,8 @@ class AbastecimentosTable
                 RegistrosSemVinculoResultadoFilter::make(),
             ])
             ->recordActions([
+                VincularResultadoPeriodoAction::make(),
+                DesvincularResultadoPeriodoAction::make(),
                 EditAction::make()
                     ->iconButton(),
             ])
@@ -225,6 +229,7 @@ class AbastecimentosTable
                 BulkActionGroup::make([
                     FilamentExportBulkAction::make('export'),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    VincularResultadoPeriodoBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
                 ActionGroup::make([

@@ -4,14 +4,16 @@ namespace App\Filament\Resources\Viagems\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Enum;
+use App\Filament\Actions\DesvincularResultadoPeriodoAction;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
 use App\Filament\Actions\ExportPdfBulkAction;
+use App\Filament\Actions\VincularResultadoPeriodoAction;
+use App\Filament\Actions\VincularResultadoPeriodoBulkAction;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Filament\Resources\DocumentoFretes;
 use App\Filament\Resources\Viagems;
 use App\Filament\Resources\Viagems\Actions\CriarViagemBugioAction;
 use App\Filament\Resources\Viagems\Actions\VincularDestinoRecebidoAction;
-use App\Filament\Resources\Viagems\Actions\VincularViagemResultadoPeriodoBulkAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
 use App\Models\CteEmailRequest;
@@ -672,6 +674,8 @@ class ViagemsTable
                         ->color('danger'),
                     Viagems\Actions\AdicionarComentarioAction::make(),
                     Viagems\Actions\VisualizarComentarioAction::make(),
+                    VincularResultadoPeriodoAction::make(),
+                    DesvincularResultadoPeriodoAction::make(),
                     EditAction::make()
                         ->visible(fn (Viagem $record) => ! $record->conferido || Auth::user()->is_admin)
                     // ->after(fn(Models\Viagem $record) => (new Services\ViagemService())->recalcularViagem($record))
@@ -765,8 +769,8 @@ class ViagemsTable
                     DeleteBulkAction::make()
                         ->visible(fn (): bool => Auth::user()->is_admin),
                     DissociateResultadoPeriodoBulkAction::make(),
+                    VincularResultadoPeriodoBulkAction::make(),
                     Viagems\Actions\SolicitarCteBugioAgrupadoBulkAction::make(),
-                    VincularViagemResultadoPeriodoBulkAction::make(),
                     Viagems\Actions\VincularViagemDocumentoBulkAction::make(),
                     Viagems\Actions\ExportarViagensExcelBulkAction::make(),
                     Viagems\Actions\ExportarRelatorioViagensDocumentosBulkAction::make(),

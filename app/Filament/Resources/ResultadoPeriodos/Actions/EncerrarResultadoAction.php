@@ -16,6 +16,8 @@ class EncerrarResultadoAction
             ->icon(Heroicon::CheckCircle)
             ->color('success')
             ->requiresConfirmation()
+            ->modalDescription('Após encerrar, vínculos e custos do período ficam protegidos contra alterações.')
+            ->visible(fn ($record): bool => $record->status === StatusDiversosEnum::PENDENTE->value)
             ->action(function ($record) {
                 $record->update(['status' => StatusDiversosEnum::ENCERRADO->value]);
                 notify::success();

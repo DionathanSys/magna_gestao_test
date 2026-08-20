@@ -2,10 +2,10 @@
 
 namespace App\Services\Manutencao;
 
-use App\Enum\StatusDiversosEnum;
 use App\Models\ManutencaoCusto;
 use App\Models\ManutencaoLancamento;
 use App\Models\ResultadoPeriodo;
+use App\Services\ResultadoPeriodo\ResultadoPeriodoVinculoService;
 use App\Traits\ServiceResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +16,7 @@ class ManutencaoImportSyncService
 
     public function __construct(
         private readonly ManutencaoLancamentoVinculoService $vinculoService,
+        private readonly ResultadoPeriodoVinculoService $resultadoPeriodoVinculoService,
     ) {}
 
     public function upsert(array $data, int $importLogId): ?ManutencaoLancamento
@@ -30,7 +31,16 @@ class ManutencaoImportSyncService
             );
 
             $this->vinculoService->conciliarAutomaticamente($lancamento);
-            $this->vincularAoResultadoEmAberto($lancamento);
+            if (! $lancamento->resultado_periodo_id) {
+                try {
+                    $this->resultadoPeriodoVinculoService->vincular($lancamento, 'aberto');
+                } catch (\RuntimeException $exception) {
+                    Log::info('Lançamento importado sem resultado período em aberto.', [
+                        'manutencao_lancamento_id' => $lancamento->id,
+                        'motivo' => $exception->getMessage(),
+                    ]);
+                }
+            }
 
             $this->setSuccess('Lançamento de manutenção sincronizado com sucesso.');
 
@@ -102,25 +112,5 @@ class ManutencaoImportSyncService
                 ]
             );
         }
-    }
-
-    private function vincularAoResultadoEmAberto(ManutencaoLancamento $lancamento): void
-    {
-        if ($lancamento->resultado_periodo_id) {
-            return;
-        }
-
-        $resultadoPeriodoId = ResultadoPeriodo::query()
-            ->where('veiculo_id', $lancamento->veiculo_id)
-            ->where('status', StatusDiversosEnum::PENDENTE->value)
-            ->orderByDesc('data_fim')
-            ->orderByDesc('id')
-            ->value('id');
-
-        if (! $resultadoPeriodoId) {
-            return;
-        }
-
-        $lancamento->update(['resultado_periodo_id' => $resultadoPeriodoId]);
     }
 }

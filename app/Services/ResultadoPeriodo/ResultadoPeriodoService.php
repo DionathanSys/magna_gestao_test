@@ -6,25 +6,25 @@ use Illuminate\Support\Facades\Log;
 
 class ResultadoPeriodoService
 {
-    public function importarRegistros(int $resultadoPeriodoId)
+    public function importarRegistros(int $resultadoPeriodoId, bool $considerarPeriodo = true): void
     {
         try {
 
-            $importarAbastecimentosAction = new Actions\ImportarAbastecimentos($resultadoPeriodoId);
+            $importarAbastecimentosAction = new Actions\ImportarAbastecimentos($resultadoPeriodoId, $considerarPeriodo);
             $importarAbastecimentosAction->handle();
 
             Log::info('Importação de abastecimentos concluída com sucesso.', [
                 'metodo' => __METHOD__,
             ]);
 
-            $importarDocumentosFreteAction = new Actions\ImportarDocumentosFrete($resultadoPeriodoId);
+            $importarDocumentosFreteAction = new Actions\ImportarDocumentosFrete($resultadoPeriodoId, $considerarPeriodo);
             $importarDocumentosFreteAction->handle();
 
             Log::info('Importação de documentos de frete concluída com sucesso.', [
                 'metodo' => __METHOD__,
             ]);
 
-            $importarViagensAction = new Actions\ImportarViagens($resultadoPeriodoId);
+            $importarViagensAction = new Actions\ImportarViagens($resultadoPeriodoId, $considerarPeriodo);
             $importarViagensAction->handle();
 
             Log::info('Importação de viagens concluída com sucesso.', [
@@ -39,6 +39,4 @@ class ResultadoPeriodoService
             ]);
         }
     }
-
-    public function importarViagem() {}
 }

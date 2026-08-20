@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ResultadoPeriodos\RelationManagers;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Enum\Frete\TipoDocumentoEnum;
+use App\Enum\StatusDiversosEnum;
 use App\Filament\Components\RegistrosSemVinculoResultadoFilter;
 use App\Models;
 use Carbon\Carbon;
@@ -195,6 +196,7 @@ class DocumentosFreteRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make(),
                 AssociateAction::make()
+                    ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value)
                     ->preloadRecordSelect()
                     ->recordSelectOptionsQuery(
                         fn ($query) => $query
@@ -217,6 +219,7 @@ class DocumentosFreteRelationManager extends RelationManager
                 EditAction::make()
                     ->iconButton(),
                 DissociateAction::make()
+                    ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value)
                     ->iconButton(),
                 DeleteAction::make()
                     ->iconButton(),
@@ -224,7 +227,8 @@ class DocumentosFreteRelationManager extends RelationManager
             ->toolbarActions([
                 BulkActionGroup::make([
                     FilamentExportBulkAction::make('export'),
-                    DissociateBulkAction::make(),
+                    DissociateBulkAction::make()
+                        ->visible(fn (): bool => $this->ownerRecord->status === StatusDiversosEnum::PENDENTE->value),
                     DeleteBulkAction::make(),
                 ]),
             ]);

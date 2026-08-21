@@ -14,6 +14,8 @@ class VincularResultadoPeriodoAction
         return Action::make('vincular_resultado_periodo')
             ->label('Vincular / mover resultado')
             ->icon('heroicon-o-link')
+            ->iconButton()
+            ->tooltip('Vincular ou mover o registro para outro resultado período')
             ->color('primary')
             ->modalHeading('Vincular ao resultado período')
             ->modalDescription('O destino e o vínculo atual precisam estar pendentes. Registros de períodos encerrados são preservados.')

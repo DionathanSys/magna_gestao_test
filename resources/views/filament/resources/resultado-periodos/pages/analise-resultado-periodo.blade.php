@@ -34,9 +34,26 @@
         .resultado-financial-value { color: #0f172a; font-size: .82rem; font-weight: 700; text-align: right; white-space: nowrap; }
         .resultado-progress { height: .55rem; overflow: hidden; border-radius: 999px; background: #f1f5f9; }
         .resultado-progress > span { display: block; height: 100%; border-radius: inherit; }
-        .resultado-progress .amber { background: #f59e0b; }
-        .resultado-progress .rose { background: #f43f5e; }
-        .resultado-progress .emerald { background: #10b981; }
+         .resultado-progress .amber { background: #f59e0b; }
+         .resultado-progress .rose { background: #f43f5e; }
+         .resultado-progress .sky { background: #0ea5e9; }
+         .resultado-progress .emerald { background: #10b981; }
+         .resultado-tabs { display: flex; gap: .5rem; border-bottom: 1px solid #e2e8f0; }
+         .resultado-tab { padding: .7rem .9rem; border-bottom: 2px solid transparent; color: #64748b; font-size: .82rem; font-weight: 700; text-decoration: none; }
+         .resultado-tab.active { border-color: #0f766e; color: #0f766e; }
+         .resultado-metas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin-top: 1.15rem; }
+         .resultado-meta { padding: .9rem; border: 1px solid #e2e8f0; border-radius: .85rem; background: #f8fafc; }
+         .resultado-meta-label { color: #64748b; font-size: .72rem; font-weight: 650; }
+         .resultado-meta-value { margin-top: .28rem; color: #047857; font-size: 1.05rem; font-weight: 750; }
+         .resultado-meta-value.over { color: #be123c; }
+         .resultado-meta-detail { margin-top: .2rem; color: #94a3b8; font-size: .71rem; }
+         .resultado-chart { margin-top: 1.15rem; overflow-x: auto; }
+         .resultado-chart-svg { display: block; min-width: 36rem; width: 100%; height: 15rem; overflow: visible; }
+         .resultado-chart-grid { stroke: #e2e8f0; stroke-width: .5; vector-effect: non-scaling-stroke; }
+         .resultado-chart-line { fill: none; stroke: #0f766e; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+         .resultado-chart-area { fill: rgba(13, 148, 136, .12); }
+         .resultado-chart-point { fill: #0f766e; stroke: #fff; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+         .resultado-chart-labels { display: flex; justify-content: space-between; min-width: 36rem; margin-top: .35rem; color: #94a3b8; font-size: .68rem; }
         .resultado-ops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: 1.25rem; }
         .resultado-op { padding: .9rem; border-radius: .85rem; background: #f8fafc; }
         .resultado-op-label { color: #64748b; font-size: .72rem; font-weight: 650; }
@@ -78,16 +95,19 @@
         .dark .resultado-chip.open { border-color: rgba(74, 222, 128, .35); background: rgba(22, 163, 74, .15); color: #86efac; }
         .dark .resultado-chip.closed { background: rgba(148, 163, 184, .1); }
         .dark .resultado-op { background: rgba(148, 163, 184, .08); }
-        .dark .resultado-progress { background: rgba(148, 163, 184, .15); }
+         .dark .resultado-progress { background: rgba(148, 163, 184, .15); }
+         .dark .resultado-tabs { border-color: rgba(148, 163, 184, .18); }
+         .dark .resultado-meta { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
+         .dark .resultado-chart-grid { stroke: rgba(148, 163, 184, .3); }
         .dark .resultado-list, .dark .resultado-list-item { border-color: rgba(148, 163, 184, .12); }
         .dark .resultado-list-main { color: #e2e8f0; }
         .dark .resultado-os-group { border-color: rgba(148, 163, 184, .18); }
         .dark .resultado-os-head { background: rgba(148, 163, 184, .08); }
         .dark .resultado-os-title, .dark .resultado-os-product, .dark .resultado-os-value { color: #e2e8f0; }
         .dark .resultado-os-item { border-color: rgba(148, 163, 184, .12); }
-        @media (max-width: 1100px) { .resultado-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resultado-activity { grid-template-columns: 1fr; } }
+         @media (max-width: 1100px) { .resultado-kpis, .resultado-metas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resultado-activity { grid-template-columns: 1fr; } }
         @media (max-width: 800px) { .resultado-hero, .resultado-grid { grid-template-columns: 1fr; display: grid; } .resultado-hero-meta { justify-content: flex-start; } .resultado-financial-row { grid-template-columns: 1fr auto; } .resultado-financial-row .resultado-progress { grid-column: 1 / -1; } }
-        @media (max-width: 520px) { .resultado-kpis, .resultado-ops { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
+         @media (max-width: 520px) { .resultado-kpis, .resultado-metas, .resultado-ops { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
     </style>
 
     <div class="resultado-analise">
@@ -104,6 +124,11 @@
             </div>
         </section>
 
+        <nav class="resultado-tabs" aria-label="Análises do resultado">
+            <a class="resultado-tab active" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise', ['record' => $record]) }}">Visão geral</a>
+            <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-manutencao', ['record' => $record]) }}">Custos de manutenção</a>
+        </nav>
+
         <section class="resultado-kpis">
             <article class="resultado-kpi">
                 <div class="resultado-kpi-label">Faturamento</div>
@@ -118,13 +143,28 @@
             <article class="resultado-kpi">
                 <div class="resultado-kpi-label">Custo por KM</div>
                 <div class="resultado-kpi-value">{{ $resumo['custo_por_km'] === null ? 'N/D' : 'R$ ' . number_format($resumo['custo_por_km'], 2, ',', '.') }}</div>
-                <div class="resultado-kpi-detail">Combustível e manutenção</div>
+                <div class="resultado-kpi-detail">Diesel, manutenção e folha</div>
             </article>
             <article class="resultado-kpi">
                 <div class="resultado-kpi-label">Consumo médio</div>
                 <div class="resultado-kpi-value">{{ $resumo['consumo'] === null ? 'N/D' : number_format($resumo['consumo'], 2, ',', '.') . ' km/L' }}</div>
                 <div class="resultado-kpi-detail">Meta: {{ $resumo['meta_consumo'] ? number_format($resumo['meta_consumo'], 2, ',', '.') . ' km/L' : 'não definida' }}</div>
             </article>
+        </section>
+
+        <section class="resultado-card">
+            <h3 class="resultado-card-title">Metas do período</h3>
+            <p class="resultado-card-subtitle">Indicadores comparados às metas máximas definidas para o veículo.</p>
+            <div class="resultado-metas">
+                @foreach ($metas as $meta)
+                    @php $acimaDaMeta = $meta['valor'] !== null && $meta['valor'] > $meta['meta']; @endphp
+                    <article class="resultado-meta">
+                        <div class="resultado-meta-label">{{ $meta['label'] }}</div>
+                        <div class="resultado-meta-value {{ $acimaDaMeta ? 'over' : '' }}">{{ $meta['valor'] === null ? 'N/D' : number_format($meta['valor'], 2, ',', '.') . $meta['unidade'] }}</div>
+                        <div class="resultado-meta-detail">Meta máxima: {{ number_format($meta['meta'], 1, ',', '.') }}{{ $meta['unidade'] }}{{ $meta['valor'] !== null ? ($acimaDaMeta ? ' · acima da meta' : ' · dentro da meta') : '' }}</div>
+                    </article>
+                @endforeach
+            </div>
         </section>
 
         <section class="resultado-grid">
@@ -170,29 +210,25 @@
         </section>
 
         <section class="resultado-card">
-            <h3 class="resultado-card-title">Custos de manutenção por OS</h3>
-            <p class="resultado-card-subtitle">Cada lançamento importado permanece rastreável pelo produto e pela ordem de serviço vinculada.</p>
-            <div class="resultado-os-list">
-                @forelse ($manutencoesPorOs as $manutencaoOs)
-                    <div class="resultado-os-group">
-                        <div class="resultado-os-head">
-                            <div>
-                                <div class="resultado-os-title">{{ $manutencaoOs['ordem_servico_id'] ? 'OS #' . $manutencaoOs['ordem_servico_id'] : 'Sem OS vinculada' }}</div>
-                                <div class="resultado-os-meta">{{ $manutencaoOs['tipo'] ?: 'Tipo não informado' }}{{ $manutencaoOs['status'] ? ' · ' . $manutencaoOs['status'] : '' }} · {{ $manutencaoOs['lancamentos']->count() }} {{ $manutencaoOs['lancamentos']->count() === 1 ? 'item' : 'itens' }}</div>
-                            </div>
-                            <div class="resultado-os-total">R$ {{ number_format($manutencaoOs['total'], 2, ',', '.') }}</div>
-                        </div>
-                        @foreach ($manutencaoOs['lancamentos'] as $lancamento)
-                            <div class="resultado-os-item">
-                                <div class="resultado-os-product">{{ $lancamento['produto'] }}<small>{{ $lancamento['codigo'] ? 'Cód. ' . $lancamento['codigo'] . ' · ' : '' }}{{ $lancamento['parceiro'] ?: 'Parceiro não informado' }}</small></div>
-                                <div class="resultado-os-detail">{{ $lancamento['data'] }} · {{ number_format($lancamento['quantidade'], 4, ',', '.') }} {{ $lancamento['unidade'] }}{{ $lancamento['grupo'] ? ' · ' . $lancamento['grupo'] : '' }}</div>
-                                <div class="resultado-os-value">R$ {{ number_format($lancamento['valor'], 2, ',', '.') }}</div>
-                            </div>
-                        @endforeach
-                    </div>
-                @empty
-                    <div class="resultado-empty">Nenhum custo de manutenção foi vinculado a este resultado.</div>
-                @endforelse
+            <h3 class="resultado-card-title">Custo diário de manutenção</h3>
+            <p class="resultado-card-subtitle">Gasto por dia no período, com base nos lançamentos de manutenção vinculados.</p>
+            <div class="resultado-chart">
+                @php
+                    $pontosGrafico = $custosDiariosManutencao['pontos'];
+                    $linhaGrafico = collect($pontosGrafico)->map(fn (array $ponto): string => number_format($ponto['x'], 3, '.', '') . ',' . number_format($ponto['y'], 3, '.', ''))->implode(' ');
+                    $areaGrafico = '0,100 ' . $linhaGrafico . ' 100,100';
+                @endphp
+                <svg class="resultado-chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Gráfico de custo diário de manutenção">
+                    <line class="resultado-chart-grid" x1="0" y1="0" x2="100" y2="0" />
+                    <line class="resultado-chart-grid" x1="0" y1="50" x2="100" y2="50" />
+                    <line class="resultado-chart-grid" x1="0" y1="100" x2="100" y2="100" />
+                    <polygon class="resultado-chart-area" points="{{ $areaGrafico }}" />
+                    <polyline class="resultado-chart-line" points="{{ $linhaGrafico }}" />
+                    @foreach ($pontosGrafico as $ponto)
+                        <circle class="resultado-chart-point" cx="{{ $ponto['x'] }}" cy="{{ $ponto['y'] }}" r="1.4"><title>{{ $ponto['data'] }}: R$ {{ number_format($ponto['valor'], 2, ',', '.') }}</title></circle>
+                    @endforeach
+                </svg>
+                <div class="resultado-chart-labels"><span>{{ $pontosGrafico[0]['data'] }}</span><span>Máximo: R$ {{ number_format($custosDiariosManutencao['maior_valor'], 2, ',', '.') }}</span><span>{{ $pontosGrafico[count($pontosGrafico) - 1]['data'] }}</span></div>
             </div>
         </section>
 

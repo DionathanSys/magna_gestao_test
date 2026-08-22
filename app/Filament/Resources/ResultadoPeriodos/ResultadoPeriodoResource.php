@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos;
 
+use App\Filament\Resources\ResultadoPeriodos\Pages\AnaliseManutencaoResultadoPeriodo;
 use App\Filament\Resources\ResultadoPeriodos\Pages\AnaliseResultadoPeriodo;
 use App\Filament\Resources\ResultadoPeriodos\Pages\CreateResultadoPeriodo;
 use App\Filament\Resources\ResultadoPeriodos\Pages\EditResultadoPeriodo;
@@ -58,6 +59,7 @@ class ResultadoPeriodoResource extends Resource
         return [
             'index' => ListResultadoPeriodos::route('/'),
             'analise' => AnaliseResultadoPeriodo::route('/{record}/analise'),
+            'analise-manutencao' => AnaliseManutencaoResultadoPeriodo::route('/{record}/analise/manutencao'),
             // 'create' => CreateResultadoPeriodo::route('/create'),
             // 'view' => ViewResultadoPeriodo::route('/{record}'),
             'edit' => EditResultadoPeriodo::route('/{record}/edit'),

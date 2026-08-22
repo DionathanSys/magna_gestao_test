@@ -72,7 +72,8 @@ class AnaliseResultadoPeriodo extends Page
         $faturamento = ((float) ($record->documentos_sum_valor_liquido ?? 0)) / 100;
         $combustivel = ((float) ($record->abastecimentos_sum_preco_total ?? 0)) / 100;
         $manutencao = ((float) ($record->manutencao_lancamentos_sum_valor_total_centavos ?? 0)) / 100;
-        $resultadoLiquido = $faturamento - $combustivel - $manutencao;
+        $folhaPagamento = (float) $record->folha_pagamento_centavos;
+        $resultadoLiquido = $faturamento - $combustivel - $manutencao - $folhaPagamento;
         $margemLiquida = $faturamento > 0 ? ($resultadoLiquido / $faturamento) * 100 : null;
         $litros = (float) ($record->abastecimentos_sum_quantidade ?? 0);
         $kmPago = (float) ($record->viagens_sum_km_pago ?? 0);
@@ -83,7 +84,8 @@ class AnaliseResultadoPeriodo extends Page
             : null;
         $metaConsumo = $record->veiculo?->tipoVeiculo?->meta_media;
         $dias = Carbon::parse($record->data_inicio)->diffInDays(Carbon::parse($record->data_fim)) + 1;
-        $custoTotal = $combustivel + $manutencao;
+        $custoTotal = $combustivel + $manutencao + $folhaPagamento;
+        $dispersaoKm = $kmRodadoAbastecimento !== null ? $kmRodadoAbastecimento - $kmPago : null;
 
         return [
             'record' => $record,
@@ -91,21 +93,24 @@ class AnaliseResultadoPeriodo extends Page
                 'faturamento' => $faturamento,
                 'combustivel' => $combustivel,
                 'manutencao' => $manutencao,
+                'folha_pagamento' => $folhaPagamento,
                 'resultado_liquido' => $resultadoLiquido,
                 'margem_liquida' => $margemLiquida,
                 'km_pago' => $kmPago,
                 'km_rodado_viagens' => $kmRodadoViagens,
                 'km_rodado_abastecimento' => $kmRodadoAbastecimento,
-                'dispersao_km' => $kmRodadoAbastecimento !== null ? $kmRodadoAbastecimento - $kmPago : null,
+                'dispersao_km' => $dispersaoKm,
                 'consumo' => $consumo,
                 'meta_consumo' => $metaConsumo,
                 'litros' => $litros,
                 'dias' => $dias,
                 'custo_por_km' => $kmRodadoAbastecimento ? $custoTotal / $kmRodadoAbastecimento : null,
             ],
-            'composicaoFinanceira' => $this->getComposicaoFinanceira($faturamento, $combustivel, $manutencao),
+            'metas' => $this->getMetas($faturamento, $combustivel, $manutencao, $folhaPagamento, $dispersaoKm, $kmPago),
+            'composicaoFinanceira' => $this->getComposicaoFinanceira($faturamento, $combustivel, $manutencao, $folhaPagamento),
             'alertas' => $this->getAlertas($record, $resultadoLiquido, $margemLiquida, $kmRodadoAbastecimento, $consumo, $metaConsumo),
             'manutencoesPorOs' => $this->getManutencoesPorOs($record),
+            'custosDiariosManutencao' => $this->getCustosDiariosManutencao($record),
             'viagens' => $record->viagens()
                 ->orderByDesc('data_competencia')
                 ->limit(5)
@@ -196,14 +201,57 @@ class AnaliseResultadoPeriodo extends Page
             ->values();
     }
 
-    private function getComposicaoFinanceira(float $faturamento, float $combustivel, float $manutencao): array
+    private function getCustosDiariosManutencao(ResultadoPeriodo $record): array
+    {
+        $totaisPorDia = $record->manutencaoLancamentos()
+            ->selectRaw('DATE(data_negociacao) as data, SUM(valor_total_centavos) as total')
+            ->groupByRaw('DATE(data_negociacao)')
+            ->pluck('total', 'data');
+        $data = Carbon::parse($record->data_inicio)->startOfDay();
+        $fim = Carbon::parse($record->data_fim)->startOfDay();
+        $pontos = [];
+
+        while ($data->lte($fim)) {
+            $chave = $data->toDateString();
+            $pontos[] = [
+                'data' => $data->format('d/m'),
+                'valor' => ((float) ($totaisPorDia[$chave] ?? 0)) / 100,
+            ];
+            $data->addDay();
+        }
+
+        $maiorValor = max(collect($pontos)->max('valor') ?? 0, 1);
+
+        foreach ($pontos as $indice => &$ponto) {
+            $ponto['x'] = count($pontos) === 1 ? 50 : ($indice / (count($pontos) - 1)) * 100;
+            $ponto['y'] = 100 - (($ponto['valor'] / $maiorValor) * 100);
+        }
+
+        return ['pontos' => $pontos, 'maior_valor' => $maiorValor];
+    }
+
+    private function getMetas(float $faturamento, float $combustivel, float $manutencao, float $folhaPagamento, ?int $dispersaoKm, float $kmPago): array
+    {
+        $percentualFaturamento = fn (float $valor): ?float => $faturamento > 0 ? ($valor / $faturamento) * 100 : null;
+        $percentualDispersao = $dispersaoKm !== null && $kmPago > 0 ? (abs($dispersaoKm) / $kmPago) * 100 : null;
+
+        return [
+            ['label' => 'Diesel sobre faturamento', 'meta' => 33.0, 'valor' => $percentualFaturamento($combustivel), 'unidade' => '%'],
+            ['label' => 'Manutenção sobre faturamento', 'meta' => 6.5, 'valor' => $percentualFaturamento($manutencao), 'unidade' => '%'],
+            ['label' => 'Folha sobre faturamento', 'meta' => 15.5, 'valor' => $percentualFaturamento($folhaPagamento), 'unidade' => '%'],
+            ['label' => 'Dispersão de KM', 'meta' => 2.0, 'valor' => $percentualDispersao, 'unidade' => '%'],
+        ];
+    }
+
+    private function getComposicaoFinanceira(float $faturamento, float $combustivel, float $manutencao, float $folhaPagamento): array
     {
         $base = max($faturamento, 1);
 
         return [
             ['label' => 'Combustível', 'valor' => $combustivel, 'percentual' => min(100, ($combustivel / $base) * 100), 'cor' => 'amber'],
             ['label' => 'Manutenção', 'valor' => $manutencao, 'percentual' => min(100, ($manutencao / $base) * 100), 'cor' => 'rose'],
-            ['label' => 'Resultado líquido', 'valor' => $faturamento - $combustivel - $manutencao, 'percentual' => max(0, min(100, (($faturamento - $combustivel - $manutencao) / $base) * 100)), 'cor' => 'emerald'],
+            ['label' => 'Folha de pagamento', 'valor' => $folhaPagamento, 'percentual' => min(100, ($folhaPagamento / $base) * 100), 'cor' => 'sky'],
+            ['label' => 'Resultado líquido', 'valor' => $faturamento - $combustivel - $manutencao - $folhaPagamento, 'percentual' => max(0, min(100, (($faturamento - $combustivel - $manutencao - $folhaPagamento) / $base) * 100)), 'cor' => 'emerald'],
         ];
     }
 

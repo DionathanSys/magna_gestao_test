@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\MoneyCast;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ResultadoPeriodo extends Model
 {
+    protected $casts = [
+        'folha_pagamento_centavos' => MoneyCast::class,
+    ];
+
     protected $appends = [
         'periodo',
         'km_rodado_abastecimento',

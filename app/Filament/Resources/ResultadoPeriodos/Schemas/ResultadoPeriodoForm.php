@@ -7,6 +7,7 @@ use App\Models\Veiculo;
 use App\Services\Veiculo\VeiculoCacheService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -52,6 +53,14 @@ class ResultadoPeriodoForm
                     ->label('Data Fim')
                     ->columnSpan(3)
                     ->required(),
+                TextInput::make('folha_pagamento_centavos')
+                    ->label('Folha de pagamento do período')
+                    ->prefix('R$')
+                    ->numeric()
+                    ->default(0)
+                    ->minValue(0)
+                    ->columnSpan(3)
+                    ->helperText('Valor total da folha atribuída ao veículo neste período.'),
             ]);
     }
 }

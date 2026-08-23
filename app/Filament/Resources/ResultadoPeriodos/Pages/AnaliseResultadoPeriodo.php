@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\ResultadoPeriodos\Pages;
 
 use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
+use App\Models\GarantiaServico;
+use App\Models\OrdemServico;
 use App\Models\ResultadoPeriodo;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -111,6 +113,8 @@ class AnaliseResultadoPeriodo extends Page
             'alertas' => $this->getAlertas($record, $resultadoLiquido, $margemLiquida, $kmRodadoAbastecimento, $consumo, $metaConsumo),
             'manutencoesPorOs' => $this->getManutencoesPorOs($record),
             'custosDiariosManutencao' => $this->getCustosDiariosManutencao($record),
+            'servicosOrdensInternas' => $this->getServicosOrdensInternas($record),
+            'garantiasServico' => $this->getGarantiasServico($record),
             'viagens' => $record->viagens()
                 ->orderByDesc('data_competencia')
                 ->limit(5)
@@ -220,14 +224,74 @@ class AnaliseResultadoPeriodo extends Page
             $data->addDay();
         }
 
-        $maiorValor = max(collect($pontos)->max('valor') ?? 0, 1);
+        $valorTotal = collect($pontos)->sum('valor');
+        $maiorValor = collect($pontos)->max('valor') ?? 0;
+        $escalaMaxima = max($maiorValor, 1);
+        $diaMaiorValor = collect($pontos)->firstWhere('valor', $maiorValor);
 
         foreach ($pontos as $indice => &$ponto) {
-            $ponto['x'] = count($pontos) === 1 ? 50 : ($indice / (count($pontos) - 1)) * 100;
-            $ponto['y'] = 100 - (($ponto['valor'] / $maiorValor) * 100);
+            $ponto['x'] = count($pontos) === 1 ? 50 : 4 + (($indice / (count($pontos) - 1)) * 92);
+            $ponto['y'] = 86 - (($ponto['valor'] / $escalaMaxima) * 70);
         }
 
-        return ['pontos' => $pontos, 'maior_valor' => $maiorValor];
+        return [
+            'pontos' => $pontos,
+            'valor_total' => $valorTotal,
+            'media_diaria' => $valorTotal / count($pontos),
+            'maior_valor' => $maiorValor,
+            'escala_maxima' => $escalaMaxima,
+            'dia_maior_valor' => $maiorValor > 0 ? $diaMaiorValor['data'] : null,
+        ];
+    }
+
+    private function getServicosOrdensInternas(ResultadoPeriodo $record)
+    {
+        return OrdemServico::query()
+            ->where('veiculo_id', $record->veiculo_id)
+            ->whereBetween('data_inicio', [$record->data_inicio, $record->data_fim])
+            ->with(['itens.servico:id,codigo,descricao'])
+            ->orderByDesc('data_inicio')
+            ->get(['id', 'tipo_manutencao', 'status', 'data_inicio', 'data_fim', 'quilometragem'])
+            ->map(fn (OrdemServico $ordemServico): array => [
+                'id' => $ordemServico->id,
+                'tipo' => $ordemServico->tipo_manutencao?->value,
+                'status' => $ordemServico->status?->value,
+                'data_inicio' => $ordemServico->data_inicio?->format('d/m/Y H:i'),
+                'data_fim' => $ordemServico->data_fim?->format('d/m/Y H:i'),
+                'quilometragem' => $ordemServico->quilometragem,
+                'itens' => $ordemServico->itens->map(fn ($item): array => [
+                    'codigo' => $item->servico?->codigo,
+                    'descricao' => $item->servico?->descricao ?? 'Serviço não informado',
+                    'status' => $item->status?->value,
+                    'posicao' => $item->posicao,
+                ]),
+            ]);
+    }
+
+    private function getGarantiasServico(ResultadoPeriodo $record)
+    {
+        return GarantiaServico::query()
+            ->where('veiculo_id', $record->veiculo_id)
+            ->whereBetween('data_execucao', [
+                Carbon::parse($record->data_inicio)->startOfDay(),
+                Carbon::parse($record->data_fim)->endOfDay(),
+            ])
+            ->with(['servico:id,codigo,descricao', 'ordemServico:id'])
+            ->orderByDesc('data_execucao')
+            ->get()
+            ->map(fn (GarantiaServico $garantia): array => [
+                'ordem_servico_id' => $garantia->ordem_servico_id,
+                'servico' => $garantia->servico?->descricao ?? 'Serviço não informado',
+                'codigo' => $garantia->servico?->codigo,
+                'posicao' => $garantia->posicao,
+                'data_execucao' => $garantia->data_execucao?->format('d/m/Y H:i'),
+                'em_garantia' => $garantia->em_garantia,
+                'km_durabilidade' => $garantia->km_durabilidade,
+                'dias_durabilidade' => $garantia->dias_durabilidade,
+                'garantia_km' => $garantia->garantia_km_aplicada,
+                'garantia_dias' => $garantia->garantia_dias_aplicada,
+                'motivo_alerta' => $garantia->motivo_alerta,
+            ]);
     }
 
     private function getMetas(float $faturamento, float $combustivel, float $manutencao, float $folhaPagamento, ?int $dispersaoKm, float $kmPago): array

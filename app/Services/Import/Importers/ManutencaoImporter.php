@@ -199,8 +199,8 @@ class ManutencaoImporter implements ExcelImportInterface
 
         [, $primeiroNumero, $segundoNumero, $ano] = $matches;
 
-        // The ERP export uses m/d/Y, but manual reports can use d/m/Y.
-        [$mes, $dia] = (int) $primeiroNumero > 12
+        $formato = (int) $primeiroNumero > 12 ? 'd/m/Y' : 'm/d/Y';
+        [$mes, $dia] = $formato === 'd/m/Y'
             ? [$segundoNumero, $primeiroNumero]
             : [$primeiroNumero, $segundoNumero];
 
@@ -208,7 +208,7 @@ class ManutencaoImporter implements ExcelImportInterface
             throw new \InvalidArgumentException('Data inválida.');
         }
 
-        return Carbon::create((int) $ano, (int) $mes, (int) $dia)->startOfDay();
+        return Carbon::createFromFormat("!{$formato}", $data)->startOfDay();
     }
 
     private function normalizeIdentifier(mixed $value): string

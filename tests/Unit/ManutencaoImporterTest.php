@@ -14,9 +14,11 @@ class ManutencaoImporterTest extends TestCase
         $method = new \ReflectionMethod($importer, 'parseDataNegociacao');
 
         $dataFromErp = $method->invoke($importer, '8/18/2026');
+        $dataFromPayload = $method->invoke($importer, '8/15/2026');
         $dataFromBrazilianReport = $method->invoke($importer, '18/08/2026');
 
         $this->assertSame('2026-08-18', $dataFromErp->toDateString());
+        $this->assertSame('2026-08-15', $dataFromPayload->toDateString());
         $this->assertSame('2026-08-18', $dataFromBrazilianReport->toDateString());
     }
 }

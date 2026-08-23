@@ -32,14 +32,17 @@ class ManutencaoLancamentosTable
                 TextColumn::make('data_negociacao')
                     ->label('Dt. Neg.')
                     ->date('d/m/Y')
+                    ->toggleable()
                     ->sortable(),
                 TextColumn::make('veiculo.placa')
                     ->label('Placa')
                     ->searchable()
+                    ->toggleable()
                     ->sortable(),
                 TextColumn::make('tipo_manutencao')
                     ->label('Tipo Manutenção')
                     ->badge()
+                    ->toggleable()
                     ->sortable(),
                 TextColumn::make('ordemServico.id')
                     ->label('OS Interna')
@@ -47,6 +50,7 @@ class ManutencaoLancamentosTable
                         ? OrdemServicoResource::getUrl('custom', ['record' => $record->ordem_servico_id])
                         : null)
                     ->openUrlInNewTab()
+                    ->toggleable()
                     ->placeholder('Pendente'),
                 TextColumn::make('tipo_vinculo')
                     ->label('Vínculo')
@@ -63,17 +67,21 @@ class ManutencaoLancamentosTable
                         'manual' => 'info',
                         'dispensado' => 'warning',
                         default => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
                 TextColumn::make('produto')
                     ->label('Produto')
                     ->searchable()
+                    ->toggleable()
                     ->wrap(),
                 TextColumn::make('quantidade')
                     ->label('Qtde.')
+                    ->toggleable()
                     ->numeric(4, ',', '.'),
                 TextColumn::make('valor_total_centavos')
                     ->label('Vlr. Total')
                     ->money('BRL', 100)
+                    ->toggleable()
                     ->sortable(),
                 TextColumn::make('valor_unitario_centavos')
                     ->label('Vlr. Unitário')
@@ -82,9 +90,11 @@ class ManutencaoLancamentosTable
                     ->toggleable(),
                 TextColumn::make('nr_unico')
                     ->label('Nr. Único')
+                    ->toggleable()
                     ->searchable(),
                 TextColumn::make('sequencia')
                     ->label('Sequência')
+                    ->toggleable()
                     ->searchable(),
                 TextColumn::make('nr_os_nf')
                     ->label('Nr. OS/NF')
@@ -143,6 +153,7 @@ class ManutencaoLancamentosTable
                 Action::make('conciliar_automaticamente')
                     ->label('Conciliar')
                     ->icon('heroicon-o-arrow-path')
+                    ->iconButton()
                     ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id === null && ! $record->dispensado_vinculo)
                     ->action(function (ManutencaoLancamento $record, ManutencaoLancamentoVinculoService $service): void {
                         $service->conciliarAutomaticamente($record);
@@ -150,6 +161,7 @@ class ManutencaoLancamentosTable
                 Action::make('vincular_os')
                     ->label('Vincular OS')
                     ->icon('heroicon-o-link')
+                    ->iconButton()
                     ->schema([
                         Select::make('ordem_servico_id')
                             ->label('Ordem de serviço')
@@ -189,6 +201,7 @@ class ManutencaoLancamentosTable
                 Action::make('desvincular_os')
                     ->label('Desvincular')
                     ->icon('heroicon-o-x-mark')
+                    ->iconButton()
                     ->color('danger')
                     ->requiresConfirmation()
                     ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id !== null)
@@ -198,6 +211,7 @@ class ManutencaoLancamentosTable
                 Action::make('dispensar_vinculo')
                     ->label('Dispensar vínculo')
                     ->icon('heroicon-o-eye-slash')
+                    ->iconButton()
                     ->color('warning')
                     ->requiresConfirmation()
                     ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id === null && ! $record->dispensado_vinculo)
@@ -207,15 +221,16 @@ class ManutencaoLancamentosTable
                 Action::make('reabrir_pendencia')
                     ->label('Reabrir pendência')
                     ->icon('heroicon-o-arrow-uturn-left')
+                    ->iconButton()
                     ->visible(fn (ManutencaoLancamento $record): bool => $record->ordem_servico_id === null && $record->dispensado_vinculo)
                     ->action(function (ManutencaoLancamento $record, ManutencaoLancamentoVinculoService $service): void {
                         $service->reabrirPendencia($record);
                     }),
             ])
             ->toolbarActions([
-                VincularResultadoPeriodoBulkAction::make(),
-                DissociateResultadoPeriodoBulkAction::make(),
                 BulkActionGroup::make([
+                    VincularResultadoPeriodoBulkAction::make(),
+                    DissociateResultadoPeriodoBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

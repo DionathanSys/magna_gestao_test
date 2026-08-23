@@ -41,12 +41,16 @@ class PneuAlertaService
         $posicoes = $this->getPosicoesAplicadas($filters);
         $despareamento = $this->buildDespareamentoAlerts($posicoes);
         $rodizio = $this->buildRodizioAlerts($posicoes);
+        $previsaoService = app(PneuPrevisaoService::class);
+        $programacao = $previsaoService->getProgramacao($posicoes);
 
         return [
             'threshold_km_rodizio' => $this->getRodizioThresholdKm(),
-            'total_alertas' => $despareamento->count() + $rodizio->count(),
+            'total_alertas' => $despareamento->count() + $rodizio->count() + $programacao->count(),
             'despareamento' => $despareamento,
             'rodizio' => $rodizio,
+            'programacao' => $programacao,
+            'pneus_sem_dados_previsao' => $previsaoService->getTotalSemDados($posicoes),
         ];
     }
 

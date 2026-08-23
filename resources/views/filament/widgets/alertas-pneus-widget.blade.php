@@ -202,7 +202,7 @@
                 <div>
                     <h3 class="text-base font-semibold text-gray-900 dark:text-white">Alertas operacionais de pneus</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Despareamento por eixo/cubo com foco em medida e marca, separado do alerta de rodízio por km na posição atual.
+                        Priorize as pendências vencidas e programe rodízios e trocas antes do vencimento.
                     </p>
                 </div>
 
@@ -344,6 +344,66 @@
                         </div>
                     </section>
                 </div>
+
+                <section class="pneu-alertas-panel pneu-alertas-panel--warning">
+                    <div class="pneu-alertas-panel__head">
+                        <div>
+                            <div class="pneu-alertas-panel__title">Programação preventiva</div>
+                            <div class="pneu-alertas-panel__hint">
+                                Trocas usam a taxa de desgaste entre as duas últimas inspeções válidas do ciclo.
+                                @if($pneus_sem_dados_previsao > 0)
+                                    {{ $pneus_sem_dados_previsao }} pneu(s) aplicado(s) ainda precisam de mais uma inspeção para projetar a troca.
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="pneu-alertas-panel__count">{{ $programacao->count() }}</div>
+                    </div>
+
+                    <div class="pneu-alertas-panel__body">
+                        @forelse($programacao as $item)
+                            <article class="pneu-alerta-card pneu-alerta-card--{{ $item['severidade'] }}">
+                                <div class="pneu-alerta-card__head">
+                                    <div>
+                                        <div class="pneu-alerta-card__title">{{ $item['titulo'] }}</div>
+                                        <div class="pneu-alerta-card__subtitle">
+                                            {{ $item['placa'] }} · {{ $item['posicao'] }} · Pneu {{ $item['numero_fogo'] }}
+                                        </div>
+                                    </div>
+
+                                    @if($url = $veiculoUrl($item['veiculo_id']))
+                                        <x-filament::link :href="$url" size="sm" icon="heroicon-m-arrow-top-right-on-square" target="_blank">
+                                            Veículo
+                                        </x-filament::link>
+                                    @endif
+                                </div>
+
+                                <div class="pneu-alerta-card__chips">
+                                    <span class="pneu-alerta-chip">
+                                        @if($item['km_restante'] <= 0)
+                                            Vencido há {{ number_format(abs($item['km_restante']), 0, ',', '.') }} km
+                                        @else
+                                            Restam {{ number_format($item['km_restante'], 0, ',', '.') }} km
+                                        @endif
+                                    </span>
+                                    @if($item['data_prevista'])
+                                        <span class="pneu-alerta-chip">Previsão: {{ $item['data_prevista'] }}</span>
+                                    @endif
+                                    @if($item['sulco_atual'] !== null)
+                                        <span class="pneu-alerta-chip">Menor sulco: {{ number_format($item['sulco_atual'], 1, ',', '.') }} mm</span>
+                                    @endif
+                                    @if($item['desgaste_por_mil_km'] !== null)
+                                        <span class="pneu-alerta-chip">Desgaste: {{ number_format($item['desgaste_por_mil_km'], 2, ',', '.') }} mm / 1.000 km</span>
+                                    @endif
+                                </div>
+                            </article>
+                        @empty
+                            <div class="pneu-alerta-empty">
+                                Nenhum rodízio ou troca previsto dentro da antecedência configurada.
+                            </div>
+                        @endforelse
+                    </div>
+                </section>
             @endif
         </div>
     </x-filament::section>

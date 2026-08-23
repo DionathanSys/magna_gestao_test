@@ -35,6 +35,8 @@ class PneuSettings extends AbstractPageSettings
     {
         return [
             'alerta_km_rodizio' => 7000,
+            'limite_sulco_troca_mm' => 3,
+            'antecedencia_previsao_km' => 1000,
         ];
     }
 
@@ -67,7 +69,7 @@ class PneuSettings extends AbstractPageSettings
                                     ->content('Use o recurso Modelos de Pneu no menu de Pneus.'),
                             ]),
                         Section::make('Alertas Operacionais')
-                            ->description('Limites usados para alertas de rodízio e acompanhamento operacional.')
+                            ->description('Limites usados para alertas, previsões de rodízio e troca.')
                             ->columns(12)
                             ->columnSpanFull()
                             ->schema([
@@ -78,6 +80,20 @@ class PneuSettings extends AbstractPageSettings
                                     ->required()
                                     ->columnSpan(4)
                                     ->helperText('Quando o pneu atingir esse km no ciclo atual, o dashboard gera alerta de rodízio.'),
+                                TextInput::make('limite_sulco_troca_mm')
+                                    ->label('Sulco mínimo para troca (mm)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required()
+                                    ->columnSpan(4)
+                                    ->helperText('A previsão de troca considera o menor sulco aferido nas inspeções.'),
+                                TextInput::make('antecedencia_previsao_km')
+                                    ->label('Antecedência da programação (km)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required()
+                                    ->columnSpan(4)
+                                    ->helperText('Exibe rodízios e trocas previstos dentro desta quilometragem.'),
                             ]),
                     ]),
             ])

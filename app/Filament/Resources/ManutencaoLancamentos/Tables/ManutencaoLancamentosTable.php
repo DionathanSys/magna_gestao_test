@@ -11,6 +11,8 @@ use App\Models\ManutencaoLancamento;
 use App\Models\OrdemServico;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -213,6 +215,9 @@ class ManutencaoLancamentosTable
             ->toolbarActions([
                 VincularResultadoPeriodoBulkAction::make(),
                 DissociateResultadoPeriodoBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

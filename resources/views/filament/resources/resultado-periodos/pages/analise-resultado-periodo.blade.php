@@ -53,9 +53,9 @@
           .resultado-chart-stat-value { margin-top: .28rem; color: #0f766e; font-size: .95rem; font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
           .resultado-chart-stat-detail { margin-top: .12rem; overflow: hidden; color: #94a3b8; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
           .resultado-chart { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: .55rem; margin-top: 1rem; }
-          .resultado-chart-y-axis { display: flex; flex-direction: column; justify-content: space-between; height: 17.5rem; padding: .35rem 0 1.25rem; color: #94a3b8; font-size: .67rem; text-align: right; }
+          .resultado-chart-y-axis { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; padding: .65rem 0 1.35rem; color: #94a3b8; font-size: .67rem; text-align: right; }
           .resultado-chart-scroll { min-width: 0; overflow-x: auto; }
-          .resultado-chart-svg { display: block; min-width: 42rem; width: 100%; height: 16.25rem; overflow: visible; }
+          .resultado-chart-svg { display: block; aspect-ratio: 5 / 2; min-width: 42rem; width: 100%; height: auto; overflow: visible; }
           .resultado-chart-grid { stroke: #e2e8f0; stroke-width: .5; vector-effect: non-scaling-stroke; }
           .resultado-chart-line { fill: none; stroke: #0f766e; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
           .resultado-chart-area { fill: url(#resultado-chart-gradient); }
@@ -232,16 +232,16 @@
                 @php
                     $pontosGrafico = $custosDiariosManutencao['pontos'];
                     $linhaGrafico = collect($pontosGrafico)->map(fn (array $ponto): string => number_format($ponto['x'], 3, '.', '') . ',' . number_format($ponto['y'], 3, '.', ''))->implode(' ');
-                    $areaGrafico = '4,86 ' . $linhaGrafico . ' 96,86';
+                    $areaGrafico = '4,34 ' . $linhaGrafico . ' 96,34';
                     $escalaGrafico = $custosDiariosManutencao['escala_maxima'];
                 @endphp
                 <div class="resultado-chart-y-axis" aria-hidden="true"><span>R$ {{ number_format($escalaGrafico, 0, ',', '.') }}</span><span>R$ {{ number_format($escalaGrafico / 2, 0, ',', '.') }}</span><span>R$ 0</span></div>
                 <div class="resultado-chart-scroll">
-                    <svg class="resultado-chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Gráfico de custo diário de manutenção">
+                    <svg class="resultado-chart-svg" viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label="Gráfico de custo diário de manutenção">
                         <defs><linearGradient id="resultado-chart-gradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#14b8a6" stop-opacity=".32" /><stop offset="100%" stop-color="#14b8a6" stop-opacity=".02" /></linearGradient></defs>
-                        <line class="resultado-chart-grid" x1="4" y1="16" x2="96" y2="16" />
-                        <line class="resultado-chart-grid" x1="4" y1="51" x2="96" y2="51" />
-                        <line class="resultado-chart-grid" x1="4" y1="86" x2="96" y2="86" />
+                        <line class="resultado-chart-grid" x1="4" y1="6" x2="96" y2="6" />
+                        <line class="resultado-chart-grid" x1="4" y1="20" x2="96" y2="20" />
+                        <line class="resultado-chart-grid" x1="4" y1="34" x2="96" y2="34" />
                         <polygon class="resultado-chart-area" points="{{ $areaGrafico }}" />
                         <polyline class="resultado-chart-line" points="{{ $linhaGrafico }}" />
                         @foreach ($pontosGrafico as $ponto)

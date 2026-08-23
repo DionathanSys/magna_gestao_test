@@ -231,7 +231,7 @@ class AnaliseResultadoPeriodo extends Page
 
         foreach ($pontos as $indice => &$ponto) {
             $ponto['x'] = count($pontos) === 1 ? 50 : 4 + (($indice / (count($pontos) - 1)) * 92);
-            $ponto['y'] = 86 - (($ponto['valor'] / $escalaMaxima) * 70);
+            $ponto['y'] = 34 - (($ponto['valor'] / $escalaMaxima) * 28);
         }
 
         return [

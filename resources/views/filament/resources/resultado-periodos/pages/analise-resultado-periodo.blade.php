@@ -52,16 +52,15 @@
           .resultado-chart-stat-label { color: #64748b; font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
           .resultado-chart-stat-value { margin-top: .28rem; color: #0f766e; font-size: .95rem; font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
           .resultado-chart-stat-detail { margin-top: .12rem; overflow: hidden; color: #94a3b8; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
-          .resultado-chart { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: .55rem; margin-top: 1rem; }
-          .resultado-chart-y-axis { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; padding: .65rem 0 1.35rem; color: #94a3b8; font-size: .67rem; text-align: right; }
-          .resultado-chart-scroll { min-width: 0; overflow-x: auto; }
-          .resultado-chart-svg { display: block; aspect-ratio: 5 / 2; min-width: 42rem; width: 100%; height: auto; overflow: visible; }
-          .resultado-chart-grid { stroke: #e2e8f0; stroke-width: .5; vector-effect: non-scaling-stroke; }
-          .resultado-chart-line { fill: none; stroke: #0f766e; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
-          .resultado-chart-area { fill: url(#resultado-chart-gradient); }
-          .resultado-chart-point { fill: #0f766e; stroke: #fff; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-          .resultado-chart-point.zero { fill: #cbd5e1; stroke-width: 1; }
-          .resultado-chart-labels { display: flex; justify-content: space-between; min-width: 42rem; margin-top: .35rem; color: #94a3b8; font-size: .68rem; }
+          .resultado-chart { margin-top: 1rem; }
+          .resultado-chart-bars { display: flex; align-items: flex-end; gap: 14px; overflow-x: auto; padding: 8px 0; }
+          .resultado-chart-row { display: flex; flex: 0 0 72px; flex-direction: column; align-items: center; gap: 6px; }
+          .resultado-chart-label, .resultado-chart-value { color: #334155; font-size: .72rem; font-weight: 650; white-space: nowrap; }
+          .resultado-chart-track { position: relative; width: 100%; height: 180px; border-bottom: 1px solid #cbd5e1; }
+          .resultado-chart-dot { position: absolute; z-index: 2; left: 50%; width: 14px; height: 14px; border: 3px solid #ccfbf1; border-radius: 999px; background: #0f766e; transform: translateX(-50%); }
+          .resultado-chart-dot.zero { border-color: #e2e8f0; background: #94a3b8; }
+          .resultado-chart-line { position: absolute; z-index: 1; top: 0; left: 50%; width: calc(100% + 14px); height: 100%; overflow: visible; }
+          .resultado-chart-line path { fill: none; stroke: #0f766e; stroke-width: 2; }
         .resultado-ops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: 1.25rem; }
         .resultado-op { padding: .9rem; border-radius: .85rem; background: #f8fafc; }
         .resultado-op-label { color: #64748b; font-size: .72rem; font-weight: 650; }
@@ -107,7 +106,8 @@
          .dark .resultado-tabs { border-color: rgba(148, 163, 184, .18); }
           .dark .resultado-meta { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
           .dark .resultado-chart-stat { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
-         .dark .resultado-chart-grid { stroke: rgba(148, 163, 184, .3); }
+          .dark .resultado-chart-label, .dark .resultado-chart-value { color: #e2e8f0; }
+          .dark .resultado-chart-track { border-color: rgba(148, 163, 184, .4); }
         .dark .resultado-list, .dark .resultado-list-item { border-color: rgba(148, 163, 184, .12); }
         .dark .resultado-list-main { color: #e2e8f0; }
         .dark .resultado-os-group { border-color: rgba(148, 163, 184, .18); }
@@ -116,7 +116,7 @@
         .dark .resultado-os-item { border-color: rgba(148, 163, 184, .12); }
          @media (max-width: 1100px) { .resultado-kpis, .resultado-metas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resultado-activity { grid-template-columns: 1fr; } }
         @media (max-width: 800px) { .resultado-hero, .resultado-grid { grid-template-columns: 1fr; display: grid; } .resultado-hero-meta { justify-content: flex-start; } .resultado-financial-row { grid-template-columns: 1fr auto; } .resultado-financial-row .resultado-progress { grid-column: 1 / -1; } }
-         @media (max-width: 520px) { .resultado-kpis, .resultado-metas, .resultado-ops, .resultado-chart-summary { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-chart { grid-template-columns: 3.7rem minmax(0, 1fr); gap: .35rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
+         @media (max-width: 520px) { .resultado-kpis, .resultado-metas, .resultado-ops, .resultado-chart-summary { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
     </style>
 
     <div class="resultado-analise">
@@ -231,24 +231,26 @@
             <div class="resultado-chart">
                 @php
                     $pontosGrafico = $custosDiariosManutencao['pontos'];
-                    $linhaGrafico = collect($pontosGrafico)->map(fn (array $ponto): string => number_format($ponto['x'], 3, '.', '') . ',' . number_format($ponto['y'], 3, '.', ''))->implode(' ');
-                    $areaGrafico = '4,34 ' . $linhaGrafico . ' 96,34';
                     $escalaGrafico = $custosDiariosManutencao['escala_maxima'];
                 @endphp
-                <div class="resultado-chart-y-axis" aria-hidden="true"><span>R$ {{ number_format($escalaGrafico, 0, ',', '.') }}</span><span>R$ {{ number_format($escalaGrafico / 2, 0, ',', '.') }}</span><span>R$ 0</span></div>
-                <div class="resultado-chart-scroll">
-                    <svg class="resultado-chart-svg" viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label="Gráfico de custo diário de manutenção">
-                        <defs><linearGradient id="resultado-chart-gradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#14b8a6" stop-opacity=".32" /><stop offset="100%" stop-color="#14b8a6" stop-opacity=".02" /></linearGradient></defs>
-                        <line class="resultado-chart-grid" x1="4" y1="6" x2="96" y2="6" />
-                        <line class="resultado-chart-grid" x1="4" y1="20" x2="96" y2="20" />
-                        <line class="resultado-chart-grid" x1="4" y1="34" x2="96" y2="34" />
-                        <polygon class="resultado-chart-area" points="{{ $areaGrafico }}" />
-                        <polyline class="resultado-chart-line" points="{{ $linhaGrafico }}" />
-                        @foreach ($pontosGrafico as $ponto)
-                            <circle class="resultado-chart-point {{ $ponto['valor'] <= 0 ? 'zero' : '' }}" cx="{{ $ponto['x'] }}" cy="{{ $ponto['y'] }}" r="1.4"><title>{{ $ponto['data'] }}: R$ {{ number_format($ponto['valor'], 2, ',', '.') }}</title></circle>
-                        @endforeach
-                    </svg>
-                    <div class="resultado-chart-labels"><span>{{ $pontosGrafico[0]['data'] }}</span><span>{{ $custosDiariosManutencao['dia_maior_valor'] ? 'Pico: ' . $custosDiariosManutencao['dia_maior_valor'] : 'Sem gasto registrado' }}</span><span>{{ $pontosGrafico[count($pontosGrafico) - 1]['data'] }}</span></div>
+                <div class="resultado-chart-bars" role="img" aria-label="Gráfico de custo diário de manutenção">
+                    @foreach ($pontosGrafico as $ponto)
+                        @php
+                            $percentualGrafico = ($ponto['valor'] / $escalaGrafico) * 100;
+                            $proximoPonto = $pontosGrafico[$loop->index + 1] ?? null;
+                        @endphp
+                        <div class="resultado-chart-row" title="{{ $ponto['data'] }}: R$ {{ number_format($ponto['valor'], 2, ',', '.') }}">
+                            <div class="resultado-chart-value">{{ number_format($ponto['valor'], 0, ',', '.') }}</div>
+                            <div class="resultado-chart-track">
+                                @if ($proximoPonto)
+                                    @php $proximoPercentualGrafico = ($proximoPonto['valor'] / $escalaGrafico) * 100; @endphp
+                                    <svg class="resultado-chart-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M 0 {{ 100 - $percentualGrafico }} L 100 {{ 100 - $proximoPercentualGrafico }}" /></svg>
+                                @endif
+                                <div class="resultado-chart-dot {{ $ponto['valor'] <= 0 ? 'zero' : '' }}" style="bottom: calc({{ $percentualGrafico }}% - 7px)"></div>
+                            </div>
+                            <div class="resultado-chart-label">{{ $ponto['data'] }}</div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </section>

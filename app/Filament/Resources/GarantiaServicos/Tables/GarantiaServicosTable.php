@@ -9,6 +9,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -122,6 +123,14 @@ class GarantiaServicosTable
                             ->when($data['data_inicio'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_execucao', '>=', $date))
                             ->when($data['data_fim'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_execucao', '<=', $date));
                     }),
+            ])
+            ->groups([
+                Group::make('servico.descricao')
+                    ->label('Serviço')
+                    ->collapsible(),
+                Group::make('veiculo.placa')
+                    ->label('Veículo')
+                    ->collapsible(),
             ]);
     }
 }

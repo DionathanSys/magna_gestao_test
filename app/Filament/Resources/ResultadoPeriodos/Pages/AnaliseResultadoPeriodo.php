@@ -229,11 +229,6 @@ class AnaliseResultadoPeriodo extends Page
         $escalaMaxima = max($maiorValor, 1);
         $diaMaiorValor = collect($pontos)->firstWhere('valor', $maiorValor);
 
-        foreach ($pontos as $indice => &$ponto) {
-            $ponto['x'] = count($pontos) === 1 ? 50 : 4 + (($indice / (count($pontos) - 1)) * 92);
-            $ponto['y'] = 34 - (($ponto['valor'] / $escalaMaxima) * 28);
-        }
-
         return [
             'pontos' => $pontos,
             'valor_total' => $valorTotal,

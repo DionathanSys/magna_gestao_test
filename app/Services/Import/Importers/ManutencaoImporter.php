@@ -99,7 +99,7 @@ class ManutencaoImporter implements ExcelImportInterface
             try {
                 $this->parseDataNegociacao($row['DtNeg']);
             } catch (\Throwable) {
-                $errors[] = "A data de negociação da linha {$rowNumber} deve estar no formato mm/dd/aaaa.";
+                $errors[] = "A data de negociação da linha {$rowNumber} deve estar no formato dd/mm/aaaa ou mm/dd/aaaa.";
             }
         }
 
@@ -197,7 +197,12 @@ class ManutencaoImporter implements ExcelImportInterface
             throw new \InvalidArgumentException('Formato de data inválido.');
         }
 
-        [, $mes, $dia, $ano] = $matches;
+        [, $primeiroNumero, $segundoNumero, $ano] = $matches;
+
+        // The ERP export uses m/d/Y, but manual reports can use d/m/Y.
+        [$mes, $dia] = (int) $primeiroNumero > 12
+            ? [$segundoNumero, $primeiroNumero]
+            : [$primeiroNumero, $segundoNumero];
 
         if (! checkdate((int) $mes, (int) $dia, (int) $ano)) {
             throw new \InvalidArgumentException('Data inválida.');

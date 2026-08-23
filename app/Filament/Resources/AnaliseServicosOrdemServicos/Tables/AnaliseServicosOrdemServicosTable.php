@@ -51,6 +51,10 @@ class AnaliseServicosOrdemServicosTable
                     ->label('Placa')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('ordemServico.quilometragem')
+                    ->label('Quilometragem')
+                    ->numeric(0, ',', '.')
+                    ->sortable(),
                 TextColumn::make('ordemServico.data_inicio')
                     ->label('Dt. Abertura')
                     ->date('d/m/Y')

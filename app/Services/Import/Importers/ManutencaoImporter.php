@@ -97,9 +97,9 @@ class ManutencaoImporter implements ExcelImportInterface
 
         if (! empty($row['DtNeg'])) {
             try {
-                Carbon::createFromFormat('d/m/Y', (string) $row['DtNeg']);
+                $this->parseDataNegociacao($row['DtNeg']);
             } catch (\Throwable) {
-                $errors[] = "A data de negociação da linha {$rowNumber} deve estar no formato dd/mm/aaaa.";
+                $errors[] = "A data de negociação da linha {$rowNumber} deve estar no formato mm/dd/aaaa.";
             }
         }
 
@@ -116,7 +116,7 @@ class ManutencaoImporter implements ExcelImportInterface
         return [
             'sync_key' => $nrUnico.'-'.$sequencia,
             'tipo_manutencao' => $this->normalizeString($row['TipoManuteno'] ?? null),
-            'data_negociacao' => Carbon::createFromFormat('d/m/Y', (string) $row['DtNeg'])->toDateString(),
+            'data_negociacao' => $this->parseDataNegociacao($row['DtNeg'])->toDateString(),
             'veiculo_id' => $veiculoId,
             'placa' => $placa,
             'codigo_produto' => $this->normalizeIdentifier($row['CdProduto'] ?? null),
@@ -187,6 +187,23 @@ class ManutencaoImporter implements ExcelImportInterface
         }
 
         return $uppercase ? Str::upper($normalized) : $normalized;
+    }
+
+    private function parseDataNegociacao(mixed $value): Carbon
+    {
+        $data = trim((string) $value);
+
+        if (! preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $data, $matches)) {
+            throw new \InvalidArgumentException('Formato de data inválido.');
+        }
+
+        [, $mes, $dia, $ano] = $matches;
+
+        if (! checkdate((int) $mes, (int) $dia, (int) $ano)) {
+            throw new \InvalidArgumentException('Data inválida.');
+        }
+
+        return Carbon::create((int) $ano, (int) $mes, (int) $dia)->startOfDay();
     }
 
     private function normalizeIdentifier(mixed $value): string

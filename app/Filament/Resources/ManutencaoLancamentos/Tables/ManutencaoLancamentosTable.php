@@ -11,14 +11,13 @@ use App\Models\ManutencaoLancamento;
 use App\Models\OrdemServico;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use Filament\Actions\Action;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class ManutencaoLancamentosTable
 {
@@ -112,7 +111,8 @@ class ManutencaoLancamentosTable
                     ]),
                 SelectFilter::make('veiculo_id')
                     ->label('Placa')
-                    ->relationship('veiculo', 'placa'),
+                    ->relationship('veiculo', 'placa')
+                    ->searchable(),
                 SelectFilter::make('status_vinculo')
                     ->label('Status vínculo')
                     ->options([
@@ -128,16 +128,11 @@ class ManutencaoLancamentosTable
                             default => $query,
                         };
                     }),
-                Filter::make('data_negociacao')
-                    ->form([
-                        DatePicker::make('data_inicio')->label('Data inicial'),
-                        DatePicker::make('data_fim')->label('Data final'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when($data['data_inicio'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_negociacao', '>=', $date))
-                            ->when($data['data_fim'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_negociacao', '<=', $date));
-                    }),
+                DateRangeFilter::make('data_negociacao')
+                    ->label('Dt. Neg.')
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar(),
                 TrashedFilter::make(),
             ])
             ->recordActions([

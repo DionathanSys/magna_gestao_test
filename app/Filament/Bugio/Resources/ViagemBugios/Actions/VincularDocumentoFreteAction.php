@@ -79,7 +79,6 @@ class VincularDocumentoFreteAction
             'numero_viagem' => 'BG-'.$record->numero_sequencial,
             'documento_transporte' => $documentoFrete->documento_transporte,
             'km_rodado' => 0,
-            'km_cadastro' => 0,
             'km_pago' => $kmPagoViagem,
             'motivo_divergencia' => MotivoDivergenciaViagem::SEM_OBS->value,
             'data_competencia' => $record->data_competencia,

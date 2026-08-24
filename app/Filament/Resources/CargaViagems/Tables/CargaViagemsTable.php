@@ -40,7 +40,7 @@ class CargaViagemsTable
             ->modifyQueryUsing(function (Builder $query): Builder {
                 return $query->with([
                     'viagem.veiculo:id,placa',
-                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,km_cadastro,motivo_divergencia,conferido',
+                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,motivo_divergencia,conferido',
                     'integrado:id,nome,codigo,km_rota,municipio',
                 ]);
             })
@@ -120,12 +120,6 @@ class CargaViagemsTable
                         ->inverseRelationship('cargas')
                         ->summarize(Sum::make()->label('TT Km Pago')->numeric(decimalPlaces: 2, locale: 'pt-BR'))
                         ->numeric(decimalPlaces: 2, locale: 'pt-BR'),
-                    TextColumn::make('viagem.km_cadastro')
-                        ->label('Km Cadastro')
-                        ->width('1%')
-                        ->wrapHeader()
-                        ->numeric(decimalPlaces: 2, locale: 'pt-BR')
-                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('km_dispersao')
                         ->label('Km Dispersão')
                         ->width('1%')

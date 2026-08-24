@@ -32,6 +32,33 @@ class JustificarDispersaoAction
                         .'KM dispersão: <strong>'.number_format((float) $record->km_dispersao, 2, ',', '.').'</strong><br>'
                         .'Dispersão: <strong>'.number_format((float) $record->dispersao_percentual, 2, ',', '.').'%</strong>'
                     )),
+                Placeholder::make('justificativas_existentes')
+                    ->label('Justificativas já registradas')
+                    ->content(function (Viagem $record): HtmlString {
+                        $justificativas = $record->justificativasDispersao()
+                            ->with('criador:id,name')
+                            ->latest()
+                            ->get();
+
+                        if ($justificativas->isEmpty()) {
+                            return new HtmlString('Nenhuma justificativa registrada para esta viagem.');
+                        }
+
+                        return new HtmlString($justificativas
+                            ->map(function (JustificativaDispersaoViagem $justificativa): string {
+                                $observacao = filled($justificativa->observacao)
+                                    ? '<br>Observação: '.nl2br(e($justificativa->observacao))
+                                    : '';
+
+                                return '<div class="mb-3">'
+                                    .'<strong>'.e($justificativa->motivo).'</strong><br>'
+                                    .'Registrada em '.e($justificativa->created_at->format('d/m/Y H:i'))
+                                    .' por '.e($justificativa->criador?->name ?? 'Usuário não identificado')
+                                    .$observacao
+                                    .'</div>';
+                            })
+                            ->implode(''));
+                    }),
                 Select::make('motivo')
                     ->label('Motivo')
                     ->options(MotivoDivergenciaViagem::toSelectArray())

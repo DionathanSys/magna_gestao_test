@@ -3,7 +3,6 @@
 namespace App\Filament\Bugio\Resources\ViagemBugios\Actions;
 
 use App\Enum\ClienteEnum;
-use App\Enum\MotivoDivergenciaViagem;
 use App\Filament\Tables\SelectDocumentoFrete;
 use App\Models\DocumentoFrete;
 use App\Models\Integrado;
@@ -80,7 +79,6 @@ class VincularDocumentoFreteAction
             'documento_transporte' => $documentoFrete->documento_transporte,
             'km_rodado' => 0,
             'km_pago' => $kmPagoViagem,
-            'motivo_divergencia' => MotivoDivergenciaViagem::SEM_OBS->value,
             'data_competencia' => $record->data_competencia,
             'data_inicio' => $record->data_competencia,
             'data_fim' => $record->data_competencia,

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\CargaViagems\Tables;
 
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
-use App\Enum\MotivoDivergenciaViagem;
 use App\Filament\Resources\Viagems\ViagemResource;
 use App\Models;
 use App\Services\Integrado\IntegradoDestinoService;
@@ -12,14 +11,12 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
 use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\NumberConstraint;
 use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
@@ -40,7 +37,7 @@ class CargaViagemsTable
             ->modifyQueryUsing(function (Builder $query): Builder {
                 return $query->with([
                     'viagem.veiculo:id,placa',
-                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,motivo_divergencia,conferido',
+                    'viagem:id,numero_viagem,data_competencia,km_rodado,km_pago,conferido',
                     'integrado:id,nome,codigo,km_rota,municipio',
                 ]);
             })
@@ -133,11 +130,6 @@ class CargaViagemsTable
                         ->formatStateUsing(fn ($state) => $state ? 'Sim' : 'Não')
                         ->wrapHeader()
                         ->toggleable(isToggledHiddenByDefault: false),
-                    TextColumn::make('viagem.motivo_divergencia')
-                        ->label('Motivo Divergência')
-                        ->width('2%')
-                        ->formatStateUsing(fn ($state) => $state?->value ?? '')
-                        ->wrapHeader(),
                     IconColumn::make('viagem.possui_pendencia')
                         ->label('Pendência')
                         ->boolean(),
@@ -183,14 +175,6 @@ class CargaViagemsTable
                         ->label('Integrado')
                         ->titlePrefixedWithLabel(false)
                         ->collapsible(),
-                    Group::make('viagem.motivo_divergencia')
-                        ->label('Motivo Divergência')
-                        // garante que o título seja uma string (usa ->value se for BackedEnum)
-                        ->getTitleFromRecordUsing(fn (Models\CargaViagem $record): string => $record->viagem?->motivo_divergencia?->value
-                            ?? (string) ($record->viagem?->motivo_divergencia ?? '')
-                        )
-                        ->titlePrefixedWithLabel(false)
-                        ->collapsible(),
                 ]
             )
             ->deferFilters()
@@ -198,24 +182,6 @@ class CargaViagemsTable
             ->persistSearchInSession()
             ->persistColumnSearchesInSession()
             ->filters([
-                Filter::make('motivo_divergencia')
-                    ->label('Motivo Divergência')
-                    ->schema([
-                        Select::make('motivo_divergencia')
-                            ->label('Motivo Divergência')
-                            ->options(MotivoDivergenciaViagem::toSelectArray())
-                            ->searchable()
-                            ->preload()
-                            ->multiple(),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            ! empty($data['motivo_divergencia']),
-                            fn ($query) => $query->whereHas('viagem', function ($q) use ($data) {
-                                $q->whereIn('motivo_divergencia', $data['motivo_divergencia']);
-                            })
-                        );
-                    }),
                 SelectFilter::make('veiculo_id')
                     ->label('Veículo')
                     ->relationship('viagem.veiculo', 'placa')

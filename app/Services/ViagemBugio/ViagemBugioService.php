@@ -4,7 +4,6 @@ namespace App\Services\ViagemBugio;
 
 use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
-use App\Enum\MotivoDivergenciaViagem;
 use App\Jobs\SolicitarCteBugio;
 use App\Models\Integrado;
 use App\Models\Viagem;
@@ -130,7 +129,6 @@ class ViagemBugioService
                 'documento_transporte' => (string) $viagemBugio->numero_sequencial,
                 'km_rodado' => 0,
                 'km_pago' => $kmPagoViagem,
-                'motivo_divergencia' => MotivoDivergenciaViagem::SEM_OBS->value,
                 'data_competencia' => $viagemBugio->data_competencia,
                 'data_inicio' => $viagemBugio->data_competencia,
                 'data_fim' => $viagemBugio->data_competencia,

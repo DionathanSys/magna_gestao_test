@@ -64,8 +64,6 @@ class ViagemImporter extends Importer
                 ->requiredMapping()
                 ->numeric()
                 ->rules(['required', 'integer']),
-            ImportColumn::make('motivo_divergencia')
-                ->rules(['max:255']),
             ImportColumn::make('peso')
                 ->requiredMapping()
                 ->numeric()

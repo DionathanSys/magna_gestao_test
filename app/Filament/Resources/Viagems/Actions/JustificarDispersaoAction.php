@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 
 class JustificarDispersaoAction
@@ -70,19 +71,33 @@ class JustificarDispersaoAction
                     ->maxLength(1000),
             ])
             ->action(function (Viagem $record, array $data): void {
-                JustificativaDispersaoViagem::query()->create([
-                    'viagem_id' => $record->id,
-                    'motivo' => $data['motivo'],
-                    'observacao' => $data['observacao'] ?? null,
-                    'numero_viagem' => $record->numero_viagem,
-                    'veiculo_placa' => $record->veiculo?->placa,
-                    'data_competencia' => $record->data_competencia,
-                    'km_rodado' => $record->km_rodado ?? 0,
-                    'km_pago' => $record->km_pago ?? 0,
-                    'km_dispersao' => $record->km_dispersao ?? 0,
-                    'dispersao_percentual' => $record->dispersao_percentual ?? 0,
-                    'created_by' => Auth::id(),
-                ]);
+                DB::transaction(function () use ($record, $data): void {
+                    $observacao = filled($data['observacao'] ?? null)
+                        ? '<br>Observação: '.nl2br(e($data['observacao']))
+                        : '';
+
+                    $comentario = $record->comentarios()->create([
+                        'conteudo' => '<strong>Justificativa de dispersão</strong><br>Motivo: '
+                            .e($data['motivo']).$observacao,
+                        'veiculo_id' => $record->veiculo_id,
+                        'created_by' => Auth::id(),
+                    ]);
+
+                    JustificativaDispersaoViagem::query()->create([
+                        'viagem_id' => $record->id,
+                        'comentario_id' => $comentario->id,
+                        'motivo' => $data['motivo'],
+                        'observacao' => $data['observacao'] ?? null,
+                        'numero_viagem' => $record->numero_viagem,
+                        'veiculo_placa' => $record->veiculo?->placa,
+                        'data_competencia' => $record->data_competencia,
+                        'km_rodado' => $record->km_rodado ?? 0,
+                        'km_pago' => $record->km_pago ?? 0,
+                        'km_dispersao' => $record->km_dispersao ?? 0,
+                        'dispersao_percentual' => $record->dispersao_percentual ?? 0,
+                        'created_by' => Auth::id(),
+                    ]);
+                });
 
                 Notification::make()
                     ->success()

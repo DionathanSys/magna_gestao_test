@@ -22,6 +22,11 @@ class JustificativaDispersaoViagem extends Model
         return $this->belongsTo(Viagem::class);
     }
 
+    public function comentario(): BelongsTo
+    {
+        return $this->belongsTo(Comentario::class);
+    }
+
     public function criador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

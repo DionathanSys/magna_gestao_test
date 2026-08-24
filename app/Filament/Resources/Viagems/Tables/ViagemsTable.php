@@ -103,7 +103,7 @@ class ViagemsTable
                         'documentos_count'
                     )
                     ->with([
-                        'cargas.integrado:id,codigo,nome,municipio',
+                        'cargas.integrado:id,codigo,nome,municipio,latitude,longitude',
                         'veiculo:id,placa,informacoes_complementares',
                         'checker:id,name',
                         'creator:id,name',

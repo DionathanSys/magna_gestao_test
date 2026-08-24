@@ -99,7 +99,7 @@ class ManutencaoImporter implements ExcelImportInterface
             try {
                 $this->parseDataNegociacao($row['DtNeg']);
             } catch (\Throwable) {
-                $errors[] = "A data de negociação da linha {$rowNumber} deve estar no formato mm/dd/aaaa.";
+                $errors[] = "A data de negociação da linha {$rowNumber} deve estar no formato dd/mm/aaaa ou mm/dd/aaaa.";
             }
         }
 
@@ -197,13 +197,18 @@ class ManutencaoImporter implements ExcelImportInterface
             throw new \InvalidArgumentException('Formato de data inválido.');
         }
 
-        [, $mes, $dia, $ano] = $matches;
+        [, $primeiroNumero, $segundoNumero, $ano] = $matches;
+
+        $formato = (int) $primeiroNumero > 12 ? 'd/m/Y' : 'm/d/Y';
+        [$mes, $dia] = $formato === 'd/m/Y'
+            ? [$segundoNumero, $primeiroNumero]
+            : [$primeiroNumero, $segundoNumero];
 
         if (! checkdate((int) $mes, (int) $dia, (int) $ano)) {
             throw new \InvalidArgumentException('Data inválida.');
         }
 
-        return Carbon::create((int) $ano, (int) $mes, (int) $dia)->startOfDay();
+        return Carbon::createFromFormat("!{$formato}", $data)->startOfDay();
     }
 
     private function normalizeIdentifier(mixed $value): string

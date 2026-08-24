@@ -38,8 +38,8 @@
          .resultado-progress .rose { background: #f43f5e; }
          .resultado-progress .sky { background: #0ea5e9; }
          .resultado-progress .emerald { background: #10b981; }
-         .resultado-tabs { display: flex; gap: .5rem; border-bottom: 1px solid #e2e8f0; }
-         .resultado-tab { padding: .7rem .9rem; border-bottom: 2px solid transparent; color: #64748b; font-size: .82rem; font-weight: 700; text-decoration: none; }
+          .resultado-tabs { display: flex; gap: .5rem; overflow-x: auto; border-bottom: 1px solid #e2e8f0; }
+          .resultado-tab { flex: 0 0 auto; padding: .7rem .9rem; border-bottom: 2px solid transparent; color: #64748b; font-size: .82rem; font-weight: 700; text-decoration: none; }
          .resultado-tab.active { border-color: #0f766e; color: #0f766e; }
          .resultado-metas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin-top: 1.15rem; }
          .resultado-meta { padding: .9rem; border: 1px solid #e2e8f0; border-radius: .85rem; background: #f8fafc; }
@@ -47,13 +47,20 @@
          .resultado-meta-value { margin-top: .28rem; color: #047857; font-size: 1.05rem; font-weight: 750; }
          .resultado-meta-value.over { color: #be123c; }
          .resultado-meta-detail { margin-top: .2rem; color: #94a3b8; font-size: .71rem; }
-         .resultado-chart { margin-top: 1.15rem; overflow-x: auto; }
-         .resultado-chart-svg { display: block; min-width: 36rem; width: 100%; height: 15rem; overflow: visible; }
-         .resultado-chart-grid { stroke: #e2e8f0; stroke-width: .5; vector-effect: non-scaling-stroke; }
-         .resultado-chart-line { fill: none; stroke: #0f766e; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
-         .resultado-chart-area { fill: rgba(13, 148, 136, .12); }
-         .resultado-chart-point { fill: #0f766e; stroke: #fff; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-         .resultado-chart-labels { display: flex; justify-content: space-between; min-width: 36rem; margin-top: .35rem; color: #94a3b8; font-size: .68rem; }
+          .resultado-chart-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin-top: 1.15rem; }
+          .resultado-chart-stat { min-width: 0; padding: .75rem .85rem; border: 1px solid #e2e8f0; border-radius: .8rem; background: #f8fafc; }
+          .resultado-chart-stat-label { color: #64748b; font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+          .resultado-chart-stat-value { margin-top: .28rem; color: #0f766e; font-size: .95rem; font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
+          .resultado-chart-stat-detail { margin-top: .12rem; overflow: hidden; color: #94a3b8; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+          .resultado-chart { margin-top: 1rem; }
+          .resultado-chart-bars { display: flex; align-items: flex-end; gap: 14px; overflow-x: auto; padding: 8px 0; }
+          .resultado-chart-row { display: flex; flex: 0 0 72px; flex-direction: column; align-items: center; gap: 6px; }
+          .resultado-chart-label, .resultado-chart-value { color: #334155; font-size: .72rem; font-weight: 650; white-space: nowrap; }
+          .resultado-chart-track { position: relative; width: 100%; height: 180px; border-bottom: 1px solid #cbd5e1; }
+          .resultado-chart-dot { position: absolute; z-index: 2; left: 50%; width: 14px; height: 14px; border: 3px solid #ccfbf1; border-radius: 999px; background: #0f766e; transform: translateX(-50%); }
+          .resultado-chart-dot.zero { border-color: #e2e8f0; background: #94a3b8; }
+          .resultado-chart-line { position: absolute; z-index: 1; top: 0; left: 50%; width: calc(100% + 14px); height: 100%; overflow: visible; }
+          .resultado-chart-line path { fill: none; stroke: #0f766e; stroke-width: 2; }
         .resultado-ops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: 1.25rem; }
         .resultado-op { padding: .9rem; border-radius: .85rem; background: #f8fafc; }
         .resultado-op-label { color: #64748b; font-size: .72rem; font-weight: 650; }
@@ -97,8 +104,10 @@
         .dark .resultado-op { background: rgba(148, 163, 184, .08); }
          .dark .resultado-progress { background: rgba(148, 163, 184, .15); }
          .dark .resultado-tabs { border-color: rgba(148, 163, 184, .18); }
-         .dark .resultado-meta { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
-         .dark .resultado-chart-grid { stroke: rgba(148, 163, 184, .3); }
+          .dark .resultado-meta { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
+          .dark .resultado-chart-stat { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
+          .dark .resultado-chart-label, .dark .resultado-chart-value { color: #e2e8f0; }
+          .dark .resultado-chart-track { border-color: rgba(148, 163, 184, .4); }
         .dark .resultado-list, .dark .resultado-list-item { border-color: rgba(148, 163, 184, .12); }
         .dark .resultado-list-main { color: #e2e8f0; }
         .dark .resultado-os-group { border-color: rgba(148, 163, 184, .18); }
@@ -107,7 +116,7 @@
         .dark .resultado-os-item { border-color: rgba(148, 163, 184, .12); }
          @media (max-width: 1100px) { .resultado-kpis, .resultado-metas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resultado-activity { grid-template-columns: 1fr; } }
         @media (max-width: 800px) { .resultado-hero, .resultado-grid { grid-template-columns: 1fr; display: grid; } .resultado-hero-meta { justify-content: flex-start; } .resultado-financial-row { grid-template-columns: 1fr auto; } .resultado-financial-row .resultado-progress { grid-column: 1 / -1; } }
-         @media (max-width: 520px) { .resultado-kpis, .resultado-metas, .resultado-ops { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
+         @media (max-width: 520px) { .resultado-kpis, .resultado-metas, .resultado-ops, .resultado-chart-summary { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
     </style>
 
     <div class="resultado-analise">
@@ -127,6 +136,8 @@
         <nav class="resultado-tabs" aria-label="Análises do resultado">
             <a class="resultado-tab active" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise', ['record' => $record]) }}">Visão geral</a>
             <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-manutencao', ['record' => $record]) }}">Custos de manutenção</a>
+            <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-servicos', ['record' => $record]) }}">Serviços internos</a>
+            <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-garantias', ['record' => $record]) }}">Garantias</a>
         </nav>
 
         <section class="resultado-kpis">
@@ -212,23 +223,35 @@
         <section class="resultado-card">
             <h3 class="resultado-card-title">Custo diário de manutenção</h3>
             <p class="resultado-card-subtitle">Gasto por dia no período, com base nos lançamentos de manutenção vinculados.</p>
+            <div class="resultado-chart-summary">
+                <div class="resultado-chart-stat"><div class="resultado-chart-stat-label">Total no período</div><div class="resultado-chart-stat-value">R$ {{ number_format($custosDiariosManutencao['valor_total'], 2, ',', '.') }}</div><div class="resultado-chart-stat-detail">Lançamentos vinculados</div></div>
+                <div class="resultado-chart-stat"><div class="resultado-chart-stat-label">Média por dia</div><div class="resultado-chart-stat-value">R$ {{ number_format($custosDiariosManutencao['media_diaria'], 2, ',', '.') }}</div><div class="resultado-chart-stat-detail">Considerando todos os dias do período</div></div>
+                <div class="resultado-chart-stat"><div class="resultado-chart-stat-label">Maior gasto diário</div><div class="resultado-chart-stat-value">R$ {{ number_format($custosDiariosManutencao['maior_valor'], 2, ',', '.') }}</div><div class="resultado-chart-stat-detail">{{ $custosDiariosManutencao['dia_maior_valor'] ? 'Em ' . $custosDiariosManutencao['dia_maior_valor'] : 'Sem lançamentos no período' }}</div></div>
+            </div>
             <div class="resultado-chart">
                 @php
                     $pontosGrafico = $custosDiariosManutencao['pontos'];
-                    $linhaGrafico = collect($pontosGrafico)->map(fn (array $ponto): string => number_format($ponto['x'], 3, '.', '') . ',' . number_format($ponto['y'], 3, '.', ''))->implode(' ');
-                    $areaGrafico = '0,100 ' . $linhaGrafico . ' 100,100';
+                    $escalaGrafico = $custosDiariosManutencao['escala_maxima'];
                 @endphp
-                <svg class="resultado-chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Gráfico de custo diário de manutenção">
-                    <line class="resultado-chart-grid" x1="0" y1="0" x2="100" y2="0" />
-                    <line class="resultado-chart-grid" x1="0" y1="50" x2="100" y2="50" />
-                    <line class="resultado-chart-grid" x1="0" y1="100" x2="100" y2="100" />
-                    <polygon class="resultado-chart-area" points="{{ $areaGrafico }}" />
-                    <polyline class="resultado-chart-line" points="{{ $linhaGrafico }}" />
+                <div class="resultado-chart-bars" role="img" aria-label="Gráfico de custo diário de manutenção">
                     @foreach ($pontosGrafico as $ponto)
-                        <circle class="resultado-chart-point" cx="{{ $ponto['x'] }}" cy="{{ $ponto['y'] }}" r="1.4"><title>{{ $ponto['data'] }}: R$ {{ number_format($ponto['valor'], 2, ',', '.') }}</title></circle>
+                        @php
+                            $percentualGrafico = ($ponto['valor'] / $escalaGrafico) * 100;
+                            $proximoPonto = $pontosGrafico[$loop->index + 1] ?? null;
+                        @endphp
+                        <div class="resultado-chart-row" title="{{ $ponto['data'] }}: R$ {{ number_format($ponto['valor'], 2, ',', '.') }}">
+                            <div class="resultado-chart-value">{{ number_format($ponto['valor'], 0, ',', '.') }}</div>
+                            <div class="resultado-chart-track">
+                                @if ($proximoPonto)
+                                    @php $proximoPercentualGrafico = ($proximoPonto['valor'] / $escalaGrafico) * 100; @endphp
+                                    <svg class="resultado-chart-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M 0 {{ 100 - $percentualGrafico }} L 100 {{ 100 - $proximoPercentualGrafico }}" /></svg>
+                                @endif
+                                <div class="resultado-chart-dot {{ $ponto['valor'] <= 0 ? 'zero' : '' }}" style="bottom: calc({{ $percentualGrafico }}% - 7px)"></div>
+                            </div>
+                            <div class="resultado-chart-label">{{ $ponto['data'] }}</div>
+                        </div>
                     @endforeach
-                </svg>
-                <div class="resultado-chart-labels"><span>{{ $pontosGrafico[0]['data'] }}</span><span>Máximo: R$ {{ number_format($custosDiariosManutencao['maior_valor'], 2, ',', '.') }}</span><span>{{ $pontosGrafico[count($pontosGrafico) - 1]['data'] }}</span></div>
+                </div>
             </div>
         </section>
 

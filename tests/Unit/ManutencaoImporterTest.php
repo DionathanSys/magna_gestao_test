@@ -8,13 +8,17 @@ use PHPUnit\Framework\TestCase;
 
 class ManutencaoImporterTest extends TestCase
 {
-    public function test_it_parses_negotiation_dates_from_the_maintenance_export_format(): void
+    public function test_it_parses_negotiation_dates_from_the_maintenance_export_formats(): void
     {
         $importer = new ManutencaoImporter($this->createStub(ManutencaoImportSyncService::class));
         $method = new \ReflectionMethod($importer, 'parseDataNegociacao');
 
-        $data = $method->invoke($importer, '8/18/2026');
+        $dataFromErp = $method->invoke($importer, '8/18/2026');
+        $dataFromPayload = $method->invoke($importer, '8/15/2026');
+        $dataFromBrazilianReport = $method->invoke($importer, '18/08/2026');
 
-        $this->assertSame('2026-08-18', $data->toDateString());
+        $this->assertSame('2026-08-18', $dataFromErp->toDateString());
+        $this->assertSame('2026-08-15', $dataFromPayload->toDateString());
+        $this->assertSame('2026-08-18', $dataFromBrazilianReport->toDateString());
     }
 }

@@ -14,6 +14,7 @@ class DesvincularResultadoPeriodoAction
         return Action::make('desvincular_resultado_periodo')
             ->label('Desvincular do resultado')
             ->icon('heroicon-o-x-mark')
+            ->iconButton()
             ->color('warning')
             ->requiresConfirmation()
             ->modalDescription('O registro só será removido se o resultado período atual estiver pendente.')

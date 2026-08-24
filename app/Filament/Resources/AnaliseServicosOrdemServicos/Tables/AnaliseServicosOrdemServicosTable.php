@@ -6,22 +6,20 @@ use App\Enum\OrdemServico\PosicaoItemOrdemServicoEnum;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models\ItemOrdemServico;
-use App\Models\Servico;
-use App\Models\Veiculo;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class AnaliseServicosOrdemServicosTable
 {
@@ -52,6 +50,10 @@ class AnaliseServicosOrdemServicosTable
                 TextColumn::make('ordemServico.veiculo.placa')
                     ->label('Placa')
                     ->searchable()
+                    ->sortable(),
+                TextColumn::make('ordemServico.quilometragem')
+                    ->label('Quilometragem')
+                    ->numeric(0, ',', '.')
                     ->sortable(),
                 TextColumn::make('ordemServico.data_inicio')
                     ->label('Dt. Abertura')
@@ -119,39 +121,43 @@ class AnaliseServicosOrdemServicosTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
+            ->groups([
+                Group::make('servico.descricao')
+                    ->label('Serviço')
+                    ->collapsible(),
+                Group::make('ordemServico.veiculo.placa')
+                    ->label('Veículo')
+                    ->collapsible(),
+            ])
             ->persistFiltersInSession()
             ->filters([
-                Filter::make('data_abertura')
+                DateRangeFilter::make('data_abertura')
                     ->label('Dt. Abertura OS')
-                    ->form([
-                        DatePicker::make('data_inicio')->label('Data inicial'),
-                        DatePicker::make('data_fim')->label('Data final'),
-                    ])
-                    ->query(fn (Builder $query, array $data): Builder => $query->whereHas('ordemServico', fn (Builder $query) => $query
-                        ->when($data['data_inicio'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_inicio', '>=', $date))
-                        ->when($data['data_fim'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_inicio', '<=', $date)))),
-                Filter::make('data_fechamento')
+                    ->autoApply()
+                    ->alwaysShowCalendar()
+                    ->firstDayOfWeek(0)
+                    ->query(fn (Builder $query, $startDate, $endDate): Builder => $query->when(
+                        $startDate && $endDate,
+                        fn (Builder $query) => $query->whereHas('ordemServico', fn (Builder $query) => $query->whereBetween('data_inicio', [$startDate, $endDate]))
+                    )),
+                DateRangeFilter::make('data_fechamento')
                     ->label('Dt. Fechamento OS')
-                    ->form([
-                        DatePicker::make('data_inicio')->label('Data inicial'),
-                        DatePicker::make('data_fim')->label('Data final'),
-                    ])
-                    ->query(fn (Builder $query, array $data): Builder => $query->whereHas('ordemServico', fn (Builder $query) => $query
-                        ->when($data['data_inicio'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_fim', '>=', $date))
-                        ->when($data['data_fim'] ?? null, fn (Builder $query, $date) => $query->whereDate('data_fim', '<=', $date)))),
+                    ->autoApply()
+                    ->alwaysShowCalendar()
+                    ->firstDayOfWeek(0)
+                    ->query(fn (Builder $query, $startDate, $endDate): Builder => $query->when(
+                        $startDate && $endDate,
+                        fn (Builder $query) => $query->whereHas('ordemServico', fn (Builder $query) => $query->whereBetween('data_fim', [$startDate, $endDate]))
+                    )),
                 SelectFilter::make('veiculo_id')
-                    ->label('Placa')
-                    ->options(fn (): array => Veiculo::query()->orderBy('placa')->pluck('placa', 'id')->all())
-                    ->query(fn (Builder $query, array $data): Builder => $query->when(
-                        filled($data['values'] ?? null),
-                        fn (Builder $query) => $query->whereHas('ordemServico', fn (Builder $query) => $query->whereIn('veiculo_id', $data['values']))
-                    ))
+                    ->label('Veículo')
+                    ->relationship('ordemServico.veiculo', 'placa')
                     ->multiple()
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('servico_id')
                     ->label('Serviço')
-                    ->options(fn (): array => Servico::query()->orderBy('descricao')->pluck('descricao', 'id')->all())
+                    ->relationship('servico', 'descricao')
                     ->multiple()
                     ->searchable()
                     ->preload(),

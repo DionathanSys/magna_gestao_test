@@ -48,7 +48,9 @@ class SolicitarCteBugioAction
             ->tooltip('Solicitar Document Frete')
             ->icon('heroicon-o-paper-airplane')
             ->color('info')
-            ->visible(fn (Viagem $record): bool => $record->attachments()->exists())
+            ->visible(fn (Viagem $record): bool => ! $record->ignorar
+                && $record->attachments()->exists()
+                && ! $record->attachments()->whereHas('receivedFiscalDocument', fn ($query) => $query->where('status', 'cancelled'))->exists())
             ->modalWidth(Width::FiveExtraLarge)
             ->fillForm(function (Viagem $record): array {
                 $record->loadMissing('veiculo', 'cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');

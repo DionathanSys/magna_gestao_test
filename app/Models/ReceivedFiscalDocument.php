@@ -13,6 +13,7 @@ class ReceivedFiscalDocument extends Model
         'emitido_em' => 'datetime',
         'payload' => 'array',
         'matched_at' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     public function incomingEmail(): BelongsTo
@@ -49,6 +50,10 @@ class ReceivedFiscalDocument extends Model
     {
         return Attribute::make(
             get: function (): string {
+                if ($this->status === 'cancelled') {
+                    return 'NF-e cancelada';
+                }
+
                 if ($this->tipo_documento === 'unknown') {
                     return 'Documento fora da regra fiscal configurada';
                 }

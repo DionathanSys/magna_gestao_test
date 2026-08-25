@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ReceivedFiscalDocuments\Tables;
 use App\Filament\Actions\ExportPdfBulkAction;
 use App\Models\Integrado;
 use App\Models\ReceivedFiscalDocument;
+use App\Services\MailInbound\CancelFiscalDocumentService;
 use App\Services\MailInbound\LinkFiscalDocumentToIntegradoService;
 use App\Services\MailInbound\ShipmentDocumentMatcher;
 use App\Services\MailInbound\ShipmentTripService;
@@ -13,6 +14,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -21,6 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
@@ -46,6 +49,12 @@ class ReceivedFiscalDocumentsTable
                 TextColumn::make('emitente_documento')->label('Doc. do Emitente')->searchable()->toggleable(),
                 TextColumn::make('destinatario_documento')->label('Doc. do Destinatário')->searchable()->toggleable(),
                 TextColumn::make('integrado.nome')->label('Integrado')->placeholder('-')->wrap()->toggleable(),
+                TextColumn::make('status')
+                    ->label('Situação')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => $state === 'cancelled' ? 'Cancelada' : 'Ativa')
+                    ->color(fn (?string $state): string => $state === 'cancelled' ? 'danger' : 'success')
+                    ->toggleable(),
                 TextColumn::make('pending_summary')->label('O que falta')->wrap()->toggleable(),
                 TextColumn::make('incomingEmail.subject')->label('E-mail')->toggleable()->wrap(),
                 TextColumn::make('emitido_em')->label('Emissão')->dateTime('d/m/Y H:i')->sortable()->toggleable(),
@@ -79,6 +88,12 @@ class ReceivedFiscalDocumentsTable
                         'unknown' => 'Desconhecido',
                     ])
                     ->multiple(),
+                SelectFilter::make('status')
+                    ->label('Situação')
+                    ->options([
+                        'parsed' => 'Ativa',
+                        'cancelled' => 'Cancelada',
+                    ]),
                 Filter::make('numero_nota')
                     ->label('Nº da nota')
                     ->schema([
@@ -249,6 +264,44 @@ class ReceivedFiscalDocumentsTable
                     }),
             ])
             ->recordActions([
+                Action::make('cancelar_nfe')
+                    ->label('Cancelar NF-e')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->iconButton()
+                    ->visible(fn (ReceivedFiscalDocument $record): bool => $record->status !== 'cancelled')
+                    ->schema([
+                        Select::make('resolution')
+                            ->label('Tratamento da viagem gerada')
+                            ->options([
+                                'block_ignore' => 'Bloquear CT-e e ignorar viagem',
+                                'delete_trip' => 'Excluir viagem, cargas e anexos',
+                            ])
+                            ->default('block_ignore')
+                            ->required(),
+                        Textarea::make('reason')
+                            ->label('Motivo do cancelamento')
+                            ->required()
+                            ->maxLength(2000),
+                    ])
+                    ->modalDescription('A nota permanecerá registrada como cancelada. A exclusão é recusada se a viagem já possui CT-e ou documento de frete.')
+                    ->action(function (ReceivedFiscalDocument $record, array $data, CancelFiscalDocumentService $service): void {
+                        $result = $service->handle(
+                            $record,
+                            $data['resolution'],
+                            $data['reason'],
+                            Auth::id(),
+                        );
+
+                        $action = $result['resolution'] === 'delete_trip' ? 'excluída' : 'bloqueada e ignorada';
+
+                        Notification::make()
+                            ->success()
+                            ->title('NF-e marcada como cancelada')
+                            ->body("{$result['groups']} agrupamento(s) e {$result['trips']} viagem(ns) tratados. Viagem {$action}.")
+                            ->send();
+                    })
+                    ->requiresConfirmation(),
                 Action::make('vincular_integrado')
                     ->label('Vincular Integrado')
                     ->icon('heroicon-o-user-plus')
@@ -288,6 +341,7 @@ class ReceivedFiscalDocumentsTable
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->iconButton()
+                    ->visible(fn (ReceivedFiscalDocument $record): bool => $record->status !== 'cancelled')
                     ->action(function (ReceivedFiscalDocument $record, ShipmentDocumentMatcher $matcher, ShipmentTripService $shipmentTripService): void {
                         $group = $matcher->match($record->fresh());
 

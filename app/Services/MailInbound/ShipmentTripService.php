@@ -40,6 +40,10 @@ class ShipmentTripService
             return;
         }
 
+        if ($group->status === 'cancelled' || $group->saleDocument?->status === 'cancelled' || $group->remittanceDocument?->status === 'cancelled') {
+            return;
+        }
+
         $integradoId = $group->integrado_id;
         $unidadeNegocio = $this->config->unidadeNegocio();
         $placa = $group->remittanceDocument?->placa_transportador ?: $group->saleDocument?->placa_transportador;

@@ -71,6 +71,10 @@ class FiscalEmailProcessingService
 
             $referencedSaleNumber = $this->extractReferencedSaleNumber((string) ($parsed['inf_adic'] ?? ''));
 
+            $existingDocument = ReceivedFiscalDocument::query()
+                ->where('chave_nfe', $parsed['chave_nfe'])
+                ->first();
+
             $document = ReceivedFiscalDocument::query()->updateOrCreate(
                 [
                     'chave_nfe' => $parsed['chave_nfe'],
@@ -94,7 +98,7 @@ class FiscalEmailProcessingService
                     'referenced_nfe_key' => $parsed['referenced_nfe_key'],
                     'referenced_sale_number' => $referencedSaleNumber,
                     'integrado_id' => $integrado?->id,
-                    'status' => 'parsed',
+                    'status' => $existingDocument?->status === 'cancelled' ? 'cancelled' : 'parsed',
                     'payload' => $parsed,
                 ]
             );

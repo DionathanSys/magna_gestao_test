@@ -12,10 +12,15 @@ class ShipmentDocumentMatcher
     public function match(ReceivedFiscalDocument $document): ?ShipmentDocumentGroup
     {
         return DB::transaction(function () use ($document) {
+            if ($document->status === 'cancelled') {
+                return null;
+            }
+
             if ($document->tipo_documento === 'sale') {
                 $remittance = ReceivedFiscalDocument::query()
                     ->where('tipo_documento', 'remittance')
                     ->where('chave_nfe', $document->referenced_nfe_key)
+                    ->where('status', '!=', 'cancelled')
                     ->first();
 
                 if (! $remittance) {
@@ -29,6 +34,7 @@ class ShipmentDocumentMatcher
                 $sale = ReceivedFiscalDocument::query()
                     ->where('tipo_documento', 'sale')
                     ->where('numero_nota', $document->referenced_sale_number)
+                    ->where('status', '!=', 'cancelled')
                     ->first();
 
                 if (! $sale) {

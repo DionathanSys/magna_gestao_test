@@ -50,6 +50,8 @@ class SolicitarCteBugioFromViagem
             ->unique('id')
             ->values();
 
+        $this->ensureDocumentsCanGenerateFreight($fiscalDocuments);
+
         $saleDocument = $fiscalDocuments->firstWhere('tipo_documento', 'sale') ?? $fiscalDocuments->first();
         $remittanceDocument = $fiscalDocuments->firstWhere('tipo_documento', 'remittance');
 
@@ -199,6 +201,8 @@ class SolicitarCteBugioFromViagem
             ->unique('id')
             ->values();
 
+        $this->ensureDocumentsCanGenerateFreight($fiscalDocuments);
+
         $saleDocument = $fiscalDocuments->firstWhere('tipo_documento', 'sale') ?? $fiscalDocuments->first();
 
         $nroNotas = $fiscalDocuments
@@ -296,6 +300,20 @@ class SolicitarCteBugioFromViagem
             'tipo_documento' => TipoDocumentoEnum::NFS,
             'viagem_id' => $viagem->id,
         ]);
+    }
+
+    protected function ensureDocumentsCanGenerateFreight(Collection $fiscalDocuments): void
+    {
+        $cancelledNotes = $fiscalDocuments
+            ->where('status', 'cancelled')
+            ->pluck('numero_nota')
+            ->filter()
+            ->unique()
+            ->implode(', ');
+
+        if ($cancelledNotes !== '') {
+            throw new \DomainException("Não é possível solicitar CT-e: NF-e cancelada ({$cancelledNotes}).");
+        }
     }
 
     protected function documentoTransporteReal(Viagem $viagem): ?string

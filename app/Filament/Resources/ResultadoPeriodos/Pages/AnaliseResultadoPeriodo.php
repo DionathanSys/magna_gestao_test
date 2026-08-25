@@ -9,6 +9,7 @@ use App\Models\ResultadoPeriodo;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\DB;
 
 class AnaliseResultadoPeriodo extends Page
 {
@@ -115,39 +116,69 @@ class AnaliseResultadoPeriodo extends Page
             'custosDiariosManutencao' => $this->getCustosDiariosManutencao($record),
             'servicosOrdensInternas' => $this->getServicosOrdensInternas($record),
             'garantiasServico' => $this->getGarantiasServico($record),
-            'viagens' => $record->viagens()
+            'gastosManutencaoPorGrupo' => $this->getGastosManutencaoPorGrupo($record),
+            'viagensComDispersao' => $this->getViagensComDispersao($record),
+            'viagensAnalise' => $record->viagens()
+                ->withSum('cargas', 'km_dispersao')
                 ->orderByDesc('data_competencia')
-                ->limit(5)
                 ->get(['id', 'numero_viagem', 'data_competencia', 'km_pago', 'km_rodado', 'documento_transporte'])
                 ->map(fn ($viagem): array => [
                     'numero' => $viagem->numero_viagem,
                     'data' => Carbon::parse($viagem->data_competencia)->format('d/m/Y'),
                     'km_pago' => (float) $viagem->km_pago,
                     'km_rodado' => (float) $viagem->km_rodado,
+                    'dispersao_km' => (float) ($viagem->cargas_sum_km_dispersao ?? 0),
                     'documento' => $viagem->documento_transporte,
                 ]),
-            'abastecimentos' => $record->abastecimentos()
+            'abastecimentosAnalise' => $record->abastecimentos()
                 ->orderByDesc('data_abastecimento')
-                ->limit(5)
-                ->get(['id', 'data_abastecimento', 'posto_combustivel', 'quantidade', 'preco_total', 'quilometragem'])
+                ->get(['id', 'data_abastecimento', 'posto_combustivel', 'tipo_combustivel', 'quantidade', 'preco_por_litro', 'preco_total', 'quilometragem'])
                 ->map(fn ($abastecimento): array => [
                     'data' => Carbon::parse($abastecimento->data_abastecimento)->format('d/m/Y'),
                     'posto' => $abastecimento->posto_combustivel,
+                    'tipo_combustivel' => $abastecimento->tipo_combustivel?->value,
                     'litros' => (float) $abastecimento->quantidade,
+                    'preco_por_litro' => (float) $abastecimento->preco_por_litro,
                     'valor' => (float) $abastecimento->preco_total,
                     'km' => (int) $abastecimento->quilometragem,
                 ]),
-            'documentos' => $record->documentos()
-                ->orderByDesc('data_emissao')
-                ->limit(5)
-                ->get(['id', 'numero_documento', 'data_emissao', 'parceiro_destino', 'valor_liquido'])
-                ->map(fn ($documento): array => [
-                    'numero' => $documento->numero_documento,
-                    'data' => Carbon::parse($documento->data_emissao)->format('d/m/Y'),
-                    'destino' => $documento->parceiro_destino,
-                    'valor' => (float) $documento->valor_liquido,
-                ]),
         ];
+    }
+
+    private function getGastosManutencaoPorGrupo(ResultadoPeriodo $record)
+    {
+        return $record->manutencaoLancamentos()
+            ->select([
+                DB::raw("COALESCE(NULLIF(grupo_produto, ''), 'Sem grupo') as grupo"),
+                DB::raw('SUM(valor_total_centavos) as total_centavos'),
+                DB::raw('COUNT(*) as quantidade_lancamentos'),
+            ])
+            ->groupByRaw("COALESCE(NULLIF(grupo_produto, ''), 'Sem grupo')")
+            ->orderByDesc('total_centavos')
+            ->get()
+            ->map(fn ($grupo): array => [
+                'grupo' => $grupo->grupo,
+                'total' => ((float) $grupo->total_centavos) / 100,
+                'quantidade_lancamentos' => (int) $grupo->quantidade_lancamentos,
+            ]);
+    }
+
+    private function getViagensComDispersao(ResultadoPeriodo $record)
+    {
+        return $record->viagens()
+            ->withSum('cargas', 'km_dispersao')
+            ->get(['id', 'numero_viagem', 'data_competencia', 'km_pago', 'km_rodado', 'documento_transporte'])
+            ->filter(fn ($viagem): bool => (float) ($viagem->cargas_sum_km_dispersao ?? 0) > 0)
+            ->sortByDesc('cargas_sum_km_dispersao')
+            ->take(5)
+            ->map(fn ($viagem): array => [
+                'numero' => $viagem->numero_viagem,
+                'data' => Carbon::parse($viagem->data_competencia)->format('d/m/Y'),
+                'km_pago' => (float) $viagem->km_pago,
+                'km_rodado' => (float) $viagem->km_rodado,
+                'dispersao_km' => (float) $viagem->cargas_sum_km_dispersao,
+                'documento' => $viagem->documento_transporte,
+            ]);
     }
 
     private function getKmRodadoAbastecimento(ResultadoPeriodo $record): ?int
@@ -289,7 +320,7 @@ class AnaliseResultadoPeriodo extends Page
             ]);
     }
 
-    private function getMetas(float $faturamento, float $combustivel, float $manutencao, float $folhaPagamento, ?int $dispersaoKm, float $kmPago): array
+    private function getMetas(float $faturamento, float $combustivel, float $manutencao, float $folhaPagamento, ?float $dispersaoKm, float $kmPago): array
     {
         $percentualFaturamento = fn (float $valor): ?float => $faturamento > 0 ? ($valor / $faturamento) * 100 : null;
         $percentualDispersao = $dispersaoKm !== null && $kmPago > 0 ? (abs($dispersaoKm) / $kmPago) * 100 : null;

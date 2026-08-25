@@ -74,7 +74,7 @@
         .resultado-alert.info { border-color: #bae6fd; background: #f0f9ff; color: #0369a1; }
         .resultado-alert.warning { border-color: #fde68a; background: #fffbeb; color: #a16207; }
         .resultado-alert.danger { border-color: #fecdd3; background: #fff1f2; color: #be123c; }
-        .resultado-activity { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+        .resultado-activity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
         .resultado-activity-card { overflow: hidden; padding: 0; }
         .resultado-activity-header { display: flex; justify-content: space-between; gap: .75rem; padding: 1.15rem 1.25rem .8rem; }
         .resultado-activity-count { color: #64748b; font-size: .75rem; font-weight: 650; white-space: nowrap; }
@@ -135,6 +135,8 @@
 
         <nav class="resultado-tabs" aria-label="Análises do resultado">
             <a class="resultado-tab active" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise', ['record' => $record]) }}">Visão geral</a>
+            <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-viagens', ['record' => $record]) }}">Viagens</a>
+            <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-abastecimentos', ['record' => $record]) }}">Abastecimentos</a>
             <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-manutencao', ['record' => $record]) }}">Custos de manutenção</a>
             <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-servicos', ['record' => $record]) }}">Serviços internos</a>
             <a class="resultado-tab" href="{{ \App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource::getUrl('analise-garantias', ['record' => $record]) }}">Garantias</a>
@@ -257,32 +259,22 @@
 
         <section class="resultado-activity">
             <article class="resultado-card resultado-activity-card">
-                <div class="resultado-activity-header"><div><h3 class="resultado-card-title">Viagens</h3><p class="resultado-card-subtitle">Últimos vínculos</p></div><span class="resultado-activity-count">{{ $record->viagens_count }} total</span></div>
+                <div class="resultado-activity-header"><div><h3 class="resultado-card-title">Gastos por grupo de produto</h3><p class="resultado-card-subtitle">Custos de manutenção que mais impactaram o período.</p></div><span class="resultado-activity-count">{{ $gastosManutencaoPorGrupo->count() }} grupos</span></div>
                 <div class="resultado-list">
-                    @forelse ($viagens as $viagem)
-                        <div class="resultado-list-item"><div class="resultado-list-main"><span>#{{ $viagem['numero'] }}</span><span>{{ number_format($viagem['km_pago'], 0, ',', '.') }} km pagos</span></div><div class="resultado-list-detail">{{ $viagem['data'] }} · {{ number_format($viagem['km_rodado'], 0, ',', '.') }} km rodados{{ $viagem['documento'] ? ' · ' . $viagem['documento'] : '' }}</div></div>
+                    @forelse ($gastosManutencaoPorGrupo as $gasto)
+                        <div class="resultado-list-item"><div class="resultado-list-main"><span>{{ $gasto['grupo'] }}</span><span>R$ {{ number_format($gasto['total'], 2, ',', '.') }}</span></div><div class="resultado-list-detail">{{ $gasto['quantidade_lancamentos'] }} {{ $gasto['quantidade_lancamentos'] === 1 ? 'lançamento' : 'lançamentos' }}</div></div>
                     @empty
-                        <div class="resultado-empty">Nenhuma viagem vinculada.</div>
+                        <div class="resultado-empty">Nenhum gasto de manutenção vinculado.</div>
                     @endforelse
                 </div>
             </article>
             <article class="resultado-card resultado-activity-card">
-                <div class="resultado-activity-header"><div><h3 class="resultado-card-title">Abastecimentos</h3><p class="resultado-card-subtitle">Últimos vínculos</p></div><span class="resultado-activity-count">{{ $record->abastecimentos_count }} total</span></div>
+                <div class="resultado-activity-header"><div><h3 class="resultado-card-title">Viagens com maior dispersão</h3><p class="resultado-card-subtitle">Maiores KM de dispersão rateados nas cargas da viagem.</p></div><span class="resultado-activity-count">{{ $viagensComDispersao->count() }} viagens</span></div>
                 <div class="resultado-list">
-                    @forelse ($abastecimentos as $abastecimento)
-                        <div class="resultado-list-item"><div class="resultado-list-main"><span>{{ $abastecimento['posto'] ?: 'Posto não informado' }}</span><span>R$ {{ number_format($abastecimento['valor'], 2, ',', '.') }}</span></div><div class="resultado-list-detail">{{ $abastecimento['data'] }} · {{ number_format($abastecimento['litros'], 2, ',', '.') }} L · {{ number_format($abastecimento['km'], 0, ',', '.') }} km</div></div>
+                    @forelse ($viagensComDispersao as $viagem)
+                        <div class="resultado-list-item"><div class="resultado-list-main"><span>#{{ $viagem['numero'] }}</span><span>{{ number_format($viagem['dispersao_km'], 2, ',', '.') }} km</span></div><div class="resultado-list-detail">{{ $viagem['data'] }} · {{ number_format($viagem['km_pago'], 0, ',', '.') }} km pagos · {{ number_format($viagem['km_rodado'], 0, ',', '.') }} km rodados{{ $viagem['documento'] ? ' · ' . $viagem['documento'] : '' }}</div></div>
                     @empty
-                        <div class="resultado-empty">Nenhum abastecimento vinculado.</div>
-                    @endforelse
-                </div>
-            </article>
-            <article class="resultado-card resultado-activity-card">
-                <div class="resultado-activity-header"><div><h3 class="resultado-card-title">Documentos de frete</h3><p class="resultado-card-subtitle">Últimos vínculos</p></div><span class="resultado-activity-count">{{ $record->documentos_count }} total</span></div>
-                <div class="resultado-list">
-                    @forelse ($documentos as $documento)
-                        <div class="resultado-list-item"><div class="resultado-list-main"><span>Nº {{ $documento['numero'] }}</span><span>R$ {{ number_format($documento['valor'], 2, ',', '.') }}</span></div><div class="resultado-list-detail">{{ $documento['data'] }} · {{ $documento['destino'] ?: 'Destino não informado' }}</div></div>
-                    @empty
-                        <div class="resultado-empty">Nenhum documento vinculado.</div>
+                        <div class="resultado-empty">Nenhuma viagem com dispersão positiva no período.</div>
                     @endforelse
                 </div>
             </article>

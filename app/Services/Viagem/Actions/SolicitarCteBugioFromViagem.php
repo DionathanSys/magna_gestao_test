@@ -84,6 +84,7 @@ class SolicitarCteBugioFromViagem
             'anexos' => $anexos,
             'viagem_id' => $viagem->id,
             'integrado_id' => $integrado->id,
+            'integrado_cpf' => $integrado->documento,
             'documento_transporte' => $viagem->documento_transporte,
             'destinos' => [[
                 'integrado_id' => $integrado->id,
@@ -233,6 +234,7 @@ class SolicitarCteBugioFromViagem
             'anexos' => $anexos,
             'viagem_id' => $viagemReferencia->id,
             'integrado_id' => $integrado->id,
+            'integrado_cpf' => $integrado->documento,
             'documento_transporte' => $documentoTransporte,
             'destinos' => [[
                 'integrado_id' => $integrado->id,

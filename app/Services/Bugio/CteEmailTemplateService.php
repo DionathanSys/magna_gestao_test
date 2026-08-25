@@ -83,6 +83,7 @@ class CteEmailTemplateService
             '{valor_frete_unitario}' => $escape(number_format($payload->valorFreteUnitario, 2, ',', '.')),
             '{motorista_nome}' => $stringOrNA($payload->motorista['nome'] ?? null),
             '{motorista_cpf}' => $stringOrNA($payload->motorista['cpf'] ?? null),
+            '{integrado_cpf}' => $stringOrNA($payload->integradoCpf),
             '{destinatarios}' => $destinatariosFormatted,
             '{cte_referencia}' => $labeledStringOrEmpty('CTe Referência', $payload->cte_referencia),
             '{linha_cte_retroativo}' => $linhaCteRetroativo,

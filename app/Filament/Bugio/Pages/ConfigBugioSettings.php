@@ -104,7 +104,15 @@ class ConfigBugioSettings extends AbstractPageSettings
                             ->label('Habilitar delay entre envios de CTe')
                             ->columnSpanFull()
                             ->default(true)
-                            ->helperText('Quando desativado, os emails de solicitação de CTe serão enviados imediatamente, sem aguardar o intervalo mínimo de 4 minutos entre envios.'),
+                            ->helperText('Quando desativado, os emails de solicitação de CTe serão enviados imediatamente, sem aguardar o intervalo configurado entre envios.'),
+                        TextInput::make('cte-email-delay-minutes')
+                            ->label('Intervalo entre envios de CTe')
+                            ->numeric()
+                            ->integer()
+                            ->minValue(1)
+                            ->default(4)
+                            ->suffix('minutos')
+                            ->helperText('Tempo mínimo entre o envio de emails de solicitação de CTe.'),
                         Repeater::make('cte-return-senders')
                             ->label('Remetentes de Retorno CTe')
                             ->addActionLabel('Incluir remetente')

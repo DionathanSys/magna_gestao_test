@@ -58,7 +58,8 @@ class SolicitarCteBugio implements ShouldQueue
             $cacheKeyLastMail = 'cte:last_email_sent_at';
             $cacheKeyNext = 'cte:next_allowed_send_at';
 
-            $minInterval = 240; // 4 minutos em segundos
+            $delayMinutes = max(1, (int) db_config('config-bugio.cte-email-delay-minutes', 4));
+            $minInterval = $delayMinutes * 60;
 
             $lastSentAt = Cache::get($cacheKeyLastMail);
             $nextRunAt = Cache::get($cacheKeyNext);
@@ -96,7 +97,7 @@ class SolicitarCteBugio implements ShouldQueue
                         $diffToNextRun = now()->diffInSeconds($nextRunAt);
 
                         if ($diffToNextRun > 0) {
-                            $delay = $diffToNextRun + 255; // adiciona mais 4 minutos
+                            $delay = $diffToNextRun + $minInterval;
                             Log::info('Ajustando delay para o próximo envio permitido', [
                                 'metodo' => __METHOD__.'@'.__LINE__,
                                 'attempt' => $this->attempts(),

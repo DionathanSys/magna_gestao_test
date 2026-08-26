@@ -64,7 +64,7 @@ class CriarAgendamento
 
     protected function sanitize(array $data): array
     {
-        return array_intersect_key($data, array_flip([
+        $data = array_intersect_key($data, array_flip([
             'ordem_servico_id',
             'veiculo_id',
             'data_agendamento',
@@ -76,6 +76,12 @@ class CriarAgendamento
             'parceiro_id',
             'categoria',
         ]));
+
+        if (($data['categoria'] ?? null) instanceof CategoriaAgendamentoEnum) {
+            $data['categoria'] = $data['categoria']->value;
+        }
+
+        return $data;
     }
 
     protected function validate(array $data, Models\Servico $servico): void

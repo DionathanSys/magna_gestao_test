@@ -74,6 +74,13 @@
         .resultado-alert.info { border-color: #bae6fd; background: #f0f9ff; color: #0369a1; }
         .resultado-alert.warning { border-color: #fde68a; background: #fffbeb; color: #a16207; }
         .resultado-alert.danger { border-color: #fecdd3; background: #fff1f2; color: #be123c; }
+        .resultado-comparativo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: 1.1rem; }
+        .resultado-comparativo-item { padding: .85rem; border: 1px solid #e2e8f0; border-radius: .85rem; background: #f8fafc; }
+        .resultado-comparativo-label { color: #64748b; font-size: .72rem; font-weight: 650; }
+        .resultado-comparativo-value { margin-top: .25rem; color: #1e293b; font-size: .95rem; font-weight: 750; }
+        .resultado-comparativo-detail { margin-top: .2rem; color: #94a3b8; font-size: .71rem; }
+        .resultado-comparativo-variation { margin-top: .35rem; color: #0f766e; font-size: .72rem; font-weight: 750; }
+        .resultado-comparativo-variation.negative { color: #be123c; }
         .resultado-activity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
         .resultado-activity-card { overflow: hidden; padding: 0; }
         .resultado-activity-header { display: flex; justify-content: space-between; gap: .75rem; padding: 1.15rem 1.25rem .8rem; }
@@ -102,6 +109,8 @@
         .dark .resultado-chip.open { border-color: rgba(74, 222, 128, .35); background: rgba(22, 163, 74, .15); color: #86efac; }
         .dark .resultado-chip.closed { background: rgba(148, 163, 184, .1); }
         .dark .resultado-op { background: rgba(148, 163, 184, .08); }
+        .dark .resultado-comparativo-item { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
+        .dark .resultado-comparativo-value { color: #e2e8f0; }
          .dark .resultado-progress { background: rgba(148, 163, 184, .15); }
          .dark .resultado-tabs { border-color: rgba(148, 163, 184, .18); }
           .dark .resultado-meta { border-color: rgba(148, 163, 184, .18); background: rgba(148, 163, 184, .08); }
@@ -116,7 +125,7 @@
         .dark .resultado-os-item { border-color: rgba(148, 163, 184, .12); }
          @media (max-width: 1100px) { .resultado-kpis, .resultado-metas { grid-template-columns: repeat(2, minmax(0, 1fr)); } .resultado-activity { grid-template-columns: 1fr; } }
         @media (max-width: 800px) { .resultado-hero, .resultado-grid { grid-template-columns: 1fr; display: grid; } .resultado-hero-meta { justify-content: flex-start; } .resultado-financial-row { grid-template-columns: 1fr auto; } .resultado-financial-row .resultado-progress { grid-column: 1 / -1; } }
-         @media (max-width: 520px) { .resultado-kpis, .resultado-metas, .resultado-ops, .resultado-chart-summary { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
+        @media (max-width: 520px) { .resultado-kpis, .resultado-metas, .resultado-ops, .resultado-chart-summary, .resultado-comparativo { grid-template-columns: 1fr; } .resultado-hero { padding: 1.15rem; } .resultado-hero h2 { font-size: 1.4rem; } .resultado-card { padding: 1rem; } .resultado-os-item { grid-template-columns: 1fr auto; gap: .45rem .8rem; } .resultado-os-detail { grid-column: 1 / -1; } }
     </style>
 
     <div class="resultado-analise">
@@ -196,16 +205,32 @@
             </article>
 
             <article class="resultado-card">
-                <h3 class="resultado-card-title">Pontos de atenção</h3>
-                <p class="resultado-card-subtitle">Leitura rápida dos dados disponíveis neste resultado.</p>
-                <div class="resultado-alerts">
-                    @foreach ($alertas as $alerta)
-                        <div class="resultado-alert {{ $alerta['tom'] }}">
-                            <div class="resultado-alert-title">{{ $alerta['titulo'] }}</div>
-                            <div class="resultado-alert-description">{{ $alerta['descricao'] }}</div>
-                        </div>
-                    @endforeach
-                </div>
+                <h3 class="resultado-card-title">Comparativo com período anterior</h3>
+                @if ($comparativoPeriodoAnterior)
+                    <p class="resultado-card-subtitle">Atual comparado a {{ $comparativoPeriodoAnterior['periodo'] }}.</p>
+                    <div class="resultado-comparativo">
+                        @foreach ($comparativoPeriodoAnterior['indicadores'] as $indicador)
+                            @php
+                                $formatarIndicador = fn (?float $valor): string => match ($indicador['formato']) {
+                                    'moeda' => $valor === null ? 'N/D' : 'R$ ' . number_format($valor, 2, ',', '.'),
+                                    'percentual' => $valor === null ? 'N/D' : number_format($valor, 1, ',', '.') . '%',
+                                    default => $valor === null ? 'N/D' : number_format($valor, 2, ',', '.') . ' km/L',
+                                };
+                            @endphp
+                            <div class="resultado-comparativo-item">
+                                <div class="resultado-comparativo-label">{{ $indicador['label'] }}</div>
+                                <div class="resultado-comparativo-value">{{ $formatarIndicador($indicador['atual']) }}</div>
+                                <div class="resultado-comparativo-detail">Anterior: {{ $formatarIndicador($indicador['anterior']) }}</div>
+                                @if ($indicador['variacao'] !== null)
+                                    <div class="resultado-comparativo-variation {{ $indicador['variacao'] < 0 ? 'negative' : '' }}">{{ $indicador['variacao'] > 0 ? '+' : '' }}{{ number_format($indicador['variacao'], 1, ',', '.') }}{{ $indicador['formato'] === 'percentual' ? ' p.p.' : '%' }}</div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="resultado-card-subtitle">Ainda não há resultado anterior fechado para este veículo.</p>
+                    <div class="resultado-empty">O comparativo será disponibilizado quando houver um período anterior.</div>
+                @endif
             </article>
         </section>
 

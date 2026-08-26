@@ -111,7 +111,7 @@ class AnaliseResultadoPeriodo extends Page
             ],
             'metas' => $this->getMetas($faturamento, $combustivel, $manutencao, $folhaPagamento, $dispersaoKm, $kmPago),
             'composicaoFinanceira' => $this->getComposicaoFinanceira($faturamento, $combustivel, $manutencao, $folhaPagamento),
-            'alertas' => $this->getAlertas($record, $resultadoLiquido, $margemLiquida, $kmRodadoAbastecimento, $consumo, $metaConsumo),
+            'comparativoPeriodoAnterior' => $this->getComparativoPeriodoAnterior($record, $faturamento, $resultadoLiquido, $margemLiquida, $consumo, $custoTotal),
             'manutencoesPorOs' => $this->getManutencoesPorOs($record),
             'custosDiariosManutencao' => $this->getCustosDiariosManutencao($record),
             'servicosOrdensInternas' => $this->getServicosOrdensInternas($record),
@@ -142,6 +142,70 @@ class AnaliseResultadoPeriodo extends Page
                     'valor' => (float) $abastecimento->preco_total,
                     'km' => (int) $abastecimento->quilometragem,
                 ]),
+        ];
+    }
+
+    private function getComparativoPeriodoAnterior(
+        ResultadoPeriodo $record,
+        float $faturamentoAtual,
+        float $resultadoLiquidoAtual,
+        ?float $margemLiquidaAtual,
+        ?float $consumoAtual,
+        float $custoTotalAtual,
+    ): ?array {
+        $periodoAnterior = ResultadoPeriodo::query()
+            ->where('veiculo_id', $record->veiculo_id)
+            ->where('data_fim', '<', $record->data_inicio)
+            ->with(['abastecimentoInicial', 'abastecimentoFinal'])
+            ->withSum('documentos', 'valor_liquido')
+            ->withSum('abastecimentos', 'preco_total')
+            ->withSum('abastecimentos', 'quantidade')
+            ->withSum('manutencaoLancamentos', 'valor_total_centavos')
+            ->orderByDesc('data_fim')
+            ->first();
+
+        if (! $periodoAnterior) {
+            return null;
+        }
+
+        $faturamentoAnterior = ((float) ($periodoAnterior->documentos_sum_valor_liquido ?? 0)) / 100;
+        $combustivelAnterior = ((float) ($periodoAnterior->abastecimentos_sum_preco_total ?? 0)) / 100;
+        $manutencaoAnterior = ((float) ($periodoAnterior->manutencao_lancamentos_sum_valor_total_centavos ?? 0)) / 100;
+        $folhaPagamentoAnterior = (float) $periodoAnterior->folha_pagamento_centavos;
+        $resultadoLiquidoAnterior = $faturamentoAnterior - $combustivelAnterior - $manutencaoAnterior - $folhaPagamentoAnterior;
+        $margemLiquidaAnterior = $faturamentoAnterior > 0 ? ($resultadoLiquidoAnterior / $faturamentoAnterior) * 100 : null;
+        $kmRodadoAnterior = $this->getKmRodadoAbastecimento($periodoAnterior);
+        $litrosAnterior = (float) ($periodoAnterior->abastecimentos_sum_quantidade ?? 0);
+        $consumoAnterior = $kmRodadoAnterior !== null && $litrosAnterior > 0 ? $kmRodadoAnterior / $litrosAnterior : null;
+        $custoTotalAnterior = $combustivelAnterior + $manutencaoAnterior + $folhaPagamentoAnterior;
+
+        return [
+            'periodo' => Carbon::parse($periodoAnterior->data_inicio)->format('d/m/Y').' a '.Carbon::parse($periodoAnterior->data_fim)->format('d/m/Y'),
+            'indicadores' => [
+                $this->compararIndicador('Faturamento', $faturamentoAtual, $faturamentoAnterior, 'moeda'),
+                $this->compararIndicador('Resultado líquido', $resultadoLiquidoAtual, $resultadoLiquidoAnterior, 'moeda'),
+                $this->compararIndicador('Margem líquida', $margemLiquidaAtual, $margemLiquidaAnterior, 'percentual'),
+                $this->compararIndicador('Custo por KM', $this->custoPorKm($custoTotalAtual, $this->getKmRodadoAbastecimento($record)), $this->custoPorKm($custoTotalAnterior, $kmRodadoAnterior), 'moeda'),
+                $this->compararIndicador('Consumo médio', $consumoAtual, $consumoAnterior, 'consumo'),
+            ],
+        ];
+    }
+
+    private function custoPorKm(float $custoTotal, ?int $kmRodado): ?float
+    {
+        return $kmRodado ? $custoTotal / $kmRodado : null;
+    }
+
+    private function compararIndicador(string $label, ?float $atual, ?float $anterior, string $formato): array
+    {
+        return [
+            'label' => $label,
+            'atual' => $atual,
+            'anterior' => $anterior,
+            'formato' => $formato,
+            'variacao' => $atual !== null && $anterior !== null
+                ? ($formato === 'percentual' ? $atual - $anterior : ($anterior != 0.0 ? (($atual - $anterior) / abs($anterior)) * 100 : null))
+                : null,
         ];
     }
 

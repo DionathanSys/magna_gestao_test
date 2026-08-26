@@ -3,11 +3,11 @@
 namespace App\Services\Viagem\Actions;
 
 use App\Enum\Frete\TipoDocumentoEnum;
-use App\Jobs\SolicitarCteBugio;
 use App\Models\DocumentoFrete;
 use App\Models\Integrado;
 use App\Models\Veiculo;
 use App\Models\Viagem;
+use App\Services\Bugio\CteEmailQueueService;
 use App\Services\DocumentoFrete\DocumentoFreteService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -117,7 +117,7 @@ class SolicitarCteBugioFromViagem
             'nro_notas' => $nroNotas,
         ]);
 
-        SolicitarCteBugio::dispatch($payload)->onConnection('database');
+        app(CteEmailQueueService::class)->enqueue($payload);
     }
 
     public function handleAgrupado(Collection $viagens, array $data): void
@@ -270,7 +270,7 @@ class SolicitarCteBugioFromViagem
             'nro_notas' => $nroNotas,
         ]);
 
-        SolicitarCteBugio::dispatch($payload)->onConnection('database');
+        app(CteEmailQueueService::class)->enqueue($payload);
     }
 
     protected function createDocumentoFrete(

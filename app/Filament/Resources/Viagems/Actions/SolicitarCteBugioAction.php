@@ -207,10 +207,10 @@ class SolicitarCteBugioAction
 
                     Notification::make()
                         ->success()
-                        ->title($data['tipo_documento'] === TipoDocumentoEnum::NFS->value ? 'Documento de Frete criado' : 'Solicitação de CTe enviada')
+                        ->title($data['tipo_documento'] === TipoDocumentoEnum::NFS->value ? 'Documento de Frete criado' : 'Solicitação de CTe enfileirada')
                         ->body($data['tipo_documento'] === TipoDocumentoEnum::NFS->value
                             ? 'O Documento de Frete foi criado com base na NFS da viagem.'
-                            : 'O envio do email de solicitação de CTe foi disparado com os anexos da viagem.')
+                            : 'O email de solicitação de CTe foi enfileirado com os anexos da viagem.')
                         ->send();
                 } catch (\Throwable $exception) {
                     notify::error('Erro ao processar ação da viagem', $exception->getMessage());

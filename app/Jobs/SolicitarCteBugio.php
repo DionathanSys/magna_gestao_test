@@ -2,203 +2,113 @@
 
 namespace App\Jobs;
 
+use App\Models\CteEmailRequest;
 use App\Models\User;
+use App\Services\Bugio\CteEmailQueueService;
 use App\Services\CteService\CteService;
 use App\Services\NotificacaoService as notify;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Opcodes\LogViewer\Facades\Cache;
 
 class SolicitarCteBugio implements ShouldQueue
 {
     use Queueable;
 
-    public $tries = 10; // Tentativas ilimitadas
+    public $tries = 10;
 
-    const LOCK_TTL = 300; // Tempo em segundos para o lock
-
-    const BLOCK = 240; // Tempo em segundos para o lock
+    private const LOCK_KEY = 'cte:email-queue:send';
 
     /**
-     * Create a new job instance.
+     * @param  int|array<string, mixed>  $data
      */
-    public function __construct(protected array $data)
+    public function __construct(protected int|array $data) {}
+
+    public function handle(CteEmailQueueService $queueService): void
     {
-        //
-    }
-
-    /**
-     * Execute the job.
-     */
-    public function handle(): void
-    {
-        try {
-
-            Log::info('Iniciando job de solicitação de CTe', [
-                'metodo' => __METHOD__.'@'.__LINE__,
-                'veiculo' => $this->data['veiculo'] ?? null,
-                'nro_notas' => $this->data['nro_notas'] ?? null,
-                'attempt' => $this->attempts(),
-            ]);
-
-            $delayEnabled = db_config('config-bugio.cte-email-delay-enabled', true);
-
-            if (! $delayEnabled) {
-                Log::info('Delay de CTe desabilitado, enviando imediatamente', [
-                    'veiculo' => $this->data['veiculo'] ?? null,
-                    'nro_notas' => $this->data['nro_notas'] ?? null,
-                ]);
-                $this->sendEmail();
+        Cache::lock(self::LOCK_KEY, 120)->block(10, function () use ($queueService): void {
+            // Jobs queued before the persisted queue was introduced carry the original payload.
+            if (is_array($this->data)) {
+                $queueService->enqueue($this->data);
 
                 return;
             }
 
-            $cacheKeyLastMail = 'cte:last_email_sent_at';
-            $cacheKeyNext = 'cte:next_allowed_send_at';
+            $request = CteEmailRequest::query()->findOrFail($this->data);
 
-            $delayMinutes = max(1, (int) db_config('config-bugio.cte-email-delay-minutes', 4));
-            $minInterval = $delayMinutes * 60;
+            if ($request->status !== 'pending_send') {
+                return;
+            }
 
-            $lastSentAt = Cache::get($cacheKeyLastMail);
-            $nextRunAt = Cache::get($cacheKeyNext);
+            $scheduledAt = $request->scheduled_at;
+            if ($scheduledAt && $scheduledAt->isFuture()) {
+                $this->release(now()->diffInSeconds($scheduledAt));
 
-            if ($lastSentAt instanceof Carbon) {
+                return;
+            }
 
-                $secondsSinceLastSend = $lastSentAt->diffInSeconds(now());
+            $lastSentAt = CteEmailRequest::query()->max('sent_at');
+            $delaySeconds = $queueService->delaySeconds();
 
-                Log::debug('Verificando intervalo desde o último envio de CTe notas - '.implode(', ', $this->data['nro_notas'] ?? []), [
-                    'seconds_since_last_send' => $secondsSinceLastSend,
-                    'min_interval' => $minInterval,
-                    'last_sent_at' => $lastSentAt->toDateTimeString(),
-                    'now' => now()->toDateTimeString(),
-                    'teste' => $secondsSinceLastSend < $minInterval,
-                    'delay' => $minInterval - $secondsSinceLastSend,
-                    'attempt' => $this->attempts(),
-                ]);
+            if ($lastSentAt && $delaySeconds > 0) {
+                $nextAllowedAt = Carbon::parse($lastSentAt)->addSeconds($delaySeconds);
 
-                if ($secondsSinceLastSend < $minInterval) {
-                    $delay = $minInterval - $secondsSinceLastSend;
-
-                    Log::info('Aguardando intervalo mínimo para novo envio de CTe', [
-                        'faltam_segundos' => $delay,
-                        'ultimo_envio' => $lastSentAt->toDateTimeString(),
-                        'attempt' => $this->attempts(),
-                    ]);
-
-                    if ($nextRunAt instanceof Carbon) {
-
-                        Log::info('Próximo envio agendado em: '.$nextRunAt->toDateTimeString(), [
-                            'metodo' => __METHOD__.'@'.__LINE__,
-                            'attempt' => $this->attempts(),
-                        ]);
-
-                        $diffToNextRun = now()->diffInSeconds($nextRunAt);
-
-                        if ($diffToNextRun > 0) {
-                            $delay = $diffToNextRun + $minInterval;
-                            Log::info('Ajustando delay para o próximo envio permitido', [
-                                'metodo' => __METHOD__.'@'.__LINE__,
-                                'attempt' => $this->attempts(),
-                                'diff_to_next_run' => $diffToNextRun,
-                                'new_delay' => $delay,
-                            ]);
-                        } else {
-                            Log::info('Próximo envio já permitido, mantendo delay calculado', [
-                                'metodo' => __METHOD__.'@'.__LINE__,
-                                'attempt' => $this->attempts(),
-                                'diff_to_next_run' => $diffToNextRun,
-                                'delay' => $delay,
-                            ]);
-                        }
-                    }
-
-                    $newNextRunAt = now()->addSeconds($delay);
-                    $this->release($delay);
-
-                    Log::info('Job de solicitação de CTe re-liberado para execução futura', [
-                        'metodo' => __METHOD__.'@'.__LINE__,
-                        'delay_seconds' => $delay,
-                        'new_next_run_at' => $newNextRunAt->toDateTimeString(),
-                        'attempt' => $this->attempts(),
-                    ]);
-
-                    Cache::put($cacheKeyNext, $newNextRunAt, 3600); // mantém por 1 hora
+                if ($nextAllowedAt->isFuture()) {
+                    $request->update(['scheduled_at' => $nextAllowedAt]);
+                    $this->release(now()->diffInSeconds($nextAllowedAt));
 
                     return;
                 }
             }
 
-            $this->sendEmail();
-            Cache::put($cacheKeyLastMail, now(), 3600); // mantém por 1 hora
-        } catch (\Throwable $e) {
-            // notify::error('Erro ao solicitar CTe', "Placa: " . ($this->data['veiculo'] ?? 'N/A') . ' | Notas: ' . (implode(', ', $this->data['nro_notas'] ?? []) . ' | Integrado: ' . ($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
-            Log::error('Erro ao solicitar CTE', [
-                'metodo' => __METHOD__.'@'.__LINE__,
-                'attempt' => $this->attempts(),
-                'tipo' => get_class($e),
-                'error' => $e->getMessage(),
-                'arquivo' => $e->getFile(),
-                'linha' => $e->getLine(),
-                'veiculo' => $this->data['veiculo'] ?? null,
-                'trace' => $e->getTraceAsString(),
-            ]);
-            throw $e;
-        }
-    }
-
-    private function sendEmail(): void
-    {
-        $service = new CteService;
-        $service->solicitarCtePorEmail($this->data);
-
-        if ($service->hasError()) {
-            Log::error('Erro ao solicitar CTe via serviço', [
-                'metodo' => __METHOD__.'@'.__LINE__,
-                'veiculo' => $this->data['veiculo'] ?? null,
-                'nro_notas' => $this->data['nro_notas'] ?? null,
-                'errors' => $service->getErrors(),
+            Log::info('Iniciando job de solicitação de CTe', [
+                'cte_email_request_id' => $request->id,
+                'documento_transporte' => $request->documento_transporte,
                 'attempt' => $this->attempts(),
             ]);
-            throw new \Exception(implode('; ', $service->getErrors()));
-        }
 
-        Log::info('Solicitação de CTe enviada com sucesso', [
-            'veiculo' => $this->data['veiculo'] ?? null,
-            'nro_notas' => $this->data['nro_notas'] ?? null,
-            'attempt' => $this->attempts(),
-        ]);
+            $service = new CteService;
+            $service->solicitarCtePorEmail($request);
 
-        notify::success(
-            'Solicitação de CTe enviada com sucesso!',
-            'Placa: '.($this->data['veiculo'] ?? 'N/A').' | Notas: '.(implode(', ', $this->data['nro_notas'] ?? []).' | Integrado: '.($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')),
-            true,
-            $this->data['created_by']
-        );
+            if ($service->hasError()) {
+                throw new \RuntimeException(implode('; ', $service->getErrors()));
+            }
+
+            Log::info('Solicitação de CTe enviada com sucesso', [
+                'cte_email_request_id' => $request->id,
+                'attempt' => $this->attempts(),
+            ]);
+
+            notify::success(
+                'Solicitação de CTe enviada com sucesso!',
+                'Documento: '.($request->documento_transporte ?? 'N/A'),
+                true,
+                $request->created_by
+            );
+        });
     }
 
-    /**
-     * Chamado quando o job falha definitivamente após todas as tentativas
-     */
     public function failed(\Throwable $exception): void
     {
-        Log::error('Job de solicitação de CTe falhou após todas as tentativas', [
-            'metodo' => __METHOD__.'@'.__LINE__,
-            'attempt' => $this->attempts(),
-            'error' => $exception->getMessage(),
-            'data' => $this->data,
+        $request = is_int($this->data) ? CteEmailRequest::query()->find($this->data) : null;
+        $request?->update([
+            'status' => 'failed',
+            'error_message' => $exception->getMessage(),
         ]);
 
-        // Notificar o usuário que criou a solicitação
-        if (isset($this->data['created_by'])) {
-            notify::error('Erro ao solicitar CTe', 'Placa: '.($this->data['veiculo'] ?? 'N/A').' | Notas: '.(implode(', ', $this->data['nro_notas'] ?? []).' | Integrado: '.($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $this->data['created_by']);
+        Log::error('Job de solicitação de CTe falhou após todas as tentativas', [
+            'cte_email_request_id' => $request?->id,
+            'error' => $exception->getMessage(),
+        ]);
+
+        if ($request?->created_by) {
+            notify::error('Erro ao solicitar CTe', 'Documento: '.($request->documento_transporte ?? 'N/A'), true, $request->created_by);
         }
 
-        // Notificar administradores
-        $admins = User::where('is_admin', true)->get();
-        foreach ($admins as $admin) {
-            notify::error('Admin - Erro ao solicitar CTe', 'Placa: '.($this->data['veiculo'] ?? 'N/A').' | Notas: '.(implode(', ', $this->data['nro_notas'] ?? []).' | Integrado: '.($this->data['destinos'][0]['integrado_nome'] ?? 'N/A')), true, $admin);
+        foreach (User::where('is_admin', true)->get() as $admin) {
+            notify::error('Admin - Erro ao solicitar CTe', 'Documento: '.($request?->documento_transporte ?? 'N/A'), true, $admin);
         }
     }
 }

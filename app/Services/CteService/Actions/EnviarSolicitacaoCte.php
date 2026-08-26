@@ -4,17 +4,18 @@ namespace App\Services\CteService\Actions;
 
 use App\DTO\PayloadCteDTO;
 use App\Mail\SolicitacaoCteMail;
+use App\Models\CteEmailRequest;
 use App\Services\Bugio\CteEmailRequestService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class EnviarSolicitacaoCte
 {
-    public function handle(PayloadCteDTO $payloadCteDTO): void
+    public function handle(PayloadCteDTO $payloadCteDTO, CteEmailRequest $request): void
     {
         $mail = new SolicitacaoCteMail($payloadCteDTO);
+        $mail->applyTracking($request->correlation_code, $request->outbound_message_id);
         $requestService = app(CteEmailRequestService::class);
-        $request = $requestService->createPendingRequest($payloadCteDTO, $mail);
 
         try {
             Mail::send($mail);

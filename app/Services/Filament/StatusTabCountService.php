@@ -13,14 +13,12 @@ class StatusTabCountService
 
     public static function getCteEmailRequestCounts(): array
     {
-        return Cache::remember('filament.cte_email_requests.status_counts', self::CACHE_TTL, function (): array {
-            return CteEmailRequest::query()
-                ->selectRaw('status, COUNT(*) as total')
-                ->groupBy('status')
-                ->pluck('total', 'status')
-                ->map(fn ($count) => (int) $count)
-                ->toArray();
-        });
+        return CteEmailRequest::query()
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->map(fn ($count) => (int) $count)
+            ->toArray();
     }
 
     public static function getIncomingEmailCounts(): array

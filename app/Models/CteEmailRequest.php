@@ -10,6 +10,7 @@ class CteEmailRequest extends Model
 {
     protected $casts = [
         'requested_at' => 'datetime',
+        'scheduled_at' => 'datetime',
         'sent_at' => 'datetime',
         'last_response_at' => 'datetime',
         'completed_at' => 'datetime',

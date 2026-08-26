@@ -28,6 +28,7 @@ class CteEmailRequestInfolist
                     ->columns(2)
                     ->schema([
                         TextEntry::make('requested_at')->label('Solicitado em')->dateTime('d/m/Y H:i:s'),
+                        TextEntry::make('scheduled_at')->label('Previsão de envio')->dateTime('d/m/Y H:i:s')->placeholder('-'),
                         TextEntry::make('sent_at')->label('Enviado em')->dateTime('d/m/Y H:i:s')->placeholder('-'),
                         TextEntry::make('sent_subject')->label('Assunto enviado')->columnSpanFull(),
                         TextEntry::make('sent_to')->label('Para')->placeholder('-'),

@@ -45,8 +45,27 @@ class CteEmailRequestsTable
                         default => 'gray',
                     })
                     ->toggleable(),
+                TextColumn::make('queue_position')
+                    ->label('Posição na fila')
+                    ->state(fn (CteEmailRequest $record): ?int => $record->status === 'pending_send'
+                        ? CteEmailRequest::query()
+                            ->where('status', 'pending_send')
+                            ->where(function (Builder $query) use ($record): void {
+                                $query
+                                    ->where('scheduled_at', '<', $record->scheduled_at)
+                                    ->orWhere(function (Builder $query) use ($record): void {
+                                        $query
+                                            ->where('scheduled_at', $record->scheduled_at)
+                                            ->where('id', '<=', $record->id);
+                                    });
+                            })
+                            ->count()
+                        : null)
+                    ->placeholder('-')
+                    ->toggleable(),
                 TextColumn::make('sent_subject')->label('Assunto enviado')->wrap()->limit(60)->toggleable(),
                 TextColumn::make('requested_at')->label('Solicitado em')->dateTime('d/m/Y H:i')->sortable()->toggleable(),
+                TextColumn::make('scheduled_at')->label('Previsão de envio')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
                 TextColumn::make('sent_at')->label('Enviado em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
                 TextColumn::make('last_response_at')->label('Resposta em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),
                 TextColumn::make('completed_at')->label('Concluido em')->dateTime('d/m/Y H:i')->sortable()->placeholder('-')->toggleable(),

@@ -7,11 +7,12 @@ use App\Mail\SolicitacaoCteMail;
 use App\Models\CteEmailRequest;
 use App\Models\CteEmailRequestMessage;
 use App\Models\IncomingEmail;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 class CteEmailRequestService
 {
-    public function createPendingRequest(PayloadCteDTO $payload, SolicitacaoCteMail $mail): CteEmailRequest
+    public function createPendingRequest(PayloadCteDTO $payload, SolicitacaoCteMail $mail, array $rawPayload, Carbon $scheduledAt): CteEmailRequest
     {
         $correlationCode = $this->generateCorrelationCode();
         $outboundMessageId = $this->generateOutboundMessageId($correlationCode);
@@ -31,8 +32,9 @@ class CteEmailRequestService
             'sent_reply_to' => $this->normalizeAddressField($mail->getReplyToAddress()),
             'sent_cc' => $this->normalizeAddressField($mail->getCcAddress()),
             'requested_at' => now(),
+            'scheduled_at' => $scheduledAt,
             'created_by' => $payload->userId,
-            'payload' => $payload->toArray(),
+            'payload' => $rawPayload,
         ]);
     }
 
@@ -61,7 +63,6 @@ class CteEmailRequestService
     public function markSendFailed(CteEmailRequest $request, string $errorMessage): void
     {
         $request->update([
-            'status' => 'failed',
             'error_message' => $errorMessage,
         ]);
     }

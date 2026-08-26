@@ -4,10 +4,10 @@ namespace App\Services\ViagemBugio;
 
 use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
-use App\Jobs\SolicitarCteBugio;
 use App\Models\Integrado;
 use App\Models\Viagem;
 use App\Models\ViagemBugio;
+use App\Services\Bugio\CteEmailQueueService;
 use App\Services\Carga\CargaService;
 use App\Services\DocumentoFrete\DocumentoFreteService;
 use App\Services\NotificacaoService as notify;
@@ -85,7 +85,7 @@ class ViagemBugioService
                 'valor de Tipo Doc CTe Complemento' => TipoDocumentoEnum::CTE_COMPLEMENTO->value,
             ]);
 
-            SolicitarCteBugio::dispatch($data);
+            app(CteEmailQueueService::class)->enqueue($data);
 
             $viagemBugio->update([
                 'status' => 'em_andamento',

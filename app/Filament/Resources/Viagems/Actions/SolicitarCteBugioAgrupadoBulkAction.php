@@ -152,7 +152,7 @@ class SolicitarCteBugioAgrupadoBulkAction
                         ->title($data['tipo_documento'] === TipoDocumentoEnum::NFS->value ? 'Documento de Frete criado' : 'Solicitação de CTe agrupada enviada')
                         ->body($data['tipo_documento'] === TipoDocumentoEnum::NFS->value
                             ? 'O Documento de Frete agrupado foi criado com base na NFS das viagens.'
-                            : 'O envio do email de solicitação de CTe agrupado foi disparado com os anexos das viagens.')
+                            : 'O email de solicitação de CTe agrupado foi enfileirado com os anexos das viagens.')
                         ->send();
                 } catch (\Throwable $exception) {
                     notify::error('Erro ao processar solicitação agrupada de CTe', $exception->getMessage());

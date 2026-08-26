@@ -4,9 +4,9 @@ namespace App\Livewire;
 
 use App\Enum\ClienteEnum;
 use App\Jobs\CriarViagemBugioJob;
-use App\Jobs\SolicitarCteBugio;
 use App\Models\Integrado;
 use App\Models\Veiculo;
+use App\Services\Bugio\CteEmailQueueService;
 use App\Services\NotificacaoService as notify;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -211,13 +211,13 @@ class SolicitarCte extends Component implements HasActions, HasSchemas
         $data['updated_by'] = Auth::id();
         $data['status'] = 'pendente';
 
-        SolicitarCteBugio::dispatch($data);
+        app(CteEmailQueueService::class)->enqueue($data);
 
         unset($data['anexos']);
 
         CriarViagemBugioJob::dispatch($data);
 
-        notify::success('Solicitação de CTe enviada com sucesso!');
+        notify::success('Solicitação de CTe enfileirada com sucesso!');
 
         $this->resetForm();
     }

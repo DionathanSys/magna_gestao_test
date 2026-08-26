@@ -26,7 +26,7 @@ class ListCteEmailRequests extends ListRecords
         return [
             'todos' => Tab::make('Todos')->badge(array_sum($counts)),
             'pending_send' => Tab::make('Pendente envio')
-                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'pending_send'))
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'pending_send')->orderBy('scheduled_at'))
                 ->badge($counts['pending_send'] ?? 0),
             'sent' => Tab::make('Enviado')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'sent'))

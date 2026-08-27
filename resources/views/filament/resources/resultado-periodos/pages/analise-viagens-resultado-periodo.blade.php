@@ -10,9 +10,9 @@
         .operacao-header p { margin: .3rem 0 0; color: #64748b; font-size: .82rem; }
         .operacao-table-wrap { overflow-x: auto; border-top: 1px solid #e2e8f0; }
         .operacao-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
-        .operacao-table th { padding: .75rem 1.25rem; color: #64748b; font-size: .7rem; font-weight: 750; letter-spacing: .04em; text-align: left; text-transform: uppercase; white-space: nowrap; }
-        .operacao-table td { padding: .85rem 1.25rem; border-top: 1px solid #f1f5f9; color: #334155; white-space: nowrap; }
-        .operacao-table td.number { text-align: right; }
+        .operacao-table th { padding: .75rem 1.25rem; color: #64748b; font-size: .7rem; font-weight: 750; letter-spacing: .04em; text-align: center; text-transform: uppercase; white-space: nowrap; }
+        .operacao-table td { padding: .85rem 1.25rem; border-top: 1px solid #f1f5f9; color: #334155; text-align: center; vertical-align: middle; white-space: nowrap; }
+        .operacao-table td.number { text-align: center; }
         .operacao-table td.danger { color: #be123c; font-weight: 750; }
         .operacao-empty { padding: 1.5rem; color: #94a3b8; font-size: .82rem; text-align: center; }
         .dark .operacao-analise { color: #e2e8f0; }
@@ -39,10 +39,10 @@
             @if ($viagensAnalise->isNotEmpty())
                 <div class="operacao-table-wrap">
                     <table class="operacao-table">
-                        <thead><tr><th>Viagem</th><th>Data</th><th>Documento</th><th class="number">KM pago</th><th class="number">KM rodado</th><th class="number">Dispersão</th></tr></thead>
+                        <thead><tr><th>Viagem</th><th>Data de início</th><th>Data de fim</th><th>Documento</th><th class="number">KM pago</th><th class="number">KM rodado</th><th class="number">Dispersão</th></tr></thead>
                         <tbody>
                             @foreach ($viagensAnalise as $viagem)
-                                <tr><td>#{{ $viagem['numero'] }}</td><td>{{ $viagem['data'] }}</td><td>{{ $viagem['documento'] ?: 'Não informado' }}</td><td class="number">{{ number_format($viagem['km_pago'], 0, ',', '.') }} km</td><td class="number">{{ number_format($viagem['km_rodado'], 0, ',', '.') }} km</td><td class="number {{ $viagem['dispersao_km'] > 0 ? 'danger' : '' }}">{{ number_format($viagem['dispersao_km'], 2, ',', '.') }} km</td></tr>
+                                <tr><td>#{{ $viagem['numero'] }}</td><td>{{ $viagem['data_inicio'] ?: 'Não informado' }}</td><td>{{ $viagem['data_fim'] ?: 'Não informado' }}</td><td>{{ $viagem['documento'] ?: 'Não informado' }}</td><td class="number">{{ number_format($viagem['km_pago'], 0, ',', '.') }} km</td><td class="number">{{ number_format($viagem['km_rodado'], 0, ',', '.') }} km</td><td class="number {{ $viagem['dispersao_km'] > 0 ? 'danger' : '' }}">{{ number_format($viagem['dispersao_km'], 2, ',', '.') }} km</td></tr>
                             @endforeach
                         </tbody>
                     </table>

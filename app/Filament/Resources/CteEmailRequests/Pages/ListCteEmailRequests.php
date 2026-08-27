@@ -28,6 +28,9 @@ class ListCteEmailRequests extends ListRecords
             'pending_send' => Tab::make('Pendente envio')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'pending_send')->orderBy('scheduled_at'))
                 ->badge($counts['pending_send'] ?? 0),
+            'sending' => Tab::make('Enviando')
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'sending'))
+                ->badge($counts['sending'] ?? 0),
             'sent' => Tab::make('Enviado')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'sent'))
                 ->badge($counts['sent'] ?? 0),

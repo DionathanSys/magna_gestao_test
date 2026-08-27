@@ -63,6 +63,7 @@ class CteEmailRequestService
     public function markSendFailed(CteEmailRequest $request, string $errorMessage): void
     {
         $request->update([
+            'status' => 'pending_send',
             'error_message' => $errorMessage,
         ]);
     }
@@ -216,7 +217,7 @@ class CteEmailRequestService
      */
     protected function openStatuses(): array
     {
-        return ['pending_send', 'sent', 'response_received', 'processing', 'failed'];
+        return ['pending_send', 'sending', 'sent', 'response_received', 'processing', 'failed'];
     }
 
     protected function generateCorrelationCode(): string

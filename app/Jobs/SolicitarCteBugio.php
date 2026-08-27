@@ -19,6 +19,8 @@ class SolicitarCteBugio implements ShouldQueue
 
     public $tries = 10;
 
+    public $timeout = 300;
+
     private const LOCK_KEY = 'cte:email-queue:send';
 
     /**
@@ -63,6 +65,20 @@ class SolicitarCteBugio implements ShouldQueue
                 }
             }
 
+            $claimed = CteEmailRequest::query()
+                ->whereKey($request->id)
+                ->where('status', 'pending_send')
+                ->update([
+                    'status' => 'sending',
+                    'error_message' => null,
+                ]);
+
+            if ($claimed === 0) {
+                return;
+            }
+
+            $request->refresh();
+
             Log::info('Iniciando job de solicitação de CTe', [
                 'cte_email_request_id' => $request->id,
                 'documento_transporte' => $request->documento_transporte,
@@ -93,10 +109,12 @@ class SolicitarCteBugio implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         $request = is_int($this->data) ? CteEmailRequest::query()->find($this->data) : null;
-        $request?->update([
-            'status' => 'failed',
-            'error_message' => $exception->getMessage(),
-        ]);
+        if (in_array($request?->status, ['pending_send', 'sending'], true)) {
+            $request->update([
+                'status' => 'failed',
+                'error_message' => $exception->getMessage(),
+            ]);
+        }
 
         Log::error('Job de solicitação de CTe falhou após todas as tentativas', [
             'cte_email_request_id' => $request?->id,

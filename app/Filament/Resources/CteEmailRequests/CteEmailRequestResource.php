@@ -31,7 +31,7 @@ class CteEmailRequestResource extends Resource
     {
         try {
             $counts = StatusTabCountService::getCteEmailRequestCounts();
-            $pending = collect(['pending_send', 'sent', 'response_received', 'processing'])
+            $pending = collect(['pending_send', 'sending', 'sent', 'response_received', 'processing'])
                 ->sum(fn (string $status): int => $counts[$status] ?? 0);
 
             return $pending > 0 ? (string) $pending : null;

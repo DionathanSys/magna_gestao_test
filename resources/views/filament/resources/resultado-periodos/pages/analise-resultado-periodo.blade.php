@@ -248,6 +248,32 @@
         </section>
 
         <section class="resultado-card">
+            <h3 class="resultado-card-title">Abastecimentos usados no KM rodado</h3>
+            <p class="resultado-card-subtitle">O cálculo considera a diferença entre os hodômetros dos abastecimentos de referência.</p>
+            @php
+                $abastecimentoInicialKm = $referenciasKmAbastecimento['inicial'];
+                $abastecimentoFinalKm = $referenciasKmAbastecimento['final'];
+            @endphp
+            @if ($abastecimentoInicialKm && $abastecimentoFinalKm)
+                <div class="resultado-ops">
+                    <div class="resultado-op">
+                        <div class="resultado-op-label">Abastecimento inicial de referência</div>
+                        <div class="resultado-op-value">{{ number_format($abastecimentoInicialKm->quilometragem, 0, ',', '.') }} km</div>
+                        <div class="resultado-op-detail">{{ $abastecimentoInicialKm->data_abastecimento?->format('d/m/Y') }}{{ $abastecimentoInicialKm->posto_combustivel ? ' · ' . $abastecimentoInicialKm->posto_combustivel : '' }} · anterior ao período</div>
+                    </div>
+                    <div class="resultado-op">
+                        <div class="resultado-op-label">Abastecimento final de referência</div>
+                        <div class="resultado-op-value">{{ number_format($abastecimentoFinalKm->quilometragem, 0, ',', '.') }} km</div>
+                        <div class="resultado-op-detail">{{ $abastecimentoFinalKm->data_abastecimento?->format('d/m/Y') }}{{ $abastecimentoFinalKm->posto_combustivel ? ' · ' . $abastecimentoFinalKm->posto_combustivel : '' }} · vinculado ao período</div>
+                    </div>
+                </div>
+                <div class="resultado-card-subtitle">{{ number_format($abastecimentoFinalKm->quilometragem, 0, ',', '.') }} km - {{ number_format($abastecimentoInicialKm->quilometragem, 0, ',', '.') }} km = {{ number_format($referenciasKmAbastecimento['km_rodado'], 0, ',', '.') }} km rodados</div>
+            @else
+                <div class="resultado-empty">É necessário um abastecimento anterior e um abastecimento final vinculado para identificar os registros usados no cálculo.</div>
+            @endif
+        </section>
+
+        <section class="resultado-card">
             <h3 class="resultado-card-title">Custo diário de manutenção</h3>
             <p class="resultado-card-subtitle">Gasto por dia no período, com base nos lançamentos de manutenção vinculados.</p>
             <div class="resultado-chart-summary">

@@ -13,11 +13,16 @@
         .operacao-table th { padding: .75rem 1.25rem; color: #64748b; font-size: .7rem; font-weight: 750; letter-spacing: .04em; text-align: left; text-transform: uppercase; white-space: nowrap; }
         .operacao-table td { padding: .85rem 1.25rem; border-top: 1px solid #f1f5f9; color: #334155; white-space: nowrap; }
         .operacao-table td.number { text-align: right; }
+        .operacao-table tr.referencia-final { background: #f0fdfa; }
+        .operacao-reference { margin-top: .7rem; padding: .7rem .85rem; border: 1px solid #99f6e4; border-radius: .7rem; background: #f0fdfa; color: #115e59; font-size: .78rem; line-height: 1.45; }
+        .operacao-badge { display: inline-flex; padding: .2rem .45rem; border-radius: 999px; background: #ccfbf1; color: #0f766e; font-size: .68rem; font-weight: 750; }
         .operacao-empty { padding: 1.5rem; color: #94a3b8; font-size: .82rem; text-align: center; }
         .dark .operacao-analise { color: #e2e8f0; }
         .dark .operacao-tabs, .dark .operacao-card, .dark .operacao-table-wrap { border-color: rgba(148, 163, 184, .18); }
         .dark .operacao-card { background: #111827; }
         .dark .operacao-table td { border-color: rgba(148, 163, 184, .12); color: #e2e8f0; }
+        .dark .operacao-table tr.referencia-final, .dark .operacao-reference { background: rgba(13, 148, 136, .12); }
+        .dark .operacao-reference { border-color: rgba(94, 234, 212, .3); color: #99f6e4; }
     </style>
 
     <div class="operacao-analise">
@@ -34,6 +39,15 @@
             <div class="operacao-header">
                 <h2>Abastecimentos vinculados</h2>
                 <p>{{ $abastecimentosAnalise->count() }} {{ $abastecimentosAnalise->count() === 1 ? 'abastecimento vinculado' : 'abastecimentos vinculados' }} ao resultado de {{ $record->veiculo?->placa ?? 'veículo não identificado' }}.</p>
+                @php
+                    $abastecimentoInicialKm = $referenciasKmAbastecimento['inicial'];
+                    $abastecimentoFinalKm = $referenciasKmAbastecimento['final'];
+                @endphp
+                @if ($abastecimentoInicialKm && $abastecimentoFinalKm)
+                    <div class="operacao-reference">
+                        KM rodado: {{ number_format($abastecimentoFinalKm->quilometragem, 0, ',', '.') }} km do abastecimento final de {{ $abastecimentoFinalKm->data_abastecimento?->format('d/m/Y') }} menos {{ number_format($abastecimentoInicialKm->quilometragem, 0, ',', '.') }} km do abastecimento anterior de {{ $abastecimentoInicialKm->data_abastecimento?->format('d/m/Y') }} = {{ number_format($referenciasKmAbastecimento['km_rodado'], 0, ',', '.') }} km.
+                    </div>
+                @endif
             </div>
             @if ($abastecimentosAnalise->isNotEmpty())
                 <div class="operacao-table-wrap">
@@ -41,7 +55,7 @@
                         <thead><tr><th>Data</th><th>Posto</th><th>Combustível</th><th class="number">Hodômetro</th><th class="number">Litros</th><th class="number">R$/L</th><th class="number">Valor total</th></tr></thead>
                         <tbody>
                             @foreach ($abastecimentosAnalise as $abastecimento)
-                                <tr><td>{{ $abastecimento['data'] }}</td><td>{{ $abastecimento['posto'] ?: 'Não informado' }}</td><td>{{ $abastecimento['tipo_combustivel'] ?: 'Não informado' }}</td><td class="number">{{ number_format($abastecimento['km'], 0, ',', '.') }} km</td><td class="number">{{ number_format($abastecimento['litros'], 2, ',', '.') }} L</td><td class="number">R$ {{ number_format($abastecimento['preco_por_litro'], 3, ',', '.') }}</td><td class="number">R$ {{ number_format($abastecimento['valor'], 2, ',', '.') }}</td></tr>
+                                <tr class="{{ $abastecimento['referencia_final_km'] ? 'referencia-final' : '' }}"><td>{{ $abastecimento['data'] }}</td><td>{{ $abastecimento['posto'] ?: 'Não informado' }}</td><td>{{ $abastecimento['tipo_combustivel'] ?: 'Não informado' }}</td><td class="number">{{ number_format($abastecimento['km'], 0, ',', '.') }} km</td><td class="number">{{ number_format($abastecimento['litros'], 2, ',', '.') }} L</td><td class="number">R$ {{ number_format($abastecimento['preco_por_litro'], 3, ',', '.') }}</td><td class="number">R$ {{ number_format($abastecimento['valor'], 2, ',', '.') }}@if ($abastecimento['referencia_final_km']) <span class="operacao-badge">Referência final do KM</span>@endif</td></tr>
                             @endforeach
                         </tbody>
                     </table>

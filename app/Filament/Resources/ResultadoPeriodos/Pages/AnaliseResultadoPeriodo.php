@@ -72,6 +72,7 @@ class AnaliseResultadoPeriodo extends Page
     public function getViewData(): array
     {
         $record = $this->getRecord();
+        $referenciasKmAbastecimento = $this->getReferenciasKmAbastecimento($record);
         $faturamento = ((float) ($record->documentos_sum_valor_liquido ?? 0)) / 100;
         $combustivel = ((float) ($record->abastecimentos_sum_preco_total ?? 0)) / 100;
         $manutencao = ((float) ($record->manutencao_lancamentos_sum_valor_total_centavos ?? 0)) / 100;
@@ -81,7 +82,7 @@ class AnaliseResultadoPeriodo extends Page
         $litros = (float) ($record->abastecimentos_sum_quantidade ?? 0);
         $kmPago = (float) ($record->viagens_sum_km_pago ?? 0);
         $kmRodadoViagens = (float) ($record->viagens_sum_km_rodado ?? 0);
-        $kmRodadoAbastecimento = $this->getKmRodadoAbastecimento($record);
+        $kmRodadoAbastecimento = $referenciasKmAbastecimento['km_rodado'];
         $consumo = $kmRodadoAbastecimento !== null && $litros > 0
             ? $kmRodadoAbastecimento / $litros
             : null;
@@ -118,13 +119,16 @@ class AnaliseResultadoPeriodo extends Page
             'garantiasServico' => $this->getGarantiasServico($record),
             'gastosManutencaoPorGrupo' => $this->getGastosManutencaoPorGrupo($record),
             'viagensComDispersao' => $this->getViagensComDispersao($record),
+            'referenciasKmAbastecimento' => $referenciasKmAbastecimento,
             'viagensAnalise' => $record->viagens()
                 ->withSum('cargas', 'km_dispersao')
                 ->orderByDesc('data_competencia')
-                ->get(['id', 'numero_viagem', 'data_competencia', 'km_pago', 'km_rodado', 'documento_transporte'])
+                ->get(['id', 'numero_viagem', 'data_competencia', 'data_inicio', 'data_fim', 'km_pago', 'km_rodado', 'documento_transporte'])
                 ->map(fn ($viagem): array => [
                     'numero' => $viagem->numero_viagem,
                     'data' => Carbon::parse($viagem->data_competencia)->format('d/m/Y'),
+                    'data_inicio' => $viagem->data_inicio ? Carbon::parse($viagem->data_inicio)->format('d/m/Y H:i') : null,
+                    'data_fim' => $viagem->data_fim ? Carbon::parse($viagem->data_fim)->format('d/m/Y H:i') : null,
                     'km_pago' => (float) $viagem->km_pago,
                     'km_rodado' => (float) $viagem->km_rodado,
                     'dispersao_km' => (float) ($viagem->cargas_sum_km_dispersao ?? 0),
@@ -134,6 +138,7 @@ class AnaliseResultadoPeriodo extends Page
                 ->orderByDesc('data_abastecimento')
                 ->get(['id', 'data_abastecimento', 'posto_combustivel', 'tipo_combustivel', 'quantidade', 'preco_por_litro', 'preco_total', 'quilometragem'])
                 ->map(fn ($abastecimento): array => [
+                    'id' => $abastecimento->id,
                     'data' => Carbon::parse($abastecimento->data_abastecimento)->format('d/m/Y'),
                     'posto' => $abastecimento->posto_combustivel,
                     'tipo_combustivel' => $abastecimento->tipo_combustivel?->value,
@@ -141,6 +146,7 @@ class AnaliseResultadoPeriodo extends Page
                     'preco_por_litro' => (float) $abastecimento->preco_por_litro,
                     'valor' => (float) $abastecimento->preco_total,
                     'km' => (int) $abastecimento->quilometragem,
+                    'referencia_final_km' => $abastecimento->id === $referenciasKmAbastecimento['final']?->id,
                 ]),
         ];
     }
@@ -247,14 +253,22 @@ class AnaliseResultadoPeriodo extends Page
 
     private function getKmRodadoAbastecimento(ResultadoPeriodo $record): ?int
     {
-        $kmFinal = $record->abastecimentoFinal?->quilometragem;
-        $kmInicial = $record->abastecimentoInicial?->ultimo_abastecimento_anterior?->quilometragem;
+        return $this->getReferenciasKmAbastecimento($record)['km_rodado'];
+    }
 
-        if ($kmFinal === null || $kmInicial === null) {
-            return null;
-        }
+    private function getReferenciasKmAbastecimento(ResultadoPeriodo $record): array
+    {
+        $abastecimentoInicial = $record->abastecimentoInicial;
+        $abastecimentoReferenciaInicial = $abastecimentoInicial?->ultimo_abastecimento_anterior;
+        $abastecimentoFinal = $record->abastecimentoFinal;
+        $kmFinal = $abastecimentoFinal?->quilometragem;
+        $kmInicial = $abastecimentoReferenciaInicial?->quilometragem;
 
-        return max(0, $kmFinal - $kmInicial);
+        return [
+            'inicial' => $abastecimentoReferenciaInicial,
+            'final' => $abastecimentoFinal,
+            'km_rodado' => $kmFinal === null || $kmInicial === null ? null : max(0, $kmFinal - $kmInicial),
+        ];
     }
 
     private function getManutencoesPorOs(ResultadoPeriodo $record)

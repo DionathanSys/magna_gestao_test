@@ -37,6 +37,7 @@ class CteEmailRequestsTable
                 TextColumn::make('status')->label('Status')->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'pending_send' => 'warning',
+                        'sending' => 'warning',
                         'sent' => 'info',
                         'response_received' => 'primary',
                         'processing' => 'warning',

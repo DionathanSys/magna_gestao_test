@@ -240,37 +240,11 @@
             <div class="resultado-ops">
                 <div class="resultado-op"><div class="resultado-op-label">KM pago</div><div class="resultado-op-value">{{ number_format($resumo['km_pago'], 0, ',', '.') }} km</div><div class="resultado-op-detail">{{ $record->viagens_count }} {{ $record->viagens_count === 1 ? 'viagem' : 'viagens' }}</div></div>
                 <div class="resultado-op"><div class="resultado-op-label">KM rodado por viagens</div><div class="resultado-op-value">{{ number_format($resumo['km_rodado_viagens'], 0, ',', '.') }} km</div><div class="resultado-op-detail">Soma registrada nas viagens</div></div>
-                <div class="resultado-op"><div class="resultado-op-label">KM rodado por abastecimento</div><div class="resultado-op-value">{{ $resumo['km_rodado_abastecimento'] === null ? 'N/D' : number_format($resumo['km_rodado_abastecimento'], 0, ',', '.') . ' km' }}</div><div class="resultado-op-detail">Base para consumo e custo por KM</div></div>
+                <div class="resultado-op"><div class="resultado-op-label">KM rodado por abastecimento</div><div class="resultado-op-value">{{ $resumo['km_rodado_abastecimento'] === null ? 'N/D' : number_format($resumo['km_rodado_abastecimento'], 0, ',', '.') . ' km' }}</div><div class="resultado-op-detail">@if ($referenciasKmAbastecimento['inicial']) Inicial: {{ $referenciasKmAbastecimento['inicial']->data_abastecimento?->format('d/m/Y H:i') }} · {{ number_format($referenciasKmAbastecimento['inicial']->quilometragem, 0, ',', '.') }} km @else Base para consumo e custo por KM @endif</div></div>
                 <div class="resultado-op"><div class="resultado-op-label">Dispersão KM</div><div class="resultado-op-value">{{ $resumo['dispersao_km'] === null ? 'N/D' : number_format($resumo['dispersao_km'], 0, ',', '.') . ' km' }}</div><div class="resultado-op-detail">KM abastecimento menos KM pago</div></div>
                 <div class="resultado-op"><div class="resultado-op-label">Diesel consumido</div><div class="resultado-op-value">{{ number_format($resumo['litros'], 2, ',', '.') }} L</div><div class="resultado-op-detail">{{ $record->abastecimentos_count }} {{ $record->abastecimentos_count === 1 ? 'abastecimento' : 'abastecimentos' }}</div></div>
                 <div class="resultado-op"><div class="resultado-op-label">Custo de combustível</div><div class="resultado-op-value">R$ {{ number_format($resumo['combustivel'], 2, ',', '.') }}</div><div class="resultado-op-detail">R$ {{ $resumo['litros'] > 0 ? number_format($resumo['combustivel'] / $resumo['litros'], 3, ',', '.') : '0,000' }} por litro</div></div>
             </div>
-        </section>
-
-        <section class="resultado-card">
-            <h3 class="resultado-card-title">Abastecimentos usados no KM rodado</h3>
-            <p class="resultado-card-subtitle">O cálculo considera a diferença entre os hodômetros dos abastecimentos de referência.</p>
-            @php
-                $abastecimentoInicialKm = $referenciasKmAbastecimento['inicial'];
-                $abastecimentoFinalKm = $referenciasKmAbastecimento['final'];
-            @endphp
-            @if ($abastecimentoInicialKm && $abastecimentoFinalKm)
-                <div class="resultado-ops">
-                    <div class="resultado-op">
-                        <div class="resultado-op-label">Abastecimento inicial de referência</div>
-                        <div class="resultado-op-value">{{ number_format($abastecimentoInicialKm->quilometragem, 0, ',', '.') }} km</div>
-                        <div class="resultado-op-detail">{{ $abastecimentoInicialKm->data_abastecimento?->format('d/m/Y') }}{{ $abastecimentoInicialKm->posto_combustivel ? ' · ' . $abastecimentoInicialKm->posto_combustivel : '' }} · anterior ao período</div>
-                    </div>
-                    <div class="resultado-op">
-                        <div class="resultado-op-label">Abastecimento final de referência</div>
-                        <div class="resultado-op-value">{{ number_format($abastecimentoFinalKm->quilometragem, 0, ',', '.') }} km</div>
-                        <div class="resultado-op-detail">{{ $abastecimentoFinalKm->data_abastecimento?->format('d/m/Y') }}{{ $abastecimentoFinalKm->posto_combustivel ? ' · ' . $abastecimentoFinalKm->posto_combustivel : '' }} · vinculado ao período</div>
-                    </div>
-                </div>
-                <div class="resultado-card-subtitle">{{ number_format($abastecimentoFinalKm->quilometragem, 0, ',', '.') }} km - {{ number_format($abastecimentoInicialKm->quilometragem, 0, ',', '.') }} km = {{ number_format($referenciasKmAbastecimento['km_rodado'], 0, ',', '.') }} km rodados</div>
-            @else
-                <div class="resultado-empty">É necessário um abastecimento anterior e um abastecimento final vinculado para identificar os registros usados no cálculo.</div>
-            @endif
         </section>
 
         <section class="resultado-card">

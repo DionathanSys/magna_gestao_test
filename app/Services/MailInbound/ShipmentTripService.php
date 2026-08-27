@@ -27,6 +27,7 @@ class ShipmentTripService
     {
         $group = ShipmentDocumentGroup::query()
             ->with([
+                'integrado:id,km_rota',
                 'saleDocument.xmlAttachment',
                 'saleDocument.pdfAttachment',
                 'remittanceDocument.xmlAttachment',
@@ -71,6 +72,7 @@ class ShipmentTripService
                 ->next(ClienteEnum::BUGIO->prefixoViagem())['numero_viagem'];
 
             $dataReferencia = $group->remittanceDocument?->emitido_em ?: $group->saleDocument?->emitido_em ?: now();
+            $kmPago = (float) ($group->integrado?->km_rota ?? 0);
 
             $viagem = $this->viagemService->create([
                 'veiculo_id' => $veiculoId,
@@ -81,6 +83,7 @@ class ShipmentTripService
                 'data_competencia' => $dataReferencia->format('Y-m-d H:i:s'),
                 'data_inicio' => $dataReferencia->format('Y-m-d H:i:s'),
                 'data_fim' => $dataReferencia->format('Y-m-d H:i:s'),
+                'km_pago' => $kmPago,
                 'total_destinos' => 1,
                 'conferido' => false,
                 'ignorar' => false,

@@ -45,7 +45,7 @@
                 @endphp
                 @if ($abastecimentoInicialKm && $abastecimentoFinalKm)
                     <div class="operacao-reference">
-                        KM rodado: {{ number_format($abastecimentoFinalKm->quilometragem, 0, ',', '.') }} km do abastecimento final de {{ $abastecimentoFinalKm->data_abastecimento?->format('d/m/Y') }} menos {{ number_format($abastecimentoInicialKm->quilometragem, 0, ',', '.') }} km do abastecimento anterior de {{ $abastecimentoInicialKm->data_abastecimento?->format('d/m/Y') }} = {{ number_format($referenciasKmAbastecimento['km_rodado'], 0, ',', '.') }} km.
+                        KM rodado: {{ number_format($abastecimentoFinalKm->quilometragem, 0, ',', '.') }} km do abastecimento final de {{ $abastecimentoFinalKm->data_abastecimento?->format('d/m/Y H:i') }} menos {{ number_format($abastecimentoInicialKm->quilometragem, 0, ',', '.') }} km do abastecimento anterior de {{ $abastecimentoInicialKm->data_abastecimento?->format('d/m/Y H:i') }} = {{ number_format($referenciasKmAbastecimento['km_rodado'], 0, ',', '.') }} km.
                     </div>
                 @endif
             </div>

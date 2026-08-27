@@ -139,7 +139,7 @@ class AnaliseResultadoPeriodo extends Page
                 ->get(['id', 'data_abastecimento', 'posto_combustivel', 'tipo_combustivel', 'quantidade', 'preco_por_litro', 'preco_total', 'quilometragem'])
                 ->map(fn ($abastecimento): array => [
                     'id' => $abastecimento->id,
-                    'data' => Carbon::parse($abastecimento->data_abastecimento)->format('d/m/Y'),
+                    'data' => Carbon::parse($abastecimento->data_abastecimento)->format('d/m/Y H:i'),
                     'posto' => $abastecimento->posto_combustivel,
                     'tipo_combustivel' => $abastecimento->tipo_combustivel?->value,
                     'litros' => (float) $abastecimento->quantidade,

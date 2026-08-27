@@ -122,7 +122,7 @@ class AnaliseResultadoPeriodo extends Page
             'referenciasKmAbastecimento' => $referenciasKmAbastecimento,
             'viagensAnalise' => $record->viagens()
                 ->withSum('cargas', 'km_dispersao')
-                ->orderByDesc('data_competencia')
+                ->orderBy('data_fim')
                 ->get(['id', 'numero_viagem', 'data_competencia', 'data_inicio', 'data_fim', 'km_pago', 'km_rodado', 'documento_transporte'])
                 ->map(fn ($viagem): array => [
                     'numero' => $viagem->numero_viagem,

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ReceivedFiscalDocuments\Tables;
 use App\Filament\Actions\ExportPdfBulkAction;
 use App\Models\Integrado;
 use App\Models\ReceivedFiscalDocument;
+use App\Models\Viagem;
 use App\Services\MailInbound\CancelFiscalDocumentService;
 use App\Services\MailInbound\LinkFiscalDocumentToIntegradoService;
 use App\Services\MailInbound\ShipmentDocumentMatcher;
@@ -23,7 +24,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
@@ -32,7 +35,12 @@ class ReceivedFiscalDocumentsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['incomingEmail', 'integrado', 'saleGroups', 'remittanceGroups']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with([
+                'incomingEmail',
+                'integrado',
+                'saleGroups.viagem.veiculo',
+                'remittanceGroups.viagem.veiculo',
+            ]))
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable()->toggleable(),
@@ -49,6 +57,22 @@ class ReceivedFiscalDocumentsTable
                 TextColumn::make('emitente_documento')->label('Doc. do Emitente')->searchable()->toggleable(),
                 TextColumn::make('destinatario_documento')->label('Doc. do Destinatário')->searchable()->toggleable(),
                 TextColumn::make('integrado.nome')->label('Integrado')->placeholder('-')->wrap()->toggleable(),
+                TextColumn::make('numero_viagem')
+                    ->label('Nº da Viagem')
+                    ->getStateUsing(fn (ReceivedFiscalDocument $record): string => self::viagensDoDocumento($record)
+                        ->pluck('numero_viagem')
+                        ->filter()
+                        ->implode(', '))
+                    ->placeholder('-')
+                    ->color('primary')
+                    ->action(
+                        Action::make('visualizar_viagem')
+                            ->modalHeading('Informações da Viagem')
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Fechar')
+                            ->modalContent(fn (ReceivedFiscalDocument $record): HtmlString => self::modalViagensDoDocumento($record)),
+                    )
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->label('Situação')
                     ->badge()
@@ -393,5 +417,45 @@ class ReceivedFiscalDocumentsTable
                     ),
                 ]),
             ]);
+    }
+
+    private static function viagensDoDocumento(ReceivedFiscalDocument $documento): Collection
+    {
+        return $documento->saleGroups
+            ->merge($documento->remittanceGroups)
+            ->pluck('viagem')
+            ->filter()
+            ->unique('id')
+            ->values();
+    }
+
+    private static function modalViagensDoDocumento(ReceivedFiscalDocument $documento): HtmlString
+    {
+        $viagens = self::viagensDoDocumento($documento);
+
+        if ($viagens->isEmpty()) {
+            return new HtmlString('<p class="text-sm text-gray-500">Nenhuma viagem foi criada para este documento.</p>');
+        }
+
+        $cards = $viagens->map(function (Viagem $viagem): string {
+            $campo = static fn (mixed $valor): string => e(filled($valor) ? (string) $valor : '-');
+            $situacao = $viagem->conferido ? 'Conferida' : 'Pendente de conferência';
+
+            return <<<HTML
+                <section class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h3 class="text-base font-semibold text-gray-950 dark:text-white">Viagem {$campo($viagem->numero_viagem)}</h3>
+                    <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+                        <div><dt class="text-gray-500 dark:text-gray-400">Nº interno</dt><dd class="font-medium text-gray-950 dark:text-white">{$campo($viagem->numero_interno)}</dd></div>
+                        <div><dt class="text-gray-500 dark:text-gray-400">Placa</dt><dd class="font-medium text-gray-950 dark:text-white">{$campo($viagem->veiculo?->placa)}</dd></div>
+                        <div><dt class="text-gray-500 dark:text-gray-400">Data de competência</dt><dd class="font-medium text-gray-950 dark:text-white">{$campo($viagem->data_competencia)}</dd></div>
+                        <div><dt class="text-gray-500 dark:text-gray-400">Documento de transporte</dt><dd class="font-medium text-gray-950 dark:text-white">{$campo($viagem->documento_transporte)}</dd></div>
+                        <div><dt class="text-gray-500 dark:text-gray-400">Unidade de negócio</dt><dd class="font-medium text-gray-950 dark:text-white">{$campo($viagem->unidade_negocio)}</dd></div>
+                        <div><dt class="text-gray-500 dark:text-gray-400">Situação</dt><dd class="font-medium text-gray-950 dark:text-white">{$campo($situacao)}</dd></div>
+                    </dl>
+                </section>
+            HTML;
+        })->implode('');
+
+        return new HtmlString('<div class="space-y-4">'.$cards.'</div>');
     }
 }

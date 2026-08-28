@@ -20,8 +20,9 @@ class ExportarRelatorioViagensDocumentosBulkAction
     public static function make(): BulkAction
     {
         return BulkAction::make('exportar-relatorio-viagens-documentos')
-            ->label('Exportar Relatório Completo')
+            ->label('Relatório Completo')
             ->icon('heroicon-o-document-arrow-down')
+            ->tooltip('Exportar relatório completo de viagens e documentos para Excel')
             ->color('info')
             ->requiresConfirmation()
             ->modalHeading('Exportar Relatório de Viagens e Documentos')

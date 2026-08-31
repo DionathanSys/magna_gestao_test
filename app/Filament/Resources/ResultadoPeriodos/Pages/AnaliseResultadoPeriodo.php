@@ -91,6 +91,10 @@ class AnaliseResultadoPeriodo extends Page
         $custoTotal = $combustivel + $manutencao + $folhaPagamento;
         $dispersaoKmAbastecimento = $kmRodadoAbastecimento !== null ? $kmRodadoAbastecimento - $kmPago : null;
         $dispersaoKmReal = $kmRodadoViagens - $kmPago;
+        $percentualDispersaoKmAbastecimento = $dispersaoKmAbastecimento !== null && $kmPago > 0
+            ? ($dispersaoKmAbastecimento / $kmPago) * 100
+            : null;
+        $percentualDispersaoKmReal = $kmPago > 0 ? ($dispersaoKmReal / $kmPago) * 100 : null;
 
         return [
             'record' => $record,
@@ -106,6 +110,8 @@ class AnaliseResultadoPeriodo extends Page
                 'km_rodado_abastecimento' => $kmRodadoAbastecimento,
                 'dispersao_km_abastecimento' => $dispersaoKmAbastecimento,
                 'dispersao_km_real' => $dispersaoKmReal,
+                'percentual_dispersao_km_abastecimento' => $percentualDispersaoKmAbastecimento,
+                'percentual_dispersao_km_real' => $percentualDispersaoKmReal,
                 'consumo' => $consumo,
                 'meta_consumo' => $metaConsumo,
                 'litros' => $litros,

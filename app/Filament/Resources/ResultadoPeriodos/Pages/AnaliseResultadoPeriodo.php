@@ -89,7 +89,8 @@ class AnaliseResultadoPeriodo extends Page
         $metaConsumo = $record->veiculo?->tipoVeiculo?->meta_media;
         $dias = Carbon::parse($record->data_inicio)->diffInDays(Carbon::parse($record->data_fim)) + 1;
         $custoTotal = $combustivel + $manutencao + $folhaPagamento;
-        $dispersaoKm = $kmRodadoAbastecimento !== null ? $kmRodadoAbastecimento - $kmPago : null;
+        $dispersaoKmAbastecimento = $kmRodadoAbastecimento !== null ? $kmRodadoAbastecimento - $kmPago : null;
+        $dispersaoKmReal = $kmRodadoViagens - $kmPago;
 
         return [
             'record' => $record,
@@ -103,16 +104,17 @@ class AnaliseResultadoPeriodo extends Page
                 'km_pago' => $kmPago,
                 'km_rodado_viagens' => $kmRodadoViagens,
                 'km_rodado_abastecimento' => $kmRodadoAbastecimento,
-                'dispersao_km' => $dispersaoKm,
+                'dispersao_km_abastecimento' => $dispersaoKmAbastecimento,
+                'dispersao_km_real' => $dispersaoKmReal,
                 'consumo' => $consumo,
                 'meta_consumo' => $metaConsumo,
                 'litros' => $litros,
                 'dias' => $dias,
                 'custo_por_km' => $kmRodadoAbastecimento ? $custoTotal / $kmRodadoAbastecimento : null,
             ],
-            'metas' => $this->getMetas($faturamento, $combustivel, $manutencao, $folhaPagamento, $dispersaoKm, $kmPago),
+            'metas' => $this->getMetas($faturamento, $combustivel, $manutencao, $folhaPagamento, $dispersaoKmAbastecimento, $kmPago),
             'composicaoFinanceira' => $this->getComposicaoFinanceira($faturamento, $combustivel, $manutencao, $folhaPagamento),
-            'comparativoPeriodoAnterior' => $this->getComparativoPeriodoAnterior($record, $faturamento, $resultadoLiquido, $margemLiquida, $consumo, $custoTotal),
+            'comparativoPeriodoAnterior' => $this->getComparativoPeriodoAnterior($record, $faturamento, $resultadoLiquido, $consumo, $custoTotal),
             'manutencoesPorOs' => $this->getManutencoesPorOs($record),
             'custosDiariosManutencao' => $this->getCustosDiariosManutencao($record),
             'servicosOrdensInternas' => $this->getServicosOrdensInternas($record),
@@ -155,7 +157,6 @@ class AnaliseResultadoPeriodo extends Page
         ResultadoPeriodo $record,
         float $faturamentoAtual,
         float $resultadoLiquidoAtual,
-        ?float $margemLiquidaAtual,
         ?float $consumoAtual,
         float $custoTotalAtual,
     ): ?array {
@@ -179,7 +180,6 @@ class AnaliseResultadoPeriodo extends Page
         $manutencaoAnterior = ((float) ($periodoAnterior->manutencao_lancamentos_sum_valor_total_centavos ?? 0)) / 100;
         $folhaPagamentoAnterior = (float) $periodoAnterior->folha_pagamento_centavos;
         $resultadoLiquidoAnterior = $faturamentoAnterior - $combustivelAnterior - $manutencaoAnterior - $folhaPagamentoAnterior;
-        $margemLiquidaAnterior = $faturamentoAnterior > 0 ? ($resultadoLiquidoAnterior / $faturamentoAnterior) * 100 : null;
         $kmRodadoAnterior = $this->getKmRodadoAbastecimento($periodoAnterior);
         $litrosAnterior = (float) ($periodoAnterior->abastecimentos_sum_quantidade ?? 0);
         $consumoAnterior = $kmRodadoAnterior !== null && $litrosAnterior > 0 ? $kmRodadoAnterior / $litrosAnterior : null;
@@ -190,7 +190,6 @@ class AnaliseResultadoPeriodo extends Page
             'indicadores' => [
                 $this->compararIndicador('Faturamento', $faturamentoAtual, $faturamentoAnterior, 'moeda'),
                 $this->compararIndicador('Resultado líquido', $resultadoLiquidoAtual, $resultadoLiquidoAnterior, 'moeda'),
-                $this->compararIndicador('Margem líquida', $margemLiquidaAtual, $margemLiquidaAnterior, 'percentual'),
                 $this->compararIndicador('Custo por KM', $this->custoPorKm($custoTotalAtual, $this->getKmRodadoAbastecimento($record)), $this->custoPorKm($custoTotalAnterior, $kmRodadoAnterior), 'moeda'),
                 $this->compararIndicador('Consumo médio', $consumoAtual, $consumoAnterior, 'consumo'),
             ],

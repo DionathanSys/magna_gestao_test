@@ -83,7 +83,11 @@
         .resultado-comparativo-variation.negative { color: #be123c; }
         .resultado-activity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
         .resultado-activity-card { overflow: hidden; padding: 0; }
-        .resultado-activity-header { display: flex; justify-content: space-between; gap: .75rem; padding: 1.15rem 1.25rem .8rem; }
+        .resultado-activity-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: 1.15rem 1.25rem .8rem; cursor: pointer; list-style: none; }
+        .resultado-activity-header .resultado-card-title, .resultado-activity-header .resultado-card-subtitle { display: block; }
+        .resultado-activity-header::-webkit-details-marker { display: none; }
+        .resultado-activity-header::after { width: .5rem; height: .5rem; border-right: 2px solid #64748b; border-bottom: 2px solid #64748b; content: ''; flex: none; transform: rotate(45deg) translateY(-.15rem); transition: transform .15s ease; }
+        .resultado-activity-card[open] .resultado-activity-header::after { transform: rotate(225deg) translate(-.15rem, -.15rem); }
         .resultado-activity-count { color: #64748b; font-size: .75rem; font-weight: 650; white-space: nowrap; }
         .resultado-list { border-top: 1px solid #f1f5f9; }
         .resultado-list-item { display: grid; gap: .2rem; padding: .8rem 1.25rem; border-bottom: 1px solid #f1f5f9; }
@@ -286,8 +290,8 @@
         </section>
 
         <section class="resultado-activity">
-            <article class="resultado-card resultado-activity-card">
-                <div class="resultado-activity-header"><div><h3 class="resultado-card-title">Gastos por grupo de produto</h3><p class="resultado-card-subtitle">Custos de manutenção que mais impactaram o período.</p></div><span class="resultado-activity-count">{{ $gastosManutencaoPorGrupo->count() }} grupos</span></div>
+            <details class="resultado-card resultado-activity-card">
+                <summary class="resultado-activity-header"><span><span class="resultado-card-title" role="heading" aria-level="3">Gastos por grupo de produto</span><span class="resultado-card-subtitle">Custos de manutenção que mais impactaram o período.</span></span><span class="resultado-activity-count">{{ $gastosManutencaoPorGrupo->count() }} grupos</span></summary>
                 <div class="resultado-list">
                     @forelse ($gastosManutencaoPorGrupo as $gasto)
                         <div class="resultado-list-item"><div class="resultado-list-main"><span>{{ $gasto['grupo'] }}</span><span>R$ {{ number_format($gasto['total'], 2, ',', '.') }}</span></div><div class="resultado-list-detail">{{ $gasto['quantidade_lancamentos'] }} {{ $gasto['quantidade_lancamentos'] === 1 ? 'lançamento' : 'lançamentos' }}</div></div>
@@ -295,9 +299,9 @@
                         <div class="resultado-empty">Nenhum gasto de manutenção vinculado.</div>
                     @endforelse
                 </div>
-            </article>
-            <article class="resultado-card resultado-activity-card">
-                <div class="resultado-activity-header"><div><h3 class="resultado-card-title">Viagens com maior dispersão</h3><p class="resultado-card-subtitle">Maiores KM de dispersão rateados nas cargas da viagem.</p></div><span class="resultado-activity-count">{{ $viagensComDispersao->count() }} viagens</span></div>
+            </details>
+            <details class="resultado-card resultado-activity-card">
+                <summary class="resultado-activity-header"><span><span class="resultado-card-title" role="heading" aria-level="3">Viagens com maior dispersão</span><span class="resultado-card-subtitle">Maiores KM de dispersão rateados nas cargas da viagem.</span></span><span class="resultado-activity-count">{{ $viagensComDispersao->count() }} viagens</span></summary>
                 <div class="resultado-list">
                     @forelse ($viagensComDispersao as $viagem)
                         <div class="resultado-list-item"><div class="resultado-list-main"><span>#{{ $viagem['numero'] }}</span><span>{{ number_format($viagem['dispersao_km'], 2, ',', '.') }} km</span></div><div class="resultado-list-detail">{{ $viagem['data'] }} · {{ number_format($viagem['km_pago'], 0, ',', '.') }} km pagos · {{ number_format($viagem['km_rodado'], 0, ',', '.') }} km rodados{{ $viagem['documento'] ? ' · ' . $viagem['documento'] : '' }}</div></div>
@@ -305,7 +309,7 @@
                         <div class="resultado-empty">Nenhuma viagem com dispersão positiva no período.</div>
                     @endforelse
                 </div>
-            </article>
+            </details>
         </section>
     </div>
 </x-filament-panels::page>

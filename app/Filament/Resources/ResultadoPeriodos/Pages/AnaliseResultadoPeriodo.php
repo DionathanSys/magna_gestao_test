@@ -117,6 +117,8 @@ class AnaliseResultadoPeriodo extends Page
                 'litros' => $litros,
                 'dias' => $dias,
                 'custo_por_km' => $kmRodadoAbastecimento ? $custoTotal / $kmRodadoAbastecimento : null,
+                'custo_por_km_rodado' => $kmRodadoViagens > 0 ? $custoTotal / $kmRodadoViagens : null,
+                'custo_por_km_pago' => $kmPago > 0 ? $custoTotal / $kmPago : null,
             ],
             'metas' => $this->getMetas($faturamento, $combustivel, $manutencao, $folhaPagamento, $dispersaoKmAbastecimento, $kmPago),
             'composicaoFinanceira' => $this->getComposicaoFinanceira($faturamento, $combustivel, $manutencao, $folhaPagamento),

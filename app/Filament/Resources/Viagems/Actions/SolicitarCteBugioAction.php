@@ -18,6 +18,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Enums\Width;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 
 class SolicitarCteBugioAction
 {
@@ -67,7 +68,7 @@ class SolicitarCteBugioAction
                     ->filter()
                     ->first();
 
-                $kmRota = (float) ($integrado?->km_rota ?? $record->km_pago ?? 0);
+                $kmRota = (float) ($integrado?->km_rota ?? 0);
                 $pesoCarga = $record->attachments
                     ->map(fn ($attachment) => $attachment->receivedFiscalDocument?->peso_carga)
                     ->filter()
@@ -93,6 +94,8 @@ class SolicitarCteBugioAction
                     'data_competencia' => $record->data_competencia,
                     'tipo_documento' => TipoDocumentoEnum::CTE->value,
                     'cte_retroativo' => true,
+                    'km_pago' => $record->km_pago,
+                    'km_rodado' => $record->km_rodado,
                     'km_rota' => $kmRota,
                     'valor_frete_preview' => number_format($kmRota * (float) db_config('config-bugio.valor-quilometro', 0), 2, '.', ''),
                     'peso_carga_preview' => $pesoCarga ? number_format((float) $pesoCarga, 3, ',', '.') : 'Não informado',
@@ -116,6 +119,40 @@ class SolicitarCteBugioAction
                             ->readOnly()
                             ->dehydrated(false)
                             ->columnSpanFull(),
+                    ]),
+                Section::make('Quilometragens da Viagem')
+                    ->columns(2)
+                    ->headerActions([
+                        Action::make('atualizar_km_viagem')
+                            ->label('Atualizar KM da viagem')
+                            ->icon('heroicon-o-arrow-path')
+                            ->color('warning')
+                            ->action(function (Viagem $record, Get $get): void {
+                                $quilometragens = Validator::make([
+                                    'km_pago' => $get('km_pago'),
+                                    'km_rodado' => $get('km_rodado'),
+                                ], [
+                                    'km_pago' => ['required', 'numeric', 'min:0'],
+                                    'km_rodado' => ['required', 'numeric', 'min:0'],
+                                ])->validate();
+
+                                $record->update($quilometragens);
+
+                                Notification::make()
+                                    ->success()
+                                    ->title('Quilometragens da viagem atualizadas')
+                                    ->send();
+                            }),
+                    ])
+                    ->schema([
+                        TextInput::make('km_pago')
+                            ->label('KM Pago')
+                            ->numeric()
+                            ->dehydrated(false),
+                        TextInput::make('km_rodado')
+                            ->label('KM Rodado')
+                            ->numeric()
+                            ->dehydrated(false),
                     ]),
                 Section::make('Solicitação')
                     ->columns(6)
@@ -163,7 +200,7 @@ class SolicitarCteBugioAction
                             ->columnSpan(2),
 
                         TextInput::make('km_rota')
-                            ->label('KM da Viagem')
+                            ->label('KM da rota para cálculo do frete')
                             ->numeric()
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (?string $state, Set $set): void {

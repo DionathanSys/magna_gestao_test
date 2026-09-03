@@ -32,4 +32,9 @@ class CteEmailRequest extends Model
     {
         return $this->hasMany(CteEmailRequestMessage::class);
     }
+
+    public function documentosFrete(): HasMany
+    {
+        return $this->hasMany(DocumentoFrete::class, 'cte_email_request_id');
+    }
 }

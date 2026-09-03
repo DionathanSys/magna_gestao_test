@@ -4,6 +4,7 @@ namespace App\Services\Bugio;
 
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Models\CteEmailRequest;
+use App\Models\DocumentoFrete;
 use App\Models\IncomingEmailAttachment;
 use App\Services\DocumentoFrete\DocumentoFreteService;
 use Illuminate\Support\Facades\Log;
@@ -66,7 +67,11 @@ class CteReturnDocumentService
                 'numero_documento' => $documentoFrete['numero_documento'],
             ]);
 
-            (new DocumentoFreteService)->criarDocumentoFrete($documentoFrete);
+            $createdDocument = (new DocumentoFreteService)->criarDocumentoFrete($documentoFrete);
+
+            if ($createdDocument instanceof DocumentoFrete) {
+                $createdDocument->update(['cte_email_request_id' => $request->id]);
+            }
 
             $attachment->update([
                 'status' => 'processed',

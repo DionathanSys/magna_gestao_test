@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CteEmailRequests;
 
 use App\Filament\Resources\CteEmailRequests\Pages\ListCteEmailRequests;
 use App\Filament\Resources\CteEmailRequests\Pages\ViewCteEmailRequest;
+use App\Filament\Resources\CteEmailRequests\RelationManagers\DocumentosFreteRelationManager;
 use App\Filament\Resources\CteEmailRequests\RelationManagers\MessagesRelationManager;
 use App\Filament\Resources\CteEmailRequests\Schemas\CteEmailRequestInfolist;
 use App\Filament\Resources\CteEmailRequests\Tables\CteEmailRequestsTable;
@@ -53,6 +54,7 @@ class CteEmailRequestResource extends Resource
     public static function getRelations(): array
     {
         return [
+            DocumentosFreteRelationManager::class,
             MessagesRelationManager::class,
         ];
     }

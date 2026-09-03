@@ -23,6 +23,17 @@ class CteEmailRequestInfolist
                         TextEntry::make('viagem.veiculo.placa')->label('Placa')->placeholder('-'),
                         TextEntry::make('integrado.nome')->label('Integrado')->placeholder('-'),
                         TextEntry::make('created_by')->label('Criado por')->placeholder('-'),
+                        TextEntry::make('correlation_code')->label('Codigo de correlacao')->copyable()->placeholder('-'),
+                        TextEntry::make('outbound_message_id')->label('Message-ID enviado')->copyable()->placeholder('-'),
+                    ]),
+                Section::make('NF-es vinculadas')
+                    ->description('Chaves usadas para reconhecer o retorno XML do CTe.')
+                    ->schema([
+                        TextEntry::make('nfe_keys')
+                            ->label('Chaves de acesso esperadas')
+                            ->state(fn ($record): array => $record->nfe_keys ?? [])
+                            ->listWithLineBreaks()
+                            ->placeholder('Solicitacao historica sem chaves cadastradas.'),
                     ]),
                 Section::make('Disparo')
                     ->columns(2)

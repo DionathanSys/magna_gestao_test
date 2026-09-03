@@ -29,6 +29,11 @@ class DocumentoFrete extends Model
         return $this->belongsTo(Viagem::class, 'viagem_id', 'id');
     }
 
+    public function cteEmailRequest(): BelongsTo
+    {
+        return $this->belongsTo(CteEmailRequest::class);
+    }
+
     /**
      * Relação com o modelo ResultadoPeriodo
      */

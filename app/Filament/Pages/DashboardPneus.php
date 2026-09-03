@@ -9,6 +9,7 @@ use App\Models\Pneu;
 use App\Models\Veiculo;
 use App\Services\Pneus\RelatorioInspecoesPneusPdfService;
 use App\Services\Pneus\RelatorioMovimentacoesPneusPdfService;
+use App\Services\Pneus\RelatorioPrimeirasAplicacoesPneusPdfService;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -130,6 +131,47 @@ class DashboardPneus extends BaseDashboard
                     if ($movimentacoes->isEmpty()) {
                         Notification::make()
                             ->title('Nenhuma movimentação encontrada para o período informado.')
+                            ->warning()
+                            ->send();
+
+                        return null;
+                    }
+
+                    return $service->gerarPdf($data['data_inicial'], $data['data_final']);
+                }),
+            Action::make('relatorioPrimeirasAplicacoesPneusPdf')
+                ->label('Primeiras aplicações por ciclo')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('danger')
+                ->form([
+                    DatePicker::make('data_inicial')
+                        ->label('Data inicial')
+                        ->default(now()->startOfMonth())
+                        ->maxDate(now())
+                        ->required(),
+                    DatePicker::make('data_final')
+                        ->label('Data final')
+                        ->default(now())
+                        ->maxDate(now())
+                        ->required(),
+                ])
+                ->modalDescription('Gera um PDF com pneus cuja primeira aplicação de cada ciclo ocorreu no período informado.')
+                ->action(function (array $data) {
+                    if ($data['data_final'] < $data['data_inicial']) {
+                        Notification::make()
+                            ->title('A data final não pode ser menor que a data inicial.')
+                            ->warning()
+                            ->send();
+
+                        return null;
+                    }
+
+                    $service = app(RelatorioPrimeirasAplicacoesPneusPdfService::class);
+                    $aplicacoes = $service->getPrimeirasAplicacoes($data['data_inicial'], $data['data_final']);
+
+                    if ($aplicacoes->isEmpty()) {
+                        Notification::make()
+                            ->title('Nenhuma primeira aplicação de ciclo foi encontrada para o período informado.')
                             ->warning()
                             ->send();
 

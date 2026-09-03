@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CteEmailRequests\Schemas;
 
+use App\Models\CteEmailRequest;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -52,6 +53,23 @@ class CteEmailRequestInfolist
                     ->schema([
                         TextEntry::make('last_response_at')->label('Ultima resposta em')->dateTime('d/m/Y H:i:s')->placeholder('-'),
                         TextEntry::make('completed_at')->label('Concluido em')->dateTime('d/m/Y H:i:s')->placeholder('-'),
+                        TextEntry::make('returned_cte_keys')
+                            ->label('Chave CTe retornada')
+                            ->state(function (CteEmailRequest $record): ?string {
+                                $record->loadMissing('messages.incomingEmail.attachments');
+
+                                $keys = $record->messages
+                                    ->flatMap(fn ($message) => $message->incomingEmail?->attachments ?? [])
+                                    ->map(fn ($attachment): ?string => $attachment->metadata['chave_cte'] ?? null)
+                                    ->filter()
+                                    ->unique()
+                                    ->values();
+
+                                return $keys->isNotEmpty() ? $keys->implode("\n") : null;
+                            })
+                            ->copyable()
+                            ->columnSpanFull()
+                            ->placeholder('Nenhuma chave de CTe foi extraida do retorno.'),
                     ]),
                 Section::make('Payload')
                     ->schema([

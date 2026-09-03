@@ -43,6 +43,12 @@ class CteXmlParser
 
         return [
             'chave_cte' => str_replace('CTe', '', (string) ($infCte['Id'] ?? '')) ?: null,
+            'referenced_nfe_keys' => collect($this->allNodes($xml, ['//cte:infDoc/cte:infNFe/cte:chave', '//infDoc/infNFe/chave']))
+                ->map(fn (SimpleXMLElement $node): string => preg_replace('/\D/', '', (string) $node) ?? '')
+                ->filter(fn (string $nfeKey): bool => strlen($nfeKey) === 44)
+                ->unique()
+                ->values()
+                ->all(),
             'numero_cte' => $this->value($xml, ['//cte:ide/cte:nCT', '//ide/nCT']),
             'serie' => $this->value($xml, ['//cte:ide/cte:serie', '//ide/serie']),
             'emitido_em' => ($date = $this->value($xml, ['//cte:ide/cte:dhEmi', '//ide/dhEmi'])) ? Carbon::parse($date) : null,
@@ -87,5 +93,21 @@ class CteXmlParser
         }
 
         return null;
+    }
+
+    /**
+     * @return array<int, SimpleXMLElement>
+     */
+    protected function allNodes(SimpleXMLElement $xml, array $paths): array
+    {
+        foreach ($paths as $path) {
+            $result = $xml->xpath($path);
+
+            if (is_array($result) && $result !== []) {
+                return $result;
+            }
+        }
+
+        return [];
     }
 }

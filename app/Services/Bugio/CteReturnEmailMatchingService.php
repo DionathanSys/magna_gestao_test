@@ -10,6 +10,7 @@ class CteReturnEmailMatchingService
     public function __construct(
         protected CteReturnConfig $config,
         protected CteEmailRequestService $requestService,
+        protected CteXmlParser $parser,
     ) {}
 
     public function match(IncomingEmail $incomingEmail): ?CteEmailRequest
@@ -28,6 +29,12 @@ class CteReturnEmailMatchingService
 
         if ($match) {
             return $match;
+        }
+
+        $nfeKeys = $this->referencedNfeKeys($incomingEmail);
+
+        if ($nfeKeys !== []) {
+            return $this->matchByReferencedNfeKeys($nfeKeys);
         }
 
         return $this->matchBySubject($incomingEmail);
@@ -97,6 +104,42 @@ class CteReturnEmailMatchingService
             'request' => $request,
             'matched_by' => 'documento_transporte_subject',
         ];
+    }
+
+    /**
+     * @param  array<int, string>  $nfeKeys
+     */
+    protected function matchByReferencedNfeKeys(array $nfeKeys): ?array
+    {
+        $request = $this->requestService->findSingleOpenByNfeKeys($nfeKeys);
+
+        if (! $request) {
+            return null;
+        }
+
+        return [
+            'request' => $request,
+            'matched_by' => 'referenced_nfe_keys_xml',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function referencedNfeKeys(IncomingEmail $incomingEmail): array
+    {
+        return $incomingEmail->attachments
+            ->where('kind', 'xml')
+            ->flatMap(function ($attachment): array {
+                try {
+                    return $this->parser->parse($attachment->disk, $attachment->path)['referenced_nfe_keys'] ?? [];
+                } catch (\Throwable) {
+                    return [];
+                }
+            })
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

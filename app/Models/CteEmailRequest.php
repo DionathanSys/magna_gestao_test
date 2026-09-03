@@ -15,6 +15,7 @@ class CteEmailRequest extends Model
         'last_response_at' => 'datetime',
         'completed_at' => 'datetime',
         'payload' => 'array',
+        'nfe_keys' => 'array',
     ];
 
     public function viagem(): BelongsTo

@@ -96,6 +96,7 @@ class SolicitarCteBugioFromViagem
             'veiculo' => $veiculo->placa,
             'created_by' => Auth::id() ?? $viagem->created_by,
             'nro_notas' => $nroNotas,
+            'nfe_keys' => $this->nfeKeys($fiscalDocuments),
             'cte_retroativo' => (bool) ($data['cte_retroativo'] ?? true),
             'cte_complementar' => $tipoDocumento === TipoDocumentoEnum::CTE_COMPLEMENTO->value,
             'cte_referencia' => $data['cte_referencia'] ?? null,
@@ -248,6 +249,7 @@ class SolicitarCteBugioFromViagem
             'veiculo' => $veiculo->placa,
             'created_by' => Auth::id() ?? $viagemReferencia->created_by,
             'nro_notas' => $nroNotas,
+            'nfe_keys' => $this->nfeKeys($fiscalDocuments),
             'cte_retroativo' => (bool) ($data['cte_retroativo'] ?? true),
             'cte_complementar' => $tipoDocumento === TipoDocumentoEnum::CTE_COMPLEMENTO->value,
             'cte_referencia' => $data['cte_referencia'] ?? null,
@@ -327,5 +329,19 @@ class SolicitarCteBugioFromViagem
         return $documentoTransporte !== trim((string) $viagem->numero_viagem)
             ? $documentoTransporte
             : null;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function nfeKeys(Collection $fiscalDocuments): array
+    {
+        return $fiscalDocuments
+            ->pluck('chave_nfe')
+            ->map(fn (mixed $nfeKey): string => preg_replace('/\D/', '', (string) $nfeKey) ?? '')
+            ->filter(fn (string $nfeKey): bool => strlen($nfeKey) === 44)
+            ->unique()
+            ->values()
+            ->all();
     }
 }

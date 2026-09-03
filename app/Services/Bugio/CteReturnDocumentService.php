@@ -76,6 +76,8 @@ class CteReturnDocumentService
                     'tipo_documento' => $documentoFrete['tipo_documento']->value,
                     'documento_transporte' => $request->documento_transporte,
                     'numero_documento' => $documentoFrete['numero_documento'],
+                    'chave_cte' => $parsed['chave_cte'],
+                    'referenced_nfe_keys' => $parsed['referenced_nfe_keys'],
                     'processed_at' => now()->toISOString(),
                 ],
             ]);

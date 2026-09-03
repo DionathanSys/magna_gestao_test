@@ -35,6 +35,7 @@ class CteEmailRequestService
             'scheduled_at' => $scheduledAt,
             'created_by' => $payload->userId,
             'payload' => $rawPayload,
+            'nfe_keys' => $this->normalizeNfeKeys($rawPayload['nfe_keys'] ?? []),
         ]);
     }
 
@@ -129,6 +130,29 @@ class CteEmailRequestService
             })
             ->latest('id')
             ->first();
+    }
+
+    /**
+     * Returns a request only when the NF-e keys identify one open request.
+     *
+     * @param  array<int, string>  $nfeKeys
+     */
+    public function findSingleOpenByNfeKeys(array $nfeKeys): ?CteEmailRequest
+    {
+        $nfeKeys = $this->normalizeNfeKeys($nfeKeys);
+
+        if ($nfeKeys === []) {
+            return null;
+        }
+
+        $requests = CteEmailRequest::query()
+            ->whereIn('status', $this->openStatuses())
+            ->whereNotNull('nfe_keys')
+            ->get()
+            ->filter(fn (CteEmailRequest $request): bool => array_intersect($request->nfe_keys ?? [], $nfeKeys) !== [])
+            ->values();
+
+        return $requests->count() === 1 ? $requests->first() : null;
     }
 
     public function registerInboundMessage(CteEmailRequest $request, IncomingEmail $incomingEmail, string $matchedBy): CteEmailRequestMessage
@@ -250,5 +274,19 @@ class CteEmailRequestService
         }
 
         return trim($messageId, "<> \t\n\r\0\x0B");
+    }
+
+    /**
+     * @param  array<int, mixed>  $nfeKeys
+     * @return array<int, string>
+     */
+    protected function normalizeNfeKeys(array $nfeKeys): array
+    {
+        return collect($nfeKeys)
+            ->map(fn (mixed $nfeKey): string => preg_replace('/\D/', '', (string) $nfeKey) ?? '')
+            ->filter(fn (string $nfeKey): bool => strlen($nfeKey) === 44)
+            ->unique()
+            ->values()
+            ->all();
     }
 }

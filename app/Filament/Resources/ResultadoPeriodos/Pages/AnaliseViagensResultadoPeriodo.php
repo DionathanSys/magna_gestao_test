@@ -20,7 +20,7 @@ class AnaliseViagensResultadoPeriodo extends AnaliseResultadoPeriodo implements 
     public function table(Table $table): Table
     {
         return ViagemResource::table($table)
-            ->query($this->getRecord()->viagens());
+            ->query($this->getRecord()->viagens()->getQuery());
     }
 
     public function getViewData(): array

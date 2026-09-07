@@ -12,6 +12,8 @@
         .resultado-hero { display: flex; justify-content: space-between; gap: 1.5rem; padding: 1.5rem; border: 1px solid #dbe5f1; border-radius: 1.25rem; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 58%, #ecfdf5 100%); }
         .resultado-eyebrow { margin: 0 0 .35rem; color: #475569; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
         .resultado-hero h2 { margin: 0; font-size: 1.75rem; font-weight: 750; letter-spacing: -.035em; }
+        .resultado-vehicle-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: .55rem; }
+        .resultado-last-fuel-km { color: #64748b; font-size: .8rem; font-weight: 650; letter-spacing: 0; white-space: nowrap; }
         .resultado-hero p { margin: .4rem 0 0; color: #64748b; font-size: .9rem; }
         .resultado-hero-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; align-content: flex-start; gap: .6rem; }
         .resultado-chip { display: inline-flex; align-items: center; min-height: 2rem; padding: 0 .7rem; border-radius: 999px; background: rgba(255, 255, 255, .78); border: 1px solid #dbe5f1; color: #334155; font-size: .8rem; font-weight: 650; }
@@ -108,6 +110,7 @@
         .dark .resultado-analise { color: #e2e8f0; }
         .dark .resultado-hero { border-color: rgba(148, 163, 184, .2); background: linear-gradient(135deg, rgba(30, 58, 138, .25), rgba(15, 23, 42, .9) 55%, rgba(6, 78, 59, .25)); }
         .dark .resultado-hero h2, .dark .resultado-kpi-value, .dark .resultado-card-title, .dark .resultado-financial-value, .dark .resultado-op-value { color: #f8fafc; }
+        .dark .resultado-last-fuel-km { color: #94a3b8; }
         .dark .resultado-eyebrow, .dark .resultado-hero p, .dark .resultado-chip, .dark .resultado-kpi-label, .dark .resultado-card-subtitle, .dark .resultado-financial-label, .dark .resultado-op-label, .dark .resultado-activity-count { color: #94a3b8; }
         .dark .resultado-chip, .dark .resultado-kpi, .dark .resultado-card { border-color: rgba(148, 163, 184, .18); background: #111827; }
         .dark .resultado-chip.open { border-color: rgba(74, 222, 128, .35); background: rgba(22, 163, 74, .15); color: #86efac; }
@@ -136,7 +139,12 @@
         <section class="resultado-hero">
             <div>
                 <div class="resultado-eyebrow">Resultado do veículo</div>
-                <h2>{{ $veiculo?->placa ?? 'Veículo não identificado' }}</h2>
+                <div class="resultado-vehicle-title">
+                    <h2>{{ $veiculo?->placa ?? 'Veículo não identificado' }}</h2>
+                    @if ($record->abastecimentoFinal?->quilometragem !== null)
+                        <span class="resultado-last-fuel-km" title="Quilometragem do último abastecimento vinculado ao período">{{ number_format($record->abastecimentoFinal->quilometragem, 0, ',', '.') }} km</span>
+                    @endif
+                </div>
                 <p>{{ $veiculo?->tipoVeiculo?->descricao ?: 'Tipo de veículo não informado' }}</p>
             </div>
             <div class="resultado-hero-meta">

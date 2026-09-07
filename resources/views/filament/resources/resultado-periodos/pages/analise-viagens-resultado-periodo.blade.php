@@ -1,6 +1,7 @@
 <x-filament-panels::page>
     <style>
         .operacao-analise { display: grid; gap: 1.25rem; color: #0f172a; }
+        .operacao-analise > .fi-ta { min-width: 0; }
         .operacao-tabs { display: flex; gap: .5rem; overflow-x: auto; border-bottom: 1px solid #e2e8f0; }
         .operacao-tab { flex: 0 0 auto; padding: .7rem .9rem; border-bottom: 2px solid transparent; color: #64748b; font-size: .82rem; font-weight: 700; text-decoration: none; }
         .operacao-tab.active { border-color: #0f766e; color: #0f766e; }

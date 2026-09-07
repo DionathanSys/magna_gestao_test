@@ -71,47 +71,64 @@ class ResultadoPeriodosTable
                     ->width('1%')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => $state === StatusDiversosEnum::PENDENTE->value ? 'warning' : 'success'),
+                TextColumn::make('diagnostico')
+                    ->label('Diagnóstico')
+                    ->state(fn (Models\ResultadoPeriodo $record): string => self::diagnostico($record)['label'])
+                    ->badge()
+                    ->color(fn (Models\ResultadoPeriodo $record): string => self::diagnostico($record)['color'])
+                    ->tooltip(fn (Models\ResultadoPeriodo $record): string => self::diagnostico($record)['tooltip']),
                 TextColumn::make('resultado_liquido')
                     ->label('Resultado Líquido')
                     ->width('1%')
                     ->money('BRL', 100)
-                    ->description(fn (Models\ResultadoPeriodo $record): string => $record->documentos_sum_valor_liquido > 0
-                        ? 'Margem '.number_format(($record->resultado_liquido / $record->documentos_sum_valor_liquido) * 100, 1, ',', '.').' %'
+                    ->description(fn (Models\ResultadoPeriodo $record): string => $record->margem_liquida !== null
+                        ? 'Margem '.number_format($record->margem_liquida, 1, ',', '.').' %'
                         : 'Margem indisponível')
                     ->color(fn (float $state): string => $state < 0 ? 'danger' : 'success')
                     ->tooltip('Faturamento menos combustível, manutenção e folha de pagamento.'),
                 TextColumn::make('custo_por_km')
                     ->label('Custo / KM')
                     ->width('1%')
-                    ->state(function (Models\ResultadoPeriodo $record): ?float {
-                        $kmRodado = $record->km_rodado_abastecimento;
-
-                        if ($kmRodado <= 0) {
-                            return null;
-                        }
-
-                        $custos = ($record->abastecimentos_sum_preco_total ?? 0)
-                            + ($record->manutencao_lancamentos_sum_valor_total_centavos ?? 0);
-
-                        return ($custos / 100 + (float) $record->folha_pagamento_centavos) / $kmRodado;
-                    })
                     ->formatStateUsing(fn (?float $state): string => $state === null ? 'N/D' : 'R$ '.number_format($state, 2, ',', '.'))
-                    ->description('Combustível, manutenção e folha')
-                    ->tooltip('Custo total do período dividido pelo KM rodado apurado nos abastecimentos.'),
+                    ->tooltip('Combustível, manutenção e folha divididos pelo KM rodado apurado nos abastecimentos.'),
                 ColumnGroup::make('KM', [
                     TextColumn::make('km_rodado_abastecimento')
-                        ->label('Km Rodado')
+                        ->label('KM Abastecimentos')
                         ->width('1%')
-                        ->numeric(0, ',', '.'),
+                        ->numeric(0, ',', '.')
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('km_pago')
                         ->label('KM Pago')
                         ->width('1%')
                         ->numeric(0, ',', '.')
-                        ->sum('viagens', 'km_pago'),
+                        ->sum('viagens', 'km_pago')
+                        ->toggleable(isToggledHiddenByDefault: true),
+                    TextColumn::make('reconciliacao_km')
+                        ->label('Reconciliação KM')
+                        ->state(fn (Models\ResultadoPeriodo $record): string => self::reconciliacaoKm($record))
+                        ->html()
+                        ->tooltip(fn (Models\ResultadoPeriodo $record): string => self::reconciliacaoKmTooltip($record)),
                     TextColumn::make('dispersao_km')
-                        ->label('Dispersão KM')
+                        ->label('Dispersão KM Abast.')
                         ->width('1%')
-                        ->numeric(0, ',', '.'),
+                        ->numeric(0, ',', '.')
+                        ->description(fn (Models\ResultadoPeriodo $record): string => $record->percentual_dispersao_km_abastecimento !== null
+                            ? number_format($record->percentual_dispersao_km_abastecimento, 2, ',', '.').'% do KM pago'
+                            : 'Percentual indisponível')
+                        ->tooltip('KM rodado apurado nos abastecimentos menos o KM pago.')
+                        ->toggleable(isToggledHiddenByDefault: true),
+                    TextColumn::make('dispersao_km_real')
+                        ->label('Dispersão KM Viagens')
+                        ->width('1%')
+                        ->numeric(0, ',', '.')
+                        ->description(fn (Models\ResultadoPeriodo $record): string => $record->percentual_dispersao_km_real !== null
+                            ? number_format($record->percentual_dispersao_km_real, 2, ',', '.').'% do KM pago'
+                            : 'Percentual indisponível')
+                        ->tooltip('KM rodado registrado nas viagens menos o KM pago.')
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('km_rodado_viagens')
                         ->label('KM Rodado Viagem')
                         ->width('1%')
@@ -119,11 +136,12 @@ class ResultadoPeriodosTable
                         ->numeric(0, ',', '.')
                         ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
                         ->tooltip(fn (): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.')
-                        ->toggleable(isToggledHiddenByDefault: false),
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('media_km_pago_viagem')
                         ->label('Viagens')
                         ->width('1%')
-                        ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens"),
+                        ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->quantidade_viagens} Viagens")
+                        ->toggleable(isToggledHiddenByDefault: true),
                 ]),
                 ColumnGroup::make('Faturamento', [
                     TextColumn::make('documentos_sum_valor_liquido')
@@ -133,34 +151,39 @@ class ResultadoPeriodosTable
                         ->description(fn (Models\ResultadoPeriodo $record): string => $record->documentos_count.' documento(s)'.($record->variacao_faturamento_mes_anterior ? ' | '.$record->variacao_faturamento_mes_anterior : ''))
                         ->sum('documentos', 'valor_liquido'),
                     TextColumn::make('faturamento_por_km_rodado')
-                        ->label('Fat/Km Rodado')
+                        ->label('Fat/KM Abast.')
                         ->width('1%')
                         ->money('BRL', 100)
                         ->description('R$/Km')
-                        ->tooltip('Faturamento dividido pelo KM Rodado (abastecimentos)'),
+                        ->tooltip('Faturamento dividido pelo KM rodado apurado nos abastecimentos.')
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('faturamento_por_km_pago')
                         ->label('Fat/Km Pago')
                         ->width('1%')
                         ->money('BRL', 100)
                         ->description('R$/Km')
-                        ->tooltip('Faturamento dividido pelo KM Pago (viagens)'),
+                        ->tooltip('Faturamento dividido pelo KM pago nas viagens.')
+                        ->toggleable(isToggledHiddenByDefault: true),
                 ]),
                 ColumnGroup::make('Manutenção', [
                     TextColumn::make('manutencao_lancamentos_sum_valor_total_centavos')
                         ->label('Manutenção')
                         ->width('1%')
                         ->money('BRL', 100)
+                        ->description(fn (Models\ResultadoPeriodo $record): string => $record->documentos_sum_valor_liquido > 0
+                            ? number_format($record->percentual_manutencao_faturamento, 1, ',', '.').'% do faturamento'
+                            : 'Sem faturamento')
                         ->sum('manutencaoLancamentos', 'valor_total_centavos'),
                     TextColumn::make('percentual_manutencao_faturamento')
                         ->label('% Manut/Fat')
                         ->width('1%')
                         ->formatStateUsing(fn (float $state): string => number_format($state, 2, ',', '.').'%')
                         ->color(fn (float $state): string => match (true) {
-                            $state > 10 => 'danger',
-                            $state > 8 => 'warning',
+                            $state > 6.5 => 'danger',
                             default => 'success'
                         })
-                        ->tooltip('Percentual de Manutenção sobre o Faturamento'),
+                        ->tooltip('Meta máxima: 6,5% do faturamento.')
+                        ->toggleable(isToggledHiddenByDefault: true),
                 ]),
                 ColumnGroup::make('Custos', [
                     TextColumn::make('abastecimentos_sum_preco_total')
@@ -177,13 +200,14 @@ class ResultadoPeriodosTable
                         ->money('BRL')
                         ->description(fn (Models\ResultadoPeriodo $record): string => $record->documentos_sum_valor_liquido > 0
                             ? number_format(((float) $record->folha_pagamento_centavos / ($record->documentos_sum_valor_liquido / 100)) * 100, 1, ',', '.').'% do faturamento'
-                            : 'Sem faturamento'),
+                            : 'Sem faturamento')
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('preco_medio_combustivel')
                         ->label('Preço Médio Combustível')
                         ->wrapHeader()
                         ->width('1%')
                         ->money('BRL')
-                        ->toggleable(isToggledHiddenByDefault: false),
+                        ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('consumo_medio_combustivel')
                         ->label('Consumo Médio Combustível')
                         ->wrapHeader()
@@ -232,8 +256,6 @@ class ResultadoPeriodosTable
                 Group::make('data_inicio')
                     ->label('Data Início'),
                 Group::make('veiculo.placa')
-                    ->label('Veículo'),
-                Group::make('veiculo.modelo')
                     ->label('Veículo'),
                 Group::make('tipoVeiculo.descricao')
                     ->label('Tipo Veículo'),
@@ -312,5 +334,117 @@ class ResultadoPeriodosTable
                         }),
                 ]),
             ]);
+    }
+
+    private static function reconciliacaoKm(Models\ResultadoPeriodo $record): string
+    {
+        $formatarKm = fn (?float $valor): string => $valor === null ? 'N/D' : number_format($valor, 0, ',', '.').' km';
+        $formatarDiferenca = fn (?float $valor): string => $valor === null
+            ? 'N/D'
+            : ($valor > 0 ? '+' : '').number_format($valor, 0, ',', '.').' km';
+        $formatarPercentual = fn (?float $valor): string => $valor === null
+            ? 'N/D'
+            : ($valor > 0 ? '+' : '').number_format($valor, 2, ',', '.').'%';
+
+        return sprintf(
+            '<span>Viagens: %s (%s)</span><br><span>Abastec.: %s (%s)</span><br><span>Fontes: %s</span>',
+            $formatarDiferenca($record->dispersao_km_real),
+            $formatarPercentual($record->percentual_dispersao_km_real),
+            $formatarDiferenca($record->dispersao_km),
+            $formatarPercentual($record->percentual_dispersao_km_abastecimento),
+            $formatarDiferenca($record->dispersao_km_abastecimento_km_viagem),
+        );
+    }
+
+    private static function reconciliacaoKmTooltip(Models\ResultadoPeriodo $record): string
+    {
+        $formatarKm = fn (?float $valor): string => $valor === null ? 'N/D' : number_format($valor, 0, ',', '.').' km';
+
+        return implode(PHP_EOL, [
+            'KM pago: '.$formatarKm($record->km_pago),
+            'KM rodado nas viagens: '.$formatarKm($record->km_rodado_viagens),
+            'KM rodado nos abastecimentos: '.$formatarKm($record->km_rodado_abastecimento),
+            'Viagens vinculadas: '.$record->viagens_count,
+            'Abastecimentos vinculados: '.$record->abastecimentos_count,
+        ]);
+    }
+
+    private static function diagnostico(Models\ResultadoPeriodo $record): array
+    {
+        if ($record->km_rodado_abastecimento === null) {
+            return [
+                'label' => 'Dados incompletos',
+                'color' => 'gray',
+                'tooltip' => 'Não há abastecimento inicial ou final suficiente para apurar KM, consumo, custo por KM e dispersão por abastecimentos.',
+            ];
+        }
+
+        $criticos = [];
+        $atencoes = [];
+        $metaConsumo = $record->veiculo?->tipoVeiculo?->meta_media;
+        $consumo = $record->consumo_medio_combustivel;
+        $percentualCombustivel = ($record->documentos_sum_valor_liquido ?? 0) > 0
+            ? (($record->abastecimentos_sum_preco_total ?? 0) / $record->documentos_sum_valor_liquido) * 100
+            : null;
+        $percentualFolha = ($record->documentos_sum_valor_liquido ?? 0) > 0
+            ? ((float) $record->folha_pagamento_centavos / ($record->documentos_sum_valor_liquido / 100)) * 100
+            : null;
+
+        if ($record->resultado_liquido < 0) {
+            $criticos[] = 'resultado líquido negativo';
+        }
+
+        $maiorDispersao = max(
+            abs($record->percentual_dispersao_km_real ?? 0),
+            abs($record->percentual_dispersao_km_abastecimento ?? 0),
+        );
+
+        if ($maiorDispersao > 5) {
+            $criticos[] = 'dispersão de KM acima de 5%';
+        } elseif ($maiorDispersao > 2) {
+            $atencoes[] = 'dispersão de KM acima da meta de 2%';
+        }
+
+        if ($metaConsumo && $consumo !== null) {
+            if ($consumo < $metaConsumo * 0.85) {
+                $criticos[] = 'consumo mais de 15% abaixo da meta';
+            } elseif ($consumo < $metaConsumo) {
+                $atencoes[] = 'consumo abaixo da meta';
+            }
+        }
+
+        if ($percentualCombustivel !== null && $percentualCombustivel > 33) {
+            $atencoes[] = 'combustível acima de 33% do faturamento';
+        }
+
+        if ($record->percentual_manutencao_faturamento > 6.5) {
+            $atencoes[] = 'manutenção acima de 6,5% do faturamento';
+        }
+
+        if ($percentualFolha !== null && $percentualFolha > 15.5) {
+            $atencoes[] = 'folha acima de 15,5% do faturamento';
+        }
+
+        if ($criticos !== []) {
+            return [
+                'label' => 'Crítico',
+                'color' => 'danger',
+                'tooltip' => implode('; ', $criticos),
+            ];
+        }
+
+        if ($atencoes !== []) {
+            return [
+                'label' => 'Atenção',
+                'color' => 'warning',
+                'tooltip' => implode('; ', $atencoes),
+            ];
+        }
+
+        return [
+            'label' => 'Dentro das metas',
+            'color' => 'success',
+            'tooltip' => 'Resultado, consumo, dispersão e composição de custos dentro das metas monitoradas.',
+        ];
     }
 }

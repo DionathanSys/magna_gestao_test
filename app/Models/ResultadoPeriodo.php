@@ -21,7 +21,12 @@ class ResultadoPeriodo extends Model
         'km_rodado_abastecimento',
         'km_pago',
         'dispersao_km',
+        'dispersao_km_real',
         'dispersao_km_abastecimento_km_viagem',
+        'percentual_dispersao_km_abastecimento',
+        'percentual_dispersao_km_real',
+        'margem_liquida',
+        'custo_por_km',
         'quantidade_viagens',
         'media_km_pago_viagem',
         'resultado_liquido',
@@ -188,11 +193,11 @@ class ResultadoPeriodo extends Model
     protected function kmRodadoAbastecimento(): Attribute
     {
         return Attribute::make(
-            get: function (): int {
-                $kmFinal = $this->abastecimentoFinal?->quilometragem ?? 0;
-                $kmInicial = $this->abastecimentoInicial?->ultimo_abastecimento_anterior?->quilometragem ?? 0;
+            get: function (): ?int {
+                $kmFinal = $this->abastecimentoFinal?->quilometragem;
+                $kmInicial = $this->abastecimentoInicial?->ultimo_abastecimento_anterior?->quilometragem;
 
-                return $kmFinal - $kmInicial;
+                return $kmFinal === null || $kmInicial === null ? null : max(0, $kmFinal - $kmInicial);
             }
         );
     }
@@ -200,21 +205,25 @@ class ResultadoPeriodo extends Model
     protected function quantidadeLitrosCombustivel(): Attribute
     {
         return Attribute::make(
-            get: fn (): float => (float) ($this->abastecimentos->sum('quantidade') ?? 0)
+            get: fn (): float => (float) ($this->abastecimentos_sum_quantidade ?? $this->abastecimentos->sum('quantidade'))
         );
     }
 
     protected function precoMedioCombustivel(): Attribute
     {
         return Attribute::make(
-            get: fn (): float => $this->quantidade_litros_combustivel > 0 ? round($this->abastecimentos->sum('preco_total') / $this->quantidade_litros_combustivel, 4) : 0
+            get: fn (): float => $this->quantidade_litros_combustivel > 0
+                ? round((($this->abastecimentos_sum_preco_total ?? $this->abastecimentos->sum('preco_total') * 100) / 100) / $this->quantidade_litros_combustivel, 4)
+                : 0
         );
     }
 
     protected function consumoMedioCombustivel(): Attribute
     {
         return Attribute::make(
-            get: fn (): float => $this->quantidade_litros_combustivel > 0 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2) : 0
+            get: fn (): ?float => $this->quantidade_litros_combustivel > 0 && $this->km_rodado_abastecimento !== null
+                ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2)
+                : null
         );
     }
 
@@ -272,14 +281,37 @@ class ResultadoPeriodo extends Model
     protected function dispersaoKm(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->km_rodado_abastecimento - ($this->km_pago ?? 0)
+            get: fn (): ?float => $this->km_rodado_abastecimento === null ? null : $this->km_rodado_abastecimento - $this->km_pago
+        );
+    }
+
+    protected function dispersaoKmReal(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): int => $this->km_rodado_viagens - $this->km_pago
         );
     }
 
     protected function dispersaoKmAbastecimentoKmViagem(): Attribute
     {
         return Attribute::make(
-            get: fn (): int => ($this->km_rodado_viagens ?? 0) - ($this->km_rodado_abastecimento ?? 0)
+            get: fn (): ?float => $this->km_rodado_abastecimento === null ? null : $this->km_rodado_viagens - $this->km_rodado_abastecimento
+        );
+    }
+
+    protected function percentualDispersaoKmAbastecimento(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?float => $this->km_pago > 0 && $this->dispersao_km !== null
+                ? ($this->dispersao_km / $this->km_pago) * 100
+                : null
+        );
+    }
+
+    protected function percentualDispersaoKmReal(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?float => $this->km_pago > 0 ? ($this->dispersao_km_real / $this->km_pago) * 100 : null
         );
     }
 
@@ -299,7 +331,7 @@ class ResultadoPeriodo extends Model
 
     /**
      * Accessor: Resultado Líquido
-     * Faturamento - Combustível - Manutenção
+     * Faturamento - Combustível - Manutenção - Folha
      */
     protected function resultadoLiquido(): Attribute
     {
@@ -351,6 +383,31 @@ class ResultadoPeriodo extends Model
                 }
 
                 return $faturamento / $kmPago;
+            }
+        );
+    }
+
+    protected function margemLiquida(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?float => ($this->documentos_sum_valor_liquido ?? 0) > 0
+                ? ($this->resultado_liquido / $this->documentos_sum_valor_liquido) * 100
+                : null
+        );
+    }
+
+    protected function custoPorKm(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?float {
+                if ($this->km_rodado_abastecimento === null || $this->km_rodado_abastecimento <= 0) {
+                    return null;
+                }
+
+                $custos = ($this->abastecimentos_sum_preco_total ?? 0)
+                    + ($this->manutencao_lancamentos_sum_valor_total_centavos ?? 0);
+
+                return ($custos / 100 + (float) $this->folha_pagamento_centavos) / $this->km_rodado_abastecimento;
             }
         );
     }

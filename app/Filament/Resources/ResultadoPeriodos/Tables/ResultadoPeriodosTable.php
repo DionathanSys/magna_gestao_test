@@ -104,8 +104,7 @@ class ResultadoPeriodosTable
                         ->label('KM Pago')
                         ->width('1%')
                         ->numeric(0, ',', '.')
-                        ->sum('viagens', 'km_pago')
-                        ->toggleable(isToggledHiddenByDefault: true),
+                        ->sum('viagens', 'km_pago'),
                     TextColumn::make('reconciliacao_km')
                         ->label('Reconciliação KM')
                         ->state(fn (Models\ResultadoPeriodo $record): string => self::reconciliacaoKm($record))
@@ -128,14 +127,6 @@ class ResultadoPeriodosTable
                             ? number_format($record->percentual_dispersao_km_real, 2, ',', '.').'% do KM pago'
                             : 'Percentual indisponível')
                         ->tooltip('KM rodado registrado nas viagens menos o KM pago.')
-                        ->toggleable(isToggledHiddenByDefault: true),
-                    TextColumn::make('km_rodado_viagens')
-                        ->label('KM Rodado Viagem')
-                        ->width('1%')
-                        ->wrapHeader()
-                        ->numeric(0, ',', '.')
-                        ->description(fn (Models\ResultadoPeriodo $record): string => "{$record->dispersao_km_abastecimento_km_viagem} Km")
-                        ->tooltip(fn (): string => 'Diferença entre o KM rodado apurado pelos abastecimentos e o KM rodado registrado nas viagens.')
                         ->toggleable(isToggledHiddenByDefault: true),
                     TextColumn::make('media_km_pago_viagem')
                         ->label('Viagens')
@@ -283,6 +274,7 @@ class ResultadoPeriodosTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    Actions\CriarResultadoPeriodoBulkAction::make(),
                     BulkAction::make('vincular_registros_resultado')
                         ->label('Buscar e vincular registros')
                         ->icon(Heroicon::ArrowUpOnSquare)

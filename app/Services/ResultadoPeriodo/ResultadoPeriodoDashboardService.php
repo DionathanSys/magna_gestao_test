@@ -96,6 +96,7 @@ class ResultadoPeriodoDashboardService
                 'custo_total' => $custoTotal,
             ],
             'linhas' => $lines,
+            'agrupado_por_tipo' => $this->agrupadoPorTipo($lines),
             'observacoes' => [
                 'total_resultados' => $records->count(),
                 'veiculos_com_km_abastecimento' => $linhasComKmAbastecimento->pluck('veiculo_id')->unique()->count(),
@@ -105,6 +106,29 @@ class ResultadoPeriodoDashboardService
                 'status' => $records->pluck('status')->filter()->unique()->values(),
             ],
         ];
+    }
+
+    private function agrupadoPorTipo(Collection $lines): Collection
+    {
+        return $lines
+            ->groupBy(fn (array $line): string => $line['tipo_veiculo'] ?: 'Tipo não informado')
+            ->map(function (Collection $tipoLines, string $tipo): array {
+                $veiculos = $tipoLines->pluck('veiculo_id')->filter()->unique()->count();
+                $kmRodado = $tipoLines->sum('km_rodado_viagens');
+                $faturamento = $tipoLines->sum('faturamento');
+
+                return [
+                    'tipo' => $tipo,
+                    'veiculos' => $veiculos,
+                    'km_rodado' => $kmRodado,
+                    'km_medio' => $veiculos > 0 ? $kmRodado / $veiculos : null,
+                    'faturamento' => $faturamento,
+                    'faturamento_medio' => $veiculos > 0 ? $faturamento / $veiculos : null,
+                    'faturamento_por_km' => $kmRodado > 0 ? $faturamento / $kmRodado : null,
+                ];
+            })
+            ->sortByDesc('faturamento')
+            ->values();
     }
 
     private function line(ResultadoPeriodo $record): array

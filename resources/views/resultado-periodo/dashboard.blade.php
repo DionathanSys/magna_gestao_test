@@ -276,6 +276,53 @@
     <section class="dashboard-section">
         <div class="section-heading">
             <div>
+                <h2>Agrupado por tipo de veículo</h2>
+                <p>Comparativo de volume, faturamento e produtividade por tipo.</p>
+            </div>
+        </div>
+        <article class="section-card table-card">
+            <div class="table-card-header">
+                <h3>Consolidado por tipo</h3>
+            </div>
+            <div class="table-scroll">
+                @if ($dashboard['agrupado_por_tipo']->isNotEmpty())
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tipo de veículo</th>
+                                <th class="numeric">Qtde veículos</th>
+                                <th class="numeric">KM rodado</th>
+                                <th class="numeric">KM médio</th>
+                                <th class="numeric">Faturamento</th>
+                                <th class="numeric">Fat. médio</th>
+                                <th class="numeric">R$/KM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($dashboard['agrupado_por_tipo'] as $tipo)
+                            <tr>
+                                <td><strong>{{ $tipo['tipo'] }}</strong></td>
+                                <td class="numeric">{{ $number($tipo['veiculos']) }}</td>
+                                <td class="numeric">{{ $number($tipo['km_rodado']) }} km</td>
+                                <td class="numeric">{{ $tipo['km_medio'] === null ? 'N/D' : $number($tipo['km_medio']).' km' }}</td>
+                                <td class="numeric">{{ $money($tipo['faturamento']) }}</td>
+                                <td class="numeric">{{ $money($tipo['faturamento_medio']) }}</td>
+                                <td class="numeric">{{ $money($tipo['faturamento_por_km']) }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <div class="table-empty">Nenhum tipo de veículo disponível.</div>
+                @endif
+            </div>
+        </article>
+        <p class="footnote">KM rodado corresponde à soma registrada nas viagens. KM médio é calculado por veículo e R$/KM corresponde ao faturamento dividido pelo KM rodado.</p>
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-heading">
+            <div>
                 <h2>Resumo por veículo</h2>
                 <p>Detalhamento dos resultados que formam o consolidado.</p>
             </div>

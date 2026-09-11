@@ -2,6 +2,7 @@
 
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\DocumentoFreteResource;
+use App\Http\Controllers\ResultadoPeriodoDashboardController;
 use App\Models\IncomingEmailAttachment;
 use App\Models\OrdemServico;
 use App\Models\Veiculo;
@@ -20,6 +21,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 Route::get('/', function () {
     return view('landing');
 })->name('landing');
+
+Route::get('/resultado-periodo/dashboard/{token}', ResultadoPeriodoDashboardController::class)
+    ->name('resultado-periodo.dashboard');
 
 Route::get('/ordem-servico/{ordemServico}/pdf', function (OrdemServico $ordemServico) {
     $service = new OrdemServicoPdfService;

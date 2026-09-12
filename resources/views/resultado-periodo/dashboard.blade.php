@@ -26,7 +26,7 @@
 
         * { box-sizing: border-box; }
         body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        .dashboard-shell { width: min(100% - 2rem, 1240px); margin: 0 auto; padding: 2rem 0 3rem; }
+        .dashboard-shell { width: min(100% - 1rem, 1860px); margin: 0 auto; padding: 2rem 0 3rem; }
         .dashboard-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; margin-bottom: 2.5rem; }
         .brand { color: var(--teal); font-size: .76rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
         .eyebrow { margin: 0 0 .55rem; color: var(--muted); font-size: .72rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
@@ -36,11 +36,6 @@
         .access-label { color: var(--quiet); font-size: .68rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
         .access-name { margin-top: .25rem; color: var(--text); font-size: .88rem; font-weight: 700; }
         .access-expires { margin-top: .5rem; color: var(--muted); font-size: .73rem; }
-        .period-strip { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.15rem; padding: 1rem 1.15rem; border: 1px solid var(--line); border-radius: 1rem; background: linear-gradient(110deg, #102b40, #0d1b2a 70%); }
-        .period-title { color: var(--text); font-size: 1.05rem; font-weight: 750; }
-        .period-subtitle { margin-top: .22rem; color: var(--muted); font-size: .78rem; }
-        .vehicle-list { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem; }
-        .vehicle-pill { padding: .35rem .6rem; border: 1px solid #28536a; border-radius: 999px; color: var(--teal); background: rgb(15 118 110 / 12%); font-size: .72rem; font-weight: 750; }
         .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .85rem; }
         .metric-card, .section-card { min-width: 0; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 10%); }
         .metric-card { padding: 1.1rem; }
@@ -96,10 +91,9 @@
         }
         @media (max-width: 620px) {
             .dashboard-shell { width: min(100% - 1.2rem, 1240px); padding-top: 1.2rem; }
-            .dashboard-header, .period-strip, .section-heading, .dashboard-footer { display: block; }
+            .dashboard-header, .section-heading, .dashboard-footer { display: block; }
             .dashboard-header { margin-bottom: 1.7rem; }
             .access-box { min-width: 0; margin-top: 1.2rem; }
-            .vehicle-list { justify-content: flex-start; margin-top: .8rem; }
             .metric-grid, .cost-grid, .comparison-grid { grid-template-columns: 1fr; }
             .metric-card { padding: .95rem; }
             .section-card { padding: 1rem; }
@@ -117,13 +111,15 @@
     $percent = static fn (?float $value): string => $value === null ? 'N/D' : number_format($value, 2, ',', '.').'%';
     $signedNumber = static fn (?float $value): string => $value === null ? 'N/D' : ($value > 0 ? '+' : '').number_format($value, 0, ',', '.').' km';
     $signedPercent = static fn (?float $value): string => $value === null ? 'N/D' : ($value > 0 ? '+' : '').number_format($value, 2, ',', '.').'%';
+    $mesBase = $dashboard['identificacao']['fim']?->copy()->locale('pt_BR')->isoFormat('MMM/YYYY');
+    $tituloDashboard = 'Resultado Operacional'.($mesBase ? ' - '.str($mesBase)->upper() : '');
 @endphp
 <main class="dashboard-shell">
     <header class="dashboard-header">
         <div>
             <div class="brand">Magna Gestão</div>
             <p class="eyebrow" style="margin-top: 2.3rem;">Painel compartilhado</p>
-            <h1>Resultado operacional<br>por período</h1>
+            <h1>{{ $tituloDashboard }}</h1>
             <p class="dashboard-header-copy">Indicadores consolidados dos resultados selecionados.</p>
         </div>
         <div class="access-box">
@@ -135,18 +131,6 @@
             <div class="access-expires">Válido até {{ $share->expires_at->format('d/m/Y H:i') }}</div>
         </div>
     </header>
-
-    <section class="period-strip">
-        <div>
-            <div class="period-title">{{ $dashboard['identificacao']['periodo'] }}</div>
-            <div class="period-subtitle">{{ $observacoes['total_resultados'] }} resultado(s) · {{ $observacoes['documentos'] }} documento(s) de frete</div>
-        </div>
-        <div class="vehicle-list" aria-label="Veículos incluídos">
-            @foreach ($dashboard['identificacao']['veiculos'] as $placa)
-                <span class="vehicle-pill">{{ $placa }}</span>
-            @endforeach
-        </div>
-    </section>
 
     <section class="metric-grid" aria-label="Indicadores principais">
         <article class="metric-card feature">
@@ -186,12 +170,12 @@
                     <div class="comparison-item">
                         <div class="comparison-label">KM rodado abastecimento</div>
                         <div class="comparison-value">{{ $metricas['km_rodado_abastecimento'] === null ? 'N/D' : $number($metricas['km_rodado_abastecimento']).' km' }}</div>
-                        <div class="comparison-detail">{{ $observacoes['veiculos_com_km_abastecimento'] }} de {{ $metricas['veiculos'] }} veículo(s) com base</div>
+                        <div class="comparison-detail">Média por veículo: {{ $metricas['km_medio_abastecimento'] === null ? 'N/D' : $number($metricas['km_medio_abastecimento']).' km' }}</div>
                     </div>
                     <div class="comparison-item">
                         <div class="comparison-label">KM rodado viagens</div>
                         <div class="comparison-value">{{ $number($metricas['km_rodado_viagens']) }} km</div>
-                        <div class="comparison-detail">Soma informada nas viagens</div>
+                        <div class="comparison-detail">Média por veículo: {{ $metricas['km_medio_viagens'] === null ? 'N/D' : $number($metricas['km_medio_viagens']).' km' }}</div>
                     </div>
                     <div class="comparison-item">
                         <div class="comparison-label">Diferença entre fontes</div>
@@ -293,6 +277,7 @@
                                 <th class="numeric">Qtde veículos</th>
                                 <th class="numeric">KM rodado</th>
                                 <th class="numeric">KM médio</th>
+                                <th class="numeric">KM pago</th>
                                 <th class="numeric">Faturamento</th>
                                 <th class="numeric">Fat. médio</th>
                                 <th class="numeric">R$/KM</th>
@@ -305,6 +290,7 @@
                                 <td class="numeric">{{ $number($tipo['veiculos']) }}</td>
                                 <td class="numeric">{{ $number($tipo['km_rodado']) }} km</td>
                                 <td class="numeric">{{ $tipo['km_medio'] === null ? 'N/D' : $number($tipo['km_medio']).' km' }}</td>
+                                <td class="numeric">{{ $number($tipo['km_pago']) }} km</td>
                                 <td class="numeric">{{ $money($tipo['faturamento']) }}</td>
                                 <td class="numeric">{{ $money($tipo['faturamento_medio']) }}</td>
                                 <td class="numeric">{{ $money($tipo['faturamento_por_km']) }}</td>
@@ -341,6 +327,8 @@
                                 <th class="numeric">KM abast.</th>
                                 <th class="numeric">KM viagens</th>
                                 <th class="numeric">KM pago</th>
+                                <th class="numeric">Disp. abast.</th>
+                                <th class="numeric">Disp. viagens</th>
                                 <th class="numeric">Diesel</th>
                                 <th class="numeric">Manutenção</th>
                                 <th class="numeric">Salário</th>
@@ -354,6 +342,8 @@
                                 <td class="numeric">{{ $linha['km_rodado_abastecimento'] === null ? 'N/D' : $number($linha['km_rodado_abastecimento']).' km' }}</td>
                                 <td class="numeric">{{ $number($linha['km_rodado_viagens']) }} km</td>
                                 <td class="numeric">{{ $number($linha['km_pago']) }} km</td>
+                                <td class="numeric">{{ $signedNumber($linha['dispersao_km_abastecimento']) }} · {{ $signedPercent($linha['percentual_dispersao_km_abastecimento']) }}</td>
+                                <td class="numeric">{{ $signedNumber($linha['dispersao_km_viagens']) }} · {{ $signedPercent($linha['percentual_dispersao_km_viagens']) }}</td>
                                 <td class="numeric">{{ $money($linha['combustivel']) }}</td>
                                 <td class="numeric">{{ $money($linha['manutencao']) }}</td>
                                 <td class="numeric">{{ $money($linha['folha_pagamento']) }}</td>

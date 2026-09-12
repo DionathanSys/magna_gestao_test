@@ -83,7 +83,11 @@ class ResultadoPeriodoDashboardService
                 'veiculos' => $veiculos,
                 'faturamento_medio' => $veiculos > 0 ? $faturamento / $veiculos : null,
                 'km_rodado_abastecimento' => $kmRodadoAbastecimento,
+                'km_medio_abastecimento' => $linhasComKmAbastecimento->isNotEmpty()
+                    ? $kmRodadoAbastecimento / $linhasComKmAbastecimento->pluck('veiculo_id')->unique()->count()
+                    : null,
                 'km_rodado_viagens' => $kmRodadoViagens,
+                'km_medio_viagens' => $veiculos > 0 ? $kmRodadoViagens / $veiculos : null,
                 'km_pago' => $kmPago,
                 'dispersao_km_abastecimento' => $kmRodadoAbastecimento !== null
                     ? $kmRodadoAbastecimento - $kmPagoBaseAbastecimento
@@ -151,6 +155,7 @@ class ResultadoPeriodoDashboardService
             ->map(function (Collection $tipoLines, string $tipo): array {
                 $veiculos = $tipoLines->pluck('veiculo_id')->filter()->unique()->count();
                 $kmRodado = $tipoLines->sum('km_rodado_viagens');
+                $kmPago = $tipoLines->sum('km_pago');
                 $faturamento = $tipoLines->sum('faturamento');
 
                 return [
@@ -158,6 +163,7 @@ class ResultadoPeriodoDashboardService
                     'veiculos' => $veiculos,
                     'km_rodado' => $kmRodado,
                     'km_medio' => $veiculos > 0 ? $kmRodado / $veiculos : null,
+                    'km_pago' => $kmPago,
                     'faturamento' => $faturamento,
                     'faturamento_medio' => $veiculos > 0 ? $faturamento / $veiculos : null,
                     'faturamento_por_km' => $kmRodado > 0 ? $faturamento / $kmRodado : null,
@@ -169,6 +175,12 @@ class ResultadoPeriodoDashboardService
 
     private function line(ResultadoPeriodo $record): array
     {
+        $kmPago = (float) ($record->viagens_sum_km_pago ?? 0);
+        $kmRodadoViagens = (float) ($record->viagens_sum_km_rodado ?? 0);
+        $kmRodadoAbastecimento = $record->km_rodado_abastecimento === null
+            ? null
+            : (float) $record->km_rodado_abastecimento;
+
         return [
             'veiculo_id' => (int) $record->veiculo_id,
             'placa' => $record->veiculo?->placa ?? 'N/D',
@@ -178,11 +190,17 @@ class ResultadoPeriodoDashboardService
             'manutencao' => $this->reais($record->manutencao_lancamentos_sum_valor_total_centavos),
             'folha_pagamento' => $this->reais($record->getRawOriginal('folha_pagamento_centavos')),
             'litros' => (float) ($record->abastecimentos_sum_quantidade ?? 0),
-            'km_pago' => (float) ($record->viagens_sum_km_pago ?? 0),
-            'km_rodado_viagens' => (float) ($record->viagens_sum_km_rodado ?? 0),
-            'km_rodado_abastecimento' => $record->km_rodado_abastecimento === null
-                ? null
-                : (float) $record->km_rodado_abastecimento,
+            'km_pago' => $kmPago,
+            'km_rodado_viagens' => $kmRodadoViagens,
+            'km_rodado_abastecimento' => $kmRodadoAbastecimento,
+            'dispersao_km_abastecimento' => $kmRodadoAbastecimento === null ? null : $kmRodadoAbastecimento - $kmPago,
+            'percentual_dispersao_km_abastecimento' => $kmPago > 0 && $kmRodadoAbastecimento !== null
+                ? (($kmRodadoAbastecimento - $kmPago) / $kmPago) * 100
+                : null,
+            'dispersao_km_viagens' => $kmRodadoViagens - $kmPago,
+            'percentual_dispersao_km_viagens' => $kmPago > 0
+                ? (($kmRodadoViagens - $kmPago) / $kmPago) * 100
+                : null,
             'viagens_count' => (int) ($record->viagens_count ?? 0),
             'abastecimentos_count' => (int) ($record->abastecimentos_count ?? 0),
             'documentos_count' => (int) ($record->documentos_count ?? 0),

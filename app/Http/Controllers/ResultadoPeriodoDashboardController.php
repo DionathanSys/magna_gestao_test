@@ -32,7 +32,7 @@ class ResultadoPeriodoDashboardController extends Controller
             ], 410);
         }
 
-        $records = $dashboardService->recordsFor($share->resultado_periodo_ids ?? []);
+        $records = $dashboardService->recordsForShare($share);
 
         if ($records->isEmpty()) {
             return response()->view('resultado-periodo.dashboard-invalid', [
@@ -44,7 +44,10 @@ class ResultadoPeriodoDashboardController extends Controller
         return response()
             ->view('resultado-periodo.dashboard', [
                 'share' => $share,
-                'dashboard' => $dashboardService->summarize($records),
+                'dashboard' => $dashboardService->summarize($records, [
+                    'inicio' => $share->data_inicio,
+                    'fim' => $share->data_fim,
+                ]),
             ])
             ->header('Cache-Control', 'private, no-store, max-age=0')
             ->header('X-Robots-Tag', 'noindex, nofollow');

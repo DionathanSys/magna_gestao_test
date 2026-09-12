@@ -3,7 +3,8 @@
 namespace App\Services\ResultadoPeriodo;
 
 use App\Models\ResultadoPeriodoCompartilhamento;
-use Illuminate\Support\Collection;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\URL;
 
 class ResultadoPeriodoDashboardShareService
@@ -12,9 +13,10 @@ class ResultadoPeriodoDashboardShareService
      * @return array{share: ResultadoPeriodoCompartilhamento, url: string}
      */
     public function create(
-        Collection|array $resultadoPeriodos,
+        CarbonInterface|string $dataInicio,
+        CarbonInterface|string $dataFim,
         string $destinatarioNome,
-        ?string $destinatarioEmail,
+        string $destinatarioEmail,
         int $validadeHoras,
         ?int $criadoPorId,
     ): array {
@@ -22,21 +24,20 @@ class ResultadoPeriodoDashboardShareService
             throw new \InvalidArgumentException('A validade do link deve ser maior que zero.');
         }
 
-        $ids = collect($resultadoPeriodos)
-            ->map(fn ($resultadoPeriodo): int => (int) ($resultadoPeriodo->id ?? $resultadoPeriodo))
-            ->filter(fn (int $id): bool => $id > 0)
-            ->unique()
-            ->values();
+        $dataInicio = Carbon::parse($dataInicio)->startOfDay();
+        $dataFim = Carbon::parse($dataFim)->startOfDay();
 
-        if ($ids->isEmpty()) {
-            throw new \InvalidArgumentException('Selecione ao menos um resultado de período.');
+        if ($dataInicio->isAfter($dataFim)) {
+            throw new \InvalidArgumentException('A data inicial deve ser anterior ou igual à data final.');
         }
 
         $expiresAt = now()->addHours($validadeHoras);
         $token = bin2hex(random_bytes(32));
         $share = ResultadoPeriodoCompartilhamento::create([
             'token_hash' => hash('sha256', $token),
-            'resultado_periodo_ids' => $ids->all(),
+            'resultado_periodo_ids' => [],
+            'data_inicio' => $dataInicio->toDateString(),
+            'data_fim' => $dataFim->toDateString(),
             'destinatario_nome' => $destinatarioNome,
             'destinatario_email' => $destinatarioEmail,
             'criado_por_id' => $criadoPorId,

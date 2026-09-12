@@ -11,6 +11,8 @@ class ResultadoPeriodoCompartilhamento extends Model
     protected $fillable = [
         'token_hash',
         'resultado_periodo_ids',
+        'data_inicio',
+        'data_fim',
         'destinatario_nome',
         'destinatario_email',
         'criado_por_id',
@@ -20,6 +22,8 @@ class ResultadoPeriodoCompartilhamento extends Model
 
     protected $casts = [
         'resultado_periodo_ids' => 'array',
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
         'expires_at' => 'datetime',
         'last_accessed_at' => 'datetime',
     ];

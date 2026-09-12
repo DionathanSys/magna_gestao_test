@@ -275,7 +275,6 @@ class ResultadoPeriodosTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     Actions\CriarResultadoPeriodoBulkAction::make(),
-                    Actions\CompartilharDashboardAction::make(),
                     BulkAction::make('vincular_registros_resultado')
                         ->label('Buscar e vincular registros')
                         ->icon(Heroicon::ArrowUpOnSquare)

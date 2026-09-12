@@ -3,7 +3,10 @@
 namespace App\Services\ResultadoPeriodo;
 
 use App\Models\ResultadoPeriodo;
+use App\Models\ResultadoPeriodoCompartilhamento;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class ResultadoPeriodoDashboardService
@@ -20,27 +23,42 @@ class ResultadoPeriodoDashboardService
             return collect();
         }
 
-        return ResultadoPeriodo::query()
+        return $this->recordsQuery()
             ->whereIn('id', $ids)
-            ->with([
-                'veiculo:id,placa,tipo_veiculo_id',
-                'veiculo.tipoVeiculo:id,descricao',
-                'abastecimentoInicial',
-                'abastecimentoFinal',
-            ])
-            ->withCount(['viagens', 'documentos', 'abastecimentos'])
-            ->withSum('documentos', 'valor_liquido')
-            ->withSum('abastecimentos', 'preco_total')
-            ->withSum('abastecimentos', 'quantidade')
-            ->withSum('viagens', 'km_pago')
-            ->withSum('viagens', 'km_rodado')
-            ->withSum('manutencaoLancamentos', 'valor_total_centavos')
             ->orderBy('data_inicio')
             ->orderBy('veiculo_id')
             ->get();
     }
 
-    public function summarize(Collection $records): array
+    public function recordsForPeriod(CarbonInterface|string|null $dataInicio, CarbonInterface|string|null $dataFim): Collection
+    {
+        if (! $dataInicio || ! $dataFim) {
+            return collect();
+        }
+
+        $inicio = Carbon::parse($dataInicio)->toDateString();
+        $fim = Carbon::parse($dataFim)->toDateString();
+
+        return $this->recordsQuery()
+            ->whereDate('data_inicio', '>=', $inicio)
+            ->whereDate('data_inicio', '<=', $fim)
+            ->orderBy('data_inicio')
+            ->orderBy('veiculo_id')
+            ->get();
+    }
+
+    public function recordsForShare(ResultadoPeriodoCompartilhamento $share): Collection
+    {
+        $ids = collect($share->resultado_periodo_ids ?? [])
+            ->filter()
+            ->values();
+
+        return $ids->isNotEmpty()
+            ? $this->recordsFor($ids->all())
+            : $this->recordsForPeriod($share->data_inicio, $share->data_fim);
+    }
+
+    public function summarize(Collection $records, ?array $periodo = null): array
     {
         $lines = $records->map(fn (ResultadoPeriodo $record): array => $this->line($record));
         $faturamento = $lines->sum('faturamento');
@@ -59,7 +77,7 @@ class ResultadoPeriodoDashboardService
         $custoTotal = $combustivel + $manutencao + $folhaPagamento;
 
         return [
-            'identificacao' => $this->identificacao($records, $lines),
+            'identificacao' => $this->identificacao($records, $lines, $periodo),
             'metricas' => [
                 'faturamento' => $faturamento,
                 'veiculos' => $veiculos,
@@ -106,6 +124,24 @@ class ResultadoPeriodoDashboardService
                 'status' => $records->pluck('status')->filter()->unique()->values(),
             ],
         ];
+    }
+
+    private function recordsQuery(): Builder
+    {
+        return ResultadoPeriodo::query()
+            ->with([
+                'veiculo:id,placa,tipo_veiculo_id',
+                'veiculo.tipoVeiculo:id,descricao',
+                'abastecimentoInicial',
+                'abastecimentoFinal',
+            ])
+            ->withCount(['viagens', 'documentos', 'abastecimentos'])
+            ->withSum('documentos', 'valor_liquido')
+            ->withSum('abastecimentos', 'preco_total')
+            ->withSum('abastecimentos', 'quantidade')
+            ->withSum('viagens', 'km_pago')
+            ->withSum('viagens', 'km_rodado')
+            ->withSum('manutencaoLancamentos', 'valor_total_centavos');
     }
 
     private function agrupadoPorTipo(Collection $lines): Collection
@@ -155,20 +191,24 @@ class ResultadoPeriodoDashboardService
         ];
     }
 
-    private function identificacao(Collection $records, Collection $lines): array
+    private function identificacao(Collection $records, Collection $lines, ?array $periodo = null): array
     {
-        $inicio = $records
-            ->pluck('data_inicio')
-            ->filter()
-            ->map(fn ($date): Carbon => Carbon::parse($date))
-            ->sortBy(fn (Carbon $date): int => $date->timestamp)
-            ->first();
-        $fim = $records
-            ->pluck('data_fim')
-            ->filter()
-            ->map(fn ($date): Carbon => Carbon::parse($date))
-            ->sortByDesc(fn (Carbon $date): int => $date->timestamp)
-            ->first();
+        $inicio = $periodo && ($periodo['inicio'] ?? null)
+            ? Carbon::parse($periodo['inicio'])
+            : $records
+                ->pluck('data_inicio')
+                ->filter()
+                ->map(fn ($date): Carbon => Carbon::parse($date))
+                ->sortBy(fn (Carbon $date): int => $date->timestamp)
+                ->first();
+        $fim = $periodo && ($periodo['fim'] ?? null)
+            ? Carbon::parse($periodo['fim'])
+            : $records
+                ->pluck('data_fim')
+                ->filter()
+                ->map(fn ($date): Carbon => Carbon::parse($date))
+                ->sortByDesc(fn (Carbon $date): int => $date->timestamp)
+                ->first();
 
         return [
             'inicio' => $inicio,

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ResultadoPeriodos\Pages;
 
+use App\Filament\Resources\ResultadoPeriodos\Actions\CompartilharDashboardAction;
 use App\Filament\Resources\ResultadoPeriodos\ResultadoPeriodoResource;
 use App\Filament\Resources\ResultadoPeriodos\Widgets\ResultadoPeriodoStats;
 use Filament\Actions\CreateAction;
@@ -17,6 +18,7 @@ class ListResultadoPeriodos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            CompartilharDashboardAction::make(),
             CreateAction::make()
                 ->preserveFormDataWhenCreatingAnother(['veiculo_id', 'tipo_veiculo', 'data_inicio', 'data_fim', 'status']),
         ];

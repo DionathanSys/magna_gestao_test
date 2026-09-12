@@ -211,6 +211,17 @@ class ResultadoPeriodosTable
                             return $state === null || ! $meta ? 'gray' : ($state < $meta ? 'danger' : 'success');
                         })
                         ->toggleable(isToggledHiddenByDefault: false),
+                    TextColumn::make('desperdicio_litros')
+                        ->label('Desperdício Combustível')
+                        ->formatStateUsing(fn (?float $state): string => $state === null
+                           ? 'N/D'
+                           : ($state > 0 ? '+' : '').number_format($state, 2, ',', '.').' L')
+                        ->description(fn (Models\ResultadoPeriodo $record): string => $record->desperdicio_valor === null
+                           ? 'Valor indisponível'
+                           : ($record->desperdicio_valor > 0 ? '+' : ($record->desperdicio_valor < 0 ? '-' : '')).'R$ '.number_format(abs($record->desperdicio_valor), 2, ',', '.'))
+                        ->color(fn (?float $state): string => $state === null ? 'gray' : ($state > 0 ? 'danger' : 'success'))
+                        ->tooltip('Litros consumidos menos litros estimados pela meta de consumo do tipo do veículo. Valor calculado pelo preço médio do litro.')
+                        ->toggleable(isToggledHiddenByDefault: true),
                 ]),
                 TextColumn::make('created_at')
                     ->label('Criado em')

@@ -68,6 +68,15 @@ class ResultadoPeriodoDashboardService
         $litros = $lines->sum('litros');
         $kmPago = $lines->sum('km_pago');
         $kmRodadoViagens = $lines->sum('km_rodado_viagens');
+        $linhasComDesperdicio = $lines->filter(fn (array $line): bool => $line['desperdicio_litros'] !== null);
+        $linhasComValorDesperdicio = $lines->filter(fn (array $line): bool => $line['desperdicio_valor'] !== null);
+        $litrosEstimadosMeta = $linhasComDesperdicio->sum('litros_estimados_meta');
+        $desperdicioLitros = $linhasComDesperdicio->isEmpty()
+            ? null
+            : $linhasComDesperdicio->sum('desperdicio_litros');
+        $desperdicioValor = $linhasComValorDesperdicio->isEmpty()
+            ? null
+            : $linhasComValorDesperdicio->sum('desperdicio_valor');
         $linhasComKmAbastecimento = $lines->filter(fn (array $line): bool => $line['km_rodado_abastecimento'] !== null);
         $kmRodadoAbastecimento = $linhasComKmAbastecimento->isEmpty()
             ? null
@@ -109,6 +118,12 @@ class ResultadoPeriodoDashboardService
                 'percentual_combustivel_faturamento' => $this->percentual($combustivel, $faturamento),
                 'custo_medio_diesel' => $litros > 0 ? $combustivel / $litros : null,
                 'custo_diesel_por_km' => $kmRodadoAbastecimento > 0 ? $combustivel / $kmRodadoAbastecimento : null,
+                'litros_estimados_meta' => $linhasComDesperdicio->isEmpty() ? null : $litrosEstimadosMeta,
+                'desperdicio_litros' => $desperdicioLitros,
+                'percentual_desperdicio_litros' => $desperdicioLitros !== null && $litrosEstimadosMeta > 0
+                    ? ($desperdicioLitros / $litrosEstimadosMeta) * 100
+                    : null,
+                'desperdicio_valor' => $desperdicioValor,
                 'manutencao' => $manutencao,
                 'percentual_manutencao_faturamento' => $this->percentual($manutencao, $faturamento),
                 'custo_medio_veiculo' => $veiculos > 0 ? $custoTotal / $veiculos : null,
@@ -122,6 +137,7 @@ class ResultadoPeriodoDashboardService
             'observacoes' => [
                 'total_resultados' => $records->count(),
                 'veiculos_com_km_abastecimento' => $linhasComKmAbastecimento->pluck('veiculo_id')->unique()->count(),
+                'veiculos_com_calculo_desperdicio' => $linhasComDesperdicio->pluck('veiculo_id')->unique()->count(),
                 'viagens' => $lines->sum('viagens_count'),
                 'abastecimentos' => $lines->sum('abastecimentos_count'),
                 'documentos' => $lines->sum('documentos_count'),
@@ -135,7 +151,7 @@ class ResultadoPeriodoDashboardService
         return ResultadoPeriodo::query()
             ->with([
                 'veiculo:id,placa,tipo_veiculo_id',
-                'veiculo.tipoVeiculo:id,descricao',
+                'veiculo.tipoVeiculo:id,descricao,meta_media',
                 'abastecimentoInicial',
                 'abastecimentoFinal',
             ])
@@ -180,6 +196,9 @@ class ResultadoPeriodoDashboardService
         $kmRodadoAbastecimento = $record->km_rodado_abastecimento === null
             ? null
             : (float) $record->km_rodado_abastecimento;
+        $litros = (float) ($record->abastecimentos_sum_quantidade ?? 0);
+        $litrosEstimadosMeta = $record->litros_estimados_meta;
+        $desperdicioLitros = $record->desperdicio_litros;
 
         return [
             'veiculo_id' => (int) $record->veiculo_id,
@@ -189,7 +208,12 @@ class ResultadoPeriodoDashboardService
             'combustivel' => $this->reais($record->abastecimentos_sum_preco_total),
             'manutencao' => $this->reais($record->manutencao_lancamentos_sum_valor_total_centavos),
             'folha_pagamento' => $this->reais($record->getRawOriginal('folha_pagamento_centavos')),
-            'litros' => (float) ($record->abastecimentos_sum_quantidade ?? 0),
+            'litros' => $litros,
+            'preco_medio_combustivel' => (float) $record->preco_medio_combustivel,
+            'meta_consumo' => $record->meta_consumo,
+            'litros_estimados_meta' => $litrosEstimadosMeta,
+            'desperdicio_litros' => $desperdicioLitros,
+            'desperdicio_valor' => $record->desperdicio_valor,
             'km_pago' => $kmPago,
             'km_rodado_viagens' => $kmRodadoViagens,
             'km_rodado_abastecimento' => $kmRodadoAbastecimento,

@@ -111,6 +111,8 @@
     $percent = static fn (?float $value): string => $value === null ? 'N/D' : number_format($value, 2, ',', '.').'%';
     $signedNumber = static fn (?float $value): string => $value === null ? 'N/D' : ($value > 0 ? '+' : '').number_format($value, 0, ',', '.').' km';
     $signedPercent = static fn (?float $value): string => $value === null ? 'N/D' : ($value > 0 ? '+' : '').number_format($value, 2, ',', '.').'%';
+    $signedLiters = static fn (?float $value): string => $value === null ? 'N/D' : ($value > 0 ? '+' : '').number_format($value, 2, ',', '.').' L';
+    $signedMoney = static fn (?float $value): string => $value === null ? 'N/D' : ($value > 0 ? '+' : ($value < 0 ? '-' : '')).'R$ '.number_format(abs($value), 2, ',', '.');
     $mesBase = $dashboard['identificacao']['fim']?->copy()->locale('pt_BR')->isoFormat('MMM/YYYY');
     $tituloDashboard = 'Resultado Operacional'.($mesBase ? ' - '.str($mesBase)->upper() : '');
 @endphp
@@ -229,6 +231,16 @@
                 <div class="metric-value">{{ $money($metricas['custo_diesel_por_km']) }}</div>
                 <div class="metric-note">Custo de combustível / KM abastecimento</div>
             </article>
+            <article class="section-card cost-card fuel-waste">
+                <div class="metric-label">Desperdício de combustível</div>
+                <div class="metric-value {{ ($metricas['desperdicio_litros'] ?? 0) > 0 ? 'negative' : 'positive' }}">{{ $signedLiters($metricas['desperdicio_litros']) }}</div>
+                <div class="metric-note">Esperado {{ $number($metricas['litros_estimados_meta'], 2) }} L · consumido {{ $number($metricas['litros'], 2) }} L · {{ $signedPercent($metricas['percentual_desperdicio_litros']) }}</div>
+            </article>
+            <article class="section-card cost-card fuel-waste">
+                <div class="metric-label">Valor do desperdício</div>
+                <div class="metric-value {{ ($metricas['desperdicio_valor'] ?? 0) > 0 ? 'negative' : 'positive' }}">{{ $signedMoney($metricas['desperdicio_valor']) }}</div>
+                <div class="metric-note">Calculado pelo preço médio do litro de cada veículo</div>
+            </article>
             <article class="section-card cost-card maintenance">
                 <div class="metric-label">Custo manutenção</div>
                 <div class="metric-value">{{ $money($metricas['manutencao']) }}</div>
@@ -330,6 +342,7 @@
                                 <th class="numeric">Disp. abast.</th>
                                 <th class="numeric">Disp. viagens</th>
                                 <th class="numeric">Diesel</th>
+                                <th class="numeric">Desperdício L / R$</th>
                                 <th class="numeric">Manutenção</th>
                                 <th class="numeric">Salário</th>
                             </tr>
@@ -345,6 +358,7 @@
                                 <td class="numeric">{{ $signedNumber($linha['dispersao_km_abastecimento']) }} · {{ $signedPercent($linha['percentual_dispersao_km_abastecimento']) }}</td>
                                 <td class="numeric">{{ $signedNumber($linha['dispersao_km_viagens']) }} · {{ $signedPercent($linha['percentual_dispersao_km_viagens']) }}</td>
                                 <td class="numeric">{{ $money($linha['combustivel']) }}</td>
+                                <td class="numeric">{{ $signedLiters($linha['desperdicio_litros']) }} · {{ $signedMoney($linha['desperdicio_valor']) }}</td>
                                 <td class="numeric">{{ $money($linha['manutencao']) }}</td>
                                 <td class="numeric">{{ $money($linha['folha_pagamento']) }}</td>
                             </tr>
@@ -356,7 +370,7 @@
                 @endif
             </div>
         </article>
-        <p class="footnote">N/D indica que a informação não pôde ser apurada. O KM rodado por abastecimento usa o último abastecimento anterior como referência. O custo médio do veículo considera combustível, manutenção e salário.</p>
+        <p class="footnote">N/D indica que a informação não pôde ser apurada. O desperdício compara os litros consumidos com os litros estimados pela meta de consumo do tipo do veículo, usando o KM rodado por abastecimento e o preço médio do litro de cada veículo.</p>
     </section>
 
     <footer class="dashboard-footer">

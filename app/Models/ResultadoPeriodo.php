@@ -34,6 +34,10 @@ class ResultadoPeriodo extends Model
         'faturamento_por_km_pago',
         'percentual_manutencao_faturamento',
         'diferenca_meta_consumo',
+        'meta_consumo',
+        'litros_estimados_meta',
+        'desperdicio_litros',
+        'desperdicio_valor',
         'variacao_faturamento_mes_anterior',
     ];
 
@@ -224,6 +228,48 @@ class ResultadoPeriodo extends Model
             get: fn (): ?float => $this->quantidade_litros_combustivel > 0 && $this->km_rodado_abastecimento !== null
                 ? round($this->km_rodado_abastecimento / $this->quantidade_litros_combustivel, 2)
                 : null
+        );
+    }
+
+    protected function metaConsumo(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?float {
+                $meta = (float) ($this->veiculo?->tipoVeiculo?->meta_media ?? 0);
+
+                return $meta > 0 ? $meta : null;
+            }
+        );
+    }
+
+    protected function litrosEstimadosMeta(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?float {
+                if ($this->meta_consumo === null || $this->km_rodado_abastecimento === null) {
+                    return null;
+                }
+
+                return round($this->km_rodado_abastecimento / $this->meta_consumo, 2);
+            }
+        );
+    }
+
+    protected function desperdicioLitros(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?float => $this->litros_estimados_meta === null
+                ? null
+                : round($this->quantidade_litros_combustivel - $this->litros_estimados_meta, 2)
+        );
+    }
+
+    protected function desperdicioValor(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?float => $this->desperdicio_litros === null || $this->preco_medio_combustivel <= 0
+                ? null
+                : round($this->desperdicio_litros * $this->preco_medio_combustivel, 2)
         );
     }
 

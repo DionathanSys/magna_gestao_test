@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Veiculos\RelationManagers;
 
+use App\Filament\Resources\PlanoPreventivos\PlanoPreventivoResource;
+use App\Models\PlanoPreventivo;
+use App\Services\Servico\ServicoCacheService;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
@@ -55,6 +58,7 @@ class PlanoPreventivoRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->recordUrl(fn (PlanoPreventivo $record): string => PlanoPreventivoResource::getUrl('edit', ['record' => $record]))
             ->columns([
                 TextColumn::make('descricao')
                     ->label('Descrição')
@@ -73,11 +77,11 @@ class PlanoPreventivoRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('itens')
                     ->label('Itens')
-                    ->getStateUsing(function ($record) {
-                        $itens = $record->itens ?? [];
-
-                        return $itens;
-                    })
+                    ->getStateUsing(fn (PlanoPreventivo $record): array => collect($record->itens ?? [])
+                        ->map(fn ($item): ?string => ServicoCacheService::getServicoLabel(data_get($item, 'servico_id')))
+                        ->filter()
+                        ->values()
+                        ->all())
                     ->listWithLineBreaks()
                     ->limitList(1)
                     ->expandableLimitedList()

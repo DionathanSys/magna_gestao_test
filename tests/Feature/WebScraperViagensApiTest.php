@@ -8,6 +8,13 @@ use Tests\TestCase;
 
 class WebScraperViagensApiTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.webscraper.enabled' => true]);
+    }
+
     public function test_rejeita_requisicao_sem_assinatura_valida(): void
     {
         config(['services.webscraper.secret' => 'test-secret']);
@@ -17,6 +24,22 @@ class WebScraperViagensApiTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    public function test_rejeita_requisicoes_quando_integracao_esta_desativada(): void
+    {
+        Queue::fake();
+        config(['services.webscraper.enabled' => false]);
+
+        $response = $this->postJson('/api/integracoes/viagens', [
+            'viagem' => $this->payloadViagem(),
+        ]);
+
+        $response
+            ->assertStatus(503)
+            ->assertJsonPath('success', false);
+
+        Queue::assertNothingPushed();
     }
 
     public function test_aceita_payload_valido_e_enfileira_job(): void

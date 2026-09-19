@@ -8,6 +8,13 @@ use Tests\TestCase;
 
 class SascarMovimentoDiarioApiTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.webscraper.enabled' => true]);
+    }
+
     public function test_aceita_movimento_diario_valido_e_registra_em_cache(): void
     {
         config(['cache.default' => 'array']);

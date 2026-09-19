@@ -11,6 +11,19 @@ class VerifyWebScraperSignature
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (! (bool) config('services.webscraper.enabled', false)) {
+            Log::notice('Recebimento da API WebScraper temporariamente desativado', [
+                'metodo' => __METHOD__.'@'.__LINE__,
+                'path' => $request->path(),
+                'ip' => $request->ip(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Integration temporarily disabled.',
+            ], 503);
+        }
+
         $secret = (string) config('services.webscraper.secret');
         $timestamp = (string) $request->header('X-Webhook-Timestamp', '');
         $signature = (string) $request->header('X-Webhook-Signature', '');

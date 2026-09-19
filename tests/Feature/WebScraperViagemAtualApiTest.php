@@ -8,6 +8,13 @@ use Tests\TestCase;
 
 class WebScraperViagemAtualApiTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.webscraper.enabled' => true]);
+    }
+
     public function test_registra_viagem_atual_em_cache_com_assinatura_valida(): void
     {
         config(['cache.default' => 'array']);

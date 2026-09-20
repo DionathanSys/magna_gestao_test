@@ -37,6 +37,9 @@ Filas contempladas no worker:
 - `mail-receive`
 - `mail-process`
 - `mail-trip`
+- `mail-cte-return`
+- `automation`
+- `automation-import`
 - `default`
 
 ## Permissoes

@@ -30,6 +30,7 @@ class AtualizarViagem
         'ignorar',
         'possui_pendencia',
         'pendencias',
+        'motoristas',
         'motorista1',
         'motorista2',
         'created_by',
@@ -75,6 +76,7 @@ class AtualizarViagem
             'ignorar' => 'boolean',
             'possui_pendencia' => 'boolean',
             'pendencias' => 'nullable|array',
+            'motoristas' => 'nullable|array',
             'motorista1' => 'nullable|string',
             'motorista2' => 'nullable|string',
         ], [
@@ -141,6 +143,10 @@ class AtualizarViagem
 
         if (array_key_exists('motorista1', $data) && ! in_array('motorista1', $columns, true)) {
             unset($data['motorista1']);
+        }
+
+        if (array_key_exists('motoristas', $data) && ! in_array('motoristas', $columns, true)) {
+            unset($data['motoristas']);
         }
 
         if (array_key_exists('motorista2', $data) && ! in_array('motorista2', $columns, true)) {

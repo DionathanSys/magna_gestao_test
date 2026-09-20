@@ -36,6 +36,7 @@ class AdminPanelProvider extends PanelProvider
                 'Veículos',
                 'Inspeções',
                 'Cadastros',
+                'Automações',
                 'Configurações',
             ])
             ->topbar(false)

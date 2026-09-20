@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 
 class SascarMovimentoDiarioCache
 {
+    private const TTL_MINUTES = 1440;
+
     private const INDEX_KEY = 'webscraper:sascar_movimento_diario:index';
 
     private const ITEM_PREFIX = 'webscraper:sascar_movimento_diario:item:';
@@ -21,7 +23,7 @@ class SascarMovimentoDiarioCache
             $index = Cache::get(self::INDEX_KEY, []);
             $index[$cacheKey] = $cacheKey;
 
-            $expiresAt = now()->addMinutes((int) config('services.webscraper.movimento_diario_cache_ttl_minutes', 1440));
+            $expiresAt = now()->addMinutes(self::TTL_MINUTES);
 
             Cache::put($this->itemKey($cacheKey), $data, $expiresAt);
             Cache::put(self::INDEX_KEY, $index, $expiresAt);

@@ -17,6 +17,7 @@ class Viagem extends Model
 
     protected $casts = [
         'pendencias' => 'array',
+        'motoristas' => 'array',
         'conferido' => 'boolean',
         'ignorar' => 'boolean',
         'integrados_json' => 'array',

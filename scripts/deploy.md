@@ -1,53 +1,107 @@
 # Deploy VPS
 
-Depois de fazer `git pull` na VPS, rode:
+O deploy e executado pelo script versionado em `scripts/deploy.sh`. Na VPS, a
+configuracao inicial deve ser feita uma vez:
 
 ```bash
-bash scripts/deploy.sh
+cd /srv/apps/php/magna_gestao
+git checkout main
+chmod +x scripts/deploy.sh
 ```
 
-O script faz:
+Mantenha o `.env` somente na VPS. Ele nao deve ser versionado. O usuario que
+executa o deploy precisa ter acesso de leitura ao repositorio e escrita em
+`storage` e `bootstrap/cache`. Para reiniciar servicos automaticamente, execute
+como `root` ou configure `sudo` sem senha para `systemctl` e `supervisorctl`.
 
-- `composer install --optimize-autoloader`
-- `php artisan migrate --force`
-- `php artisan optimize:clear`
-- `php artisan filament:upgrade`
-- `php artisan queue:restart`
+## Uso
 
-Observacoes:
+Para atualizar a aplicacao:
 
-- Nao usei `route:cache` porque o projeto tem rotas com closures.
-- Se houver workers rodando por Supervisor, o `queue:restart` faz o reload gracioso.
-- Se a VPS tambem compila frontend, esse passo pode ser incluido depois com `npm ci && npm run build`.
+```bash
+cd /srv/apps/php/magna_gestao
+./scripts/deploy.sh
+```
+
+O script:
+
+1. Impede dois deploys simultaneos com `flock`.
+2. Confirma que o `.env` existe e recusa deploy se houver alteracoes locais rastreadas.
+3. Executa `git fetch` e atualiza o branch atual com `git merge --ff-only`.
+4. Executa `composer install --no-dev --optimize-autoloader`.
+5. Executa `npm ci --include=dev` e `npm run build`.
+6. Executa `php artisan migrate --force`.
+7. Atualiza os assets do Filament e o link `public/storage`.
+8. Limpa caches, recria configuracao/eventos e compila as views Blade.
+9. Sinaliza o reinicio gracioso das filas e do scheduler.
+10. Tenta atualizar o Supervisor e reiniciar o PHP-FPM, quando disponivel.
+
+O script nao executa `route:cache` nem `php artisan optimize`, pois o projeto
+possui rotas com closures.
+
+## Configuracao
+
+Os valores abaixo sao opcionais. O branch atual e usado por padrao:
+
+```bash
+DEPLOY_BRANCH=main \
+PHP_BIN=/usr/bin/php8.3 \
+COMPOSER_BIN=/usr/local/bin/composer \
+PHP_FPM_SERVICE=php8.3-fpm \
+./scripts/deploy.sh
+```
+
+Variaveis disponiveis:
+
+- `DEPLOY_BRANCH`: branch que sera atualizado. Padrao: branch atual.
+- `GIT_REMOTE`: remoto Git. Padrao: `origin`.
+- `PHP_BIN`: executavel PHP usado pelo Artisan. Padrao: `php`.
+- `COMPOSER_BIN`: executavel Composer. Padrao: `composer`.
+- `NPM_BIN`: executavel npm. Padrao: `npm`.
+- `DEPLOY_BUILD_ASSETS`: use `0` somente se os assets forem compilados fora da VPS. Padrao: `1`.
+- `DEPLOY_RUN_MIGRATIONS`: use `0` apenas em uma operacao excepcional. Padrao: `1`.
+- `DEPLOY_RESTART_PHP_FPM`: `auto`, `1` ou `0`. Padrao: `auto`.
+- `PHP_FPM_SERVICE`: nome do servico PHP-FPM. Padrao: `php8.3-fpm`.
+- `DEPLOY_SUPERVISOR`: `auto`, `1` ou `0`. Padrao: `auto`.
+- `DEPLOY_LOCK_FILE`: arquivo do lock. Padrao: `/tmp/magna_gestao_deploy.lock`.
+
+O modo `auto` nao falha quando `sudo`, Supervisor ou PHP-FPM nao estao
+disponiveis; nesses casos o script exibe um aviso. Se esses servicos forem
+obrigatorios no ambiente, use `DEPLOY_RESTART_PHP_FPM=1` e
+`DEPLOY_SUPERVISOR=1` para transformar a ausencia/falha em erro.
 
 ## Supervisor
 
-Template sugerido:
+O `queue:restart` sinaliza os workers para terminarem o job atual e sairem;
+com `autorestart=true`, o Supervisor inicia os processos novamente. O
+`schedule:interrupt` faz o mesmo para o scheduler. O script executa
+`supervisorctl reread` e `supervisorctl update` quando consegue usar o
+Supervisor, mas nao copia arquivos para `/etc/supervisor` automaticamente.
+
+Instale a configuracao uma vez, ajustando o caminho do projeto se necessario:
 
 ```bash
-cp scripts/supervisor/laravel-worker.conf.example /etc/supervisor/conf.d/magna_gestao.conf
+sudo cp scripts/supervisor/laravel-worker.conf.example /etc/supervisor/conf.d/magna_gestao.conf
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl restart magna_gestao-queue:*
-sudo supervisorctl restart magna_gestao-schedule:*
 ```
 
 Filas contempladas no worker:
 
+- `automation`
+- `automation-import`
+- `integracoes`
 - `mail-receive`
 - `mail-process`
 - `mail-trip`
 - `mail-cte-return`
-- `automation`
-- `automation-import`
 - `default`
 
 ## Permissoes
 
-Se houver erro de escrita em `storage/logs` ou `storage/app`, rode:
+Se houver erro de escrita em `storage/logs`, `storage/app` ou
+`bootstrap/cache`, execute uma vez com o usuario/grupo do PHP e do Supervisor:
 
 ```bash
 bash scripts/fix-storage-permissions.sh www-data www-data
 ```
-
-Se o Supervisor estiver rodando com outro usuario/grupo, substitua os parametros.

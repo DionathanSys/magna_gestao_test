@@ -20,12 +20,13 @@ class RequestDailyTripSummaryJob implements ShouldQueue
         $timezone = (string) config('automation.schedules.daily_trip_summary.timezone', config('app.timezone'));
         $daysOffset = max(0, (int) config('automation.schedules.daily_trip_summary.days_offset', 1));
         $referenceDate = CarbonImmutable::now($timezone)->subDays($daysOffset)->toDateString();
-        $idempotencyKey = "schedule:daily_trip_summary:{$referenceDate}";
+        $idempotencyKey = "schedule:daily_trip_summary:{$referenceDate}:{$referenceDate}";
 
         $requestAutomationJob->handle(new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
             parameters: [
-                'date' => $referenceDate,
+                'from' => $referenceDate,
+                'to' => $referenceDate,
             ],
             source: AutomationJobSource::SCHEDULED,
             idempotencyKey: $idempotencyKey,

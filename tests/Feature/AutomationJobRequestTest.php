@@ -77,9 +77,9 @@ class AutomationJobRequestTest extends TestCase
     {
         $job = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
-            parameters: ['date' => '2026-09-19'],
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
             source: AutomationJobSource::SCHEDULED,
-            idempotencyKey: 'schedule:daily_trip_summary:2026-09-19',
+            idempotencyKey: 'schedule:daily_trip_summary:2026-09-19:2026-09-19',
         ));
 
         $this->assertSame(AutomationJobStatus::PENDING_SUBMISSION, $job->status);
@@ -95,7 +95,7 @@ class AutomationJobRequestTest extends TestCase
     {
         $request = new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
-            parameters: ['date' => '2026-09-19'],
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
             idempotencyKey: 'same-key',
         );
 
@@ -112,13 +112,13 @@ class AutomationJobRequestTest extends TestCase
 
         app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
-            parameters: ['date' => '2026-09-19'],
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
             idempotencyKey: 'same-key',
         ));
 
         app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
-            parameters: ['date' => '2026-09-20'],
+            parameters: ['from' => '2026-09-20', 'to' => '2026-09-20'],
             idempotencyKey: 'same-key',
         ));
     }
@@ -127,13 +127,13 @@ class AutomationJobRequestTest extends TestCase
     {
         $pending = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
-            parameters: ['date' => '2026-09-19'],
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
             idempotencyKey: 'pending-key',
         ));
 
         $active = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
-            parameters: ['date' => '2026-09-20'],
+            parameters: ['from' => '2026-09-20', 'to' => '2026-09-20'],
             idempotencyKey: 'active-key',
         ));
         $active->update([
@@ -159,7 +159,7 @@ class AutomationJobRequestTest extends TestCase
 
         $job = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
             reportKey: 'daily_trip_summary',
-            parameters: ['date' => '2026-09-19'],
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
             idempotencyKey: 'disabled-submission-key',
         ));
 

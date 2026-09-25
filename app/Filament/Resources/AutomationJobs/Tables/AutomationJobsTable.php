@@ -31,7 +31,8 @@ class AutomationJobsTable
                     ->label('Progresso')
                     ->formatStateUsing(fn ($state, $record): string => $record->progress_total
                         ? $state.'/'.$record->progress_total
-                        : (string) ($state ?? '-')),
+                        : (string) ($state ?? '-'))
+                    ->description(fn ($record): ?string => $record->progress_message),
                 TextColumn::make('submission_attempts')
                     ->label('Envios')
                     ->numeric(),

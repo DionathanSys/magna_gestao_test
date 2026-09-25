@@ -90,6 +90,9 @@ class SubmitAutomationJob implements ShouldQueue
                 'provider_max_attempts' => isset($response['max_attempts']) ? (int) $response['max_attempts'] : null,
             ]);
 
+            SyncAutomationJob::dispatch($job->id)
+                ->onQueue((string) config('automation.queues.processing', 'automation-import'));
+
             Log::info('Job submetido com sucesso para a Automation API', [
                 'automation_job_id' => $job->id,
                 'provider_job_id' => $job->provider_job_id,
@@ -97,16 +100,24 @@ class SubmitAutomationJob implements ShouldQueue
                 'status' => $status->value,
             ]);
         } catch (AutomationApiException $exception) {
+            $metadata = $job->metadata ?? [];
+
+            if (filled($exception->requestId)) {
+                $metadata['provider_request_id'] = $exception->requestId;
+            }
+
             $job->update([
                 'status' => AutomationJobStatus::REQUEST_FAILED,
                 'error_code' => $exception->errorCode,
                 'error_message' => $exception->getMessage(),
                 'submission_retryable' => $exception->retryable,
+                'metadata' => $metadata,
             ]);
 
             Log::error('Falha ao submeter job para a Automation API', [
                 'automation_job_id' => $job->id,
                 'report_key' => $job->report_key,
+                'collector' => $definition->collector,
                 'request_id' => $job->request_id,
                 'status_code' => $exception->statusCode,
                 'error_code' => $exception->errorCode,

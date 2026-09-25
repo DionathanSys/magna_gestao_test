@@ -29,7 +29,9 @@ class AutomationApiException extends RuntimeException
             statusCode: $statusCode,
             errorCode: isset($error['code']) ? (string) $error['code'] : null,
             retryable: $statusCode === 408 || $statusCode === 425 || $statusCode === 429 || $statusCode >= 500,
-            requestId: isset($error['request_id']) ? (string) $error['request_id'] : null,
+            requestId: isset($error['request_id'])
+                ? (string) $error['request_id']
+                : $response->header('X-Request-ID'),
         );
     }
 }

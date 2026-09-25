@@ -20,7 +20,7 @@ class VerifyAutomationWebhookSignature
         $version = trim((string) $request->header('X-Signature-Version', ''));
         $requestId = trim((string) $request->header('X-Request-ID', ''));
 
-        if ($clientId !== (string) config('automation.webhook.issuer_id')) {
+        if ($clientId !== (string) config('automation.webhook.client_id')) {
             return $this->reject('CLIENT_FORBIDDEN', 'Emissor de webhook nao autorizado.', 403, $requestId);
         }
 

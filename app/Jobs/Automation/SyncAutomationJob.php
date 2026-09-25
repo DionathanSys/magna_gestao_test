@@ -60,6 +60,12 @@ class SyncAutomationJob implements ShouldQueue
                     ->onQueue((string) config('automation.queues.processing', 'automation-import'));
             }
         } catch (AutomationApiException $exception) {
+            $metadata = $job->metadata ?? [];
+
+            if (filled($exception->requestId)) {
+                $metadata['provider_request_id'] = $exception->requestId;
+            }
+
             Log::warning('Falha ao reconciliar job da Automation API', [
                 'automation_job_id' => $job->id,
                 'provider_job_id' => $job->provider_job_id,
@@ -74,6 +80,7 @@ class SyncAutomationJob implements ShouldQueue
             $job->update([
                 'error_code' => $exception->errorCode,
                 'error_message' => $exception->getMessage(),
+                'metadata' => $metadata,
                 'last_synced_at' => now(),
             ]);
         }

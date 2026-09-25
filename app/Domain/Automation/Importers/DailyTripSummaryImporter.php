@@ -34,6 +34,8 @@ class DailyTripSummaryImporter implements AutomationResultImporter
         foreach ($items as $index => $item) {
             try {
                 $normalized = $this->normalizeItem($item, $definition->defaultUnidadeNegocio);
+                $vehicle = $this->resolveVehicle($normalized['placa']);
+                $normalized['unidade_negocio'] = $normalized['unidade_negocio'] ?: $vehicle->filial;
                 $validator = Validator::make($normalized, [
                     'numero_viagem' => 'required|string|max:255',
                     'placa' => 'required|string|max:20',
@@ -54,11 +56,10 @@ class DailyTripSummaryImporter implements AutomationResultImporter
                     throw new \InvalidArgumentException($validator->errors()->toJson());
                 }
 
-                $veiculoId = $this->resolveVehicleId($normalized['placa']);
                 $service = new ViagemService;
-                $viagem = DB::transaction(function () use ($normalized, $veiculoId, $service): mixed {
+                $viagem = DB::transaction(function () use ($normalized, $vehicle, $service): mixed {
                     $data = [
-                        'veiculo_id' => $veiculoId,
+                        'veiculo_id' => $vehicle->id,
                         'unidade_negocio' => $normalized['unidade_negocio'],
                         'cliente' => $normalized['cliente'],
                         'numero_viagem' => $normalized['numero_viagem'],
@@ -145,7 +146,7 @@ class DailyTripSummaryImporter implements AutomationResultImporter
         ];
     }
 
-    private function resolveVehicleId(?string $plate): int
+    private function resolveVehicle(?string $plate): Veiculo
     {
         $normalizedPlate = DocumentIdentity::normalizePlate($plate);
 
@@ -154,7 +155,7 @@ class DailyTripSummaryImporter implements AutomationResultImporter
         }
 
         $vehicle = Veiculo::query()
-            ->select('id', 'placa')
+            ->select('id', 'placa', 'filial')
             ->where('is_active', true)
             ->where(function ($query) use ($plate, $normalizedPlate): void {
                 $query->where('placa', trim((string) $plate))
@@ -166,6 +167,6 @@ class DailyTripSummaryImporter implements AutomationResultImporter
             throw new \InvalidArgumentException("Veiculo ativo nao encontrado para a placa {$normalizedPlate}.");
         }
 
-        return (int) $vehicle->id;
+        return $vehicle;
     }
 }

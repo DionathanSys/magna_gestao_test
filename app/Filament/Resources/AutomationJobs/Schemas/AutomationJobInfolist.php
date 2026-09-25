@@ -19,7 +19,12 @@ class AutomationJobInfolist
                 TextEntry::make('source'),
                 TextEntry::make('requestedBy.name')->label('Solicitante'),
                 TextEntry::make('idempotency_key'),
+                TextEntry::make('collector_version'),
+                TextEntry::make('schema_version'),
                 TextEntry::make('parameters')
+                    ->formatStateUsing(fn ($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}')
+                    ->columnSpanFull(),
+                TextEntry::make('metadata')
                     ->formatStateUsing(fn ($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}')
                     ->columnSpanFull(),
                 TextEntry::make('progress_current'),

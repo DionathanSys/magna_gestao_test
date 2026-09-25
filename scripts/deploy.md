@@ -83,6 +83,25 @@ Quando o Supervisor estiver acessivel, o deploy instala automaticamente
 antes de executar `reread` e `update`. Sem permissao sudo, um administrador
 precisa executar essa etapa manualmente.
 
+## Automation API
+
+Configure estes valores no `.env` da VPS. Os segredos devem ser os mesmos
+configurados na API Python e nunca devem ser versionados:
+
+```dotenv
+AUTOMATION_ENABLED=true
+AUTOMATION_API_URL=http://127.0.0.1:8000
+AUTOMATION_CLIENT_ID=magna_gestao
+AUTOMATION_CLIENT_SECRET=mesmo_segredo_configurado_no_Python
+AUTOMATION_API_TIMEOUT_SECONDS=30
+AUTOMATION_HMAC_TIMESTAMP_TOLERANCE_SECONDS=300
+AUTOMATION_WEBHOOK_CLIENT_ID=automation_prod
+AUTOMATION_WEBHOOK_SECRET=mesmo_segredo_do_webhook_Python
+```
+
+Depois de alterar o `.env`, execute o deploy para limpar e recriar o cache de
+configuração.
+
 ## Supervisor
 
 O `queue:restart` sinaliza os workers para terminarem o job atual e sairem;

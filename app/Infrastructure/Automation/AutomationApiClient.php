@@ -66,6 +66,14 @@ class AutomationApiClient
     /**
      * @return array<string, mixed>
      */
+    public function getCollectors(string $requestId): array
+    {
+        return $this->request('GET', '/api/v1/collectors', [], $requestId);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function getResultPage(
         string $providerJobId,
         ?string $cursor,
@@ -112,7 +120,7 @@ class AutomationApiClient
             $headers = $this->signer->headers($method, $path, $body, $requestId);
 
             $pendingRequest = Http::baseUrl(rtrim($baseUrl, '/'))
-                ->timeout((int) config('automation.api.timeout_seconds', 15))
+                ->timeout((int) config('automation.api.timeout_seconds', 30))
                 ->connectTimeout((int) config('automation.api.connect_timeout_seconds', 5))
                 ->withHeaders($headers);
 

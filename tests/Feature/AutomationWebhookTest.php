@@ -16,7 +16,7 @@ class AutomationWebhookTest extends TestCase
         parent::setUp();
 
         config([
-            'automation.webhook.issuer_id' => 'automation_prod',
+            'automation.webhook.client_id' => 'automation_prod',
             'automation.webhook.secret' => 'webhook-secret',
             'automation.webhook.previous_secret' => null,
             'automation.signature.nonce_cache_store' => 'array',

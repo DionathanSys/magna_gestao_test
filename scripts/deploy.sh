@@ -15,7 +15,7 @@ PHP_FPM_SERVICE="${PHP_FPM_SERVICE:-php8.3-fpm}"
 DEPLOY_SUPERVISOR="${DEPLOY_SUPERVISOR:-auto}"
 SUPERVISOR_CONFIG_SOURCE="${SUPERVISOR_CONFIG_SOURCE:-$ROOT_DIR/scripts/supervisor/magna_gestao.conf}"
 SUPERVISOR_CONFIG_PATH="${SUPERVISOR_CONFIG_PATH:-/etc/supervisor/conf.d/magna_gestao.conf}"
-DEPLOY_LOCK_FILE="${DEPLOY_LOCK_FILE:-/tmp/magna_gestao_deploy.lock}"
+DEPLOY_LOCK_FILE="${DEPLOY_LOCK_FILE:-$ROOT_DIR/storage/framework/cache/magna_gestao_deploy.lock}"
 
 log_step() {
     printf '\n==> %s\n' "$1"
@@ -194,7 +194,14 @@ fi
 
 LOCK_DIR="$(dirname "$DEPLOY_LOCK_FILE")"
 mkdir -p "$LOCK_DIR"
-exec 9>"$DEPLOY_LOCK_FILE"
+if [[ -e "$DEPLOY_LOCK_FILE" && ! -f "$DEPLOY_LOCK_FILE" ]]; then
+    die "O caminho do lock existe, mas nao e um arquivo regular: $DEPLOY_LOCK_FILE"
+fi
+
+if ! exec 9>"$DEPLOY_LOCK_FILE"; then
+    die "Nao foi possivel abrir o arquivo de lock: $DEPLOY_LOCK_FILE. Defina DEPLOY_LOCK_FILE para um caminho gravavel."
+fi
+
 flock -n 9 || die "Ja existe outro deploy em andamento."
 
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "Este diretorio nao e um repositorio Git."

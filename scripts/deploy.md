@@ -65,7 +65,7 @@ Variaveis disponiveis:
 - `DEPLOY_SUPERVISOR`: `auto`, `1` ou `0`. Padrao: `auto`.
 - `SUPERVISOR_CONFIG_SOURCE`: arquivo versionado da configuracao do Supervisor.
 - `SUPERVISOR_CONFIG_PATH`: destino da configuracao no sistema.
-- `DEPLOY_LOCK_FILE`: arquivo do lock. Padrao: `/tmp/magna_gestao_deploy.lock`.
+- `DEPLOY_LOCK_FILE`: arquivo do lock. Padrao: `storage/framework/cache/magna_gestao_deploy.lock`.
 
 O modo `auto` nao falha quando `sudo`, Supervisor ou PHP-FPM nao estao
 disponiveis; nesses casos o script exibe um aviso. Se esses servicos forem

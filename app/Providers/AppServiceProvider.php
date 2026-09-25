@@ -12,9 +12,11 @@ use App\Filament\Widgets\OficinaManutencaoResumo;
 use App\Filament\Widgets\OficinaManutencaoTipoResumo;
 use App\Listeners\Viagem\AtualizarRateioKmDispersaoCargas;
 use App\Models\DocumentoFrete;
+use App\Models\User;
 use App\Observers\DocumentoFreteObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
@@ -37,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
         ini_set('memory_limit', '256M');
 
         Model::unguard();
+
+        Gate::define('viewLogViewer', fn (?User $user): bool => (bool) $user?->is_admin);
 
         Event::listen(
             RecalcularRateioKmDispersaoRequested::class,

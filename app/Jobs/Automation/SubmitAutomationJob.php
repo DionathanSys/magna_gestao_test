@@ -57,6 +57,12 @@ class SubmitAutomationJob implements ShouldQueue
                 'error_message' => 'A integracao com a Automation API esta desativada.',
             ]);
 
+            Log::error('Submissao de job cancelada: integracao com a Automation API desativada', [
+                'automation_job_id' => $job->id,
+                'request_id' => $job->request_id,
+                'error_code' => 'AUTOMATION_DISABLED',
+            ]);
+
             return;
         }
 
@@ -98,12 +104,14 @@ class SubmitAutomationJob implements ShouldQueue
                 'submission_retryable' => $exception->retryable,
             ]);
 
-            Log::warning('Falha ao submeter job para a Automation API', [
+            Log::error('Falha ao submeter job para a Automation API', [
                 'automation_job_id' => $job->id,
                 'report_key' => $job->report_key,
                 'request_id' => $job->request_id,
                 'status_code' => $exception->statusCode,
                 'error_code' => $exception->errorCode,
+                'error' => $exception->getMessage(),
+                'provider_request_id' => $exception->requestId,
                 'retryable' => $exception->retryable,
             ]);
 

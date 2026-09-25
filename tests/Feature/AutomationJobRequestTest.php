@@ -3,15 +3,18 @@
 namespace Tests\Feature;
 
 use App\Domain\Automation\Actions\RequestAutomationJob;
+use App\Domain\Automation\AutomationReportRegistry;
 use App\Domain\Automation\Data\AutomationJobRequest;
 use App\Domain\Automation\Exceptions\AutomationIdempotencyConflictException;
 use App\Enum\Automation\AutomationJobSource;
 use App\Enum\Automation\AutomationJobStatus;
+use App\Infrastructure\Automation\AutomationApiClient;
 use App\Jobs\Automation\ReconcileAutomationJobs;
 use App\Jobs\Automation\SubmitAutomationJob;
 use App\Jobs\Automation\SyncAutomationJob;
 use App\Models\AutomationJob;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -147,6 +150,34 @@ class AutomationJobRequestTest extends TestCase
         });
         Queue::assertPushed(SyncAutomationJob::class, function (SyncAutomationJob $job) use ($active): bool {
             return $job->automationJobId === $active->id;
+        });
+    }
+
+    public function test_disabled_submission_persists_and_logs_the_reason(): void
+    {
+        config(['automation.enabled' => false]);
+
+        $job = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['date' => '2026-09-19'],
+            idempotencyKey: 'disabled-submission-key',
+        ));
+
+        Log::spy();
+
+        (new SubmitAutomationJob($job->id))->handle(
+            app(AutomationApiClient::class),
+            app(AutomationReportRegistry::class),
+        );
+
+        $job->refresh();
+
+        $this->assertSame(AutomationJobStatus::REQUEST_FAILED, $job->status);
+        $this->assertSame('AUTOMATION_DISABLED', $job->error_code);
+        $this->assertSame('A integracao com a Automation API esta desativada.', $job->error_message);
+        Log::shouldHaveReceived('error')->withArgs(function (string $message, array $context): bool {
+            return str_contains($message, 'integracao com a Automation API desativada')
+                && $context['error_code'] === 'AUTOMATION_DISABLED';
         });
     }
 }

@@ -63,6 +63,8 @@ Variaveis disponiveis:
 - `DEPLOY_RESTART_PHP_FPM`: `auto`, `1` ou `0`. Padrao: `auto`.
 - `PHP_FPM_SERVICE`: nome do servico PHP-FPM. Padrao: `php8.3-fpm`.
 - `DEPLOY_SUPERVISOR`: `auto`, `1` ou `0`. Padrao: `auto`.
+- `SUPERVISOR_CONFIG_SOURCE`: arquivo versionado da configuracao do Supervisor.
+- `SUPERVISOR_CONFIG_PATH`: destino da configuracao no sistema.
 - `DEPLOY_LOCK_FILE`: arquivo do lock. Padrao: `/tmp/magna_gestao_deploy.lock`.
 
 O modo `auto` nao falha quando `sudo`, Supervisor ou PHP-FPM nao estao
@@ -70,18 +72,24 @@ disponiveis; nesses casos o script exibe um aviso. Se esses servicos forem
 obrigatorios no ambiente, use `DEPLOY_RESTART_PHP_FPM=1` e
 `DEPLOY_SUPERVISOR=1` para transformar a ausencia/falha em erro.
 
+Quando o Supervisor estiver acessivel, o deploy instala automaticamente
+`scripts/supervisor/magna_gestao.conf` em `/etc/supervisor/conf.d/magna_gestao.conf`
+antes de executar `reread` e `update`. Sem permissao sudo, um administrador
+precisa executar essa etapa manualmente.
+
 ## Supervisor
 
 O `queue:restart` sinaliza os workers para terminarem o job atual e sairem;
 com `autorestart=true`, o Supervisor inicia os processos novamente. O
-`schedule:interrupt` faz o mesmo para o scheduler. O script executa
-`supervisorctl reread` e `supervisorctl update` quando consegue usar o
-Supervisor, mas nao copia arquivos para `/etc/supervisor` automaticamente.
+`schedule:interrupt` faz o mesmo para o scheduler. O script instala a
+configuracao versionada e executa `supervisorctl reread` e
+`supervisorctl update` quando consegue usar o Supervisor.
 
-Instale a configuracao uma vez, ajustando o caminho do projeto se necessario:
+Se o deploy ainda nao tiver permissao para instalar a configuracao, execute uma
+vez como administrador, ajustando o caminho do projeto se necessario:
 
 ```bash
-sudo cp scripts/supervisor/laravel-worker.conf.example /etc/supervisor/conf.d/magna_gestao.conf
+sudo cp scripts/supervisor/magna_gestao.conf /etc/supervisor/conf.d/magna_gestao.conf
 sudo supervisorctl reread
 sudo supervisorctl update
 ```

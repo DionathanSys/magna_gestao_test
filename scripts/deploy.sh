@@ -13,6 +13,8 @@ DEPLOY_RUN_MIGRATIONS="${DEPLOY_RUN_MIGRATIONS:-1}"
 DEPLOY_RESTART_PHP_FPM="${DEPLOY_RESTART_PHP_FPM:-auto}"
 PHP_FPM_SERVICE="${PHP_FPM_SERVICE:-php8.3-fpm}"
 DEPLOY_SUPERVISOR="${DEPLOY_SUPERVISOR:-auto}"
+SUPERVISOR_CONFIG_SOURCE="${SUPERVISOR_CONFIG_SOURCE:-$ROOT_DIR/scripts/supervisor/magna_gestao.conf}"
+SUPERVISOR_CONFIG_PATH="${SUPERVISOR_CONFIG_PATH:-/etc/supervisor/conf.d/magna_gestao.conf}"
 DEPLOY_LOCK_FILE="${DEPLOY_LOCK_FILE:-/tmp/magna_gestao_deploy.lock}"
 
 log_step() {
@@ -102,6 +104,15 @@ refresh_supervisor() {
         fi
 
         die "DEPLOY_SUPERVISOR esta habilitado, mas o usuario nao pode executar supervisorctl."
+    fi
+
+    if [[ -f "$SUPERVISOR_CONFIG_SOURCE" ]] && ! run_privileged install -m 0644 "$SUPERVISOR_CONFIG_SOURCE" "$SUPERVISOR_CONFIG_PATH"; then
+        if [[ "${DEPLOY_SUPERVISOR,,}" == "auto" ]]; then
+            log_warning "Nao foi possivel instalar a configuracao do Supervisor em $SUPERVISOR_CONFIG_PATH."
+            return
+        fi
+
+        die "Falha ao instalar a configuracao do Supervisor."
     fi
 
     if ! run_privileged supervisorctl reread; then

@@ -38,6 +38,13 @@ class SubmitAutomationJob implements ShouldQueue
     ): void {
         $job = AutomationJob::query()->findOrFail($this->automationJobId);
 
+        Log::info('Iniciando submissao de job para a Automation API', [
+            'automation_job_id' => $job->id,
+            'request_id' => $job->request_id,
+            'report_key' => $job->report_key,
+            'status' => $job->status?->value,
+        ]);
+
         if (! $job->isAwaitingSubmission() || filled($job->provider_job_id)) {
             return;
         }
@@ -76,6 +83,13 @@ class SubmitAutomationJob implements ShouldQueue
                 'provider_attempts' => isset($response['attempts']) ? (int) $response['attempts'] : null,
                 'provider_max_attempts' => isset($response['max_attempts']) ? (int) $response['max_attempts'] : null,
             ]);
+
+            Log::info('Job submetido com sucesso para a Automation API', [
+                'automation_job_id' => $job->id,
+                'provider_job_id' => $job->provider_job_id,
+                'request_id' => $job->request_id,
+                'status' => $status->value,
+            ]);
         } catch (AutomationApiException $exception) {
             $job->update([
                 'status' => AutomationJobStatus::REQUEST_FAILED,
@@ -101,6 +115,11 @@ class SubmitAutomationJob implements ShouldQueue
 
     public function failed(?Throwable $exception): void
     {
+        Log::error('Falha definitiva ao submeter job para a Automation API', [
+            'automation_job_id' => $this->automationJobId,
+            'error' => $exception?->getMessage(),
+        ]);
+
         AutomationJob::query()
             ->whereKey($this->automationJobId)
             ->update([

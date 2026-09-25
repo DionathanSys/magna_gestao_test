@@ -10,6 +10,7 @@ use App\Jobs\Automation\SubmitAutomationJob;
 use App\Models\AutomationJob;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class RequestAutomationJob
@@ -52,9 +53,18 @@ class RequestAutomationJob
                     'requested_at' => now(),
                 ]);
 
+                $queue = (string) config('automation.queues.submission', 'automation');
+
                 SubmitAutomationJob::dispatch($job->id)
-                    ->onQueue((string) config('automation.queues.submission', 'automation'))
+                    ->onQueue($queue)
                     ->afterCommit();
+
+                Log::info('Job de automacao enfileirado para submissao', [
+                    'automation_job_id' => $job->id,
+                    'queue' => $queue,
+                    'request_id' => $job->request_id,
+                    'report_key' => $job->report_key,
+                ]);
 
                 return $job;
             });

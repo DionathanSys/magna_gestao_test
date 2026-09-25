@@ -15,7 +15,7 @@ PHP_FPM_SERVICE="${PHP_FPM_SERVICE:-php8.3-fpm}"
 DEPLOY_SUPERVISOR="${DEPLOY_SUPERVISOR:-auto}"
 SUPERVISOR_CONFIG_SOURCE="${SUPERVISOR_CONFIG_SOURCE:-$ROOT_DIR/scripts/supervisor/magna_gestao.conf}"
 SUPERVISOR_CONFIG_PATH="${SUPERVISOR_CONFIG_PATH:-/etc/supervisor/conf.d/magna_gestao.conf}"
-DEPLOY_LOCK_FILE="${DEPLOY_LOCK_FILE:-$ROOT_DIR/storage/framework/cache/magna_gestao_deploy.lock}"
+DEPLOY_LOCK_FILE="${DEPLOY_LOCK_FILE:-${TMPDIR:-/tmp}/magna_gestao_deploy.lock}"
 
 log_step() {
     printf '\n==> %s\n' "$1"

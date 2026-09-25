@@ -72,6 +72,12 @@ disponiveis; nesses casos o script exibe um aviso. Se esses servicos forem
 obrigatorios no ambiente, use `DEPLOY_RESTART_PHP_FPM=1` e
 `DEPLOY_SUPERVISOR=1` para transformar a ausencia/falha em erro.
 
+## Assets do Log Viewer
+
+O Log Viewer 3.x serve CSS, JavaScript e favicon diretamente do pacote. Nao
+execute `php artisan log-viewer:publish` no deploy; essa publicacao e
+depreciada e a pasta `public/vendor/log-viewer` nao e versionada.
+
 Quando o Supervisor estiver acessivel, o deploy instala automaticamente
 `scripts/supervisor/magna_gestao.conf` em `/etc/supervisor/conf.d/magna_gestao.conf`
 antes de executar `reread` e `update`. Sem permissao sudo, um administrador

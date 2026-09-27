@@ -31,7 +31,7 @@ return [
     'webhook' => [
         'client_id' => env('AUTOMATION_WEBHOOK_CLIENT_ID', env('AUTOMATION_WEBHOOK_ISSUER_ID', 'automation_prod')),
         'secret' => env('AUTOMATION_WEBHOOK_SECRET'),
-        'previous_secret' => env('AUTOMATION_WEBHOOK_PREVIOUS_SECRET'),
+        'previous_secret' => env('AUTOMATION_WEBHOOK_PREVIOUS_SECRET', env('AUTOMATION_WEBHOOK_SECRET_PREVIOUS')),
     ],
 
     'signature' => [

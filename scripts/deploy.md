@@ -136,14 +136,14 @@ Filas contempladas no worker:
 
 ## Permissoes
 
-Se uma tentativa anterior foi executada como `root` e o `npm ci` falhar com
-`EACCES` dentro de `node_modules`, remova apenas essa dependencia gerada e
-reinstale como o usuario do deploy:
+Se uma tentativa anterior foi executada como `root` e o `npm ci` ou o Vite
+falhar com `EACCES` dentro de `node_modules` ou `public/build`, remova os
+artefatos gerados e reinstale tudo como o usuario do deploy:
 
 ```bash
 cd /srv/apps/php/magna_gestao
-sudo rm -rf node_modules
-sudo rm -f /tmp/magna_gestao_deploy.lock
+sudo rm -rf node_modules public/build
+sudo install -d -o deploy -g deploy -m 755 public/build
 ./scripts/deploy.sh
 ```
 

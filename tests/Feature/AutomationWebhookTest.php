@@ -75,6 +75,13 @@ class AutomationWebhookTest extends TestCase
             ->assertJsonPath('error.code', 'REPLAY_DETECTED');
     }
 
+    public function test_accepts_a_signature_with_the_sha256_prefix(): void
+    {
+        $this->sendWebhook('event-prefixed', 'nonce-prefixed', true)
+            ->assertAccepted()
+            ->assertJsonPath('event_id', 'event-prefixed');
+    }
+
     public function test_returns_success_for_a_duplicate_event_id_with_a_new_nonce(): void
     {
         $this->sendWebhook('event-001', 'nonce-001')->assertAccepted();
@@ -90,7 +97,7 @@ class AutomationWebhookTest extends TestCase
         Queue::assertPushed(ProcessAutomationEvent::class, 1);
     }
 
-    private function sendWebhook(string $eventId, string $nonce)
+    private function sendWebhook(string $eventId, string $nonce, bool $prefixSignature = false)
     {
         $body = json_encode([
             'event_id' => $eventId,
@@ -116,7 +123,7 @@ class AutomationWebhookTest extends TestCase
             'HTTP_X_CLIENT_ID' => 'automation_prod',
             'HTTP_X_TIMESTAMP' => $timestamp,
             'HTTP_X_NONCE' => $nonce,
-            'HTTP_X_SIGNATURE' => hash_hmac('sha256', $canonical, 'webhook-secret'),
+            'HTTP_X_SIGNATURE' => ($prefixSignature ? 'sha256=' : '').hash_hmac('sha256', $canonical, 'webhook-secret'),
             'HTTP_X_SIGNATURE_VERSION' => 'v1',
             'HTTP_X_REQUEST_ID' => 'request-'.$eventId,
         ], $body);

@@ -17,6 +17,7 @@ class VerifyAutomationWebhookSignature
         $timestamp = trim((string) $request->header('X-Timestamp', ''));
         $nonce = trim((string) $request->header('X-Nonce', ''));
         $signature = trim((string) $request->header('X-Signature', ''));
+        $signature = strtolower((string) preg_replace('/^sha256=/i', '', $signature));
         $version = trim((string) $request->header('X-Signature-Version', ''));
         $requestId = trim((string) $request->header('X-Request-ID', ''));
 

@@ -9,6 +9,7 @@ use App\Domain\Automation\Exceptions\AutomationIdempotencyConflictException;
 use App\Enum\Automation\AutomationJobSource;
 use App\Enum\Automation\AutomationJobStatus;
 use App\Infrastructure\Automation\AutomationApiClient;
+use App\Jobs\Automation\ImportAutomationResult;
 use App\Jobs\Automation\ReconcileAutomationJobs;
 use App\Jobs\Automation\SubmitAutomationJob;
 use App\Jobs\Automation\SyncAutomationJob;
@@ -28,6 +29,7 @@ class AutomationJobRequestTest extends TestCase
         config(['queue.default' => 'sync']);
         Queue::fake();
 
+        Schema::dropIfExists('automation_result_imports');
         Schema::dropIfExists('automation_jobs');
         Schema::create('automation_jobs', function (Blueprint $table): void {
             $table->id();
@@ -64,10 +66,20 @@ class AutomationJobRequestTest extends TestCase
             $table->unsignedBigInteger('retry_of_job_id')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('automation_result_imports', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('automation_job_id');
+            $table->unsignedInteger('page_number');
+            $table->text('next_cursor')->nullable();
+            $table->string('status')->default('PROCESSING');
+            $table->timestamps();
+        });
     }
 
     protected function tearDown(): void
     {
+        Schema::dropIfExists('automation_result_imports');
         Schema::dropIfExists('automation_jobs');
 
         parent::tearDown();
@@ -150,6 +162,27 @@ class AutomationJobRequestTest extends TestCase
         });
         Queue::assertPushed(SyncAutomationJob::class, function (SyncAutomationJob $job) use ($active): bool {
             return $job->automationJobId === $active->id;
+        });
+    }
+
+    public function test_reconciliation_requeues_a_completed_job_without_a_finished_import(): void
+    {
+        $job = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            idempotencyKey: 'completed-without-import-key',
+        ));
+        $job->update([
+            'status' => AutomationJobStatus::COMPLETED,
+            'provider_job_id' => 'provider-job-completed',
+            'progress_current' => 1,
+            'progress_total' => 20,
+        ]);
+
+        (new ReconcileAutomationJobs)->handle();
+
+        Queue::assertPushed(ImportAutomationResult::class, function (ImportAutomationResult $import) use ($job): bool {
+            return $import->automationJobId === $job->id;
         });
     }
 

@@ -55,5 +55,27 @@ class ReconcileAutomationJobs implements ShouldQueue
                 SyncAutomationJob::dispatch($jobId)
                     ->onQueue((string) config('automation.queues.processing', 'automation-import'));
             });
+
+        AutomationJob::query()
+            ->where('status', AutomationJobStatus::COMPLETED)
+            ->whereNotNull('provider_job_id')
+            ->where(function ($query): void {
+                $query
+                    ->whereDoesntHave('resultImports', function ($query): void {
+                        $query
+                            ->where('status', 'COMPLETED')
+                            ->whereNull('next_cursor');
+                    })
+                    ->orWhereColumn('progress_current', '<', 'progress_total');
+            })
+            ->whereDoesntHave('resultImports', function ($query): void {
+                $query->where('status', 'PROCESSING');
+            })
+            ->limit(50)
+            ->pluck('id')
+            ->each(function (int $jobId): void {
+                ImportAutomationResult::dispatch($jobId)
+                    ->onQueue((string) config('automation.queues.processing', 'automation-import'));
+            });
     }
 }

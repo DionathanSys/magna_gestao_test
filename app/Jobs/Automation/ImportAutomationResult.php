@@ -72,6 +72,11 @@ class ImportAutomationResult implements ShouldQueue
             'error_message' => null,
         ])->save();
 
+        $recordsImportedBeforePage = (int) AutomationResultImport::query()
+            ->where('automation_job_id', $job->id)
+            ->where('status', AutomationResultImportStatus::COMPLETED)
+            ->sum('records_received');
+
         try {
             $page = $client->getResultPage(
                 providerJobId: (string) $job->provider_job_id,
@@ -91,8 +96,13 @@ class ImportAutomationResult implements ShouldQueue
             $nextCursor = isset($meta['next_cursor']) && $meta['next_cursor'] !== null
                 ? (string) $meta['next_cursor']
                 : null;
+            $total = isset($meta['total']) ? (int) $meta['total'] : $job->progress_total;
+            $recordsImported = $recordsImportedBeforePage + $result->recordsReceived;
+            $progressCurrent = $nextCursor === null && $total !== null
+                ? $total
+                : $recordsImported;
 
-            DB::transaction(function () use ($import, $meta, $nextCursor, $result, $job): void {
+            DB::transaction(function () use ($import, $meta, $nextCursor, $result, $job, $total, $progressCurrent): void {
                 $import->update([
                     'next_cursor' => $nextCursor,
                     'checksum' => $meta['checksum'] ?? null,
@@ -106,9 +116,9 @@ class ImportAutomationResult implements ShouldQueue
                 ]);
 
                 $job->update([
-                    'progress_current' => $import->page_number + 1,
-                    'progress_total' => isset($meta['total']) ? (int) $meta['total'] : $job->progress_total,
-                    'result_count' => isset($meta['total']) ? (int) $meta['total'] : $job->result_count,
+                    'progress_current' => $progressCurrent,
+                    'progress_total' => $total,
+                    'result_count' => $total ?? $job->result_count,
                     'result_checksum' => $meta['checksum'] ?? $job->result_checksum,
                     'last_synced_at' => now(),
                 ]);
@@ -157,11 +167,17 @@ class ImportAutomationResult implements ShouldQueue
 
     private function finish(AutomationJob $job): void
     {
-        $job->update([
+        $updates = [
             'status' => AutomationJobStatus::COMPLETED,
             'finished_at' => $job->finished_at ?? now(),
             'last_synced_at' => now(),
-        ]);
+        ];
+
+        if ($job->progress_total !== null) {
+            $updates['progress_current'] = $job->progress_total;
+        }
+
+        $job->update($updates);
 
         if ($this->automationEventId) {
             AutomationEvent::query()->whereKey($this->automationEventId)->update([

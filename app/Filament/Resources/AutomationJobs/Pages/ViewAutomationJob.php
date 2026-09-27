@@ -6,6 +6,7 @@ use App\Domain\Automation\Exceptions\AutomationApiException;
 use App\Enum\Automation\AutomationJobStatus;
 use App\Filament\Resources\AutomationJobs\AutomationJobResource;
 use App\Infrastructure\Automation\AutomationApiClient;
+use App\Jobs\Automation\ImportAutomationResult;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -18,6 +19,30 @@ class ViewAutomationJob extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('reimportResult')
+                ->label('Reimportar resultado')
+                ->icon('heroicon-o-arrow-path')
+                ->color('warning')
+                ->visible(fn (): bool => filled($this->record->provider_job_id)
+                    && in_array($this->record->status, [
+                        AutomationJobStatus::COMPLETED,
+                        AutomationJobStatus::FAILED,
+                    ], true))
+                ->requiresConfirmation()
+                ->modalHeading('Reimportar resultado')
+                ->modalDescription('O resultado será buscado novamente e os registros serão processados com a configuração atual.')
+                ->action(function (): void {
+                    ImportAutomationResult::dispatch(
+                        $this->record->id,
+                        force: true,
+                    )->onQueue((string) config('automation.queues.processing', 'automation-import'));
+
+                    Notification::make()
+                        ->success()
+                        ->title('Reimportação enfileirada')
+                        ->body('O resultado será processado novamente pela fila automation-import.')
+                        ->send();
+                }),
             Action::make('diagnostic')
                 ->label('Atualizar diagnóstico')
                 ->icon('heroicon-o-signal')

@@ -32,10 +32,15 @@ class DailyTripSummaryImporter implements AutomationResultImporter
         $errors = [];
 
         foreach ($items as $index => $item) {
+            $normalized = [];
+            $vehicle = null;
+
             try {
                 $normalized = $this->normalizeItem($item, $definition->defaultUnidadeNegocio);
                 $vehicle = $this->resolveVehicle($normalized['placa']);
-                $normalized['unidade_negocio'] = $normalized['unidade_negocio'] ?: $vehicle->filial;
+                $normalized['unidade_negocio'] = $this->normalizeUnidadeNegocio($normalized['unidade_negocio'] ?? null)
+                    ?? $this->normalizeUnidadeNegocio($vehicle->filial);
+                $normalized['cliente'] = data_get($vehicle->informacoes_complementares, 'cliente');
                 $validator = Validator::make($normalized, [
                     'numero_viagem' => 'required|string|max:255',
                     'placa' => 'required|string|max:20',
@@ -100,6 +105,10 @@ class DailyTripSummaryImporter implements AutomationResultImporter
                 $errors[] = [
                     'index' => $index,
                     'numero_viagem' => $item['numero_viagem'] ?? null,
+                    'placa' => $normalized['placa'] ?? $item['placa'] ?? null,
+                    'unidade_negocio' => $normalized['unidade_negocio'] ?? null,
+                    'veiculo_filial' => $vehicle?->filial,
+                    'cliente' => $normalized['cliente'] ?? null,
                     'error' => $exception->getMessage(),
                 ];
             }
@@ -155,7 +164,7 @@ class DailyTripSummaryImporter implements AutomationResultImporter
         }
 
         $vehicle = Veiculo::query()
-            ->select('id', 'placa', 'filial')
+            ->select('id', 'placa', 'filial', 'informacoes_complementares')
             ->where('is_active', true)
             ->where(function ($query) use ($plate, $normalizedPlate): void {
                 $query->where('placa', trim((string) $plate))
@@ -168,5 +177,12 @@ class DailyTripSummaryImporter implements AutomationResultImporter
         }
 
         return $vehicle;
+    }
+
+    private function normalizeUnidadeNegocio(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
     }
 }

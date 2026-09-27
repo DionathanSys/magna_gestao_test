@@ -45,26 +45,37 @@ class VerifyAutomationWebhookSignature
         }
 
         $rawBody = $request->getContent();
+        $bodyHash = hash('sha256', $rawBody);
         $canonical = implode("\n", [
             strtoupper($request->method()),
             $request->getRequestUri(),
             $timestamp,
             $nonce,
-            hash('sha256', $rawBody),
+            $bodyHash,
         ]);
 
-        $validSignature = false;
+        $matchedSecret = null;
 
-        foreach ($secrets as $secret) {
+        foreach ($secrets as $index => $secret) {
             $expected = hash_hmac('sha256', $canonical, (string) $secret);
-            $validSignature = hash_equals($expected, $signature) || $validSignature;
+
+            if (hash_equals($expected, $signature)) {
+                $matchedSecret = $index === 0 ? 'current' : 'previous';
+            }
         }
 
-        if (! $validSignature) {
+        if ($matchedSecret === null) {
             Log::warning('Assinatura de webhook da Automation API invalida', [
                 'request_id' => $requestId ?: null,
                 'client_id' => $clientId,
                 'path' => $request->getRequestUri(),
+                'method' => strtoupper($request->method()),
+                'timestamp' => $timestamp,
+                'body_sha256' => $bodyHash,
+                'canonical_sha256' => hash('sha256', $canonical),
+                'signature_length' => strlen($signature),
+                'signature_has_sha256_prefix' => str_starts_with(strtolower(trim((string) $request->header('X-Signature', ''))), 'sha256='),
+                'secret_candidates' => count($secrets),
             ]);
 
             return $this->reject('INVALID_SIGNATURE', 'Assinatura invalida.', 401, $requestId);

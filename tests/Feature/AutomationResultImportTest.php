@@ -13,6 +13,7 @@ use App\Enum\Automation\AutomationResultImportStatus;
 use App\Infrastructure\Automation\AutomationApiClient;
 use App\Jobs\Automation\ImportAutomationResult;
 use App\Models\AutomationJob;
+use App\Models\AutomationResultImport;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
@@ -138,6 +139,73 @@ class AutomationResultImportTest extends TestCase
             'automation_job_id' => $job->id,
             'page_number' => 0,
             'records_received' => 20,
+            'status' => AutomationResultImportStatus::COMPLETED->value,
+        ]);
+    }
+
+    public function test_forced_import_discards_the_previous_checkpoint_and_starts_at_page_zero(): void
+    {
+        $definition = new AutomationReportDefinition(
+            key: 'daily_trip_summary',
+            collector: 'daily_trip_summary',
+            collectorVersion: '1.0.0',
+            schemaVersion: '1.0',
+            defaultUnidadeNegocio: null,
+            resultPageLimit: 500,
+            parameterRules: [],
+            fields: [],
+        );
+        $importer = Mockery::mock(AutomationResultImporter::class);
+        $importer->shouldReceive('importPage')
+            ->once()
+            ->andReturn(new AutomationImportPageResult(1, 1, 0, 0));
+
+        $reports = Mockery::mock(AutomationReportRegistry::class);
+        $reports->shouldReceive('get')->once()->with('daily_trip_summary')->andReturn($definition);
+        $importers = Mockery::mock(AutomationResultImporterRegistry::class);
+        $importers->shouldReceive('get')->once()->with($definition)->andReturn($importer);
+        $client = Mockery::mock(AutomationApiClient::class);
+        $client->shouldReceive('getResultPage')
+            ->once()
+            ->with('provider-job-002', null, 500, 'request-002')
+            ->andReturn([
+                'data' => [['numero_viagem' => 'VIAGEM-NOVA']],
+                'meta' => [
+                    'total' => 1,
+                    'next_cursor' => null,
+                    'checksum' => 'sha256:new',
+                ],
+            ]);
+
+        $job = AutomationJob::query()->create([
+            'provider_job_id' => 'provider-job-002',
+            'report_key' => 'daily_trip_summary',
+            'collector' => 'daily_trip_summary',
+            'status' => AutomationJobStatus::COMPLETED,
+            'source' => AutomationJobSource::MANUAL,
+            'parameters' => [],
+            'idempotency_key' => 'force-test-key',
+            'request_fingerprint' => hash('sha256', 'force-test'),
+            'request_id' => 'request-002',
+            'progress_current' => 20,
+            'progress_total' => 20,
+        ]);
+
+        AutomationResultImport::query()->create([
+            'automation_job_id' => $job->id,
+            'page_number' => 0,
+            'next_cursor' => 'old-cursor',
+            'status' => AutomationResultImportStatus::COMPLETED,
+            'records_received' => 20,
+        ]);
+
+        (new ImportAutomationResult($job->id, null, true))->handle($client, $reports, $importers);
+
+        $this->assertDatabaseCount('automation_result_imports', 1);
+        $this->assertDatabaseHas('automation_result_imports', [
+            'automation_job_id' => $job->id,
+            'page_number' => 0,
+            'records_received' => 1,
             'status' => AutomationResultImportStatus::COMPLETED->value,
         ]);
     }

@@ -25,6 +25,7 @@ class ImportAutomationResult implements ShouldQueue
     public function __construct(
         public readonly int $automationJobId,
         public readonly ?int $automationEventId = null,
+        public readonly bool $force = false,
     ) {}
 
     public function backoff(): array
@@ -43,6 +44,12 @@ class ImportAutomationResult implements ShouldQueue
             throw new \RuntimeException('Job sem provider_job_id nao pode importar resultado.');
         }
 
+        if ($this->force) {
+            AutomationResultImport::query()
+                ->where('automation_job_id', $job->id)
+                ->delete();
+        }
+
         $definition = $reports->get($job->report_key);
         $importer = $importers->get($definition);
         $lastCompleted = AutomationResultImport::query()
@@ -53,6 +60,12 @@ class ImportAutomationResult implements ShouldQueue
 
         $pageNumber = $lastCompleted ? $lastCompleted->page_number + 1 : 0;
         $cursor = $lastCompleted?->next_cursor;
+
+        if ($this->force) {
+            $pageNumber = 0;
+            $cursor = null;
+            $lastCompleted = null;
+        }
 
         if ($lastCompleted && blank($cursor)) {
             $this->finish($job);
@@ -125,7 +138,7 @@ class ImportAutomationResult implements ShouldQueue
             });
 
             if ($nextCursor !== null) {
-                self::dispatch($job->id, $this->automationEventId)
+                self::dispatch($job->id, $this->automationEventId, false)
                     ->onQueue((string) config('automation.queues.processing', 'automation-import'));
 
                 return;

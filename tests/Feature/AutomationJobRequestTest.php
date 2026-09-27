@@ -118,6 +118,26 @@ class AutomationJobRequestTest extends TestCase
         $this->assertSame(1, AutomationJob::query()->count());
     }
 
+    public function test_manual_request_retries_a_non_retryable_failed_job(): void
+    {
+        $request = new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            source: AutomationJobSource::MANUAL,
+            idempotencyKey: 'manual-retry-key',
+        );
+        $job = app(RequestAutomationJob::class)->handle($request);
+        $job->update([
+            'status' => AutomationJobStatus::REQUEST_FAILED,
+            'submission_retryable' => false,
+        ]);
+
+        $retried = app(RequestAutomationJob::class)->handle($request);
+
+        $this->assertSame($job->id, $retried->id);
+        Queue::assertPushed(SubmitAutomationJob::class, 2);
+    }
+
     public function test_same_idempotency_key_with_different_content_is_rejected(): void
     {
         $this->expectException(AutomationIdempotencyConflictException::class);

@@ -188,6 +188,10 @@ require_command flock
 require_command "$PHP_BIN"
 require_command "$COMPOSER_BIN"
 
+if (( EUID == 0 )); then
+    die "Nao execute o deploy como root. Execute como o usuario dono do projeto e configure sudo sem senha apenas para Supervisor/PHP-FPM."
+fi
+
 if is_enabled "$DEPLOY_BUILD_ASSETS"; then
     require_command "$NPM_BIN"
 fi

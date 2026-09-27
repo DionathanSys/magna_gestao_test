@@ -5,6 +5,7 @@ namespace App\Domain\Automation\Actions;
 use App\Domain\Automation\AutomationReportRegistry;
 use App\Domain\Automation\Data\AutomationJobRequest;
 use App\Domain\Automation\Exceptions\AutomationIdempotencyConflictException;
+use App\Enum\Automation\AutomationJobSource;
 use App\Enum\Automation\AutomationJobStatus;
 use App\Jobs\Automation\SubmitAutomationJob;
 use App\Models\AutomationJob;
@@ -30,7 +31,7 @@ class RequestAutomationJob
 
         if ($existing) {
             $this->assertSameRequest($existing, $fingerprint, $idempotencyKey);
-            $this->resubmitIfNecessary($existing);
+            $this->resubmitIfNecessary($existing, $request->source);
 
             return $existing;
         }
@@ -76,7 +77,7 @@ class RequestAutomationJob
             }
 
             $this->assertSameRequest($existing, $fingerprint, $idempotencyKey);
-            $this->resubmitIfNecessary($existing);
+            $this->resubmitIfNecessary($existing, $request->source);
 
             return $existing;
         }
@@ -102,9 +103,15 @@ class RequestAutomationJob
         }
     }
 
-    private function resubmitIfNecessary(AutomationJob $job): void
+    private function resubmitIfNecessary(AutomationJob $job, AutomationJobSource $source): void
     {
-        if (! $job->isAwaitingSubmission() || ($job->status?->value === 'REQUEST_FAILED' && ! $job->submission_retryable)) {
+        if (! $job->isAwaitingSubmission()) {
+            return;
+        }
+
+        if ($job->status?->value === 'REQUEST_FAILED'
+            && ! $job->submission_retryable
+            && $source !== AutomationJobSource::MANUAL) {
             return;
         }
 

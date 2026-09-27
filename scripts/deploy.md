@@ -11,8 +11,12 @@ chmod +x scripts/deploy.sh
 
 Mantenha o `.env` somente na VPS. Ele nao deve ser versionado. O usuario que
 executa o deploy precisa ter acesso de leitura ao repositorio e escrita em
-`storage` e `bootstrap/cache`. Para reiniciar servicos automaticamente, execute
-como `root` ou configure `sudo` sem senha para `systemctl` e `supervisorctl`.
+`storage` e `bootstrap/cache`. Para reiniciar servicos automaticamente, esse
+usuario precisa de `sudo` sem senha para `systemctl` e `supervisorctl`, ou um
+administrador deve executar essa etapa separadamente.
+O script de deploy em si deve ser executado pelo usuario da aplicacao, nunca
+com `sudo bash`, para que `node_modules`, `vendor`, caches e o lock permanecam
+gravaveis pelo mesmo usuario.
 
 ## Uso
 
@@ -131,6 +135,21 @@ Filas contempladas no worker:
 - `default`
 
 ## Permissoes
+
+Se uma tentativa anterior foi executada como `root` e o `npm ci` falhar com
+`EACCES` dentro de `node_modules`, remova apenas essa dependencia gerada e
+reinstale como o usuario do deploy:
+
+```bash
+cd /srv/apps/php/magna_gestao
+sudo rm -rf node_modules
+sudo rm -f /tmp/magna_gestao_deploy.lock
+./scripts/deploy.sh
+```
+
+Nao use `sudo npm`, `sudo composer` ou `sudo bash scripts/deploy.sh`; isso
+recria o problema de ownership. Se o lock estiver em outro local, informe o
+caminho com `DEPLOY_LOCK_FILE` ao executar o script.
 
 Se houver erro de escrita em `storage/logs`, `storage/app` ou
 `bootstrap/cache`, execute uma vez com o usuario/grupo do PHP e do Supervisor:

@@ -31,6 +31,12 @@ class RequestAutomationJob
 
         if ($existing) {
             $this->assertSameRequest($existing, $fingerprint, $idempotencyKey);
+
+            if ($existing->status === AutomationJobStatus::FAILED
+                && $request->source === AutomationJobSource::MANUAL) {
+                return $this->createRetry($existing, $request, $fingerprint, $idempotencyKey);
+            }
+
             $this->resubmitIfNecessary($existing, $request->source);
 
             return $existing;
@@ -77,6 +83,12 @@ class RequestAutomationJob
             }
 
             $this->assertSameRequest($existing, $fingerprint, $idempotencyKey);
+
+            if ($existing->status === AutomationJobStatus::FAILED
+                && $request->source === AutomationJobSource::MANUAL) {
+                return $this->createRetry($existing, $request, $fingerprint, $idempotencyKey);
+            }
+
             $this->resubmitIfNecessary($existing, $request->source);
 
             return $existing;
@@ -117,6 +129,45 @@ class RequestAutomationJob
 
         SubmitAutomationJob::dispatch($job->id)
             ->onQueue((string) config('automation.queues.submission', 'automation'));
+    }
+
+    private function createRetry(
+        AutomationJob $failedJob,
+        AutomationJobRequest $request,
+        string $fingerprint,
+        string $idempotencyKey,
+    ): AutomationJob {
+        return DB::transaction(function () use ($failedJob, $request, $fingerprint, $idempotencyKey): AutomationJob {
+            $retry = AutomationJob::query()->create([
+                'report_key' => $request->reportKey,
+                'collector' => $failedJob->collector,
+                'collector_version' => $failedJob->collector_version,
+                'schema_version' => $failedJob->schema_version,
+                'status' => AutomationJobStatus::PENDING_SUBMISSION,
+                'source' => $request->source,
+                'parameters' => $request->parameters,
+                'metadata' => $request->metadata,
+                'requested_by_user_id' => $request->requestedByUserId,
+                'idempotency_key' => $idempotencyKey.':retry:'.Str::ulid(),
+                'request_fingerprint' => $fingerprint,
+                'request_id' => (string) Str::ulid(),
+                'requested_at' => now(),
+                'retry_of_job_id' => $failedJob->id,
+            ]);
+
+            SubmitAutomationJob::dispatch($retry->id)
+                ->onQueue((string) config('automation.queues.submission', 'automation'))
+                ->afterCommit();
+
+            Log::info('Nova tentativa de job de automacao enfileirada', [
+                'automation_job_id' => $retry->id,
+                'retry_of_job_id' => $failedJob->id,
+                'queue' => config('automation.queues.submission', 'automation'),
+                'request_id' => $retry->request_id,
+            ]);
+
+            return $retry;
+        });
     }
 
     private function sortRecursively(array $value): array

@@ -138,6 +138,29 @@ class AutomationJobRequestTest extends TestCase
         Queue::assertPushed(SubmitAutomationJob::class, 2);
     }
 
+    public function test_manual_request_creates_a_new_attempt_for_a_terminal_failed_job(): void
+    {
+        $request = new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            source: AutomationJobSource::MANUAL,
+            idempotencyKey: 'manual-terminal-retry-key',
+        );
+        $failedJob = app(RequestAutomationJob::class)->handle($request);
+        $failedJob->update([
+            'status' => AutomationJobStatus::FAILED,
+            'provider_job_id' => 'provider-job-failed',
+            'error_code' => 'RESULT_IMPORT_FAILED',
+        ]);
+
+        $retry = app(RequestAutomationJob::class)->handle($request);
+
+        $this->assertNotSame($failedJob->id, $retry->id);
+        $this->assertSame($failedJob->id, $retry->retry_of_job_id);
+        $this->assertSame(AutomationJobStatus::PENDING_SUBMISSION, $retry->status);
+        Queue::assertPushed(SubmitAutomationJob::class, 2);
+    }
+
     public function test_same_idempotency_key_with_different_content_is_rejected(): void
     {
         $this->expectException(AutomationIdempotencyConflictException::class);

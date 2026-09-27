@@ -209,4 +209,60 @@ class AutomationResultImportTest extends TestCase
             'status' => AutomationResultImportStatus::COMPLETED->value,
         ]);
     }
+    public function test_rejected_rows_keep_the_import_failed_with_the_reason_visible(): void
+    {
+        $definition = new AutomationReportDefinition(
+            key: 'daily_trip_summary',
+            collector: 'daily_trip_summary',
+            collectorVersion: '1.0.0',
+            schemaVersion: '1.0',
+            defaultUnidadeNegocio: null,
+            resultPageLimit: 500,
+            parameterRules: [],
+            fields: [],
+        );
+        $importer = Mockery::mock(AutomationResultImporter::class);
+        $importer->shouldReceive('importPage')->once()->andReturn(
+            new AutomationImportPageResult(1, 0, 0, 1, [
+                ['index' => 0, 'placa' => 'ABC1234', 'error' => 'Veiculo ativo nao encontrado.'],
+            ]),
+        );
+        $reports = Mockery::mock(AutomationReportRegistry::class);
+        $reports->shouldReceive('get')->once()->with('daily_trip_summary')->andReturn($definition);
+        $importers = Mockery::mock(AutomationResultImporterRegistry::class);
+        $importers->shouldReceive('get')->once()->with($definition)->andReturn($importer);
+        $client = Mockery::mock(AutomationApiClient::class);
+        $client->shouldReceive('getResultPage')->once()->andReturn([
+            'data' => [['numero_viagem' => '123', 'placa' => 'ABC1234']],
+            'meta' => ['total' => 1, 'next_cursor' => null],
+        ]);
+        $job = AutomationJob::query()->create([
+            'provider_job_id' => 'provider-job-rejected',
+            'report_key' => 'daily_trip_summary',
+            'collector' => 'daily_trip_summary',
+            'status' => AutomationJobStatus::COMPLETED,
+            'source' => AutomationJobSource::MANUAL,
+            'parameters' => [],
+            'idempotency_key' => 'rejected-test-key',
+            'request_fingerprint' => hash('sha256', 'rejected'),
+            'request_id' => 'request-rejected',
+        ]);
+
+        try {
+            (new ImportAutomationResult($job->id))->handle($client, $reports, $importers);
+            $this->fail('A pagina com registros rejeitados nao pode ser concluida.');
+        } catch (\\RuntimeException $exception) {
+            $this->assertStringContainsString('Veiculo ativo nao encontrado.', $exception->getMessage());
+        }
+
+        $this->assertDatabaseHas('automation_result_imports', [
+            'automation_job_id' => $job->id,
+            'status' => AutomationResultImportStatus::FAILED->value,
+        ]);
+        $this->assertDatabaseMissing('automation_result_imports', [
+            'automation_job_id' => $job->id,
+            'status' => AutomationResultImportStatus::COMPLETED->value,
+        ]);
+    }
+
 }

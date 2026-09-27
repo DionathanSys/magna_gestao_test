@@ -251,7 +251,7 @@ class AutomationResultImportTest extends TestCase
         try {
             (new ImportAutomationResult($job->id))->handle($client, $reports, $importers);
             $this->fail('A pagina com registros rejeitados nao pode ser concluida.');
-        } catch (\\RuntimeException $exception) {
+        } catch (\RuntimeException $exception) {
             $this->assertStringContainsString('Veiculo ativo nao encontrado.', $exception->getMessage());
         }
 

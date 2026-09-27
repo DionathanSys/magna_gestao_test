@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\AutomationJobs\Schemas;
 
 use App\Models\AutomationJob;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -35,51 +37,93 @@ class AutomationJobInfolist
                 TextEntry::make('provider_attempts'),
                 TextEntry::make('result_count'),
                 TextEntry::make('result_checksum'),
-                TextEntry::make('import_summary')
+                RepeatableEntry::make('import_diagnostics')
                     ->label('Importação do resultado')
-                    ->state(function (AutomationJob $record): string {
-                        $imports = $record->resultImports()
+                    ->table([
+                        TableColumn::make('Página'),
+                        TableColumn::make('Status'),
+                        TableColumn::make('Recebidos'),
+                        TableColumn::make('Criados'),
+                        TableColumn::make('Atualizados'),
+                        TableColumn::make('Ignorados'),
+                        TableColumn::make('Erros'),
+                    ])
+                    ->schema([
+                        TextEntry::make('page')
+                            ->label('Página')
+                            ->numeric(),
+                        TextEntry::make('status')
+                            ->label('Status')
+                            ->badge(),
+                        TextEntry::make('records_received')
+                            ->label('Recebidos')
+                            ->numeric(),
+                        TextEntry::make('records_created')
+                            ->label('Criados')
+                            ->numeric(),
+                        TextEntry::make('records_updated')
+                            ->label('Atualizados')
+                            ->numeric(),
+                        TextEntry::make('records_ignored')
+                            ->label('Ignorados')
+                            ->numeric(),
+                        TextEntry::make('error_message')
+                            ->label('Erros')
+                            ->placeholder('-')
+                            ->wrap(),
+                    ])
+                    ->state(function (AutomationJob $record): array {
+                        return $record->resultImports()
                             ->orderBy('page_number')
-                            ->get();
-
-                        if ($imports->isEmpty()) {
-                            return 'Nenhuma página de resultado importada.';
-                        }
-
-                        return $imports->map(function ($import): string {
-                            $summary = sprintf(
-                                'Página %d [%s]: recebidos=%d, criados=%d, atualizados=%d, ignorados=%d',
-                                $import->page_number + 1,
-                                $import->status?->value ?? $import->status,
-                                $import->records_received,
-                                $import->records_created,
-                                $import->records_updated,
-                                $import->records_ignored,
-                            );
-
-                            return $import->error_message
-                                ? $summary.' | erro: '.$import->error_message
-                                : $summary;
-                        })->implode("\n");
+                            ->get()
+                            ->map(fn ($import): array => [
+                                'page' => $import->page_number + 1,
+                                'status' => $import->status?->value ?? $import->status,
+                                'records_received' => $import->records_received,
+                                'records_created' => $import->records_created,
+                                'records_updated' => $import->records_updated,
+                                'records_ignored' => $import->records_ignored,
+                                'error_message' => $import->error_message,
+                            ])
+                            ->all();
                     })
+                    ->placeholder('Nenhuma página de resultado importada.')
                     ->columnSpanFull(),
-                TextEntry::make('webhook_summary')
+                RepeatableEntry::make('webhook_diagnostics')
                     ->label('Webhooks recebidos')
-                    ->state(function (AutomationJob $record): string {
-                        $events = $record->events()
+                    ->table([
+                        TableColumn::make('Evento'),
+                        TableColumn::make('Status'),
+                        TableColumn::make('Erro de processamento'),
+                        TableColumn::make('Ocorrido em'),
+                    ])
+                    ->schema([
+                        TextEntry::make('event_type')
+                            ->label('Evento'),
+                        TextEntry::make('processing_status')
+                            ->label('Status')
+                            ->badge(),
+                        TextEntry::make('processing_error')
+                            ->label('Erro de processamento')
+                            ->placeholder('-')
+                            ->wrap(),
+                        TextEntry::make('occurred_at')
+                            ->label('Ocorrido em')
+                            ->dateTime('d/m/Y H:i:s'),
+                    ])
+                    ->state(function (AutomationJob $record): array {
+                        return $record->events()
                             ->latest('occurred_at')
-                            ->get();
-
-                        if ($events->isEmpty()) {
-                            return 'Nenhum webhook recebido para este job.';
-                        }
-
-                        return $events->map(fn ($event): string => implode(' | ', array_filter([
-                            $event->event_type,
-                            $event->processing_status?->value ?? $event->processing_status,
-                            $event->processing_error,
-                        ])))->implode("\n");
+                            ->get()
+                            ->map(fn ($event): array => [
+                                'event_type' => $event->event_type,
+                                'processing_status' => $event->processing_status?->value ?? $event->processing_status,
+                                'processing_error' => $event->processing_error,
+                                'occurred_at' => $event->occurred_at,
+                            ])
+                            ->all();
                     })
+                    ->placeholder('Nenhum webhook recebido para este job.')
                     ->columnSpanFull(),
                 TextEntry::make('error_code'),
                 TextEntry::make('error_message')->columnSpanFull(),

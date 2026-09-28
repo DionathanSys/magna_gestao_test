@@ -37,4 +37,14 @@ class AutomationReportRegistryTest extends TestCase
             'date' => '2026-09-19',
         ]);
     }
+
+    public function test_resolves_the_sascar_traveled_distance_definition(): void
+    {
+        $definition = app(AutomationReportRegistry::class)->get('sascar_traveled_distance');
+
+        $this->assertSame('sascar_traveled_distance', $definition->collector);
+        $this->assertSame('1.0.0', $definition->collectorVersion);
+        $this->assertSame(['required', 'date_format:Y-m-d'], $definition->parameterRules['from']);
+        $this->assertContains('quilometragem', $definition->fields);
+    }
 }

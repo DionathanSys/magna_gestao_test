@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'enabled' => (bool) env('TELEGRAM_ENABLED', false),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'api_url' => env('TELEGRAM_API_URL', 'https://api.telegram.org'),
+        'timeout_seconds' => (int) env('TELEGRAM_TIMEOUT_SECONDS', 10),
+        'connect_timeout_seconds' => (int) env('TELEGRAM_CONNECT_TIMEOUT_SECONDS', 5),
+        'retry_times' => (int) env('TELEGRAM_RETRY_TIMES', 3),
+        'retry_sleep_milliseconds' => (int) env('TELEGRAM_RETRY_SLEEP_MILLISECONDS', 250),
+        'queue' => env('TELEGRAM_QUEUE', 'integracoes'),
+    ],
+
 ];

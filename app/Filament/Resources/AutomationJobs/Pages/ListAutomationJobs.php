@@ -52,6 +52,38 @@ class ListAutomationJobs extends ListRecords
                         ->success()
                         ->send();
                 }),
+            Action::make('requestSascarTraveledDistance')
+                ->label('Solicitar quilometragem Sascar')
+                ->icon('heroicon-o-map')
+                ->schema([
+                    DateRangePicker::make('periodo')
+                        ->label('Período do relatório')
+                        ->defaultYesterday()
+                        ->autoApply()
+                        ->firstDayOfWeek(0)
+                        ->alwaysShowCalendar()
+                        ->maxDate(today())
+                        ->required(),
+                ])
+                ->action(function (array $data, RequestAutomationJob $requestAutomationJob): void {
+                    [$from, $to] = $this->parseDateRange((string) $data['periodo']);
+                    $job = $requestAutomationJob->handle(new AutomationJobRequest(
+                        reportKey: 'sascar_traveled_distance',
+                        parameters: [
+                            'from' => $from,
+                            'to' => $to,
+                        ],
+                        source: AutomationJobSource::MANUAL,
+                        requestedByUserId: auth()->id(),
+                        idempotencyKey: 'manual:sascar_traveled_distance:'.auth()->id().':'.$from.':'.$to,
+                    ));
+
+                    Notification::make()
+                        ->title('Solicitação criada')
+                        ->body('Job local #'.$job->id.' criado e enviado para a fila.')
+                        ->success()
+                        ->send();
+                }),
         ];
     }
 

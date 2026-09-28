@@ -48,7 +48,7 @@ class DailyTripSummaryImporter implements AutomationResultImporter
                     'cliente' => 'nullable|string|max:255',
                     'destino' => 'nullable|string|max:255',
                     'km_rodado' => 'nullable|numeric|min:0',
-                    'km_pago' => 'nullable|numeric|min:0',
+                    'km_pago' => 'required|numeric|min:0',
                     'data_competencia' => 'required|date',
                     'data_inicio' => 'required|date',
                     'data_fim' => 'required|date|after_or_equal:data_inicio',
@@ -138,6 +138,12 @@ class DailyTripSummaryImporter implements AutomationResultImporter
             $pendencias = [$pendencias];
         }
 
+        $kmPago = filled($item['km_pago'] ?? null) ? $item['km_pago'] : 0;
+
+        if ((float) $kmPago <= 0) {
+            $pendencias['sem_km_pago'] = 'Sem km pago';
+        }
+
         return [
             'numero_viagem' => $item['numero_viagem'] ?? null,
             'placa' => $item['placa'] ?? null,
@@ -145,11 +151,11 @@ class DailyTripSummaryImporter implements AutomationResultImporter
             'cliente' => $item['cliente'] ?? null,
             'destino' => $item['destino'] ?? null,
             'km_rodado' => $item['km_rodado'] ?? null,
-            'km_pago' => $item['km_pago'] ?? null,
+            'km_pago' => $kmPago,
             'data_competencia' => $dataCompetencia,
             'data_inicio' => $dataInicio,
             'data_fim' => $dataFim,
-            'possui_pendencia' => (bool) ($item['possui_pendencia'] ?? ! empty($pendencias)),
+            'possui_pendencia' => (bool) ($item['possui_pendencia'] ?? false) || ! empty($pendencias),
             'pendencias' => is_array($pendencias) ? $pendencias : [],
             'motoristas' => is_array($item['motoristas'] ?? null) ? $item['motoristas'] : [],
         ];

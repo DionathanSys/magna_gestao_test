@@ -30,7 +30,7 @@ class Veiculo extends Model
 
     public function kmAtual(): HasOne
     {
-        return $this->hasOne(HistoricoQuilometragem::class)->latestOfMany();
+        return $this->hasOne(HistoricoQuilometragem::class)->latestOfMany('data_referencia');
     }
 
     public function planoPreventivo(): BelongsToMany

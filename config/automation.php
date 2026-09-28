@@ -80,6 +80,21 @@ return [
             ],
             'motoristas_format' => 'lotes',
         ],
+        'sascar_traveled_distance' => [
+            'collector' => 'sascar_traveled_distance',
+            'collector_version' => '1.0.0',
+            'schema_version' => '1.0',
+            'result_page_limit' => (int) env('AUTOMATION_SASCAR_TRAVELED_DISTANCE_RESULT_PAGE_LIMIT', 500),
+            'parameter_rules' => [
+                'from' => ['required', 'date_format:Y-m-d'],
+                'to' => ['required', 'date_format:Y-m-d', 'after_or_equal:from'],
+            ],
+            'fields' => [
+                'placa',
+                'quilometragem',
+                'data_referencia',
+            ],
+        ],
     ],
 
     'schedules' => [

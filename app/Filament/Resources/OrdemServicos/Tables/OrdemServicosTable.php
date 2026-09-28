@@ -112,6 +112,7 @@ class OrdemServicosTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('id', 'desc')
+            ->persistFiltersInSession()
             ->searchable(['sankhyaId.ordem_sankhya_id'])
             ->filters([
                 SelectFilter::make('veiculo_id')

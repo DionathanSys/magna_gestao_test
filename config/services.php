@@ -35,6 +35,13 @@ return [
         ],
     ],
 
+    'telegram' => [
+        'api_url' => env('TELEGRAM_API_URL', 'https://api.telegram.org'),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'enabled' => (bool) env('TELEGRAM_ENABLED', false),
+        'agendamento_reminders_enabled' => (bool) env('TELEGRAM_AGENDAMENTO_REMINDERS_ENABLED', true),
+    ],
+
     'webscraper' => [
         'secret' => env('WEBSCRAPER_API_SECRET'),
         'signature_tolerance_seconds' => env('WEBSCRAPER_SIGNATURE_TOLERANCE_SECONDS', 300),

@@ -25,6 +25,10 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'is_admin',
+        'is_active',
+        'telegram_chat_id',
+        'telegram_reminders_enabled',
     ];
 
     /**
@@ -47,6 +51,9 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
+            'is_active' => 'boolean',
+            'telegram_reminders_enabled' => 'boolean',
         ];
     }
 

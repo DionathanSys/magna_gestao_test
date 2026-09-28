@@ -5,10 +5,13 @@ namespace App\Console\Commands;
 use App\Enum\OrdemServico\StatusOrdemServicoEnum;
 use App\Mail\RelatoriodiarioMail;
 use App\Models\Agendamento;
+use App\Models\User;
+use App\Services\TelegramService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class EnviarEmailDiario extends Command
 {
@@ -47,6 +50,8 @@ class EnviarEmailDiario extends Command
                 $this->info("Email enviado para: {$email}");
             }
 
+            $this->enviarLembretesTelegram($dados);
+
             Log::info('Email diário de agendamentos enviado com sucesso', [
                 'metodo' => __METHOD__.'@'.__LINE__,
                 'destinatarios' => $emails,
@@ -67,6 +72,101 @@ class EnviarEmailDiario extends Command
                 'erro' => $e->getMessage(),
             ]);
         }
+    }
+
+    private function enviarLembretesTelegram(array $dados): void
+    {
+        $telegram = app(TelegramService::class);
+
+        if (! $telegram->isConfigured() || ! $telegram->areAgendamentoRemindersEnabled()) {
+            Log::debug('Lembretes de agendamentos pelo Telegram não enviados: integração desabilitada ou incompleta.');
+
+            return;
+        }
+
+        try {
+            $usuarios = User::query()
+                ->where('telegram_reminders_enabled', true)
+                ->whereNotNull('telegram_chat_id')
+                ->where('telegram_chat_id', '!=', '')
+                ->get();
+        } catch (\Throwable $exception) {
+            Log::error('Não foi possível carregar usuários do Telegram', [
+                'erro' => $exception->getMessage(),
+            ]);
+
+            return;
+        }
+
+        $mensagem = $this->formatarMensagemTelegram($dados);
+        $enviados = 0;
+        $falhas = 0;
+
+        foreach ($usuarios as $usuario) {
+            try {
+                $telegram->sendMessage((string) $usuario->telegram_chat_id, $mensagem);
+                $enviados++;
+            } catch (\Throwable $exception) {
+                $falhas++;
+
+                Log::warning('Falha ao enviar lembrete de agendamento pelo Telegram', [
+                    'user_id' => $usuario->getKey(),
+                    'chat_id' => $usuario->telegram_chat_id,
+                    'erro' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        Log::info('Lembretes de agendamentos pelo Telegram processados', [
+            'enviados' => $enviados,
+            'falhas' => $falhas,
+            'usuarios' => $usuarios->count(),
+        ]);
+    }
+
+    private function formatarMensagemTelegram(array $dados): string
+    {
+        $linhas = [
+            'Lembrete de agendamentos - '.($dados['data_relatorio'] ?? now()->format('d/m/Y')),
+            '',
+            'Resumo:',
+            '- Hoje: '.count($dados['pendentes'] ?? []),
+            '- Amanhã: '.count($dados['amanha'] ?? []),
+            '- Esta semana: '.count($dados['esta_semana'] ?? []),
+            '- Atrasados: '.count($dados['atrasados'] ?? []),
+            '- Sem data: '.count($dados['pendentes_sem_data'] ?? []),
+        ];
+
+        foreach ([
+            'pendentes' => 'Hoje',
+            'amanha' => 'Amanhã',
+            'atrasados' => 'Atrasados',
+        ] as $chave => $titulo) {
+            $agendamentos = $dados[$chave] ?? [];
+
+            if ($agendamentos === []) {
+                continue;
+            }
+
+            $linhas[] = '';
+            $linhas[] = $titulo.':';
+
+            foreach (array_slice($agendamentos, 0, 15) as $agendamento) {
+                $linhas[] = sprintf(
+                    '- %s | %s | %s | %s',
+                    $agendamento['data_agendamento'] ?? 'Sem data',
+                    $agendamento['veiculo_placa'] ?? 'Sem veículo',
+                    $agendamento['servico'] ?? 'Serviço não informado',
+                    $agendamento['status'] ?? 'Sem status',
+                );
+            }
+
+            if (count($agendamentos) > 15) {
+                $linhas[] = '- ... e mais '.(count($agendamentos) - 15).'.';
+            }
+        }
+
+        return Str::limit(implode("\n", $linhas), 3900, "\n\n[Mensagem truncada]");
     }
 
     private function coletarDadosAgendamentos(): array

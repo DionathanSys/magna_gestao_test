@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Veiculos\RelationManagers;
 
+use App\Filament\Actions\EnviarAlertaTelegramAction;
 use App\Filament\Resources\VeiculoDocumentos\Schemas\VeiculoDocumentoForm;
 use App\Models\VeiculoDocumento;
 use Filament\Actions\BulkActionGroup;
@@ -92,6 +93,7 @@ class DocumentosRelationManager extends RelationManager
                     ->label('Novo Documento'),
             ])
             ->recordActions([
+                EnviarAlertaTelegramAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
                 RestoreAction::make(),

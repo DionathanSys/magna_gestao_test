@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Agendamento extends Model
 {
@@ -118,5 +119,10 @@ class Agendamento extends Model
     public function historicos(): HasMany
     {
         return $this->hasMany(AgendamentoHistorico::class, 'agendamento_id');
+    }
+
+    public function telegramAlerts(): MorphMany
+    {
+        return $this->morphMany(TelegramAlert::class, 'alertable');
     }
 }

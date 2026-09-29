@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -55,6 +56,16 @@ class User extends Authenticatable implements FilamentUser
             'is_active' => 'boolean',
             'telegram_reminders_enabled' => 'boolean',
         ];
+    }
+
+    public function telegramAlerts(): HasMany
+    {
+        return $this->hasMany(TelegramAlert::class, 'created_by');
+    }
+
+    public function telegramAlertRecipients(): HasMany
+    {
+        return $this->hasMany(TelegramAlertRecipient::class);
     }
 
     public function canAccessPanel(Panel $panel): bool

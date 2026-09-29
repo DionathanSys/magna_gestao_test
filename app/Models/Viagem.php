@@ -120,6 +120,11 @@ class Viagem extends Model
         return $this->hasMany(JustificativaDispersaoViagem::class, 'viagem_id');
     }
 
+    public function telegramAlerts(): MorphMany
+    {
+        return $this->morphMany(TelegramAlert::class, 'alertable');
+    }
+
     protected function mapsIntegrados(): Attribute
     {
         return Attribute::make(

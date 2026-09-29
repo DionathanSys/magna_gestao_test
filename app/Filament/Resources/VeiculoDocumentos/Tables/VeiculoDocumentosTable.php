@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\VeiculoDocumentos\Tables;
 
+use App\Filament\Actions\EnviarAlertaTelegramAction;
 use App\Models\VeiculoDocumento;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -114,6 +115,7 @@ class VeiculoDocumentosTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                EnviarAlertaTelegramAction::make(),
                 EditAction::make(),
                 RestoreAction::make(),
                 ForceDeleteAction::make(),

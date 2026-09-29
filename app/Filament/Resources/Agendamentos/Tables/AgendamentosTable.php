@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Agendamentos\Tables;
 
 use App\Enum;
 use App\Enum\Agendamento\CategoriaAgendamentoEnum;
+use App\Filament\Actions\EnviarAlertaTelegramAction;
 use App\Filament\Resources\Agendamentos\Actions;
 use App\Filament\Resources\OrdemServicos\OrdemServicoResource;
 use App\Models;
@@ -190,6 +191,7 @@ class AgendamentosTable
             ->defaultGroup('veiculo.placa')
             ->defaultSort('data_agendamento', 'asc')
             ->recordActions([
+                EnviarAlertaTelegramAction::make(),
                 Action::make('vincular_os')
                     ->label('Vincular OS')
                     ->icon('heroicon-o-link')

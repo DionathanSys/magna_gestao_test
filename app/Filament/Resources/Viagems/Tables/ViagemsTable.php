@@ -6,6 +6,7 @@ use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use App\Enum;
 use App\Filament\Actions\DesvincularResultadoPeriodoAction;
 use App\Filament\Actions\DissociateResultadoPeriodoBulkAction;
+use App\Filament\Actions\EnviarAlertaTelegramAction;
 use App\Filament\Actions\ExportPdfBulkAction;
 use App\Filament\Actions\VincularResultadoPeriodoAction;
 use App\Filament\Actions\VincularResultadoPeriodoBulkAction;
@@ -672,6 +673,7 @@ class ViagemsTable
                         })
                         ->hidden(fn (Viagem $record): bool => $record->cargas_count > 0 || $record->documentos_count > 0)
                         ->color('danger'),
+                    EnviarAlertaTelegramAction::make(),
                     Viagems\Actions\AdicionarComentarioAction::make(),
                     Viagems\Actions\VisualizarComentarioAction::make(),
                     VincularResultadoPeriodoAction::make(),

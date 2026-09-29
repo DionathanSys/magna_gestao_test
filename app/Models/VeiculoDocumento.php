@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VeiculoDocumento extends Model
@@ -32,6 +33,11 @@ class VeiculoDocumento extends Model
     public function veiculo(): BelongsTo
     {
         return $this->belongsTo(Veiculo::class);
+    }
+
+    public function telegramAlerts(): MorphMany
+    {
+        return $this->morphMany(TelegramAlert::class, 'alertable');
     }
 
     protected function diasRestantes(): Attribute

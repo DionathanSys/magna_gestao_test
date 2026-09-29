@@ -5,15 +5,16 @@ namespace App\Filament\Resources\Users;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
-use App\Filament\Resources\Users\Schemas\UserForm;
-use App\Filament\Resources\Users\Tables\UsersTable;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use UnitEnum;
 
 class UserResource extends Resource
@@ -22,9 +23,7 @@ class UserResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Cadastros';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
-
-    protected static ?string $navigationLabel = 'Usuários';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $modelLabel = 'Usuário';
 
@@ -34,32 +33,61 @@ class UserResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return UserForm::configure($schema);
+        return $schema
+            ->components([
+                TextInput::make('name')
+                    ->label('Nome')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('email')
+                    ->label('E-mail')
+                    ->email()
+                    ->required()
+                    ->unique(ignoreRecord: true),
+                TextInput::make('telegram_chat_id')
+                    ->label('Telegram Chat ID')
+                    ->maxLength(255)
+                    ->helperText('ID do chat obtido pelo bot, normalmente um número. O usuário precisa iniciar uma conversa com o bot.'),
+                TextInput::make('password')
+                    ->label('Senha')
+                    ->password()
+                    ->revealable()
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn (?string $state): bool => filled($state)),
+            ]);
     }
 
     public static function table(Table $table): Table
     {
-        return UsersTable::configure($table);
-    }
-
-    public static function canViewAny(): bool
-    {
-        return (bool) Auth::user()?->is_admin;
-    }
-
-    public static function canCreate(): bool
-    {
-        return static::canViewAny();
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return static::canViewAny();
-    }
-
-    public static function canDelete(Model $record): bool
-    {
-        return static::canViewAny() && $record->getKey() !== Auth::id();
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->label('Nome')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('email')
+                    ->label('E-mail')
+                    ->searchable(),
+                TextColumn::make('telegram_chat_id')
+                    ->label('Telegram Chat ID')
+                    ->placeholder('Não configurado')
+                    ->copyable()
+                    ->toggleable(),
+                TextColumn::make('created_at')
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->defaultSort('name')
+            ->recordActions([
+                EditAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

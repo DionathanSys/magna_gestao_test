@@ -1,50 +1,159 @@
 # Deploy VPS
 
-Depois de fazer `git pull` na VPS, rode:
+O deploy e executado pelo script versionado em `scripts/deploy.sh`. Na VPS, a
+configuracao inicial deve ser feita uma vez:
 
 ```bash
-bash scripts/deploy.sh
+cd /srv/apps/php/magna_gestao
+git checkout main
+chmod +x scripts/deploy.sh
 ```
 
-O script faz:
+Mantenha o `.env` somente na VPS. Ele nao deve ser versionado. O usuario que
+executa o deploy precisa ter acesso de leitura ao repositorio e escrita em
+`storage` e `bootstrap/cache`. Para reiniciar servicos automaticamente, esse
+usuario precisa de `sudo` sem senha para `systemctl` e `supervisorctl`, ou um
+administrador deve executar essa etapa separadamente.
+O script de deploy em si deve ser executado pelo usuario da aplicacao, nunca
+com `sudo bash`, para que `node_modules`, `vendor`, caches e o lock permanecam
+gravaveis pelo mesmo usuario.
 
-- `composer install --optimize-autoloader`
-- `php artisan migrate --force`
-- `php artisan optimize:clear`
-- `php artisan filament:upgrade`
-- `php artisan queue:restart`
+## Uso
 
-Observacoes:
+Para atualizar a aplicacao:
 
-- Nao usei `route:cache` porque o projeto tem rotas com closures.
-- Se houver workers rodando por Supervisor, o `queue:restart` faz o reload gracioso.
-- Se a VPS tambem compila frontend, esse passo pode ser incluido depois com `npm ci && npm run build`.
+```bash
+cd /srv/apps/php/magna_gestao
+./scripts/deploy.sh
+```
+
+O script:
+
+1. Impede dois deploys simultaneos com `flock`.
+2. Confirma que o `.env` existe e recusa deploy se houver alteracoes locais rastreadas.
+3. Executa `git fetch` e atualiza o branch atual com `git merge --ff-only`.
+4. Executa `composer install --no-dev --optimize-autoloader`.
+5. Executa `npm ci --include=dev` e `npm run build`.
+6. Executa `php artisan migrate --force`.
+7. Atualiza os assets do Filament e o link `public/storage`.
+8. Limpa caches, recria configuracao/eventos e compila as views Blade.
+9. Sinaliza o reinicio gracioso das filas e do scheduler.
+10. Tenta atualizar o Supervisor e reiniciar o PHP-FPM, quando disponivel.
+
+O script nao executa `route:cache` nem `php artisan optimize`, pois o projeto
+possui rotas com closures.
+
+## Configuracao
+
+Os valores abaixo sao opcionais. O branch atual e usado por padrao:
+
+```bash
+DEPLOY_BRANCH=main \
+PHP_BIN=/usr/bin/php8.3 \
+COMPOSER_BIN=/usr/local/bin/composer \
+PHP_FPM_SERVICE=php8.3-fpm \
+./scripts/deploy.sh
+```
+
+Variaveis disponiveis:
+
+- `DEPLOY_BRANCH`: branch que sera atualizado. Padrao: branch atual.
+- `GIT_REMOTE`: remoto Git. Padrao: `origin`.
+- `PHP_BIN`: executavel PHP usado pelo Artisan. Padrao: `php`.
+- `COMPOSER_BIN`: executavel Composer. Padrao: `composer`.
+- `NPM_BIN`: executavel npm. Padrao: `npm`.
+- `DEPLOY_BUILD_ASSETS`: use `0` somente se os assets forem compilados fora da VPS. Padrao: `1`.
+- `DEPLOY_RUN_MIGRATIONS`: use `0` apenas em uma operacao excepcional. Padrao: `1`.
+- `DEPLOY_RESTART_PHP_FPM`: `auto`, `1` ou `0`. Padrao: `auto`.
+- `PHP_FPM_SERVICE`: nome do servico PHP-FPM. Padrao: `php8.3-fpm`.
+- `DEPLOY_SUPERVISOR`: `auto`, `1` ou `0`. Padrao: `auto`.
+- `SUPERVISOR_CONFIG_SOURCE`: arquivo versionado da configuracao do Supervisor.
+- `SUPERVISOR_CONFIG_PATH`: destino da configuracao no sistema.
+- `DEPLOY_LOCK_FILE`: arquivo do lock. Padrao: `${TMPDIR:-/tmp}/magna_gestao_deploy.lock`.
+
+O modo `auto` nao falha quando `sudo`, Supervisor ou PHP-FPM nao estao
+disponiveis; nesses casos o script exibe um aviso. Se esses servicos forem
+obrigatorios no ambiente, use `DEPLOY_RESTART_PHP_FPM=1` e
+`DEPLOY_SUPERVISOR=1` para transformar a ausencia/falha em erro.
+
+## Assets do Log Viewer
+
+O Log Viewer 3.x serve CSS, JavaScript e favicon diretamente do pacote. Nao
+execute `php artisan log-viewer:publish` no deploy; essa publicacao e
+depreciada e a pasta `public/vendor/log-viewer` nao e versionada.
+
+Quando o Supervisor estiver acessivel, o deploy instala automaticamente
+`scripts/supervisor/magna_gestao.conf` em `/etc/supervisor/conf.d/magna_gestao.conf`
+antes de executar `reread` e `update`. Sem permissao sudo, um administrador
+precisa executar essa etapa manualmente.
+
+## Automation API
+
+Configure estes valores no `.env` da VPS. Os segredos devem ser os mesmos
+configurados na API Python e nunca devem ser versionados:
+
+```dotenv
+AUTOMATION_ENABLED=true
+AUTOMATION_API_URL=http://127.0.0.1:8000
+AUTOMATION_CLIENT_ID=magna_gestao
+AUTOMATION_CLIENT_SECRET=mesmo_segredo_configurado_no_Python
+AUTOMATION_API_TIMEOUT_SECONDS=30
+AUTOMATION_HMAC_TIMESTAMP_TOLERANCE_SECONDS=300
+AUTOMATION_WEBHOOK_CLIENT_ID=automation_prod
+AUTOMATION_WEBHOOK_SECRET=mesmo_segredo_do_webhook_Python
+```
+
+Depois de alterar o `.env`, execute o deploy para limpar e recriar o cache de
+configuração.
 
 ## Supervisor
 
-Template sugerido:
+O `queue:restart` sinaliza os workers para terminarem o job atual e sairem;
+com `autorestart=true`, o Supervisor inicia os processos novamente. O
+`schedule:interrupt` faz o mesmo para o scheduler. O script instala a
+configuracao versionada e executa `supervisorctl reread` e
+`supervisorctl update` quando consegue usar o Supervisor.
+
+Se o deploy ainda nao tiver permissao para instalar a configuracao, execute uma
+vez como administrador, ajustando o caminho do projeto se necessario:
 
 ```bash
-cp scripts/supervisor/laravel-worker.conf.example /etc/supervisor/conf.d/magna_gestao.conf
+sudo cp scripts/supervisor/magna_gestao.conf /etc/supervisor/conf.d/magna_gestao.conf
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl restart magna_gestao-queue:*
-sudo supervisorctl restart magna_gestao-schedule:*
 ```
 
 Filas contempladas no worker:
 
+- `automation`
+- `automation-import`
+- `integracoes`
 - `mail-receive`
 - `mail-process`
 - `mail-trip`
+- `mail-cte-return`
 - `default`
 
 ## Permissoes
 
-Se houver erro de escrita em `storage/logs` ou `storage/app`, rode:
+Se uma tentativa anterior foi executada como `root` e o `npm ci` ou o Vite
+falhar com `EACCES` dentro de `node_modules` ou `public/build`, remova os
+artefatos gerados e reinstale tudo como o usuario do deploy:
+
+```bash
+cd /srv/apps/php/magna_gestao
+sudo rm -rf node_modules public/build
+sudo install -d -o deploy -g deploy -m 755 public/build
+./scripts/deploy.sh
+```
+
+Nao use `sudo npm`, `sudo composer` ou `sudo bash scripts/deploy.sh`; isso
+recria o problema de ownership. Se o lock estiver em outro local, informe o
+caminho com `DEPLOY_LOCK_FILE` ao executar o script.
+
+Se houver erro de escrita em `storage/logs`, `storage/app` ou
+`bootstrap/cache`, execute uma vez com o usuario/grupo do PHP e do Supervisor:
 
 ```bash
 bash scripts/fix-storage-permissions.sh www-data www-data
 ```
-
-Se o Supervisor estiver rodando com outro usuario/grupo, substitua os parametros.

@@ -30,6 +30,7 @@ class AtualizarViagem
         'ignorar',
         'possui_pendencia',
         'pendencias',
+        'motoristas',
         'motorista1',
         'motorista2',
         'created_by',
@@ -66,7 +67,7 @@ class AtualizarViagem
             'numero_interno' => 'nullable|string|unique:viagens,numero_interno,'.$this->viagem->id,
             'documento_transporte' => 'nullable|string',
             'km_rodado' => 'nullable|numeric|min:0',
-            'km_pago' => 'nullable|numeric|min:0',
+            'km_pago' => 'required|numeric|min:0',
             'data_competencia' => 'required|date',
             'data_inicio' => 'required|date',
             'data_fim' => 'required|date|after_or_equal:data_inicio',
@@ -75,6 +76,7 @@ class AtualizarViagem
             'ignorar' => 'boolean',
             'possui_pendencia' => 'boolean',
             'pendencias' => 'nullable|array',
+            'motoristas' => 'nullable|array',
             'motorista1' => 'nullable|string',
             'motorista2' => 'nullable|string',
         ], [
@@ -89,6 +91,7 @@ class AtualizarViagem
             'numero_interno.unique' => 'O número interno da viagem já está em uso.',
             'km_rodado.numeric' => 'O campo Km Rodado deve ser um número válido.',
             'km_rodado.min' => 'O campo Km Rodado deve ser maior ou igual a 0.',
+            'km_pago.required' => 'O campo Km Pago é obrigatório.',
             'km_pago.numeric' => 'O campo Km Pago deve ser um número válido.',
             'km_pago.min' => 'O campo Km Pago deve ser maior ou igual a 0.',
             'data_competencia.required' => 'O campo Data Competência é obrigatório.',
@@ -141,6 +144,10 @@ class AtualizarViagem
 
         if (array_key_exists('motorista1', $data) && ! in_array('motorista1', $columns, true)) {
             unset($data['motorista1']);
+        }
+
+        if (array_key_exists('motoristas', $data) && ! in_array('motoristas', $columns, true)) {
+            unset($data['motoristas']);
         }
 
         if (array_key_exists('motorista2', $data) && ! in_array('motorista2', $columns, true)) {

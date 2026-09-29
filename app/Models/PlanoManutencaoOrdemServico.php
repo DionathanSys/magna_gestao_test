@@ -9,6 +9,11 @@ class PlanoManutencaoOrdemServico extends Model
 {
     protected $table = 'planos_manutencao_ordem_servico';
 
+    protected $casts = [
+        'km_execucao' => 'float',
+        'data_execucao' => 'date',
+    ];
+
     public function planoPreventivo(): BelongsTo
     {
         return $this->belongsTo(PlanoPreventivo::class, 'plano_preventivo_id');

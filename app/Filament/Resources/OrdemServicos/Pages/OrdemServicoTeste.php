@@ -22,7 +22,7 @@ use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
-use App\Services\PlanoManutencao\RelatorioPlanoManutencaoService;
+use App\Services\OrdemServico\OrdemServicoAlertaDataService;
 use App\Services\Servico\ServicoCacheService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -47,8 +47,6 @@ class OrdemServicoTeste extends Page implements HasSchemas
 {
     use InteractsWithRecord;
     use InteractsWithSchemas;
-
-    private const KM_BASE_RELATORIO_MANUTENCAO = 5000;
 
     protected static string $resource = OrdemServicoResource::class;
 
@@ -484,7 +482,7 @@ class OrdemServicoTeste extends Page implements HasSchemas
 
     public function getAgendamentosVeiculoProperty(): Collection
     {
-        return $this->record->agendamentosPendentes
+        return app(OrdemServicoAlertaDataService::class)->agendamentosPendentes($this->record)
             ->filter(function (Agendamento $agendamento): bool {
                 if (blank($this->agendamentoBusca)) {
                     return true;
@@ -613,15 +611,12 @@ class OrdemServicoTeste extends Page implements HasSchemas
 
     public function getPlanosManutencaoProperty(): \Illuminate\Support\Collection
     {
-        return collect(app(RelatorioPlanoManutencaoService::class)->obterDadosRelatorio([
-            'veiculo_id' => $this->record->veiculo_id,
-            'km_restante_maximo' => self::KM_BASE_RELATORIO_MANUTENCAO,
-        ]));
+        return app(OrdemServicoAlertaDataService::class)->planosPreventivos($this->record);
     }
 
     public function getKmBaseRelatorioManutencaoProperty(): int
     {
-        return self::KM_BASE_RELATORIO_MANUTENCAO;
+        return OrdemServicoAlertaDataService::KM_BASE_RELATORIO_MANUTENCAO;
     }
 
     protected function loadRecordRelations(Model $record): Model

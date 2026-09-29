@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Services\TelegramService;
+use App\Services\Telegram\TelegramService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 
 class WebScraperViagemAtualCache
 {
+    private const TTL_MINUTES = 720;
+
     private const INDEX_KEY = 'webscraper:viagens_atuais:index';
 
     private const ITEM_PREFIX = 'webscraper:viagens_atuais:item:';
@@ -19,7 +21,7 @@ class WebScraperViagemAtualCache
             $index = Cache::get(self::INDEX_KEY, []);
             $index[$veiculoKey] = $veiculoKey;
 
-            $expiresAt = now()->addMinutes((int) config('services.webscraper.viagem_atual_cache_ttl_minutes', 720));
+            $expiresAt = now()->addMinutes(self::TTL_MINUTES);
 
             Cache::put($this->itemKey($veiculoKey), $data, $expiresAt);
             Cache::put(self::INDEX_KEY, $index, $expiresAt);

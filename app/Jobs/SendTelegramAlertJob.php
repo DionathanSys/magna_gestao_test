@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Models\TelegramAlert;
 use App\Models\TelegramAlertRecipient;
+use App\Services\Telegram\TelegramService;
 use App\Services\TelegramMessageFormatter;
-use App\Services\TelegramService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;

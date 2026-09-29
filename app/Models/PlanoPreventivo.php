@@ -11,6 +11,8 @@ class PlanoPreventivo extends Model
 
     protected $casts = [
         'itens' => 'array',
+        'intervalo' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function veiculos(): HasMany

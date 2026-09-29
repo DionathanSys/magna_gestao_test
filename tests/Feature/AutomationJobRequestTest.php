@@ -1,0 +1,259 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Domain\Automation\Actions\RequestAutomationJob;
+use App\Domain\Automation\AutomationReportRegistry;
+use App\Domain\Automation\Data\AutomationJobRequest;
+use App\Domain\Automation\Exceptions\AutomationIdempotencyConflictException;
+use App\Enum\Automation\AutomationJobSource;
+use App\Enum\Automation\AutomationJobStatus;
+use App\Infrastructure\Automation\AutomationApiClient;
+use App\Jobs\Automation\ImportAutomationResult;
+use App\Jobs\Automation\ReconcileAutomationJobs;
+use App\Jobs\Automation\SubmitAutomationJob;
+use App\Jobs\Automation\SyncAutomationJob;
+use App\Models\AutomationJob;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
+
+class AutomationJobRequestTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['queue.default' => 'sync']);
+        Queue::fake();
+
+        Schema::dropIfExists('automation_result_imports');
+        Schema::dropIfExists('automation_jobs');
+        Schema::create('automation_jobs', function (Blueprint $table): void {
+            $table->id();
+            $table->string('provider_job_id')->nullable();
+            $table->string('report_key');
+            $table->string('collector');
+            $table->string('collector_version')->nullable();
+            $table->string('schema_version')->nullable();
+            $table->string('status');
+            $table->string('source');
+            $table->json('parameters');
+            $table->json('metadata')->nullable();
+            $table->unsignedBigInteger('requested_by_user_id')->nullable();
+            $table->string('idempotency_key')->unique();
+            $table->char('request_fingerprint', 64);
+            $table->string('request_id');
+            $table->unsignedInteger('progress_current')->nullable();
+            $table->unsignedInteger('progress_total')->nullable();
+            $table->string('progress_message')->nullable();
+            $table->unsignedSmallInteger('submission_attempts')->default(0);
+            $table->boolean('submission_retryable')->nullable();
+            $table->unsignedSmallInteger('provider_attempts')->nullable();
+            $table->unsignedSmallInteger('provider_max_attempts')->nullable();
+            $table->unsignedBigInteger('result_count')->nullable();
+            $table->string('result_checksum')->nullable();
+            $table->string('error_code')->nullable();
+            $table->text('error_message')->nullable();
+            $table->timestamp('requested_at')->nullable();
+            $table->timestamp('submitted_at')->nullable();
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('finished_at')->nullable();
+            $table->timestamp('last_submission_at')->nullable();
+            $table->timestamp('last_synced_at')->nullable();
+            $table->unsignedBigInteger('retry_of_job_id')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('automation_result_imports', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('automation_job_id');
+            $table->unsignedInteger('page_number');
+            $table->text('next_cursor')->nullable();
+            $table->string('status')->default('PROCESSING');
+            $table->timestamps();
+        });
+    }
+
+    protected function tearDown(): void
+    {
+        Schema::dropIfExists('automation_result_imports');
+        Schema::dropIfExists('automation_jobs');
+
+        parent::tearDown();
+    }
+
+    public function test_creates_a_local_job_and_dispatches_submission(): void
+    {
+        $job = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            source: AutomationJobSource::SCHEDULED,
+            idempotencyKey: 'schedule:daily_trip_summary:2026-09-19:2026-09-19',
+        ));
+
+        $this->assertSame(AutomationJobStatus::PENDING_SUBMISSION, $job->status);
+        $this->assertSame('daily_trip_summary', $job->report_key);
+        $this->assertSame(AutomationJobSource::SCHEDULED, $job->source);
+
+        Queue::assertPushed(SubmitAutomationJob::class, function (SubmitAutomationJob $queuedJob) use ($job): bool {
+            return $queuedJob->automationJobId === $job->id;
+        });
+    }
+
+    public function test_same_idempotency_key_returns_the_existing_job(): void
+    {
+        $request = new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            idempotencyKey: 'same-key',
+        );
+
+        $first = app(RequestAutomationJob::class)->handle($request);
+        $second = app(RequestAutomationJob::class)->handle($request);
+
+        $this->assertSame($first->id, $second->id);
+        $this->assertSame(1, AutomationJob::query()->count());
+    }
+
+    public function test_manual_request_retries_a_non_retryable_failed_job(): void
+    {
+        $request = new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            source: AutomationJobSource::MANUAL,
+            idempotencyKey: 'manual-retry-key',
+        );
+        $job = app(RequestAutomationJob::class)->handle($request);
+        $job->update([
+            'status' => AutomationJobStatus::REQUEST_FAILED,
+            'submission_retryable' => false,
+        ]);
+
+        $retried = app(RequestAutomationJob::class)->handle($request);
+
+        $this->assertSame($job->id, $retried->id);
+        Queue::assertPushed(SubmitAutomationJob::class, 2);
+    }
+
+    public function test_manual_request_creates_a_new_attempt_for_a_terminal_failed_job(): void
+    {
+        $request = new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            source: AutomationJobSource::MANUAL,
+            idempotencyKey: 'manual-terminal-retry-key',
+        );
+        $failedJob = app(RequestAutomationJob::class)->handle($request);
+        $failedJob->update([
+            'status' => AutomationJobStatus::FAILED,
+            'provider_job_id' => 'provider-job-failed',
+            'error_code' => 'RESULT_IMPORT_FAILED',
+        ]);
+
+        $retry = app(RequestAutomationJob::class)->handle($request);
+
+        $this->assertNotSame($failedJob->id, $retry->id);
+        $this->assertSame($failedJob->id, $retry->retry_of_job_id);
+        $this->assertSame(AutomationJobStatus::PENDING_SUBMISSION, $retry->status);
+        Queue::assertPushed(SubmitAutomationJob::class, 2);
+    }
+
+    public function test_same_idempotency_key_with_different_content_is_rejected(): void
+    {
+        $this->expectException(AutomationIdempotencyConflictException::class);
+
+        app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            idempotencyKey: 'same-key',
+        ));
+
+        app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-20', 'to' => '2026-09-20'],
+            idempotencyKey: 'same-key',
+        ));
+    }
+
+    public function test_reconciliation_dispatches_submission_and_status_sync_jobs(): void
+    {
+        $pending = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            idempotencyKey: 'pending-key',
+        ));
+
+        $active = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-20', 'to' => '2026-09-20'],
+            idempotencyKey: 'active-key',
+        ));
+        $active->update([
+            'status' => AutomationJobStatus::RUNNING,
+            'provider_job_id' => 'provider-job-001',
+        ]);
+
+        Queue::assertPushed(SubmitAutomationJob::class, 2);
+
+        (new ReconcileAutomationJobs)->handle();
+
+        Queue::assertPushed(SubmitAutomationJob::class, function (SubmitAutomationJob $job) use ($pending): bool {
+            return $job->automationJobId === $pending->id;
+        });
+        Queue::assertPushed(SyncAutomationJob::class, function (SyncAutomationJob $job) use ($active): bool {
+            return $job->automationJobId === $active->id;
+        });
+    }
+
+    public function test_reconciliation_requeues_a_completed_job_without_a_finished_import(): void
+    {
+        $job = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            idempotencyKey: 'completed-without-import-key',
+        ));
+        $job->update([
+            'status' => AutomationJobStatus::COMPLETED,
+            'provider_job_id' => 'provider-job-completed',
+            'progress_current' => 1,
+            'progress_total' => 20,
+        ]);
+
+        (new ReconcileAutomationJobs)->handle();
+
+        Queue::assertPushed(ImportAutomationResult::class, function (ImportAutomationResult $import) use ($job): bool {
+            return $import->automationJobId === $job->id;
+        });
+    }
+
+    public function test_disabled_submission_persists_and_logs_the_reason(): void
+    {
+        config(['automation.enabled' => false]);
+
+        $job = app(RequestAutomationJob::class)->handle(new AutomationJobRequest(
+            reportKey: 'daily_trip_summary',
+            parameters: ['from' => '2026-09-19', 'to' => '2026-09-19'],
+            idempotencyKey: 'disabled-submission-key',
+        ));
+
+        Log::spy();
+
+        (new SubmitAutomationJob($job->id))->handle(
+            app(AutomationApiClient::class),
+            app(AutomationReportRegistry::class),
+        );
+
+        $job->refresh();
+
+        $this->assertSame(AutomationJobStatus::REQUEST_FAILED, $job->status);
+        $this->assertSame('AUTOMATION_DISABLED', $job->error_code);
+        $this->assertSame('A integracao com a Automation API esta desativada.', $job->error_message);
+        Log::shouldHaveReceived('error')->withArgs(function (string $message, array $context): bool {
+            return str_contains($message, 'integracao com a Automation API desativada')
+                && $context['error_code'] === 'AUTOMATION_DISABLED';
+        });
+    }
+}

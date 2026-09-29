@@ -36,19 +36,14 @@ return [
     ],
 
     'telegram' => [
-        'api_url' => env('TELEGRAM_API_URL', 'https://api.telegram.org'),
-        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'enabled' => (bool) env('TELEGRAM_ENABLED', false),
-        'agendamento_reminders_enabled' => (bool) env('TELEGRAM_AGENDAMENTO_REMINDERS_ENABLED', true),
-    ],
-
-    'webscraper' => [
-        'secret' => env('WEBSCRAPER_API_SECRET'),
-        'signature_tolerance_seconds' => env('WEBSCRAPER_SIGNATURE_TOLERANCE_SECONDS', 300),
-        'error_notification_email' => env('WEBSCRAPER_ERROR_NOTIFICATION_EMAIL', 'dionathan.silva@transmagnabosco.com.br'),
-        'error_cache_ttl_minutes' => env('WEBSCRAPER_ERROR_CACHE_TTL_MINUTES', 120),
-        'viagem_atual_cache_ttl_minutes' => env('WEBSCRAPER_VIAGEM_ATUAL_CACHE_TTL_MINUTES', 720),
-        'movimento_diario_cache_ttl_minutes' => env('WEBSCRAPER_MOVIMENTO_DIARIO_CACHE_TTL_MINUTES', 1440),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'api_url' => env('TELEGRAM_API_URL', 'https://api.telegram.org'),
+        'timeout_seconds' => (int) env('TELEGRAM_TIMEOUT_SECONDS', 10),
+        'connect_timeout_seconds' => (int) env('TELEGRAM_CONNECT_TIMEOUT_SECONDS', 5),
+        'retry_times' => (int) env('TELEGRAM_RETRY_TIMES', 3),
+        'retry_sleep_milliseconds' => (int) env('TELEGRAM_RETRY_SLEEP_MILLISECONDS', 250),
+        'queue' => env('TELEGRAM_QUEUE', 'integracoes'),
     ],
 
 ];

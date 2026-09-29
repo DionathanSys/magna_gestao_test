@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\Telegram\EnviarMensagemTelegram;
 use App\Models\User;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Collection;
@@ -13,21 +14,20 @@ class NotificacaoService
     public function __construct(
         protected string $tipo, protected string $titulo, protected string $mensagem)
     {
-        // TODO: Implementar o envio de notificações para usuários ativos, precisa add a coluna de usuários ativos
-        $this->usersNotify = User::where('is_active', true)->get();
+        $this->usersNotify = User::query()->get();
     }
 
     public function sendToDataBase($user = null): void
     {
-        if ($user) {
-            $user = $this->resolveUser($user);
-        }
+        $recipients = $user === null ? $this->usersNotify : $this->resolveUser($user);
 
         Notification::make()
             ->title($this->tipo)
             ->body($this->mensagem)
             ->status($this->tipo)
-            ->sendToDataBase($user ?? $this->usersNotify);
+            ->sendToDataBase($recipients);
+
+        $this->sendToTelegram($recipients);
     }
 
     public function sendToast(): void
@@ -53,12 +53,29 @@ class NotificacaoService
 
     }
 
+    private function sendToTelegram(Collection|User|null $recipients): void
+    {
+        if (! (bool) config('services.telegram.enabled', false) || blank(config('services.telegram.bot_token'))) {
+            return;
+        }
+
+        $users = $recipients instanceof User ? collect([$recipients]) : ($recipients ?? collect());
+        $message = trim($this->titulo."\n\n".$this->mensagem);
+
+        $users
+            ->filter(fn (User $user): bool => filled($user->telegram_chat_id))
+            ->each(fn (User $user) => EnviarMensagemTelegram::dispatch(
+                (string) $user->telegram_chat_id,
+                $message,
+            ));
+    }
+
     public static function error(string $titulo = 'Falha no processamento', string $mensagem = '', bool $toDataBase = false, Collection|User|array|int|null $user = null): void
     {
         $instance = new self('danger', $titulo, $mensagem);
 
         if ($toDataBase) {
-            $instance->sendToDataBase();
+            $instance->sendToDataBase($user);
         }
 
         $instance->sendToast();
@@ -69,7 +86,7 @@ class NotificacaoService
         $instance = new self('success', $titulo, $mensagem);
 
         if ($toDataBase) {
-            $instance->sendToDataBase();
+            $instance->sendToDataBase($user);
         }
 
         $instance->sendToast();
@@ -80,7 +97,7 @@ class NotificacaoService
         $instance = new self('warning', $titulo, $mensagem);
 
         if ($toDataBase) {
-            $instance->sendToDataBase();
+            $instance->sendToDataBase($user);
         }
 
         $instance->sendToast();

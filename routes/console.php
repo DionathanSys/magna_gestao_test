@@ -1,5 +1,8 @@
 <?php
 
+use App\Jobs\Automation\ReconcileAutomationJobs;
+use App\Jobs\Automation\RequestDailyTripSummaryJob;
+use App\Jobs\Automation\RequestSascarTraveledDistanceJob;
 use App\Jobs\MailInbound\ProcessIncomingBugioCteReturnEmailJob;
 use App\Jobs\MailInbound\ReadIncomingMailboxJob;
 use App\Services\Bugio\CteReturnEmailProcessingService;
@@ -143,7 +146,26 @@ Schedule::command('email:diario')->dailyAt('07:00')->runInBackground();
 Schedule::command('email:diario')->dailyAt('17:10')->runInBackground();
 Schedule::command('viagens:alertar-dispersao')->hourly()->withoutOverlapping()->runInBackground();
 Schedule::command('documentos-veiculos:alertar-vencimentos')->dailyAt('07:20')->runInBackground();
-Schedule::command('webscraper:viagens:enviar-falhas')->everyTenMinutes()->runInBackground();
+Schedule::command('telegram:processar-lembretes')->everyMinute()->withoutOverlapping()->runInBackground();
+if ((bool) config('automation.schedules.daily_trip_summary.enabled', false)) {
+    Schedule::job(new RequestDailyTripSummaryJob, config('automation.queues.submission', 'automation'))
+        ->cron(config('automation.schedules.daily_trip_summary.cron', '0 2 * * *'))
+        ->timezone(config('automation.schedules.daily_trip_summary.timezone', config('app.timezone')))
+        ->withoutOverlapping();
+}
+Schedule::job(new RequestSascarTraveledDistanceJob('07:00'), config('automation.queues.submission', 'automation'))
+    ->dailyAt('07:00')
+    ->timezone('America/Sao_Paulo')
+    ->withoutOverlapping();
+Schedule::job(new RequestSascarTraveledDistanceJob('13:00'), config('automation.queues.submission', 'automation'))
+    ->dailyAt('13:00')
+    ->timezone('America/Sao_Paulo')
+    ->withoutOverlapping();
+if ((bool) config('automation.enabled', false)) {
+    Schedule::job(new ReconcileAutomationJobs, config('automation.queues.processing', 'automation-import'))
+        ->everyFiveMinutes()
+        ->withoutOverlapping();
+}
 Schedule::job(new ReadIncomingMailboxJob, config('mail-inbound.queue.ingest'))
     ->everyFifteenMinutes()
     ->withoutOverlapping();

@@ -1,0 +1,194 @@
+<?php
+
+namespace App\Domain\Automation\Importers;
+
+use App\Domain\Automation\AutomationReportRegistry;
+use App\Domain\Automation\Contracts\AutomationResultImporter;
+use App\Domain\Automation\Data\AutomationImportPageResult;
+use App\Models\AutomationJob;
+use App\Models\Veiculo;
+use App\Services\Integrado\IntegradoDestinoService;
+use App\Services\MailInbound\Support\DocumentIdentity;
+use App\Services\Viagem\ViagemService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Throwable;
+
+class DailyTripSummaryImporter implements AutomationResultImporter
+{
+    public function __construct(
+        private readonly AutomationReportRegistry $reports,
+    ) {}
+
+    public function importPage(
+        AutomationJob $job,
+        array $items,
+        array $meta,
+    ): AutomationImportPageResult {
+        $definition = $this->reports->get($job->report_key);
+        $created = 0;
+        $updated = 0;
+        $ignored = 0;
+        $errors = [];
+
+        foreach ($items as $index => $item) {
+            $normalized = [];
+            $vehicle = null;
+
+            try {
+                $normalized = $this->normalizeItem($item, $definition->defaultUnidadeNegocio);
+                $vehicle = $this->resolveVehicle($normalized['placa']);
+                $normalized['unidade_negocio'] = $this->normalizeUnidadeNegocio($normalized['unidade_negocio'] ?? null)
+                    ?? $this->normalizeUnidadeNegocio($vehicle->filial);
+                $normalized['cliente'] = data_get($vehicle->informacoes_complementares, 'cliente');
+                $validator = Validator::make($normalized, [
+                    'numero_viagem' => 'required|string|max:255',
+                    'placa' => 'required|string|max:20',
+                    'unidade_negocio' => 'required|string|max:255',
+                    'cliente' => 'nullable|string|max:255',
+                    'destino' => 'nullable|string|max:255',
+                    'km_rodado' => 'nullable|numeric|min:0',
+                    'km_pago' => 'required|numeric|min:0',
+                    'data_competencia' => 'required|date',
+                    'data_inicio' => 'required|date',
+                    'data_fim' => 'required|date|after_or_equal:data_inicio',
+                    'possui_pendencia' => 'boolean',
+                    'pendencias' => 'nullable|array',
+                    'motoristas' => 'nullable|array',
+                ]);
+
+                if ($validator->fails()) {
+                    throw new \InvalidArgumentException($validator->errors()->toJson());
+                }
+
+                $service = new ViagemService;
+                $viagem = DB::transaction(function () use ($normalized, $vehicle, $service): mixed {
+                    $data = [
+                        'veiculo_id' => $vehicle->id,
+                        'unidade_negocio' => $normalized['unidade_negocio'],
+                        'cliente' => $normalized['cliente'],
+                        'numero_viagem' => $normalized['numero_viagem'],
+                        'km_rodado' => $normalized['km_rodado'],
+                        'km_pago' => $normalized['km_pago'],
+                        'data_competencia' => $normalized['data_competencia'],
+                        'data_inicio' => $normalized['data_inicio'],
+                        'data_fim' => $normalized['data_fim'],
+                        'possui_pendencia' => $normalized['possui_pendencia'],
+                        'pendencias' => $normalized['pendencias'],
+                        'motoristas' => $normalized['motoristas'],
+                        'conferido' => false,
+                        'ignorar' => false,
+                    ];
+
+                    $viagem = $service->updateOrCreate($data);
+
+                    if ($service->hasError() || ! $viagem) {
+                        throw new \RuntimeException($service->getMessageUser() ?: 'Falha ao persistir viagem.');
+                    }
+
+                    (new IntegradoDestinoService)->vincularCarga($viagem, $normalized['destino']);
+
+                    return $viagem;
+                });
+
+                $action = (string) ($service->getData()['acao'] ?? 'processada');
+
+                if ($action === 'criada') {
+                    $created++;
+                } elseif ($action === 'atualizada') {
+                    $updated++;
+                } else {
+                    $ignored++;
+                }
+            } catch (Throwable $exception) {
+                $ignored++;
+                $errors[] = [
+                    'index' => $index,
+                    'numero_viagem' => $item['numero_viagem'] ?? null,
+                    'placa' => $normalized['placa'] ?? $item['placa'] ?? null,
+                    'unidade_negocio' => $normalized['unidade_negocio'] ?? null,
+                    'veiculo_filial' => $vehicle?->filial,
+                    'cliente' => $normalized['cliente'] ?? null,
+                    'error' => $exception->getMessage(),
+                ];
+            }
+        }
+
+        return new AutomationImportPageResult(
+            recordsReceived: count($items),
+            recordsCreated: $created,
+            recordsUpdated: $updated,
+            recordsIgnored: $ignored,
+            errors: $errors,
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    private function normalizeItem(array $item, ?string $defaultUnidadeNegocio): array
+    {
+        $dataInicio = $item['data_inicio'] ?? $item['inicio'] ?? null;
+        $dataFim = $item['data_fim'] ?? $item['fim'] ?? null;
+        $dataCompetencia = $item['data_competencia'] ?? $item['data'] ?? $dataInicio;
+        $pendencias = $item['pendencias'] ?? [];
+
+        if (is_string($pendencias) && filled($pendencias)) {
+            $pendencias = [$pendencias];
+        }
+
+        $kmPago = filled($item['km_pago'] ?? null) ? $item['km_pago'] : 0;
+
+        if ((float) $kmPago <= 0) {
+            $pendencias['sem_km_pago'] = 'Sem km pago';
+        }
+
+        return [
+            'numero_viagem' => $item['numero_viagem'] ?? null,
+            'placa' => $item['placa'] ?? null,
+            'unidade_negocio' => $item['unidade_negocio'] ?? $defaultUnidadeNegocio,
+            'cliente' => $item['cliente'] ?? null,
+            'destino' => $item['destino'] ?? null,
+            'km_rodado' => $item['km_rodado'] ?? null,
+            'km_pago' => $kmPago,
+            'data_competencia' => $dataCompetencia,
+            'data_inicio' => $dataInicio,
+            'data_fim' => $dataFim,
+            'possui_pendencia' => (bool) ($item['possui_pendencia'] ?? false) || ! empty($pendencias),
+            'pendencias' => is_array($pendencias) ? $pendencias : [],
+            'motoristas' => is_array($item['motoristas'] ?? null) ? $item['motoristas'] : [],
+        ];
+    }
+
+    private function resolveVehicle(?string $plate): Veiculo
+    {
+        $normalizedPlate = DocumentIdentity::normalizePlate($plate);
+
+        if ($normalizedPlate === null) {
+            throw new \InvalidArgumentException('Placa nao informada ou invalida.');
+        }
+
+        $vehicle = Veiculo::query()
+            ->select('id', 'placa', 'filial', 'informacoes_complementares')
+            ->where('is_active', true)
+            ->where(function ($query) use ($plate, $normalizedPlate): void {
+                $query->where('placa', trim((string) $plate))
+                    ->orWhere('placa', $normalizedPlate);
+            })
+            ->first();
+
+        if (! $vehicle) {
+            throw new \InvalidArgumentException("Veiculo ativo nao encontrado para a placa {$normalizedPlate}.");
+        }
+
+        return $vehicle;
+    }
+
+    private function normalizeUnidadeNegocio(mixed $value): ?string
+    {
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+}

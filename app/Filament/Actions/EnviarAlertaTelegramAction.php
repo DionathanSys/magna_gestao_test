@@ -62,7 +62,6 @@ class EnviarAlertaTelegramAction
                                 Select::make('recipient_ids')
                                     ->label('Usuários')
                                     ->options(fn (): array => User::query()
-                                        ->where('is_active', true)
                                         ->whereNotNull('telegram_chat_id')
                                         ->where('telegram_chat_id', '!=', '')
                                         ->orderBy('name')
@@ -131,7 +130,6 @@ class EnviarAlertaTelegramAction
 
                     $users = User::query()
                         ->whereIn('id', $recipientIds->all())
-                        ->where('is_active', true)
                         ->whereNotNull('telegram_chat_id')
                         ->where('telegram_chat_id', '!=', '')
                         ->get();
@@ -169,7 +167,8 @@ class EnviarAlertaTelegramAction
                         return $alert;
                     });
 
-                    SendTelegramAlertJob::dispatch($alert->id)->onQueue('integracoes');
+                    SendTelegramAlertJob::dispatch($alert->id)
+                        ->onQueue((string) config('services.telegram.queue', 'integracoes'));
 
                     Notification::make()
                         ->success()

@@ -1,24 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\HistoricoQuilometragemController;
-use App\Http\Controllers\Api\SascarMovimentoDiarioController;
-use App\Http\Controllers\Api\WebScraperViagemAtualController;
-use App\Http\Controllers\Api\WebScraperViagemController;
-use App\Http\Middleware\VerifyWebScraperSignature;
+use App\Http\Controllers\Api\AutomationWebhookController;
+use App\Http\Middleware\VerifyAutomationWebhookSignature;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/integracoes/viagens', WebScraperViagemController::class)
-    ->middleware(VerifyWebScraperSignature::class)
-    ->name('api.integracoes.viagens');
-
-Route::post('/integracoes/viagem-atual', WebScraperViagemAtualController::class)
-    ->middleware(VerifyWebScraperSignature::class)
-    ->name('api.integracoes.viagem-atual');
-
-Route::post('/integracoes/movimento-diario', SascarMovimentoDiarioController::class)
-    ->middleware(VerifyWebScraperSignature::class)
-    ->name('api.integracoes.movimento-diario');
-
-Route::post('/integracoes/historico-quilometragem', HistoricoQuilometragemController::class)
-    ->middleware(VerifyWebScraperSignature::class)
-    ->name('api.integracoes.historico-quilometragem');
+Route::post('/integrations/automation/v1/webhooks', AutomationWebhookController::class)
+    ->middleware(VerifyAutomationWebhookSignature::class)
+    ->name('api.integrations.automation.webhooks');

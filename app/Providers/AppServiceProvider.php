@@ -12,8 +12,10 @@ use App\Filament\Widgets\OficinaManutencaoResumo;
 use App\Filament\Widgets\OficinaManutencaoTipoResumo;
 use App\Listeners\Viagem\AtualizarRateioKmDispersaoCargas;
 use App\Models\DocumentoFrete;
+use App\Models\OrdemServico;
 use App\Models\User;
 use App\Observers\DocumentoFreteObserver;
+use App\Observers\OrdemServicoObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -48,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         DocumentoFrete::observe(DocumentoFreteObserver::class);
+        OrdemServico::observe(OrdemServicoObserver::class);
 
         // Registra explicitamente os widgets da oficina para evitar falhas de
         // resolução do alias do Livewire em ambientes com cache/autoload defasado.

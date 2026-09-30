@@ -3,6 +3,7 @@
 namespace App\Services\MailInbound;
 
 use App\Enum\ClienteEnum;
+use App\Jobs\MailInbound\RequestAutomaticCteForTripJob;
 use App\Models\Integrado;
 use App\Models\ShipmentDocumentGroup;
 use App\Models\Veiculo;
@@ -38,6 +39,8 @@ class ShipmentTripService
         $payload = collect($group->payload ?? []);
 
         if ($group->viagem_id && $group->viagem()->exists()) {
+            $this->dispatchAutomaticCteRequest($group->id);
+
             return;
         }
 
@@ -105,7 +108,15 @@ class ShipmentTripService
             ]);
 
             $this->attachDocumentFiles($viagem->id, $group);
+            $this->dispatchAutomaticCteRequest($group->id);
         });
+    }
+
+    protected function dispatchAutomaticCteRequest(int $groupId): void
+    {
+        RequestAutomaticCteForTripJob::dispatch($groupId)
+            ->onQueue(config('mail-inbound.queue.trip'))
+            ->afterCommit();
     }
 
     public function createManualBugioTrip(array $data): Viagem

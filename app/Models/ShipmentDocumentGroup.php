@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ShipmentDocumentGroup extends Model
 {
@@ -31,6 +32,11 @@ class ShipmentDocumentGroup extends Model
     public function viagem(): BelongsTo
     {
         return $this->belongsTo(Viagem::class);
+    }
+
+    public function cteEmailRequest(): HasOne
+    {
+        return $this->hasOne(CteEmailRequest::class);
     }
 
     protected function pendingSummary(): Attribute

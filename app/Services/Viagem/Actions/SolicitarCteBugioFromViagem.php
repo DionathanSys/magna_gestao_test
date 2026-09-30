@@ -13,23 +13,90 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SolicitarCteBugioFromViagem
 {
     public function handle(Viagem $viagem, array $data): void
     {
+        $prepared = $this->preparePayload($viagem, $data);
+        $tipoDocumento = $prepared['tipo_documento'];
+        $payload = $prepared['payload'];
+
+        if ($tipoDocumento === TipoDocumentoEnum::NFS->value) {
+            $documentoFrete = $this->createDocumentoFrete(
+                $viagem,
+                $prepared['veiculo'],
+                $prepared['integrado'],
+                $prepared['sale_document'],
+                $payload['data_competencia'],
+                $payload['destinos'][0]['km_rota'],
+                $prepared['nro_notas'],
+            );
+
+            if (! $documentoFrete instanceof DocumentoFrete) {
+                throw new \RuntimeException('Não foi possível criar o Documento de Frete.');
+            }
+
+            return;
+        }
+
+        Log::info('Disparando solicitação de CTe a partir da viagem', [
+            'viagem_id' => $viagem->id,
+            'tipo_documento' => $tipoDocumento,
+            'veiculo_id' => $prepared['veiculo']->id,
+            'integrado_id' => $prepared['integrado']->id,
+            'km_rota' => $payload['km_total'],
+            'peso_carga' => $payload['peso_carga'],
+            'nro_notas' => $prepared['nro_notas'],
+        ]);
+
+        app(CteEmailQueueService::class)->enqueue($payload);
+    }
+
+    /**
+     * Prepares the exact payload used by both the Filament action and the
+     * automatic request created from an inbound fiscal email.
+     *
+     * @return array{payload: array<string, mixed>, tipo_documento: string, veiculo: Veiculo, integrado: Integrado, sale_document: mixed, nro_notas: array<int, mixed>}
+     */
+    public function preparePayload(Viagem $viagem, array $data): array
+    {
         $viagem->loadMissing([
+            'veiculo',
+            'cargas.integrado',
             'attachments.incomingEmailAttachment',
             'attachments.receivedFiscalDocument',
         ]);
 
-        $integrado = Integrado::query()->findOrFail($data['integrado_id']);
-        $veiculo = Veiculo::query()->findOrFail($viagem->veiculo_id);
-        $motoristaCpf = $data['motorista'];
-        $motoristaNome = collect(db_config('config-bugio.motoristas'))->firstWhere('cpf', $motoristaCpf)['motorista'] ?? null;
-        $tipoDocumento = $data['tipo_documento'];
-        $kmRota = (float) ($data['km_rota'] ?? 0);
-        $dataCompetencia = (string) $data['data_competencia'];
+        $integrado = Integrado::query()->findOrFail($data['integrado_id'] ?? null);
+        $veiculo = $viagem->veiculo ?: Veiculo::query()->findOrFail($viagem->veiculo_id);
+        $tipoDocumento = (string) ($data['tipo_documento'] ?? '');
+
+        if (! in_array($tipoDocumento, array_map(fn (TipoDocumentoEnum $type): string => $type->value, TipoDocumentoEnum::cases()), true)) {
+            throw new \InvalidArgumentException('Tipo de documento inválido para a solicitação.');
+        }
+
+        if (! $viagem->cargas->contains(fn ($carga): bool => (int) $carga->integrado_id === (int) $integrado->id)) {
+            throw new \InvalidArgumentException('O integrado informado não está vinculado à viagem.');
+        }
+
+        $motoristaCpf = trim((string) ($data['motorista'] ?? ''));
+        $motorista = collect(db_config('config-bugio.motoristas'))
+            ->first(fn (mixed $item): bool => is_array($item) && (string) ($item['cpf'] ?? '') === $motoristaCpf);
+
+        if ($motoristaCpf === '' || ! is_array($motorista)) {
+            throw new \InvalidArgumentException('O motorista informado não está cadastrado nas configurações do Bugio.');
+        }
+
+        if (in_array($tipoDocumento, [TipoDocumentoEnum::CTE->value, TipoDocumentoEnum::CTE_COMPLEMENTO->value], true)
+            && $this->isGuatambuMunicipio($integrado->municipio)) {
+            throw new \DomainException('Não é possível solicitar CTe para integrado com município Guatambu.');
+        }
+
+        if ($tipoDocumento === TipoDocumentoEnum::CTE_COMPLEMENTO->value && blank($data['cte_referencia'] ?? null)) {
+            throw new \InvalidArgumentException('O CTe de referência é obrigatório para complemento.');
+        }
 
         $anexos = $viagem->attachments
             ->map(fn ($attachment) => $attachment->incomingEmailAttachment)
@@ -54,7 +121,6 @@ class SolicitarCteBugioFromViagem
 
         $saleDocument = $fiscalDocuments->firstWhere('tipo_documento', 'sale') ?? $fiscalDocuments->first();
         $remittanceDocument = $fiscalDocuments->firstWhere('tipo_documento', 'remittance');
-
         $nroNotas = $fiscalDocuments
             ->pluck('numero_nota')
             ->filter()
@@ -66,59 +132,68 @@ class SolicitarCteBugioFromViagem
             throw new \InvalidArgumentException('A viagem não possui notas fiscais vinculadas nos anexos.');
         }
 
+        $kmRota = (float) ($data['km_rota'] ?? 0);
+        $valorFrete = $kmRota * (float) db_config('config-bugio.valor-quilometro', 0);
+
+        if ($kmRota <= 0 || $valorFrete <= 0) {
+            throw new \InvalidArgumentException('Não é possível solicitar CTe com valor de frete zero.');
+        }
+
+        $dataCompetencia = trim((string) ($data['data_competencia'] ?? ''));
+        if ($dataCompetencia === '') {
+            throw new \InvalidArgumentException('A data de competência é obrigatória.');
+        }
+
         $pesoCarga = isset($data['peso_carga'])
             ? (float) $data['peso_carga']
             : (float) ($remittanceDocument?->peso_carga ?? $saleDocument?->peso_carga ?? 0);
 
-        if ($tipoDocumento === TipoDocumentoEnum::NFS->value) {
-            $documentoFrete = $this->createDocumentoFrete($viagem, $veiculo, $integrado, $saleDocument, $dataCompetencia, $kmRota, $nroNotas);
-
-            if (! $documentoFrete instanceof DocumentoFrete) {
-                throw new \RuntimeException('Não foi possível criar o Documento de Frete.');
-            }
-
-            return;
-        }
-
-        $payload = [
-            'km_total' => $kmRota,
-            'valor_frete' => $kmRota * db_config('config-bugio.valor-quilometro', 0),
-            'anexos' => $anexos,
-            'viagem_id' => $viagem->id,
-            'integrado_id' => $integrado->id,
-            'integrado_cpf' => $integrado->documento,
-            'documento_transporte' => $viagem->documento_transporte,
-            'destinos' => [[
+        return [
+            'payload' => [
+                'km_total' => $kmRota,
+                'valor_frete' => $valorFrete,
+                'anexos' => $anexos,
+                'viagem_id' => $viagem->id,
                 'integrado_id' => $integrado->id,
-                'km_rota' => $kmRota,
-                'integrado_nome' => $integrado->nome,
-            ]],
-            'veiculo' => $veiculo->placa,
-            'created_by' => Auth::id() ?? $viagem->created_by,
-            'nro_notas' => $nroNotas,
-            'nfe_keys' => $this->nfeKeys($fiscalDocuments),
-            'cte_retroativo' => (bool) ($data['cte_retroativo'] ?? true),
-            'cte_complementar' => $tipoDocumento === TipoDocumentoEnum::CTE_COMPLEMENTO->value,
-            'cte_referencia' => $data['cte_referencia'] ?? null,
-            'motorista' => [
-                'cpf' => $motoristaCpf,
-                'nome' => $motoristaNome,
+                'integrado_cpf' => $integrado->documento,
+                'documento_transporte' => $viagem->documento_transporte,
+                'destinos' => [[
+                    'integrado_id' => $integrado->id,
+                    'km_rota' => $kmRota,
+                    'integrado_nome' => $integrado->nome,
+                    'integrado_municipio' => $integrado->municipio,
+                ]],
+                'veiculo' => $veiculo->placa,
+                'created_by' => Auth::id() ?? $viagem->created_by,
+                'nro_notas' => $nroNotas,
+                'nfe_keys' => $this->nfeKeys($fiscalDocuments),
+                'cte_retroativo' => (bool) ($data['cte_retroativo'] ?? true),
+                'cte_complementar' => $tipoDocumento === TipoDocumentoEnum::CTE_COMPLEMENTO->value,
+                'cte_referencia' => $data['cte_referencia'] ?? null,
+                'motorista' => [
+                    'cpf' => $motoristaCpf,
+                    'nome' => $motorista['motorista'] ?? null,
+                ],
+                'peso_carga' => $pesoCarga,
+                'data_competencia' => $dataCompetencia,
             ],
-            'peso_carga' => $pesoCarga,
-            'data_competencia' => $dataCompetencia,
-        ];
-
-        Log::info('Disparando solicitação de CTe a partir da viagem', [
-            'viagem_id' => $viagem->id,
             'tipo_documento' => $tipoDocumento,
-            'veiculo_id' => $veiculo->id,
-            'integrado_id' => $integrado->id,
-            'km_rota' => $kmRota,
-            'peso_carga' => $pesoCarga,
+            'veiculo' => $veiculo,
+            'integrado' => $integrado,
+            'sale_document' => $saleDocument,
             'nro_notas' => $nroNotas,
-        ]);
+        ];
+    }
 
-        app(CteEmailQueueService::class)->enqueue($payload);
+    public function isGuatambuMunicipio(?string $municipio): bool
+    {
+        $normalized = Str::of((string) $municipio)
+            ->ascii()
+            ->lower()
+            ->replaceMatches('/[^a-z0-9]/', '')
+            ->toString();
+
+        return str_contains($normalized, 'guatambu');
     }
 
     public function handleAgrupado(Collection $viagens, array $data): void
@@ -220,6 +295,16 @@ class SolicitarCteBugioFromViagem
         $pesoCarga = isset($data['peso_carga'])
             ? (float) $data['peso_carga']
             : (float) $fiscalDocuments->sum(fn ($document) => (float) ($document?->peso_carga ?? 0));
+        $valorFrete = $kmRota * (float) db_config('config-bugio.valor-quilometro', 0);
+
+        if ($kmRota <= 0 || $valorFrete <= 0) {
+            throw new \InvalidArgumentException('Não é possível solicitar CTe com valor de frete zero.');
+        }
+
+        if (in_array($tipoDocumento, [TipoDocumentoEnum::CTE->value, TipoDocumentoEnum::CTE_COMPLEMENTO->value], true)
+            && $this->isGuatambuMunicipio($integrado->municipio)) {
+            throw new \DomainException('Não é possível solicitar CTe para integrado com município Guatambu.');
+        }
 
         if ($tipoDocumento === TipoDocumentoEnum::NFS->value) {
             $documentoFrete = $this->createDocumentoFrete($viagemReferencia, $veiculo, $integrado, $saleDocument, $dataCompetencia, $kmRota, $nroNotas);
@@ -289,6 +374,10 @@ class SolicitarCteBugioFromViagem
         }
 
         $valorFrete = $kmRota * db_config('config-bugio.valor-quilometro', 0);
+
+        if ($valorFrete <= 0) {
+            throw new \InvalidArgumentException('Não é possível criar Documento de Frete com valor zero.');
+        }
 
         return (new DocumentoFreteService)->criarDocumentoFrete([
             'veiculo_id' => $veiculo->id,

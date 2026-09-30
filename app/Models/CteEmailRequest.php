@@ -8,12 +8,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CteEmailRequest extends Model
 {
+    public const ORIGIN_MANUAL = 'manual';
+
+    public const ORIGIN_MAIL_INBOUND = 'mail_inbound';
+
     protected $casts = [
         'requested_at' => 'datetime',
         'scheduled_at' => 'datetime',
         'sent_at' => 'datetime',
         'last_response_at' => 'datetime',
         'completed_at' => 'datetime',
+        'cancelled_at' => 'datetime',
         'payload' => 'array',
         'nfe_keys' => 'array',
     ];
@@ -21,6 +26,11 @@ class CteEmailRequest extends Model
     public function viagem(): BelongsTo
     {
         return $this->belongsTo(Viagem::class);
+    }
+
+    public function shipmentDocumentGroup(): BelongsTo
+    {
+        return $this->belongsTo(ShipmentDocumentGroup::class);
     }
 
     public function integrado(): BelongsTo

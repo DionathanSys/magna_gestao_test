@@ -43,6 +43,7 @@ class CteEmailRequestsTable
                         'processing' => 'warning',
                         'completed' => 'success',
                         'failed' => 'danger',
+                        'cancelled' => 'gray',
                         default => 'gray',
                     })
                     ->toggleable(),

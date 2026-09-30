@@ -10,6 +10,7 @@ class QueueMatchedShipmentTripCreation
     public function handle(ShipmentDocumentsMatched $event): void
     {
         CreateTripFromShipmentDocumentsJob::dispatch($event->shipmentDocumentGroupId)
-            ->onQueue(config('mail-inbound.queue.trip'));
+            ->onQueue(config('mail-inbound.queue.trip'))
+            ->afterCommit();
     }
 }

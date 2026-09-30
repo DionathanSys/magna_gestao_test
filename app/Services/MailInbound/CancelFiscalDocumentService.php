@@ -2,6 +2,7 @@
 
 namespace App\Services\MailInbound;
 
+use App\Models\CteEmailRequest;
 use App\Models\ReceivedFiscalDocument;
 use App\Models\ShipmentDocumentGroup;
 use App\Models\Viagem;
@@ -39,6 +40,7 @@ class CancelFiscalDocumentService
             if ($resolution === 'delete_trip') {
                 $this->deleteTrips($trips);
             } else {
+                $this->cancelPendingCteRequests($trips);
                 $this->blockAndIgnoreTrips($trips, $document);
             }
 
@@ -90,5 +92,18 @@ class CancelFiscalDocumentService
                 'pendencias' => $pendencias,
             ]);
         });
+    }
+
+    /** @param Collection<int, Viagem> $trips */
+    protected function cancelPendingCteRequests(Collection $trips): void
+    {
+        CteEmailRequest::query()
+            ->whereIn('viagem_id', $trips->pluck('id')->all())
+            ->where('status', 'pending_send')
+            ->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+                'cancellation_reason' => 'Cancelada porque uma NF-e vinculada foi cancelada.',
+            ]);
     }
 }

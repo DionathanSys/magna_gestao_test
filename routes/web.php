@@ -2,6 +2,7 @@
 
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Resources\DocumentoFretes\DocumentoFreteResource;
+use App\Http\Controllers\CteEmailRequestCancellationController;
 use App\Http\Controllers\ResultadoPeriodoDashboardController;
 use App\Models\IncomingEmailAttachment;
 use App\Models\OrdemServico;
@@ -24,6 +25,14 @@ Route::get('/', function () {
 
 Route::get('/resultado-periodo/dashboard/{token}', ResultadoPeriodoDashboardController::class)
     ->name('resultado-periodo.dashboard');
+
+Route::get('/cte-email-requests/{cteEmailRequest}/cancel', [CteEmailRequestCancellationController::class, 'show'])
+    ->middleware('signed')
+    ->name('cte-email-requests.cancel');
+
+Route::post('/cte-email-requests/{cteEmailRequest}/cancel', [CteEmailRequestCancellationController::class, 'cancel'])
+    ->middleware('signed')
+    ->name('cte-email-requests.cancel.submit');
 
 Route::get('/ordem-servico/{ordemServico}/pdf', function (OrdemServico $ordemServico) {
     $service = new OrdemServicoPdfService;

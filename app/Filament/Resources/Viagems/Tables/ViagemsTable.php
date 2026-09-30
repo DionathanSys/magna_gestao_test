@@ -163,20 +163,24 @@ class ViagemsTable
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'pending_send' => 'Pendente envio',
+                        'sending' => 'Enviando',
                         'sent' => 'Enviado',
                         'response_received' => 'Resposta recebida',
                         'processing' => 'Processando',
                         'completed' => 'Concluida',
                         'failed' => 'Falhou',
+                        'cancelled' => 'Cancelada',
                         default => 'Nao solicitada',
                     })
                     ->color(fn (?string $state): string => match ($state) {
                         'pending_send' => 'warning',
+                        'sending' => 'warning',
                         'sent' => 'info',
                         'response_received' => 'primary',
                         'processing' => 'warning',
                         'completed' => 'success',
                         'failed' => 'danger',
+                        'cancelled' => 'gray',
                         default => 'gray',
                     })
                     ->tooltip(fn (Viagem $record): ?string => $record->cte_email_requested_at

@@ -19,6 +19,7 @@ class CteEmailRequestInfolist
                         TextEntry::make('id')->label('ID'),
                         TextEntry::make('documento_transporte')->label('Doc. Transporte'),
                         TextEntry::make('status')->label('Status')->badge(),
+                        TextEntry::make('origin')->label('Origem')->formatStateUsing(fn (?string $state): string => $state === 'mail_inbound' ? 'Recebimento de email' : 'Manual'),
                         TextEntry::make('tipo_documento_solicitado')->label('Tipo'),
                         TextEntry::make('viagem.numero_viagem')->label('Viagem')->placeholder('-'),
                         TextEntry::make('viagem.veiculo.placa')->label('Placa')->placeholder('-'),
@@ -53,6 +54,8 @@ class CteEmailRequestInfolist
                     ->schema([
                         TextEntry::make('last_response_at')->label('Ultima resposta em')->dateTime('d/m/Y H:i:s')->placeholder('-'),
                         TextEntry::make('completed_at')->label('Concluido em')->dateTime('d/m/Y H:i:s')->placeholder('-'),
+                        TextEntry::make('cancelled_at')->label('Cancelado em')->dateTime('d/m/Y H:i:s')->placeholder('-'),
+                        TextEntry::make('cancellation_reason')->label('Motivo do cancelamento')->columnSpanFull()->placeholder('-'),
                         TextEntry::make('returned_cte_keys')
                             ->label('Chave CTe retornada')
                             ->state(function (CteEmailRequest $record): ?string {

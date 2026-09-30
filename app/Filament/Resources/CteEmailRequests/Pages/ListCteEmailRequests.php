@@ -46,6 +46,9 @@ class ListCteEmailRequests extends ListRecords
             'failed' => Tab::make('Falhou')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'failed'))
                 ->badge($counts['failed'] ?? 0),
+            'cancelled' => Tab::make('Cancelada')
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'cancelled'))
+                ->badge($counts['cancelled'] ?? 0),
         ];
     }
 

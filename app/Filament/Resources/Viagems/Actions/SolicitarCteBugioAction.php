@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Viagems\Actions;
 
+use App\Enum\ClienteEnum;
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Models\Integrado;
 use App\Models\Viagem;
@@ -49,9 +50,10 @@ class SolicitarCteBugioAction
             ->tooltip('Solicitar Document Frete')
             ->icon('heroicon-o-paper-airplane')
             ->color('info')
-            ->visible(fn (Viagem $record): bool => ! $record->ignorar
-                && $record->attachments()->exists()
-                && ! $record->attachments()->whereHas('receivedFiscalDocument', fn ($query) => $query->where('status', 'cancelled'))->exists())
+            ->visible(fn (Viagem $record): bool => $record->cliente === ClienteEnum::BUGIO->value
+                && ! $record->ignorar
+               && $record->attachments()->exists()
+               && ! $record->attachments()->whereHas('receivedFiscalDocument', fn ($query) => $query->where('status', 'cancelled'))->exists())
             ->modalWidth(Width::FiveExtraLarge)
             ->fillForm(function (Viagem $record): array {
                 $record->loadMissing('veiculo', 'cargas.integrado', 'attachments.receivedFiscalDocument', 'attachments.incomingEmailAttachment');

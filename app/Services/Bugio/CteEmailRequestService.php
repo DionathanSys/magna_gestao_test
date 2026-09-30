@@ -12,8 +12,14 @@ use Illuminate\Support\Str;
 
 class CteEmailRequestService
 {
-    public function createPendingRequest(PayloadCteDTO $payload, SolicitacaoCteMail $mail, array $rawPayload, Carbon $scheduledAt): CteEmailRequest
-    {
+    public function createPendingRequest(
+        PayloadCteDTO $payload,
+        SolicitacaoCteMail $mail,
+        array $rawPayload,
+        Carbon $scheduledAt,
+        string $origin = CteEmailRequest::ORIGIN_MANUAL,
+        ?int $shipmentDocumentGroupId = null,
+    ): CteEmailRequest {
         $correlationCode = $this->generateCorrelationCode();
         $outboundMessageId = $this->generateOutboundMessageId($correlationCode);
 
@@ -21,12 +27,14 @@ class CteEmailRequestService
 
         return CteEmailRequest::query()->create([
             'viagem_id' => $payload->viagemId,
+            'shipment_document_group_id' => $shipmentDocumentGroupId,
             'integrado_id' => $payload->integradoId,
             'documento_transporte' => $payload->documentoTransporte,
             'correlation_code' => $correlationCode,
             'outbound_message_id' => $outboundMessageId,
             'tipo_documento_solicitado' => $payload->cte_complementar ? 'CTe Complemento' : 'CTe',
             'status' => 'pending_send',
+            'origin' => $origin,
             'sent_subject' => $mail->getRenderedSubject(),
             'sent_to' => $this->normalizeAddressField($mail->getToAddress()),
             'sent_reply_to' => $this->normalizeAddressField($mail->getReplyToAddress()),

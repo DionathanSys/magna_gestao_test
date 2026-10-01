@@ -103,6 +103,7 @@ class RequestAutomaticCteForTripJob implements ShouldQueue
                             'integrado_id' => $integrado->id,
                             'motorista' => $motoristaCpf,
                             'tipo_documento' => 'CTe',
+                            'km_rota' => (float) ($integrado->km_rota ?? 0),
                             'data_competencia' => Carbon::parse($dataCompetencia)->toDateString(),
                             'cte_retroativo' => true,
                         ]);

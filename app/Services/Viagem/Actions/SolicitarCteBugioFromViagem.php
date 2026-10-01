@@ -132,7 +132,7 @@ class SolicitarCteBugioFromViagem
             throw new \InvalidArgumentException('A viagem não possui notas fiscais vinculadas nos anexos.');
         }
 
-        $kmRota = (float) ($data['km_rota'] ?? 0);
+        $kmRota = (float) ($data['km_rota'] ?? $integrado->km_rota ?? 0);
         $valorFrete = $kmRota * (float) db_config('config-bugio.valor-quilometro', 0);
 
         if ($kmRota <= 0 || $valorFrete <= 0) {

@@ -55,7 +55,7 @@ class HistoricoMovimentoPneuResource extends Resource
             'index' => ListHistoricoMovimentoPneus::route('/'),
             // 'create' => CreateHistoricoMovimentoPneu::route('/create'),
             'view' => ViewHistoricoMovimentoPneu::route('/{record}'),
-            // 'edit' => EditHistoricoMovimentoPneu::route('/{record}/edit'),
+            'edit' => EditHistoricoMovimentoPneu::route('/{record}/edit'),
         ];
     }
 }

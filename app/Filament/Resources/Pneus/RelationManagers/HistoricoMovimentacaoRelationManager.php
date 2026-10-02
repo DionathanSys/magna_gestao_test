@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Pneus\RelationManagers;
 use App\Filament\Resources\HistoricoMovimentoPneus\HistoricoMovimentoPneuResource;
 use App\Models\Pneu;
 use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 class HistoricoMovimentacaoRelationManager extends RelationManager
@@ -30,6 +32,10 @@ class HistoricoMovimentacaoRelationManager extends RelationManager
 
                         return $data;
                     }),
-            ]);
+            ])
+            ->recordActions([
+                EditAction::make()
+                    ->iconButton(),
+            ], RecordActionsPosition::BeforeColumns);
     }
 }

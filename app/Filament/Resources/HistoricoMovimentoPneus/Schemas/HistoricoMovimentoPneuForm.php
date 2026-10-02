@@ -31,6 +31,16 @@ class HistoricoMovimentoPneuForm
                     ->relationship('veiculo', 'placa')
                     ->searchable()
                     ->required(),
+                Select::make('tipo_evento')
+                    ->label('Tipo de Movimento')
+                    ->columnSpan(2)
+                    ->options([
+                        'REMOCAO' => 'Remoção / período fechado',
+                        'APLICACAO' => 'Aplicação pontual',
+                    ])
+                    ->default('REMOCAO')
+                    ->native(false)
+                    ->required(),
                 DatePicker::make('data_inicial')
                     ->label('Data Inicial')
                     ->columnSpan(2)

@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
@@ -64,6 +65,11 @@ class PneuResource extends Resource
             'view' => ViewPneu::route('/{record}'),
             'edit' => EditPneu::route('/{record}/edit'),
         ];
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return static::getUrl('edit', ['record' => $record]);
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder

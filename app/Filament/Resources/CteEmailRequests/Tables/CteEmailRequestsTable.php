@@ -10,15 +10,14 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class CteEmailRequestsTable
 {
@@ -99,17 +98,11 @@ class CteEmailRequestsTable
                     ->relationship('integrado', 'nome')
                     ->searchable()
                     ->preload(),
-                Filter::make('requested_at')
+                DateRangeFilter::make('requested_at')
                     ->label('Solicitado em')
-                    ->schema([
-                        DatePicker::make('requested_from')->label('De'),
-                        DatePicker::make('requested_until')->label('Até'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when($data['requested_from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '>=', $date))
-                            ->when($data['requested_until'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('requested_at', '<=', $date));
-                    }),
+                    ->autoApply()
+                    ->firstDayOfWeek(0)
+                    ->alwaysShowCalendar(),
             ])
             ->groups([
                 Group::make('documento_transporte')

@@ -18,8 +18,7 @@ class RequestDailyTripSummaryJob implements ShouldQueue
     public function handle(RequestAutomationJob $requestAutomationJob): void
     {
         $timezone = (string) config('automation.schedules.daily_trip_summary.timezone', config('app.timezone'));
-        $daysOffset = max(0, (int) config('automation.schedules.daily_trip_summary.days_offset', 1));
-        $referenceDate = CarbonImmutable::now($timezone)->subDays($daysOffset)->toDateString();
+        $referenceDate = CarbonImmutable::now($timezone)->subDay()->toDateString();
         $idempotencyKey = "schedule:daily_trip_summary:{$referenceDate}:{$referenceDate}";
 
         $requestAutomationJob->handle(new AutomationJobRequest(

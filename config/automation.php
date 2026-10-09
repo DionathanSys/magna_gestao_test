@@ -99,10 +99,9 @@ return [
 
     'schedules' => [
         'daily_trip_summary' => [
-            'enabled' => (bool) env('AUTOMATION_DAILY_TRIP_SUMMARY_SCHEDULE_ENABLED', false),
-            'cron' => env('AUTOMATION_DAILY_TRIP_SUMMARY_SCHEDULE_CRON', '0 2 * * *'),
+            'enabled' => (bool) env('AUTOMATION_DAILY_TRIP_SUMMARY_SCHEDULE_ENABLED', true),
+            'cron' => env('AUTOMATION_DAILY_TRIP_SUMMARY_SCHEDULE_CRON', '0 5 * * *'),
             'timezone' => env('AUTOMATION_DAILY_TRIP_SUMMARY_SCHEDULE_TIMEZONE', 'America/Sao_Paulo'),
-            'days_offset' => (int) env('AUTOMATION_DAILY_TRIP_SUMMARY_DAYS_OFFSET', 1),
         ],
     ],
 

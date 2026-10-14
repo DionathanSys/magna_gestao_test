@@ -2,6 +2,7 @@
 
 namespace App\Filament\Bugio\Resources\ViagemBugios\Pages;
 
+use App\Filament\Bugio\Resources\ViagemBugios\Actions\ExportarViagensBugioPorPeriodoAction;
 use App\Filament\Bugio\Resources\ViagemBugios\ViagemBugioResource;
 use App\Models\ViagemBugio;
 use Filament\Actions\CreateAction;
@@ -17,6 +18,7 @@ class ListViagemBugios extends ListRecords
     {
         return [
             CreateAction::make(),
+            ExportarViagensBugioPorPeriodoAction::make(),
         ];
     }
 

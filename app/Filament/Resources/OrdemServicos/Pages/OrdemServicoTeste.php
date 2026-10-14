@@ -22,6 +22,7 @@ use App\Services\Agendamento\AgendamentoHistoricoService;
 use App\Services\Agendamento\AgendamentoService;
 use App\Services\Manutencao\ManutencaoLancamentoVinculoService;
 use App\Services\NotificacaoService as notify;
+use App\Services\OrdemServico\ManutencaoPreventivaService;
 use App\Services\OrdemServico\OrdemServicoAlertaDataService;
 use App\Services\Servico\ServicoCacheService;
 use Filament\Actions\Action;
@@ -575,6 +576,29 @@ class OrdemServicoTeste extends Page implements HasSchemas
 
         notify::success(mensagem: 'Vínculo removido com sucesso!');
         $this->record = $this->loadRecordRelations($this->record->fresh());
+    }
+
+    public function removerPlanoPreventivo(int $vinculoId): void
+    {
+        if (! auth()->user()?->is_admin) {
+            notify::error(mensagem: 'Apenas administradores podem remover planos preventivos da ordem de serviço.');
+
+            return;
+        }
+
+        $vinculo = $this->record->planoPreventivoVinculado()
+            ->whereKey($vinculoId)
+            ->first();
+
+        if (! $vinculo) {
+            notify::error(mensagem: 'Plano Preventivo não encontrado nesta ordem de serviço.');
+
+            return;
+        }
+
+        if (ManutencaoPreventivaService::desassociarPlanoPreventivo($vinculo)) {
+            $this->record = $this->loadRecordRelations($this->record->fresh());
+        }
     }
 
     public function dispensarLancamento(int $lancamentoId): void

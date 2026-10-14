@@ -35,7 +35,7 @@ class ItemOrdemServicoService
             ->where('plano_preventivo_id', $planoManutencaoOrdemServico->plano_preventivo_id)
             ->get();
 
-        if ($itens->where('status', '!=', StatusOrdemServicoEnum::PENDENTE)->count() > 0) {
+        if ($itens->contains(fn (ItemOrdemServico $item): bool => $item->status !== StatusOrdemServicoEnum::PENDENTE)) {
             notify::error('Não é possível remover o vínculo com o plano preventivo, pois existem itens com status diferente de PENDENTE.');
 
             return false;

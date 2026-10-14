@@ -7,6 +7,7 @@ use App\Models\OrdemServico;
 use App\Models\PlanoManutencaoOrdemServico;
 use App\Services\NotificacaoService as notify;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ManutencaoPreventivaService
 {
@@ -59,16 +60,32 @@ class ManutencaoPreventivaService
         }
     }
 
-    public static function desassociarPlanoPreventivo(PlanoManutencaoOrdemServico $planoManutencaoOrdemServico)
+    public static function desassociarPlanoPreventivo(PlanoManutencaoOrdemServico $planoManutencaoOrdemServico): bool
     {
+        return DB::transaction(function () use ($planoManutencaoOrdemServico): bool {
+            $vinculo = PlanoManutencaoOrdemServico::query()
+                ->lockForUpdate()
+                ->find($planoManutencaoOrdemServico->getKey());
 
-        if (! ItemOrdemServicoService::removerItensComPlanoPreventivo($planoManutencaoOrdemServico)) {
-            notify::error('Erro ao desassociar Plano Preventivo.');
+            if (! $vinculo) {
+                notify::error('O vínculo do Plano Preventivo não foi encontrado.');
 
-            return;
-        }
+                return false;
+            }
 
-        $planoManutencaoOrdemServico->delete();
-        notify::success('Plano Preventivo desassociado com sucesso.');
+            if (! ItemOrdemServicoService::removerItensComPlanoPreventivo($vinculo)) {
+                return false;
+            }
+
+            if (! $vinculo->delete()) {
+                notify::error('Erro ao desassociar Plano Preventivo.');
+
+                return false;
+            }
+
+            notify::success('Plano Preventivo desassociado com sucesso.');
+
+            return true;
+        });
     }
 }

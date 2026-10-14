@@ -313,6 +313,20 @@
                                     <strong>{{ $planoVinculado->planoPreventivo?->descricao ?? 'Plano não informado' }}</strong>
                                     <span>Plano ID: {{ $planoVinculado->plano_preventivo_id }}</span>
                                     <span>Intervalo: {{ $planoVinculado->planoPreventivo?->intervalo ?? 'N/A' }}</span>
+                                    @if (auth()->user()?->is_admin)
+                                        <div class="os-item-actions">
+                                            <x-filament::button
+                                                type="button"
+                                                size="xs"
+                                                color="danger"
+                                                icon="heroicon-o-trash"
+                                                wire:click="removerPlanoPreventivo({{ $planoVinculado->id }})"
+                                                x-on:click="if (! confirm('Remover este plano e os itens vinculados da ordem de serviço?')) { $event.preventDefault(); $event.stopImmediatePropagation(); }"
+                                            >
+                                                Remover plano
+                                            </x-filament::button>
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>

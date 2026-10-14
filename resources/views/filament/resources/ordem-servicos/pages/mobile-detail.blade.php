@@ -284,6 +284,19 @@
                         <div class="os-mob-item-meta">
                             Intervalo: {{ $planoVinculado->planoPreventivo?->intervalo ?? 'N/A' }}
                         </div>
+                        @if (auth()->user()?->is_admin)
+                            <div class="os-mob-icon-actions">
+                                <x-filament::icon-button
+                                    type="button"
+                                    color="danger"
+                                    size="sm"
+                                    wire:click="removerPlanoPreventivo({{ $planoVinculado->id }})"
+                                    icon="heroicon-o-trash"
+                                    label="Remover plano preventivo"
+                                    x-on:click="return confirm('Remover este plano e os itens vinculados da ordem de serviço?')"
+                                />
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             @endif

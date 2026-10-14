@@ -11,7 +11,9 @@ use App\Models\PlanoPreventivo;
 use App\Models\Veiculo;
 use App\Services\OrdemServico\ManutencaoPreventivaService;
 use App\Services\PlanoManutencao\RelatorioExecucoesPlanoPreventivoService;
+use App\Services\PlanoManutencao\RelatorioPlanoManutencaoService;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -39,6 +41,7 @@ class PlanosPreventivosTest extends TestCase
             'ordens_servico',
             'planos_manutencao_veiculo',
             'planos_preventivo',
+            'historico_quilometragens',
             'veiculos',
         ] as $table) {
             Schema::dropIfExists($table);
@@ -94,6 +97,14 @@ class PlanosPreventivosTest extends TestCase
             $table->unsignedBigInteger('veiculo_id');
             $table->decimal('km_execucao', 10, 2);
             $table->date('data_execucao');
+            $table->timestamps();
+        });
+
+        Schema::create('historico_quilometragens', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('veiculo_id');
+            $table->decimal('quilometragem', 10, 2);
+            $table->dateTime('data_referencia');
             $table->timestamps();
         });
     }
@@ -186,5 +197,64 @@ class PlanosPreventivosTest extends TestCase
         $this->assertSame('PENDENTE', $dados[0]['ordem_servico_status']);
         $this->assertSame('Registro manual', $dados[1]['origem']);
         $this->assertSame(20000.0, $dados[0]['km_execucao']);
+    }
+
+    public function test_relatorio_de_manutencao_filtra_multiplos_veiculos_e_planos_e_agrupa_no_pdf(): void
+    {
+        $veiculoA = Veiculo::query()->create(['placa' => 'ABC1234']);
+        $veiculoB = Veiculo::query()->create(['placa' => 'DEF5678']);
+        $planoA = PlanoPreventivo::query()->create([
+            'descricao' => 'Plano A',
+            'intervalo' => 10000,
+        ]);
+        $planoB = PlanoPreventivo::query()->create([
+            'descricao' => 'Plano B',
+            'intervalo' => 20000,
+        ]);
+
+        foreach ([$veiculoA, $veiculoB] as $veiculo) {
+            DB::table('historico_quilometragens')->insert([
+                'veiculo_id' => $veiculo->id,
+                'quilometragem' => 50000,
+                'data_referencia' => '2026-01-01 00:00:00',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        foreach ([$veiculoA, $veiculoB] as $veiculo) {
+            foreach ([$planoA, $planoB] as $plano) {
+                PlanoManutencaoVeiculo::query()->create([
+                    'veiculo_id' => $veiculo->id,
+                    'plano_preventivo_id' => $plano->id,
+                ]);
+            }
+        }
+
+        $filtros = [
+            'veiculo_id' => [$veiculoA->id, $veiculoB->id],
+            'plano_preventivo_id' => [$planoA->id, $planoB->id],
+            'agrupamento' => 'plano',
+        ];
+        $dados = app(RelatorioPlanoManutencaoService::class)->obterDadosRelatorio($filtros);
+
+        $this->assertCount(4, $dados);
+        $this->assertEqualsCanonicalizing(
+            [$veiculoA->id, $veiculoB->id],
+            collect($dados)->pluck('veiculo_id')->unique()->all()
+        );
+        $this->assertEqualsCanonicalizing(
+            ['Plano A', 'Plano B'],
+            collect($dados)->pluck('plano_descricao')->unique()->all()
+        );
+
+        $pdfView = view('pdf.relatorio-plano-manutencao', [
+            'dados' => $dados,
+            'filtros' => $filtros,
+            'totalRegistros' => count($dados),
+            'dataGeracao' => now()->format('d/m/Y H:i:s'),
+        ])->render();
+
+        $this->assertSame(2, substr_count($pdfView, 'class="group-row"'));
     }
 }

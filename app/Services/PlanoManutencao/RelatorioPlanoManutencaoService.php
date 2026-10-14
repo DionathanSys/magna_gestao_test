@@ -6,6 +6,7 @@ use App\Models\PlanoManutencaoVeiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -16,6 +17,15 @@ class RelatorioPlanoManutencaoService
      */
     public function obterDadosRelatorio(array $filtros = []): array
     {
+        $veiculoIds = collect(Arr::wrap($filtros['veiculo_id'] ?? null))
+            ->filter(fn ($id): bool => filled($id))
+            ->values()
+            ->all();
+        $planoPreventivoIds = collect(Arr::wrap($filtros['plano_preventivo_id'] ?? null))
+            ->filter(fn ($id): bool => filled($id))
+            ->values()
+            ->all();
+
         $query = PlanoManutencaoVeiculo::query()
             ->with([
                 'veiculo.kmAtual',
@@ -23,8 +33,8 @@ class RelatorioPlanoManutencaoService
             ]);
 
         // Filtrar por veículo se especificado, caso contrário apenas ativos
-        if (! empty($filtros['veiculo_id'])) {
-            $query->where('veiculo_id', $filtros['veiculo_id']);
+        if ($veiculoIds !== []) {
+            $query->whereIn('veiculo_id', $veiculoIds);
         } else {
             $query->whereHas('veiculo', function ($q) {
                 $q->where('is_active', true);
@@ -32,8 +42,8 @@ class RelatorioPlanoManutencaoService
         }
 
         // Filtrar por plano preventivo se especificado, caso contrário apenas ativos
-        if (! empty($filtros['plano_preventivo_id'])) {
-            $query->where('plano_preventivo_id', $filtros['plano_preventivo_id']);
+        if ($planoPreventivoIds !== []) {
+            $query->whereIn('plano_preventivo_id', $planoPreventivoIds);
         } else {
             $query->whereHas('planoPreventivo', function ($q) {
                 $q->where('is_active', true);

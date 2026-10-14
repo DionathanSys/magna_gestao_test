@@ -145,6 +145,7 @@ class RelatorioPlanoManutencao extends Page
                 'veiculo_id' => $this->data['veiculo_id'] ?? null,
                 'plano_preventivo_id' => $this->data['plano_preventivo_id'] ?? null,
                 'km_restante_maximo' => $this->data['km_restante_maximo'] ?? null,
+                'agrupamento' => $this->data['agrupamento'] ?? 'veiculo',
             ];
 
             return $service->visualizarRelatorio($filtros);
@@ -170,6 +171,7 @@ class RelatorioPlanoManutencao extends Page
                 'veiculo_id' => $this->data['veiculo_id'] ?? null,
                 'plano_preventivo_id' => $this->data['plano_preventivo_id'] ?? null,
                 'km_restante_maximo' => $this->data['km_restante_maximo'] ?? null,
+                'agrupamento' => $this->data['agrupamento'] ?? 'veiculo',
             ];
 
             $this->dadosRelatorio = $service->obterDadosRelatorio($filtros);

@@ -63,6 +63,13 @@ class RelatorioExecucoesPlanoPreventivoService
                     'origem' => $execucao->ordem_servico_id ? 'Ordem de serviço' : 'Registro manual',
                 ];
             })
+            ->sortBy([
+                ['plano_descricao', 'asc'],
+                ['data_execucao', 'desc'],
+                ['km_execucao', 'desc'],
+                ['id', 'desc'],
+            ])
+            ->values()
             ->all();
     }
 }

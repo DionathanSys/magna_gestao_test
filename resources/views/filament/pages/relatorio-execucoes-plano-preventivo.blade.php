@@ -34,20 +34,29 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-white/5">
-                        @forelse ($dadosRelatorio as $item)
-                            <tr>
-                                <td class="whitespace-nowrap px-4 py-3 text-gray-900 dark:text-gray-100">{{ $item['placa'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $item['plano_descricao'] ?? 'Plano não informado' }}</td>
-                                <td class="whitespace-nowrap px-4 py-3 text-right text-gray-900 dark:text-gray-100">{{ number_format($item['km_execucao'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
-                                    {{ $item['data_execucao'] ? \Illuminate\Support\Carbon::parse($item['data_execucao'])->format('d/m/Y') : '-' }}
+                        @forelse (collect($dadosRelatorio)->groupBy('plano_preventivo_id') as $execucoes)
+                            @php($plano = $execucoes->first())
+                            <tr class="bg-gray-100 dark:bg-white/10">
+                                <td colspan="7" class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
+                                    Plano: {{ $plano['plano_descricao'] ?? 'Plano não informado' }}
+                                    <span class="ml-2 font-normal text-gray-500 dark:text-gray-400">({{ $execucoes->count() }} execução(ões))</span>
                                 </td>
-                                <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">{{ $item['origem'] }}</td>
-                                <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
-                                    {{ $item['ordem_servico_id'] ? '#'.$item['ordem_servico_id'] : '-' }}
-                                </td>
-                                <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">{{ $item['ordem_servico_status'] ?? '-' }}</td>
                             </tr>
+                            @foreach ($execucoes as $item)
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-900 dark:text-gray-100">{{ $item['placa'] ?? '-' }}</td>
+                                    <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $item['plano_descricao'] ?? 'Plano não informado' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-right text-gray-900 dark:text-gray-100">{{ number_format($item['km_execucao'] ?? 0, 0, ',', '.') }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
+                                        {{ $item['data_execucao'] ? \Illuminate\Support\Carbon::parse($item['data_execucao'])->format('d/m/Y') : '-' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">{{ $item['origem'] }}</td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
+                                        {{ $item['ordem_servico_id'] ? '#'.$item['ordem_servico_id'] : '-' }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">{{ $item['ordem_servico_status'] ?? '-' }}</td>
+                                </tr>
+                            @endforeach
                         @empty
                             <tr>
                                 <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Nenhuma execução encontrada com os filtros informados.</td>

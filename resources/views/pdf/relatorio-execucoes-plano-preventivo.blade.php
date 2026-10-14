@@ -31,16 +31,25 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($dados as $item)
+            @foreach (collect($dados)->groupBy('plano_preventivo_id') as $execucoes)
+                @php($plano = $execucoes->first())
                 <tr>
-                    <td>{{ $item['placa'] ?? '-' }}</td>
-                    <td>{{ $item['plano_descricao'] ?? 'Plano não informado' }}</td>
-                    <td class="right">{{ number_format($item['km_execucao'] ?? 0, 0, ',', '.') }}</td>
-                    <td>{{ $item['data_execucao'] ? date('d/m/Y', strtotime($item['data_execucao'])) : '-' }}</td>
-                    <td>{{ $item['origem'] }}</td>
-                    <td>{{ $item['ordem_servico_id'] ? '#'.$item['ordem_servico_id'] : '-' }}</td>
-                    <td>{{ $item['ordem_servico_status'] ?? '-' }}</td>
+                    <td colspan="7" style="background: #e5e7eb; font-weight: bold;">
+                        Plano: {{ $plano['plano_descricao'] ?? 'Plano não informado' }}
+                        ({{ $execucoes->count() }} execução(ões))
+                    </td>
                 </tr>
+                @foreach ($execucoes as $item)
+                    <tr>
+                        <td>{{ $item['placa'] ?? '-' }}</td>
+                        <td>{{ $item['plano_descricao'] ?? 'Plano não informado' }}</td>
+                        <td class="right">{{ number_format($item['km_execucao'] ?? 0, 0, ',', '.') }}</td>
+                        <td>{{ $item['data_execucao'] ? date('d/m/Y', strtotime($item['data_execucao'])) : '-' }}</td>
+                        <td>{{ $item['origem'] }}</td>
+                        <td>{{ $item['ordem_servico_id'] ? '#'.$item['ordem_servico_id'] : '-' }}</td>
+                        <td>{{ $item['ordem_servico_status'] ?? '-' }}</td>
+                    </tr>
+                @endforeach
             @endforeach
         </tbody>
     </table>

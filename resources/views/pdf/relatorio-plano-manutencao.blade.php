@@ -133,6 +133,18 @@
             font-weight: bold;
             color: #0066cc;
         }
+
+        .group-row td {
+            background-color: #e5e7eb;
+            color: #111827;
+            font-weight: bold;
+            border-top: 2px solid #9ca3af;
+        }
+
+        .group-row span {
+            color: #6b7280;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -187,55 +199,69 @@
         </tr>
         </thead>
         <tbody>
-        @foreach($dados as $item)
-            <tr>
-                <td class="placa-destaque">{{ $item['placa'] }}</td>
-                <td>{{ $item['plano_descricao'] }}</td>
-                <td class="text-center">{{ number_format($item['periodicidade'], 0, ',', '.') }}</td>
-                <td class="text-center">{{ number_format($item['km_atual'], 0, ',', '.') }}</td>
-                <td class="text-center">
-                    @if($item['km_ultima_execucao'] > 0)
-                        {{ number_format($item['km_ultima_execucao'], 0, ',', '.') }}
-                    @else
-                        <span style="color: #999;">-</span>
-                    @endif
-                </td>
-                <td class="text-center">
-                    @if($item['data_ultima_execucao'])
-                        {{ date('d/m/Y', strtotime($item['data_ultima_execucao'])) }}
-                    @else
-                        <span style="color: #999;">-</span>
-                    @endif
-                </td>
-                <td class="text-center">{{ number_format($item['proxima_execucao'], 0, ',', '.') }}</td>
-                <td class="text-center
-                    @if($item['km_restante'] <= 0)
-                        status-danger
-                    @elseif($item['km_restante'] <= 1000)
-                        status-warning
-                    @else
-                        status-ok
-                    @endif
-                ">
-                    {{ number_format($item['km_restante'], 0, ',', '.') }}
-                </td>
-                <td class="text-center">
-                    @if($item['km_medio_diario'] > 0)
-                        {{ number_format($item['km_medio_diario'], 1, ',', '.') }}
-                    @else
-                        <span style="color: #999;">-</span>
-                    @endif
-                </td>
-                <td class="text-center">
-                    @if($item['data_prevista'] === 'Atrasado')
-                        <span class="status-danger">Atrasado</span>
-                    @elseif($item['data_prevista'])
-                        {{ date('d/m/Y', strtotime($item['data_prevista'])) }}
-                    @else
-                        <span style="color: #999;">N/D</span>
-                    @endif
+        @php
+            $agrupamento = $filtros['agrupamento'] ?? 'veiculo';
+            $grupos = collect($dados)->groupBy(fn (array $item): string => $agrupamento === 'plano'
+                ? ($item['plano_descricao'] ?? 'Plano não informado')
+                : ($item['placa'] ?? 'Veículo não informado'));
+        @endphp
+        @foreach($grupos as $nomeGrupo => $itensGrupo)
+            <tr class="group-row">
+                <td colspan="10">
+                    {{ $agrupamento === 'plano' ? 'Plano Preventivo' : 'Veículo' }}: {{ $nomeGrupo }}
+                    <span>({{ $itensGrupo->count() }} registro(s))</span>
                 </td>
             </tr>
+            @foreach($itensGrupo as $item)
+                <tr>
+                    <td class="placa-destaque">{{ $item['placa'] }}</td>
+                    <td>{{ $item['plano_descricao'] }}</td>
+                    <td class="text-center">{{ number_format($item['periodicidade'], 0, ',', '.') }}</td>
+                    <td class="text-center">{{ number_format($item['km_atual'], 0, ',', '.') }}</td>
+                    <td class="text-center">
+                        @if($item['km_ultima_execucao'] > 0)
+                            {{ number_format($item['km_ultima_execucao'], 0, ',', '.') }}
+                        @else
+                            <span style="color: #999;">-</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if($item['data_ultima_execucao'])
+                            {{ date('d/m/Y', strtotime($item['data_ultima_execucao'])) }}
+                        @else
+                            <span style="color: #999;">-</span>
+                        @endif
+                    </td>
+                    <td class="text-center">{{ number_format($item['proxima_execucao'], 0, ',', '.') }}</td>
+                    <td class="text-center
+                        @if($item['km_restante'] <= 0)
+                            status-danger
+                        @elseif($item['km_restante'] <= 1000)
+                            status-warning
+                        @else
+                            status-ok
+                        @endif
+                    ">
+                        {{ number_format($item['km_restante'], 0, ',', '.') }}
+                    </td>
+                    <td class="text-center">
+                        @if($item['km_medio_diario'] > 0)
+                            {{ number_format($item['km_medio_diario'], 1, ',', '.') }}
+                        @else
+                            <span style="color: #999;">-</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if($item['data_prevista'] === 'Atrasado')
+                            <span class="status-danger">Atrasado</span>
+                        @elseif($item['data_prevista'])
+                            {{ date('d/m/Y', strtotime($item['data_prevista'])) }}
+                        @else
+                            <span style="color: #999;">N/D</span>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
         @endforeach
         </tbody>
     </table>

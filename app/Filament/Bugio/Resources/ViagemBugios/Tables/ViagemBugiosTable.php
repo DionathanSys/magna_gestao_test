@@ -4,7 +4,6 @@ namespace App\Filament\Bugio\Resources\ViagemBugios\Tables;
 
 use App\Enum\Frete\TipoDocumentoEnum;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\ExportarRelatorioDocumentosFreteAction;
-use App\Filament\Bugio\Resources\ViagemBugios\Actions\ExportarViagemBugioExcelBulkAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\InserirNumeroDocumentoAction;
 use App\Filament\Bugio\Resources\ViagemBugios\Actions\VincularViagemAction;
 use App\Models\ViagemBugio;
@@ -322,7 +321,6 @@ class ViagemBugiosTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(fn () => Auth::user()->is_admin),
-                    ExportarViagemBugioExcelBulkAction::make(),
                     ExportarRelatorioDocumentosFreteAction::make(),
                 ]),
             ]);

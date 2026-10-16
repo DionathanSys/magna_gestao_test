@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Viagems\Pages;
 
+use App\Filament\Resources\Viagems\Actions\ExportarViagensPorPeriodoAction;
 use App\Filament\Resources\Viagems\ViagemResource;
 use Filament\Resources\Pages\ListRecords;
 
@@ -12,7 +13,7 @@ class ListViagems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-
+            ExportarViagensPorPeriodoAction::make(),
         ];
     }
 }

@@ -1,25 +1,33 @@
 <?php
 
-namespace App\Filament\Bugio\Resources\ViagemBugios\Actions;
+namespace App\Filament\Resources\Viagems\Actions;
 
-use App\Services\Relatorios\ExportarViagensBugioXlsxService;
+use App\Enum\ClienteEnum;
+use App\Services\Relatorios\ExportarViagensXlsxService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 
-class ExportarViagensBugioPorPeriodoAction
+class ExportarViagensPorPeriodoAction
 {
     public static function make(): Action
     {
         return Action::make('exportar-viagens-periodo')
-            ->label('Exportar por período')
+            ->label('Exportar modelo de importação')
             ->icon('heroicon-o-arrow-down-tray')
             ->color('success')
-            ->modalHeading('Exportar viagens Bugio')
-            ->modalDescription('Será gerada uma linha para cada viagem no período de competência selecionado.')
+            ->modalHeading('Exportar viagens')
+            ->modalDescription('Será gerada uma linha para cada viagem do cliente e período selecionados.')
             ->modalSubmitActionLabel('Exportar')
             ->schema([
+                Select::make('cliente')
+                    ->label('Cliente')
+                    ->options(ClienteEnum::toSelectArray())
+                    ->required()
+                    ->searchable()
+                    ->native(false),
                 DatePicker::make('data_inicio')
                     ->label('Data de competência inicial')
                     ->required()
@@ -35,7 +43,8 @@ class ExportarViagensBugioPorPeriodoAction
                     ->afterOrEqual('data_inicio'),
             ])
             ->action(function (array $data) {
-                $response = app(ExportarViagensBugioXlsxService::class)->exportByPeriod(
+                $response = app(ExportarViagensXlsxService::class)->exportByPeriod(
+                    $data['cliente'],
                     $data['data_inicio'],
                     $data['data_fim'],
                 );
@@ -47,7 +56,7 @@ class ExportarViagensBugioPorPeriodoAction
                 Notification::make()
                     ->warning()
                     ->title('Sem viagens no período')
-                    ->body('Nenhuma viagem Bugio foi encontrada para as datas informadas.')
+                    ->body('Nenhuma viagem foi encontrada para o cliente e as datas informadas.')
                     ->send();
 
                 return null;

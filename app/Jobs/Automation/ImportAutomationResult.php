@@ -106,6 +106,9 @@ class ImportAutomationResult implements ShouldQueue
             }
 
             $result = $importer->importPage($job->fresh(), array_values($items), $meta);
+            if ($result->errors !== []) {
+                throw new \RuntimeException('Falha ao importar registros da Automation API: '.json_encode($result->errors, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            }
             $nextCursor = isset($meta['next_cursor']) && $meta['next_cursor'] !== null
                 ? (string) $meta['next_cursor']
                 : null;
